@@ -1,6 +1,7 @@
 package com.jj.swm.crawling.naver.map.service;
 
 import com.jj.swm.crawling.naver.map.constants.KoreaRegion;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -8,13 +9,13 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 public class NaverMapCrawlingService implements DisposableBean {
     private ChromeDriver driver;
 
@@ -47,11 +48,27 @@ public class NaverMapCrawlingService implements DisposableBean {
 
             driver.switchTo().frame(driver.findElement(By.cssSelector("iframe#searchIframe")));
 
-            List<WebElement> studyRooms = driver.findElements(By.cssSelector("VLTHu.OW9LQ"));
+            Thread.sleep(1000);
+            // 스크롤 다운
+
+            var scrollableElement = driver.findElement(By.className("Ryr1F"));
+            Long lastHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
+
+            while (true) {
+                driver.executeScript("arguments[0].scrollTop += 600", scrollableElement);
+                Thread.sleep(1000);
+                Long newHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
+                if(Objects.equals(newHeight, lastHeight)) {
+                    break;
+                }
+                lastHeight = newHeight;
+            }
+
+            List<WebElement> studyRooms = driver.findElements(By.cssSelector(".VLTHu.OW9LQ"));
 
             for (WebElement room : studyRooms) {
-                System.out.println(room.getText());
-                Thread.sleep(1000);
+                room.findElement(By.cssSelector(".place_bluelink.C6RjW")).click();
+                Thread.sleep(1500);
             }
 
             driver.switchTo().parentFrame();
