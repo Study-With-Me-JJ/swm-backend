@@ -43,15 +43,15 @@ tasks.named('test') {
 processResources.dependsOn('copySecret')
 
 tasks.register('copySecret', Copy) {
-    from './local'
+    from './swm-backend-secret/local'
     include "*.yml"  // 복사할 파일들
     into 'src/main/resources'  // 복사 위치
 
-    from './dev'
+    from './swm-backend-secret/dev'
     include "*.yml"  // 복사할 파일들
     into 'src/main/resources'  // 복사 위치
 
-    from './prod'
+    from './swm-backend-secret/prod'
     include "*.yml"  // 복사할 파일들
     into 'src/main/resources'  // 복사 위치
 }
