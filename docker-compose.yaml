@@ -1,0 +1,32 @@
+version: "3.9" # Docker Compose 파일 버전
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres-17
+    restart: always
+    environment:
+      POSTGRES_USER: myuser      # PostgreSQL 사용자 이름
+      POSTGRES_PASSWORD: mypassword  # PostgreSQL 비밀번호
+      POSTGRES_DB: study_with_me    # 기본적으로 생성할 데이터베이스
+    ports:
+      - "13500:5432"              # 호스트의 13500 포트를 컨테이너의 5432 포트에 매핑
+    volumes:
+      - ./docker/postgres_data:/var/lib/postgresql/data # 데이터 영구 저장을 위한 볼륨 매핑
+    networks:
+      - home_network
+
+  valkey:
+    image: 'bitnami/valkey:8.0.1'
+    restart: always
+    ports:
+      - '13501:6379'
+    environment:
+      - VALKEY_PASSWORD=asdsadsadasdsadsadsadsa
+    volumes:
+      - ./docker/data:/bitnami/valkey/data
+    networks:
+      - home_network
+
+networks:
+  home_network:
