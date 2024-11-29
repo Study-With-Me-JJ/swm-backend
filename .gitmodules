@@ -1,0 +1,3 @@
+[submodule "swm-backend-secret"]
+	path = swm-backend-secret
+	url = https://github.com/Study-With-Me-JJ/swm-backend-secret.git
