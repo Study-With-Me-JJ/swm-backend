@@ -39,3 +39,19 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+processResources.dependsOn('copySecret')
+
+tasks.register('copySecret', Copy) {
+    from './local'
+    include "*.yml"  // 복사할 파일들
+    into 'src/main/resources'  // 복사 위치
+
+    from './dev'
+    include "*.yml"  // 복사할 파일들
+    into 'src/main/resources'  // 복사 위치
+
+    from './prod'
+    include "*.yml"  // 복사할 파일들
+    into 'src/main/resources'  // 복사 위치
+}
