@@ -4,15 +4,15 @@ import com.jj.swm.crawling.naver.map.constants.KoreaRegion;
 import com.jj.swm.crawling.naver.map.entity.ExternalStudyRoom;
 import com.jj.swm.crawling.naver.map.repository.ExternalStudyRoomRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -36,85 +36,105 @@ public class NaverMapCrawlingService implements DisposableBean {
     public void crawl() {
         Arrays.stream(KoreaRegion.values()).toList().forEach(region -> {
             driver = new ChromeDriver();
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // WebDriverWait 인스턴스 생성
             driver.get(BASE_URL);
 
-            // 검색 입력 필드 찾기
-            WebElement inputBox = driver.findElement(By.className("input_search"));
+            try {
+                // 검색 입력 필드 찾기
+                WebElement inputBox = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("input_search"))); // 요소가 로드될 때까지 기다림
 
-            // 검색어 입력
-            inputBox.sendKeys(Keys.CONTROL + "a");
-            inputBox.sendKeys(Keys.BACK_SPACE);
-            inputBox.sendKeys(region.getKorName() + " 스터디룸");
-            inputBox.sendKeys(Keys.ENTER);
+                // 검색어 입력
+                inputBox.sendKeys(Keys.CONTROL + "a");
+                inputBox.sendKeys(Keys.BACK_SPACE);
+                inputBox.sendKeys(region.getKorName() + " 스터디룸");
+                inputBox.sendKeys(Keys.ENTER);
 
-            // 대기 - 페이지 로딩
-            sleep(1000);
+                // 페이지 로딩 후, 검색 결과 iframe으로 전환
+                WebElement iframe = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("iframe#searchIframe"))); // iframe이 로드될 때까지 기다림
+                driver.switchTo().frame(iframe);
 
-            driver.switchTo().frame(driver.findElement(By.cssSelector("iframe#searchIframe")));
+                // 스크롤 다운
+                WebElement scrollableElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("Ryr1F"))); // 스크롤 가능 div 대기
+                Long lastHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
 
-            sleep(1000);
-            // 스크롤 다운
-
-            var scrollableElement = driver.findElement(By.className("Ryr1F"));
-            Long lastHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
-
-            while (true) {
-                driver.executeScript("arguments[0].scrollTop += 600", scrollableElement);
-                sleep(1500);
-                Long newHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
-                if (Objects.equals(newHeight, lastHeight)) {
-                    break;
-                }
-                lastHeight = newHeight;
-            }
-
-            sleep(1000);
-
-            List<WebElement> studyRooms = driver.findElements(By.cssSelector(".VLTHu.OW9LQ"));
-
-            for (WebElement room : studyRooms) {
-                String thumbnail = getAttributeSafely(By.cssSelector(".place_thumb img"), room, "src");
-                room.findElement(By.cssSelector(".place_bluelink.C6RjW")).click();
-                sleep(1500);
-                driver.switchTo().parentFrame();
-                driver.switchTo().frame(driver.findElement(By.cssSelector("iframe#entryIframe")));
-
-                String roomName = getElementTextSafely(By.className("GHAhO"), driver);
-                String address = getElementTextSafely(By.className("LDgIH"), driver);
-
-                // 내용 확장
-                try {
-                    driver.findElement(By.className("xHaT3")).click();
-                } catch (NoSuchElementException ignored) {
+                while (true) {
+                    driver.executeScript("arguments[0].scrollTop += 600", scrollableElement);
+                    sleep(1500); // 스크롤 후 약간 대기
+                    Long newHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
+                    if (Objects.equals(newHeight, lastHeight)) {
+                        // scroll to top
+                        driver.executeScript("arguments[0].scrollTop = 0", scrollableElement);
+                        break;
+                    }
+                    lastHeight = newHeight;
                 }
 
-                String description = getElementTextSafely(By.className("zPfVt"), driver);
-                String number = getElementTextSafely(By.className("xlx7Q"), driver);
-                String link = getElementTextSafely(By.className("jO09N"), driver);
-
-                String url = driver.getCurrentUrl();
-                String id = parsePlaceId(url);
-
-                externalStudyRoomRepository.save(ExternalStudyRoom.builder()
-                        .id(Long.valueOf(id))
-                        .address(address)
-                        .url(link)
-                        .naverMapUrl(url)
-                        .name(roomName)
-                        .thumbnail(thumbnail)
-                        .number(number)
-                        .description(description)
-                        .koreaRegion(region)
-                        .build());
-
-
-                driver.switchTo().parentFrame();
-                driver.switchTo().frame(driver.findElement(By.cssSelector("iframe#searchIframe")));
                 sleep(1000);
-            }
 
-            driver.switchTo().parentFrame();
-            driver.quit();
+                // 스터디룸 리스트 검색
+                List<WebElement> studyRooms = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(".VLTHu.OW9LQ"))); // 스터디룸 리스트 대기
+                sleep(2000);
+
+                for (WebElement room : studyRooms) {
+                    try {
+                        String thumbnail = getAttributeSafely(By.cssSelector(".place_thumb img"), room, "src");
+
+                        // 클릭하기 전에 클릭 가능 상태인지 확인
+                        WebElement clickableElement = wait.until(ExpectedConditions.elementToBeClickable(room.findElement(By.cssSelector(".place_bluelink.C6RjW"))));
+                        driver.executeScript("arguments[0].click()", clickableElement);
+                        sleep(1500);
+
+                        // 기본 프레임으로 전환하고 상세 페이지 iframe으로 이동
+                        driver.switchTo().defaultContent();
+                        WebElement detailIframe = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("iframe#entryIframe")));
+                        driver.switchTo().frame(detailIframe);
+
+                        // 상세 정보 추출
+                        String roomName = getElementTextSafely(By.className("GHAhO"), driver);
+                        String address = getElementTextSafely(By.className("LDgIH"), driver);
+
+                        // 내용 확장
+                        try {
+                            WebElement descriptionExpandButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("xHaT3")));
+                            descriptionExpandButton.click();
+                        } catch (NoSuchElementException | TimeoutException ignored) {
+                            // 내용 확장 버튼이 없는 경우 무시
+                        }
+
+                        String description = getElementTextSafely(By.className("zPfVt"), driver);
+                        String number = getElementTextSafely(By.className("xlx7Q"), driver);
+                        String link = getElementTextSafely(By.className("jO09N"), driver);
+
+                        String url = driver.getCurrentUrl();
+                        String id = parsePlaceId(url);
+
+                        // 데이터베이스에 저장
+                        externalStudyRoomRepository.save(ExternalStudyRoom.builder()
+                                .id(Long.valueOf(id))
+                                .address(address)
+                                .url(link)
+                                .naverMapUrl(url)
+                                .name(roomName)
+                                .thumbnail(thumbnail)
+                                .number(number)
+                                .description(description)
+                                .koreaRegion(region)
+                                .build());
+
+                        // 검색 결과 iframe으로 복귀
+                        driver.switchTo().defaultContent();
+                        driver.switchTo().frame(iframe);
+                        sleep(1000);
+                    } catch (Exception e) {
+                        log.error("Error while processing study room: {}", e.getMessage());
+                    }
+                }
+
+            } catch (Exception e) {
+                log.error("Error while processing region {}: {}", region, e.getMessage());
+            } finally {
+                driver.quit(); // 드라이버 정리
+            }
         });
     }
 
