@@ -1,6 +1,8 @@
 package com.jj.swm.crawling.naver.map.service;
 
 import com.jj.swm.crawling.naver.map.constants.KoreaRegion;
+import com.jj.swm.crawling.naver.map.entity.ExternalStudyRoom;
+import com.jj.swm.crawling.naver.map.repository.ExternalStudyRoomRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -10,6 +12,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -20,38 +23,36 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class NaverMapCrawlingService implements DisposableBean {
+    private final ExternalStudyRoomRepository externalStudyRoomRepository;
     private ChromeDriver driver;
 
     private static final String BASE_URL = "https://map.naver.com/p/search";
 
+    public NaverMapCrawlingService(ExternalStudyRoomRepository externalStudyRoomRepository) {
+        this.externalStudyRoomRepository = externalStudyRoomRepository;
+    }
+
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
-    public void crawl() throws InterruptedException {
-        // 1. 각 지역 이름에 "스터디룸"을 붙인 검색어 리스트 생성
-        List<String> searchKeywords = Arrays.stream(KoreaRegion.values())
-                .map(region -> region.getKorName() + " 스터디룸")
-                .toList(); // 결과를 리스트로 수집
+    public void crawl() {
+        Arrays.stream(KoreaRegion.values()).toList().forEach(region -> {
+            driver = new ChromeDriver();
+            driver.get(BASE_URL);
 
-        // 2. ChromeDriver 초기화 및 URL로 이동
-        driver = new ChromeDriver();
-        driver.get(BASE_URL);
-
-        // 3. 검색어마다 크롤링을 수행
-        for (String keyword : searchKeywords) {
             // 검색 입력 필드 찾기
             WebElement inputBox = driver.findElement(By.className("input_search"));
 
             // 검색어 입력
             inputBox.sendKeys(Keys.CONTROL + "a");
             inputBox.sendKeys(Keys.BACK_SPACE);
-            inputBox.sendKeys(keyword);
+            inputBox.sendKeys(region.getKorName() + " 스터디룸");
             inputBox.sendKeys(Keys.ENTER);
 
             // 대기 - 페이지 로딩
-            Thread.sleep(1000);
+            sleep(1000);
 
             driver.switchTo().frame(driver.findElement(By.cssSelector("iframe#searchIframe")));
 
-            Thread.sleep(1000);
+            sleep(1000);
             // 스크롤 다운
 
             var scrollableElement = driver.findElement(By.className("Ryr1F"));
@@ -59,9 +60,9 @@ public class NaverMapCrawlingService implements DisposableBean {
 
             while (true) {
                 driver.executeScript("arguments[0].scrollTop += 600", scrollableElement);
-                Thread.sleep(1500);
+                sleep(1500);
                 Long newHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
-                if(Objects.equals(newHeight, lastHeight)) {
+                if (Objects.equals(newHeight, lastHeight)) {
                     break;
                 }
                 lastHeight = newHeight;
@@ -72,7 +73,7 @@ public class NaverMapCrawlingService implements DisposableBean {
             for (WebElement room : studyRooms) {
                 String thumbnail = getAttributeSafely(By.cssSelector(".place_thumb img"), room, "src");
                 room.findElement(By.cssSelector(".place_bluelink.C6RjW")).click();
-                Thread.sleep(1500);
+                sleep(1500);
                 driver.switchTo().parentFrame();
                 driver.switchTo().frame(driver.findElement(By.cssSelector("iframe#entryIframe")));
 
@@ -82,24 +83,43 @@ public class NaverMapCrawlingService implements DisposableBean {
                 // 내용 확장
                 try {
                     driver.findElement(By.className("xHaT3")).click();
-                } catch (NoSuchElementException ignored) {}
+                } catch (NoSuchElementException ignored) {
+                }
 
                 String description = getElementTextSafely(By.className("zPfVt"), driver);
                 String number = getElementTextSafely(By.className("xlx7Q"), driver);
                 String link = getElementTextSafely(By.className("jO09N"), driver);
 
                 String url = driver.getCurrentUrl();
-                String placeId = parsePlaceId(url);
+                String id = parsePlaceId(url);
 
-                log.info("roomName: {}, address: {}, description: {}, number: {}, link: {}, url: {}, thumbnail: {}, placeId: {}",
-                        roomName, address, description, number, link, url, thumbnail, placeId);
+                externalStudyRoomRepository.save(ExternalStudyRoom.builder()
+                        .id(Long.valueOf(id))
+                        .address(address)
+                        .url(link)
+                        .naverMapUrl(url)
+                        .name(roomName)
+                        .thumbnail(thumbnail)
+                        .number(number)
+                        .description(description)
+                        .koreaRegion(region)
+                        .build());
+
 
                 driver.switchTo().parentFrame();
                 driver.switchTo().frame(driver.findElement(By.cssSelector("iframe#searchIframe")));
-                Thread.sleep(1000);
+                sleep(1000);
             }
 
             driver.switchTo().parentFrame();
+        });
+    }
+
+    private void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
