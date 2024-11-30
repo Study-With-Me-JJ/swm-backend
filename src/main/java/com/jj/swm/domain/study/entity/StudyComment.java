@@ -4,6 +4,8 @@ import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +15,8 @@ import java.time.LocalDateTime;
 @Table(name = "study_comment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "update study_comment set deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at is null")
 public class StudyComment extends BaseTimeEntity {
 
     @Id
