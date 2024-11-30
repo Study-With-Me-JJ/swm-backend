@@ -8,16 +8,19 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE study_room_review SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE study_room_qna SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(name = "study_room_review")
-public class StudyRoomReview extends BaseTimeEntity {
+@Table(name = "study_room_qna")
+public class StudyRoomQna extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +28,6 @@ public class StudyRoomReview extends BaseTimeEntity {
 
     @Column(name = "comment", nullable = false)
     private String comment;
-
-    @Column(name = "rating", nullable = false)
-    private int rating;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
@@ -39,4 +39,11 @@ public class StudyRoomReview extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private StudyRoomQna parent;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent", orphanRemoval = true)
+    private List<StudyRoomQna> children = new ArrayList<>();
 }
