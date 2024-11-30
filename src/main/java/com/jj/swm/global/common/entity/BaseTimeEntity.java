@@ -20,13 +20,13 @@ public class BaseTimeEntity {
      * 등록일시
      */
     @CreatedDate
-    @Column(name = "created_dt", updatable = false, nullable = false)
-    protected LocalDateTime createdDt;
+    @Column(name = "created_at", updatable = false, nullable = false)
+    protected LocalDateTime createdAt;
 
     /**
      * 수정일시
      */
     @LastModifiedDate
-    @Column(name = "updated_dt", nullable = false)
-    protected LocalDateTime updatedDt = LocalDateTime.now();
+    @Column(name = "updated_at", nullable = false)
+    protected LocalDateTime updatedAt = LocalDateTime.now();
 }
