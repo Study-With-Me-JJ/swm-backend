@@ -69,6 +69,15 @@ public class StudyRoom extends BaseTimeEntity {
     @Column(name = "average_rating", nullable = false)
     private double averageRating;
 
+    @Column(name = "min_reserve_time", nullable = false)
+    private int minReserveTime = 1;
+
+    @Column(name = "entire_min_headcount", nullable = false)
+    private int entireMinHeadcount;
+
+    @Column(name = "entire_max_headcount", nullable = false)
+    private int entireMaxHeadcount;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
