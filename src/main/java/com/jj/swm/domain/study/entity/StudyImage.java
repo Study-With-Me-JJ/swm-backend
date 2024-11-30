@@ -1,11 +1,14 @@
 package com.jj.swm.domain.study.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
 @Entity
+@Builder
 @Table(name = "study_image")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyImage {
 
     @Id
