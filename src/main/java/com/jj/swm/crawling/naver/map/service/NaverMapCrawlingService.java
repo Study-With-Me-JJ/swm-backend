@@ -114,6 +114,7 @@ public class NaverMapCrawlingService implements DisposableBean {
             }
 
             driver.switchTo().parentFrame();
+            driver.quit();
         });
     }
 
