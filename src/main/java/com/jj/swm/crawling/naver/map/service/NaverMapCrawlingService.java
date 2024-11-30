@@ -68,6 +68,8 @@ public class NaverMapCrawlingService implements DisposableBean {
                 lastHeight = newHeight;
             }
 
+            sleep(1000);
+
             List<WebElement> studyRooms = driver.findElements(By.cssSelector(".VLTHu.OW9LQ"));
 
             for (WebElement room : studyRooms) {

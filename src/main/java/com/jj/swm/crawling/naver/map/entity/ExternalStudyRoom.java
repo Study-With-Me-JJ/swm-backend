@@ -4,8 +4,10 @@ import com.jj.swm.crawling.naver.map.constants.KoreaRegion;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 
@@ -35,6 +37,7 @@ public class ExternalStudyRoom extends BaseTimeEntity {
 
     @Column(name = "korea_region")
     @Enumerated(EnumType.STRING)
+    @JdbcType(value = PostgreSQLEnumJdbcType.class)
     private KoreaRegion koreaRegion;
 
     @Column(name = "deleted_at", nullable = true)
