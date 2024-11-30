@@ -37,8 +37,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
 
     // s3
-    implementation platform ('software.amazon.awssdk:bom:2.29.23')
+    implementation platform('software.amazon.awssdk:bom:2.29.23')
     implementation 'software.amazon.awssdk:s3'
+
+    // ChromeDriver Manager
+    implementation "io.github.bonigarcia:webdrivermanager:5.9.2"
+    // Selenium
+    implementation "org.seleniumhq.selenium:selenium-java:4.26.0"
+
 
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
