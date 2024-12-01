@@ -3,6 +3,7 @@ package com.jj.swm.crawling.naver.map.service;
 import com.jj.swm.crawling.naver.map.constants.KoreaRegion;
 import com.jj.swm.crawling.naver.map.entity.ExternalStudyRoom;
 import com.jj.swm.crawling.naver.map.repository.ExternalStudyRoomRepository;
+import com.jj.swm.infra.s3.S3ClientWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -28,8 +29,11 @@ public class NaverMapCrawlingService implements DisposableBean {
 
     private static final String BASE_URL = "https://map.naver.com/p/search";
 
-    public NaverMapCrawlingService(ExternalStudyRoomRepository externalStudyRoomRepository) {
+    private final S3ClientWrapper s3ClientWrapper;
+
+    public NaverMapCrawlingService(ExternalStudyRoomRepository externalStudyRoomRepository, S3ClientWrapper s3ClientWrapper) {
         this.externalStudyRoomRepository = externalStudyRoomRepository;
+        this.s3ClientWrapper = s3ClientWrapper;
     }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
@@ -107,7 +111,9 @@ public class NaverMapCrawlingService implements DisposableBean {
 
                         String url = driver.getCurrentUrl();
                         String id = parsePlaceId(url);
-
+                        if (thumbnail != null) {
+                            thumbnail = s3ClientWrapper.putImageFromUrl(true, thumbnail);
+                        }
                         // 데이터베이스에 저장
                         externalStudyRoomRepository.save(ExternalStudyRoom.builder()
                                 .id(Long.valueOf(id))
