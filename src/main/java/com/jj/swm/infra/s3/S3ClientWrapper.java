@@ -89,7 +89,6 @@ public class S3ClientWrapper {
 
             // 요청 실행 및 응답 받기
             HttpResponse<InputStream> httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofInputStream());
-            log.info("Request status code: {}", httpResponse.statusCode());
 
             // HTTP 응답 상태 확인
             int statusCode = httpResponse.statusCode();
