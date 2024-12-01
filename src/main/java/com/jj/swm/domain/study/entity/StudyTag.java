@@ -3,6 +3,8 @@ package com.jj.swm.domain.study.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Builder
@@ -17,6 +19,9 @@ public class StudyTag {
 
     @Column(name = "name", length = 50, nullable = false)
     private String name;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
