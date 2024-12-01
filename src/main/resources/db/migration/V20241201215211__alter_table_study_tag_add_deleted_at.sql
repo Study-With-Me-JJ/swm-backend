@@ -1,0 +1,1 @@
+ALTER TABLE study_tag ADD COLUMN deleted_at TIMESTAMP;
