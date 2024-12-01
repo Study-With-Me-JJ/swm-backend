@@ -45,6 +45,8 @@ public class NaverMapCrawlingService implements DisposableBean {
         ChromeOptions options = new ChromeOptions();
         if (!"local".equals(activeProfile)) {
             options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
+            options.addArguments("--window-size=1920,1080");
+            options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/237.84.2.178 Safari/537.36");
         }
         return new ChromeDriver(options);
     }
@@ -53,7 +55,7 @@ public class NaverMapCrawlingService implements DisposableBean {
     public void crawl() {
         Arrays.stream(KoreaRegion.values()).toList().forEach(region -> {
             driver = initializeChromeDriver();
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // WebDriverWait 인스턴스 생성
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // WebDriverWait 인스턴스 생성
             driver.get(BASE_URL);
 
             try {
