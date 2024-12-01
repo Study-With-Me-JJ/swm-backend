@@ -1,6 +1,6 @@
-package com.jj.swm.crawling.naver.map.entity;
+package com.jj.swm.domain.external.study.entity;
 
-import com.jj.swm.crawling.naver.map.constants.KoreaRegion;
+import com.jj.swm.domain.common.KoreaRegion;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;

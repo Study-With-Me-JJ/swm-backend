@@ -1,4 +1,4 @@
-package com.jj.swm.crawling.naver.map.constants;
+package com.jj.swm.domain.common;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
