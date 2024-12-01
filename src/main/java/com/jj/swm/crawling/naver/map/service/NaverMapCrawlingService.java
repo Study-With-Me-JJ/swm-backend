@@ -1,8 +1,8 @@
 package com.jj.swm.crawling.naver.map.service;
 
-import com.jj.swm.crawling.naver.map.constants.KoreaRegion;
-import com.jj.swm.crawling.naver.map.entity.ExternalStudyRoom;
-import com.jj.swm.crawling.naver.map.repository.ExternalStudyRoomRepository;
+import com.jj.swm.domain.common.KoreaRegion;
+import com.jj.swm.domain.external.study.entity.ExternalStudyRoom;
+import com.jj.swm.domain.external.study.repository.ExternalStudyRoomRepository;
 import com.jj.swm.infra.s3.S3ClientWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
