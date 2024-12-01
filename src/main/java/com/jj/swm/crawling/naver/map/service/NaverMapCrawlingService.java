@@ -7,9 +7,11 @@ import com.jj.swm.infra.s3.S3ClientWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -31,15 +33,26 @@ public class NaverMapCrawlingService implements DisposableBean {
 
     private final S3ClientWrapper s3ClientWrapper;
 
+    @Value("${spring.profiles.active:local}") // 현재 활성화된 프로파일 (기본값은 local)
+    private String activeProfile;
+
     public NaverMapCrawlingService(ExternalStudyRoomRepository externalStudyRoomRepository, S3ClientWrapper s3ClientWrapper) {
         this.externalStudyRoomRepository = externalStudyRoomRepository;
         this.s3ClientWrapper = s3ClientWrapper;
     }
 
+    private ChromeDriver initializeChromeDriver() {
+        ChromeOptions options = new ChromeOptions();
+        if (!"local".equals(activeProfile)) {
+            options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
+        }
+        return new ChromeDriver(options);
+    }
+
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
     public void crawl() {
         Arrays.stream(KoreaRegion.values()).toList().forEach(region -> {
-            driver = new ChromeDriver();
+            driver = initializeChromeDriver();
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // WebDriverWait 인스턴스 생성
             driver.get(BASE_URL);
 
