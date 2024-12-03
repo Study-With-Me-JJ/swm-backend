@@ -22,7 +22,12 @@ import java.time.LocalDateTime;
 public class Study extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "study_seq_generator")
+    @SequenceGenerator(
+            name = "study_seq_generator",
+            sequenceName = "study_id_seq",
+            allocationSize = 100
+    )
     private Long id;
 
     @Column(name = "title", length = 100, nullable = false)
