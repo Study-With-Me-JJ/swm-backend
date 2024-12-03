@@ -13,7 +13,12 @@ import lombok.*;
 public class StudyLike {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "study_like_seq_generator")
+    @SequenceGenerator(
+            name = "study_like_seq_generator",
+            sequenceName = "study_like_id_seq",
+            allocationSize = 100
+    )
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
