@@ -23,11 +23,27 @@ FROM amazoncorretto:21 as runtime
 # 작업 디렉토리 설정
 WORKDIR /app
 
+# Chrome 및 ChromeDriver 설치를 위한 패키지 업데이트
+RUN yum update -y && \
+    yum install -y wget unzip && \
+    # Google Chrome 설치
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
+    yum install -y ./google-chrome-stable_current_x86_64.rpm && \
+    # ChromeDriver 다운로드 및 설치
+    CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
+    wget https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip -d /usr/local/bin/ && \
+    chmod +x /usr/local/bin/chromedriver && \
+    # 설치된 파일 정리
+    rm -f google-chrome-stable_current_x86_64.rpm chromedriver_linux64.zip && \
+    yum clean all
+
+# Chrome 환경변수 설정
+ENV GOOGLE_CHROME_BIN=/usr/bin/google-chrome
+ENV CHROMEDRIVER=/usr/local/bin/chromedriver
+
 # 빌드된 JAR 파일 복사
 COPY --from=builder /app/build/libs/*.jar app.jar
-
-# Spring Boot 프로파일을 dev로 설정
-ENV SPRING_PROFILES_ACTIVE=dev
 
 # 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
