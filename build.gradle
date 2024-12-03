@@ -54,6 +54,13 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // TestContainers
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers:3.4.0'
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
+    testImplementation 'org.testcontainers:postgresql:1.20.4'
+
+
 }
 
 tasks.named('test') {
@@ -61,6 +68,7 @@ tasks.named('test') {
 }
 
 processResources.dependsOn('copySecret')
+processTestResources.dependsOn('copyTestSecret')
 
 tasks.register('copySecret', Copy) {
     from './swm-backend-secret/local'
@@ -74,4 +82,10 @@ tasks.register('copySecret', Copy) {
     from './swm-backend-secret/prod'
     include "*.yml"  // 복사할 파일들
     into 'src/main/resources'  // 복사 위치
+}
+
+tasks.register('copyTestSecret', Copy) {
+    from './swm-backend-secret/test'
+    include "*.yml"  // 복사할 파일들
+    into 'src/test/resources'  // 복사 위치
 }
