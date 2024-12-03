@@ -43,8 +43,9 @@ public class NaverMapCrawlingService implements DisposableBean {
 
     private ChromeDriver initializeChromeDriver() {
         ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
         if (!"local".equals(activeProfile)) {
-            options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
+            options.addArguments("--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
             options.addArguments("--window-size=1920,1080");
             options.addArguments("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/237.84.2.178 Safari/537.36");
         }
