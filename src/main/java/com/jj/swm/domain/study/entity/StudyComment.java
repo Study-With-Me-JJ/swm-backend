@@ -20,12 +20,7 @@ import java.time.LocalDateTime;
 public class StudyComment extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "study_comment_seq_generator")
-    @SequenceGenerator(
-            name = "study_comment_seq_generator",
-            sequenceName = "study_comment_id_seq",
-            allocationSize = 100
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "content", nullable = false)
