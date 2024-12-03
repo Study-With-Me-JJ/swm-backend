@@ -12,7 +12,12 @@ import lombok.*;
 public class StudyImage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "study_image_seq_generator")
+    @SequenceGenerator(
+            name = "study_image_seq_generator",
+            sequenceName = "study_image_id_seq",
+            allocationSize = 100
+    )
     private Long id;
 
     @Column(name = "image_url", length = 300, nullable = false)
