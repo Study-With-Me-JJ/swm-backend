@@ -30,4 +30,11 @@ public class StudyTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
+
+    public static StudyTag of(Study study, String name) {
+        return StudyTag.builder()
+                .name(name)
+                .study(study)
+                .build();
+    }
 }

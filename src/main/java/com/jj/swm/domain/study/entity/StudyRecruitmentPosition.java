@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.entity;
 
+import com.jj.swm.domain.study.dto.request.StudyRecruitPositionsCreateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -33,4 +34,12 @@ public class StudyRecruitmentPosition {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
+
+    public static StudyRecruitmentPosition of(Study study, StudyRecruitPositionsCreateRequest createRequest) {
+        return StudyRecruitmentPosition.builder()
+                .title(createRequest.getTitle())
+                .headcount(createRequest.getHeadcount())
+                .study(study)
+                .build();
+    }
 }
