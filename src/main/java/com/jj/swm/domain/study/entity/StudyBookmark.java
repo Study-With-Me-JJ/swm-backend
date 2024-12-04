@@ -13,12 +13,7 @@ import lombok.*;
 public class StudyBookmark {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "study_bookmark_seq_generator")
-    @SequenceGenerator(
-            name = "study_bookmark_seq_generator",
-            sequenceName = "study_bookmark_id_seq",
-            allocationSize = 100
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

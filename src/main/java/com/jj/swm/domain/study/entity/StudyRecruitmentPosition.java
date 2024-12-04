@@ -18,12 +18,7 @@ import java.time.LocalDateTime;
 public class StudyRecruitmentPosition {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "study_recruitment_position_seq_generator")
-    @SequenceGenerator(
-            name = "study_recruitment_position_seq_generator",
-            sequenceName = "study_recruitment_position_id_seq",
-            allocationSize = 100
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "title", length = 50, nullable = false)

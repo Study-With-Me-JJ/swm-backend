@@ -15,12 +15,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 public class StudyParticipant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "study_participant_seq_generator")
-    @SequenceGenerator(
-            name = "study_participant_seq_generator",
-            sequenceName = "study_participant_id_seq",
-            allocationSize = 100
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)
