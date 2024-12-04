@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom.entity;
+package com.jj.swm.domain.studyroom.entity.embeddable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
