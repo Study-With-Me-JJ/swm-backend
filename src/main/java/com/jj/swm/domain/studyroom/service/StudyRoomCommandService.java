@@ -44,32 +44,46 @@ public class StudyRoomCommandService {
         createAllOfStudyRoomRelatedInfo(studyRoom, request);
     }
 
-    public void createAllOfStudyRoomRelatedInfo(StudyRoom studyRoom, StudyRoomCreateRequest request) {
-        dayOffRepository.batchInsert(request.getDayOffs(), studyRoom);
-        tagRepository.batchInsert(request.getTags(), studyRoom);
+    private void createAllOfStudyRoomRelatedInfo(StudyRoom studyRoom, StudyRoomCreateRequest request) {
+        validateDayOffs(request.getDayOffs(), studyRoom);
+        validateTags(request.getTags(), studyRoom);
         validateImages(request.getImageUrls(), studyRoom);
         validateOptions(request.getOptions(), studyRoom);
         validateTypes(request.getTypes(), studyRoom);
         validateReservationTypes(request.getReservationTypes(), studyRoom);
     }
 
+    private void validateDayOffs(List<DayOfWeek> dayOffs, StudyRoom studyRoom) {
+        // DayOff 생성 및 저장
+        if (dayOffs != null && !dayOffs.isEmpty()) {
+            dayOffRepository.batchInsert(dayOffs, studyRoom);
+        }
+    }
+
+    private void validateTags(List<String> tags, StudyRoom studyRoom) {
+        // Tag 생성 및 저장
+        if (tags != null && !tags.isEmpty()) {
+            tagRepository.batchInsert(tags, studyRoom);
+        }
+    }
+
     private void validateImages(List<String> imageUrls, StudyRoom studyRoom) {
         // 이미지 URL을 StudyRoom과 연결하여 저장
-        if (imageUrls != null) {
+        if (!imageUrls.isEmpty()) {
             imageRepository.batchInsert(imageUrls, studyRoom);
         }
     }
 
     private void validateOptions(List<StudyRoomOption> options, StudyRoom studyRoom) {
         // 옵션 생성 및 저장
-        if (options != null) {
+        if (!options.isEmpty()) {
             optionInfoRepository.batchInsert(options, studyRoom);
         }
     }
 
     private void validateTypes(List<StudyRoomType> types, StudyRoom studyRoom) {
         // StudyRoomType 엔티티 생성 및 저장
-        if (types != null) {
+        if (!types.isEmpty()) {
             typeInfoRepository.batchInsert(types, studyRoom);
         }
     }
@@ -78,7 +92,7 @@ public class StudyRoomCommandService {
             List<StudyRoomReservationTypeCreateRequest> reservationTypes, StudyRoom studyRoom
     ) {
         // 예약 유형 생성 및 저장
-        if (reservationTypes != null) {
+        if (!reservationTypes.isEmpty()) {
             reserveTypeRepository.batchInsert(reservationTypes, studyRoom);
         }
     }
