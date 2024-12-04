@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.entity;
 
+import com.jj.swm.domain.study.dto.request.StudyCreateRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -59,4 +60,18 @@ public class Study extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public static Study of(User user, StudyCreateRequest createRequest) {
+        return Study.builder()
+                .title(createRequest.getTitle())
+                .content(createRequest.getContent())
+                .category(createRequest.getCategory())
+                .likeCount(0)
+                .commentCount(0)
+                .status(StudyStatus.ACTIVE)
+                .viewCount(0)
+                .thumbnail(createRequest.getThumbnail())
+                .user(user)
+                .build();
+    }
 }
