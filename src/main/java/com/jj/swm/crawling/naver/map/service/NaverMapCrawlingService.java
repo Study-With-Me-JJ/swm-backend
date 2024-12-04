@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
+@Profile("!test")
 public class NaverMapCrawlingService implements DisposableBean {
     private final ExternalStudyRoomRepository externalStudyRoomRepository;
     private ChromeDriver driver;
