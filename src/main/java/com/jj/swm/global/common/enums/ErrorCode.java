@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
-    NOT_FOUND(10000, HttpStatus.NOT_FOUND, "Not Found");
+    NOT_FOUND(10000, HttpStatus.NOT_FOUND, "Not Found"),
+    FORBIDDEN(10001, HttpStatus.FORBIDDEN, "Forbidden");
 
     private final Integer code;
     private final HttpStatus httpStatus;

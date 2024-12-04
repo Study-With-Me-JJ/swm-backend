@@ -1,5 +1,6 @@
 package com.jj.swm.domain.user.entity;
 
+import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,6 +10,8 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -39,4 +42,11 @@ public class User extends BaseTimeEntity {
     @Column(name = "role", nullable = false)
     @JdbcType(value = PostgreSQLEnumJdbcType.class)
     private RoleType userRole;
+
+    @OneToMany(mappedBy = "user")
+    private List<StudyRoom> studyRooms = new ArrayList<>();
+
+    public void addStudyRoom(StudyRoom studyRoom) {
+        studyRooms.add(studyRoom);
+    }
 }
