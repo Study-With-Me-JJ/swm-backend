@@ -8,10 +8,10 @@ import com.jj.swm.domain.study.repository.StudyImageRepository;
 import com.jj.swm.domain.study.repository.StudyRecruitmentPositionRepository;
 import com.jj.swm.domain.study.repository.StudyRepository;
 import com.jj.swm.domain.study.repository.StudyTagRepository;
-import com.jj.swm.domain.user.entity.RoleType;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,21 +55,25 @@ class StudyCommandServiceTest {
     @DisplayName("스터디 생성 서비스 성공 테스트")
     void createStudy_WhenConditionMet_Succeed() {
         //given
-        Mockito.when(studyRepository.save(any(Study.class))).thenReturn(null);
-        Mockito.doNothing().when(studyTagRepository).batchInsert(any(Study.class), anyList());
-        Mockito.doNothing().when(studyImageRepository).batchInsert(any(Study.class), anyList());
-        Mockito.doNothing().when(studyRecruitmentPositionRepository).batchInsert(any(Study.class), anyList());
+        Mockito.when(studyRepository.save(any(Study.class)))
+                .thenReturn(null);
+
+        Mockito.doNothing()
+                .when(studyTagRepository)
+                .batchInsert(any(Study.class), anyList());
+
+        Mockito.doNothing()
+                .when(studyImageRepository)
+                .batchInsert(any(Study.class), anyList());
+
+        Mockito.doNothing()
+                .when(studyRecruitmentPositionRepository)
+                .batchInsert(any(Study.class), anyList());
 
         UUID userId = UUID.randomUUID();
 
         Mockito.when(userRepository.findById(userId))
-                .thenReturn(Optional.of(User
-                        .builder()
-                        .id(userId)
-                        .nickname("nickname")
-                        .userRole(RoleType.USER)
-                        .profileImageUrl("profileImageUrl")
-                        .build()));
+                .thenReturn(getOptionalUser());
 
         StudyCreateRequest createRequest = getStudyCreateRequest();
 
@@ -78,8 +82,11 @@ class StudyCommandServiceTest {
 
         //then
         verify(studyRepository, times(1)).save(any(Study.class));
+
         verify(studyTagRepository, times(1)).batchInsert(any(Study.class), anyList());
+
         verify(studyImageRepository, times(1)).batchInsert(any(Study.class), anyList());
+
         verify(studyRecruitmentPositionRepository, times(1)).batchInsert(any(Study.class), anyList());
     }
 
@@ -92,13 +99,7 @@ class StudyCommandServiceTest {
         UUID userId = UUID.randomUUID();
 
         Mockito.when(userRepository.findById(userId))
-                .thenReturn(Optional.of(User
-                        .builder()
-                        .id(userId)
-                        .nickname("nickname")
-                        .userRole(RoleType.USER)
-                        .profileImageUrl("profileImageUrl")
-                        .build()));
+                .thenReturn(getOptionalUser());
 
         StudyCreateRequest createRequest = StudyCreateRequest.builder()
                 .title("title")
@@ -112,8 +113,11 @@ class StudyCommandServiceTest {
 
         //then
         verify(studyRepository, times(1)).save(any(Study.class));
+
         verify(studyTagRepository, times(0)).batchInsert(any(Study.class), anyList());
+
         verify(studyImageRepository, times(0)).batchInsert(any(Study.class), anyList());
+
         verify(studyRecruitmentPositionRepository, times(0)).batchInsert(any(Study.class), anyList());
     }
 
@@ -126,13 +130,7 @@ class StudyCommandServiceTest {
         UUID userId = UUID.randomUUID();
 
         Mockito.when(userRepository.findById(userId))
-                .thenReturn(Optional.of(User
-                        .builder()
-                        .id(userId)
-                        .nickname("nickname")
-                        .userRole(RoleType.USER)
-                        .profileImageUrl("profileImageUrl")
-                        .build()));
+                .thenReturn(getOptionalUser());
 
         StudyCreateRequest createRequest = StudyCreateRequest.builder()
                 .title("title")
@@ -149,8 +147,11 @@ class StudyCommandServiceTest {
 
         //then
         verify(studyRepository, times(1)).save(any(Study.class));
+
         verify(studyTagRepository, times(0)).batchInsert(any(Study.class), anyList());
+
         verify(studyImageRepository, times(0)).batchInsert(any(Study.class), anyList());
+
         verify(studyRecruitmentPositionRepository, times(0)).batchInsert(any(Study.class), anyList());
     }
 
@@ -159,7 +160,10 @@ class StudyCommandServiceTest {
     void createStudy_FailByNoneExistentUser() {
         //given
         UUID userId = UUID.randomUUID();
-        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        Mockito.when(userRepository.findById(userId))
+                .thenReturn(Optional.empty());
+
         StudyCreateRequest createRequest = getStudyCreateRequest();
 
         //when & then
@@ -184,5 +188,10 @@ class StudyCommandServiceTest {
                                 .headcount(2)
                                 .build()))
                 .build();
+    }
+
+    private static @NotNull Optional<User> getOptionalUser() {
+        return Optional.of(User.builder()
+                .build());
     }
 }
