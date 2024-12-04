@@ -3,6 +3,7 @@ package com.jj.swm.domain.study.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jj.swm.domain.study.dto.request.StudyCreateRequest;
 import com.jj.swm.domain.study.dto.request.StudyRecruitPositionsCreateRequest;
+import com.jj.swm.domain.study.dto.response.StudyBookmarkCreateResponse;
 import com.jj.swm.domain.study.entity.StudyCategory;
 import com.jj.swm.domain.study.service.StudyCommandService;
 import org.junit.jupiter.api.DisplayName;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -73,5 +75,41 @@ class StudyCommandControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", is("정상적으로 생성되었습니다.")));
+    }
+
+    @Test
+    @DisplayName("스터디 북마크 생성 컨트롤러 성공 테스트")
+    void createStudyBookmark_Success() throws Exception {
+        //given
+        StudyBookmarkCreateResponse studyBookmarkCreateResponse = StudyBookmarkCreateResponse.builder()
+                .bookmarkId(1L)
+                .build();
+
+        Mockito.when(studyCommandService.createBookmark(any(UUID.class), any(Long.class)))
+                .thenReturn(studyBookmarkCreateResponse);
+
+        // when & then
+        mockMvc.perform(post("/api/v1/study/1/bookmark")
+                        .principal(() -> UUID.randomUUID().toString()))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", is("정상적으로 생성되었습니다.")))
+                .andExpect(jsonPath("$.data.bookmarkId", is(1)));
+    }
+
+    @Test
+    @DisplayName("스터디 북마크 삭제 컨트롤러 성공 테스트")
+    void deleteStudyBookmark_Success() throws Exception {
+        //given
+        Mockito.doNothing()
+                .when(studyCommandService)
+                .deleteBookmark(any(UUID.class), any(Long.class));
+
+        // when & then
+        mockMvc.perform(delete("/api/v1/study/bookmark/1")
+                        .principal(() -> UUID.randomUUID().toString()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", is("정상 처리 되었습니다.")));
     }
 }

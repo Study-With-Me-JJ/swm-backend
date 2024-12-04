@@ -23,4 +23,11 @@ public class StudyBookmark {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public static StudyBookmark of(Study study, User user) {
+        return StudyBookmark.builder()
+                .study(study)
+                .user(user)
+                .build();
+    }
 }

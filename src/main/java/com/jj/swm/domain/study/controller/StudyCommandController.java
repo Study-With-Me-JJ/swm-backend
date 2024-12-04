@@ -1,14 +1,12 @@
 package com.jj.swm.domain.study.controller;
 
 import com.jj.swm.domain.study.dto.request.StudyCreateRequest;
+import com.jj.swm.domain.study.dto.response.StudyBookmarkCreateResponse;
 import com.jj.swm.domain.study.service.StudyCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.UUID;
@@ -29,5 +27,23 @@ public class StudyCommandController {
         );
 
         return ApiResponse.created(null);
+    }
+
+    @PostMapping("/v1/study/{studyId}/bookmark")
+    public ApiResponse<StudyBookmarkCreateResponse> createStudyBookmark(
+            Principal principal, @PathVariable("studyId") Long studyId
+    ) {
+        StudyBookmarkCreateResponse createResponse = studyCommandService.createBookmark(
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId
+        );
+
+        return ApiResponse.created(createResponse);
+    }
+
+    @DeleteMapping("/v1/study/bookmark/{bookmarkId}")
+    public ApiResponse<Void> deleteStudyBookmark(Principal principal, @PathVariable("bookmarkId") Long bookmarkId) {
+        studyCommandService.deleteBookmark(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), bookmarkId);
+
+        return ApiResponse.ok(null);
     }
 }
