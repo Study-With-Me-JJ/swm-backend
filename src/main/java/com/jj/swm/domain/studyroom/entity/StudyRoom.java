@@ -1,5 +1,8 @@
 package com.jj.swm.domain.studyroom.entity;
 
+import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
+import com.jj.swm.domain.studyroom.entity.embeddable.Address;
+import com.jj.swm.domain.studyroom.entity.embeddable.Point;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -16,7 +19,7 @@ import java.time.LocalTime;
 @SQLRestriction("deleted_at is null")
 @Table(name = "study_room")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class StudyRoom extends BaseTimeEntity {
 
@@ -84,4 +87,31 @@ public class StudyRoom extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public static StudyRoom of(StudyRoomCreateRequest request) {
+        return StudyRoom.builder()
+                .title(request.getTitle())
+                .subtitle(request.getSubtitle())
+                .introduce(request.getIntroduce())
+                .notice(request.getNotice())
+                .guideline(request.getGuideline())
+                .openingTime(request.getOpeningTime())
+                .closingTime(request.getClosingTime())
+                .address(request.getAddress())
+                .point(request.getPoint())
+                .thumbnail(request.getThumbnail())
+                .referenceUrl(request.getReferenceUrl())
+                .phoneNumber(request.getPhoneNumber())
+                .minReserveTime(request.getMinReserveTime())
+                .entireMinHeadcount(request.getEntireMinHeadcount())
+                .entireMaxHeadcount(request.getEntireMaxHeadcount())
+                .build();
+    }
+
+    // 양방향 관계인 경우
+    public void modifyRoomAdmin(User user){
+        this.user = user;
+        user.addStudyRoom(this);
+    }
+
 }

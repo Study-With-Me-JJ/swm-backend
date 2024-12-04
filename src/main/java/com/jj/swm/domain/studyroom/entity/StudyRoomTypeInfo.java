@@ -8,7 +8,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "study_room_type_info")
 public class StudyRoomTypeInfo {
