@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
 @SQLDelete(sql = "UPDATE study_room_tag SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "study_room_tag")
-public class StudyRoomTag extends BaseTimeEntity {
+public class StudyRoomTag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
