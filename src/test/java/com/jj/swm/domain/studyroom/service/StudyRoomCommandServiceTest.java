@@ -1,5 +1,6 @@
 package com.jj.swm.domain.studyroom.service;
 
+import com.jj.swm.domain.studyroom.StudyRoomCreateRequestFixture;
 import com.jj.swm.domain.studyroom.StudyRoomFixture;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomReservationTypeCreateRequest;
@@ -60,7 +61,7 @@ class StudyRoomCommandServiceTest {
     @DisplayName("스터디 룸을 생성할 수 있다.")
     void createStudyRoom_Success() throws Exception{
         //given
-        StudyRoomCreateRequest request = createStudyRoomCreateRequestFixture();
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
 
         given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
                 .willReturn(Optional.ofNullable(user));
@@ -84,7 +85,7 @@ class StudyRoomCommandServiceTest {
     @DisplayName("존재하지 않는 UUID라면 예외를 반환한다.")
     void createStudyRoom_FailByUserUUIDNotFound() throws Exception{
         //given
-        StudyRoomCreateRequest request = createStudyRoomCreateRequestFixture();
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
 
         UUID uuid = UUID.randomUUID();
 
@@ -95,48 +96,52 @@ class StudyRoomCommandServiceTest {
         assertThrows(GlobalException.class, () -> studyRoomCommandService.create(request, uuid));
     }
 
+    @Test
+    @DisplayName("스터디 룸 생성 시 모든 List가 empty인 경우를 수행한다.")
+    void createStudyRoom_WhenConditionListEmpty_Success() throws Exception{
+        //given
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestListEmptyFixture();
 
-    StudyRoomCreateRequest createStudyRoomCreateRequestFixture(){
-        return StudyRoomCreateRequest.builder()
-                .title("test")
-                .subtitle("test")
-                .introduce("test")
-                .notice("test")
-                .guideline("test")
-                .openingTime(LocalTime.MIN)
-                .closingTime(LocalTime.MAX)
-                .address(Address.builder()
-                        .address("서울 동작구")
-                        .detailAddress("서울 동작구 23번길")
-                        .region("서울")
-                        .locality("동작구")
-                        .build())
-                .point(Point.builder()
-                        .latitude(0.0)
-                        .longitude(0.0)
-                        .build())
-                .thumbnail("http://test.png")
-                .referenceUrl("http://test.com")
-                .phoneNumber("010-0000-0000")
-                .tags(List.of("태그1", "태그2", "태그3"))
-                .dayOffs(List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY))
-                .imageUrls(List.of("http://test1.png", "http://test2.png"))
-                .types(List.of(StudyRoomType.STUDY, StudyRoomType.MEETING))
-                .options(List.of(StudyRoomOption.MIKE, StudyRoomOption.NO_SMOKE))
-                .reservationTypes(
-                        List.of(createStudyRoomReservationTypeCreateRequestFixture())
-                )
-                .minReserveTime(2)
-                .entireMinHeadcount(1)
-                .entireMaxHeadcount(2)
-                .build();
+        given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
+                .willReturn(Optional.ofNullable(user));
+
+        given(studyRoomRepository.save(any(StudyRoom.class))).willReturn(studyRoom);
+
+        //when
+        studyRoomCommandService.create(request, UserFixture.uuid);
+
+        //then
+        verify(studyRoomRepository, times(1)).save(any(StudyRoom.class));
+        verify(dayOffRepository, never()).batchInsert(request.getDayOffs(), studyRoom);
+        verify(tagRepository, never()).batchInsert(request.getTags(), studyRoom);
+        verify(imageRepository, times(1)).batchInsert(request.getImageUrls(), studyRoom);
+        verify(optionInfoRepository, times(1)).batchInsert(request.getOptions(), studyRoom);
+        verify(typeInfoRepository, times(1)).batchInsert(request.getTypes(), studyRoom);
+        verify(reserveTypeRepository, times(1)).batchInsert(request.getReservationTypes(), studyRoom);
     }
 
-    StudyRoomReservationTypeCreateRequest createStudyRoomReservationTypeCreateRequestFixture(){
-        return StudyRoomReservationTypeCreateRequest.builder()
-                .maxHeadcount(1)
-                .reservationOption("1인실")
-                .pricePerHour(1000)
-                .build();
+    @Test
+    @DisplayName("스터디 룸 생성 시 모든 List가 null인 경우를 수행한다.")
+    void createStudyRoom_WhenConditionListNull_Success() throws Exception{
+        //given
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestListNullFixture();
+
+        given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
+                .willReturn(Optional.ofNullable(user));
+
+        given(studyRoomRepository.save(any(StudyRoom.class))).willReturn(studyRoom);
+
+        //when
+        studyRoomCommandService.create(request, UserFixture.uuid);
+
+        //then
+        verify(studyRoomRepository, times(1)).save(any(StudyRoom.class));
+        verify(dayOffRepository, never()).batchInsert(request.getDayOffs(), studyRoom);
+        verify(tagRepository, never()).batchInsert(request.getTags(), studyRoom);
+        verify(imageRepository, times(1)).batchInsert(request.getImageUrls(), studyRoom);
+        verify(optionInfoRepository, times(1)).batchInsert(request.getOptions(), studyRoom);
+        verify(typeInfoRepository, times(1)).batchInsert(request.getTypes(), studyRoom);
+        verify(reserveTypeRepository, times(1)).batchInsert(request.getReservationTypes(), studyRoom);
     }
+
 }
