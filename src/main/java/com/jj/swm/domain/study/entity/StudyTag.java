@@ -18,12 +18,7 @@ import java.time.LocalDateTime;
 public class StudyTag {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "study_tag_seq_generator")
-    @SequenceGenerator(
-            name = "study_tag_seq_generator",
-            sequenceName = "study_tag_id_seq",
-            allocationSize = 100
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name", length = 50, nullable = false)
