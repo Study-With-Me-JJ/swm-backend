@@ -1,6 +1,7 @@
 package com.jj.swm.global.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
@@ -22,5 +23,9 @@ public record ApiResponse<T>(
 
     public static <T> ApiResponse<T> fail(final GlobalException e) {
         return new ApiResponse<>(e.getErrorCode().getHttpStatus(), e.getMessage(), null);
+    }
+
+    public static <T> ApiResponse<T> fail(final ErrorCode errorCode, final String message) {
+        return new ApiResponse<>(errorCode.getHttpStatus(), message, null);
     }
 }
