@@ -47,10 +47,10 @@ public class StudyRoomCommandService {
     private void createAllOfStudyRoomRelatedInfo(StudyRoom studyRoom, StudyRoomCreateRequest request) {
         validateDayOffs(request.getDayOffs(), studyRoom);
         validateTags(request.getTags(), studyRoom);
-        validateImages(request.getImageUrls(), studyRoom);
-        validateOptions(request.getOptions(), studyRoom);
-        validateTypes(request.getTypes(), studyRoom);
-        validateReservationTypes(request.getReservationTypes(), studyRoom);
+        imageRepository.batchInsert(request.getImageUrls(), studyRoom);
+        optionInfoRepository.batchInsert(request.getOptions(), studyRoom);
+        typeInfoRepository.batchInsert(request.getTypes(), studyRoom);
+        reserveTypeRepository.batchInsert(request.getReservationTypes(), studyRoom);
     }
 
     private void validateDayOffs(List<DayOfWeek> dayOffs, StudyRoom studyRoom) {
@@ -64,36 +64,6 @@ public class StudyRoomCommandService {
         // Tag 생성 및 저장
         if (tags != null && !tags.isEmpty()) {
             tagRepository.batchInsert(tags, studyRoom);
-        }
-    }
-
-    private void validateImages(List<String> imageUrls, StudyRoom studyRoom) {
-        // 이미지 URL을 StudyRoom과 연결하여 저장
-        if (!imageUrls.isEmpty()) {
-            imageRepository.batchInsert(imageUrls, studyRoom);
-        }
-    }
-
-    private void validateOptions(List<StudyRoomOption> options, StudyRoom studyRoom) {
-        // 옵션 생성 및 저장
-        if (!options.isEmpty()) {
-            optionInfoRepository.batchInsert(options, studyRoom);
-        }
-    }
-
-    private void validateTypes(List<StudyRoomType> types, StudyRoom studyRoom) {
-        // StudyRoomType 엔티티 생성 및 저장
-        if (!types.isEmpty()) {
-            typeInfoRepository.batchInsert(types, studyRoom);
-        }
-    }
-
-    private void validateReservationTypes(
-            List<StudyRoomReservationTypeCreateRequest> reservationTypes, StudyRoom studyRoom
-    ) {
-        // 예약 유형 생성 및 저장
-        if (!reservationTypes.isEmpty()) {
-            reserveTypeRepository.batchInsert(reservationTypes, studyRoom);
         }
     }
 

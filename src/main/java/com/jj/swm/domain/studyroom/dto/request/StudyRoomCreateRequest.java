@@ -59,16 +59,16 @@ public class StudyRoomCreateRequest {
 
     private List<DayOfWeek> dayOffs;
 
-    @NotNull
+    @NotEmpty
     private List<String> imageUrls;
 
-    @NotNull
+    @NotEmpty
     private List<StudyRoomType> types;
 
-    @NotNull
+    @NotEmpty
     private List<StudyRoomOption> options;
 
-    @NotNull
+    @NotEmpty
     private List<StudyRoomReservationTypeCreateRequest> reservationTypes;
 
     @Min(1)
