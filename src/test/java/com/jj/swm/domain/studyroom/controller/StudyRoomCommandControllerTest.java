@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(StudyRoomCommandController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class StudyRoomCommandControllerTest {
+class StudyRoomCommandControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new JavaTimeModule());
@@ -33,12 +33,12 @@ public class StudyRoomCommandControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    StudyRoomCommandService commandService;
+    private StudyRoomCommandService commandService;
 
 
     @Test
     @DisplayName("컨트롤러에서 스터디 생성에 성공한다.")
-    public void createStudy_Success() throws Exception{
+    void createStudy_Success() throws Exception{
         //given
         StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
 
