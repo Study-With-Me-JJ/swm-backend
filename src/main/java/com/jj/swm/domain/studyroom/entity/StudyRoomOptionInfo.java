@@ -25,4 +25,8 @@ public class StudyRoomOptionInfo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public void modifyOption(StudyRoomOption studyRoomOption) {
+        this.option = studyRoomOption;
+    }
 }

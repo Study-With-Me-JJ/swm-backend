@@ -12,3 +12,7 @@ spring:
     out-of-order: true
 springdoc:
   use-fqn: true
+
+logging:
+  level:
+    org.openqa.selenium.devtools.CdpVersionFinder: ERROR

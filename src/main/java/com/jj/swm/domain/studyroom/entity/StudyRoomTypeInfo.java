@@ -25,4 +25,8 @@ public class StudyRoomTypeInfo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public void modifyType(StudyRoomType studyRoomType) {
+        this.type = studyRoomType;
+    }
 }

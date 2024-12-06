@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
+@Profile("!test")
 public class NaverMapCrawlingService implements DisposableBean {
     private final ExternalStudyRoomRepository externalStudyRoomRepository;
     private ChromeDriver driver;
@@ -55,6 +57,7 @@ public class NaverMapCrawlingService implements DisposableBean {
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
     public void crawl() {
         Arrays.stream(KoreaRegion.values()).toList().forEach(region -> {
+            log.info("Starting Study Room crawling for region: {}", region.getKorName());
             driver = initializeChromeDriver();
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // WebDriverWait 인스턴스 생성
             driver.get(BASE_URL);
@@ -78,8 +81,8 @@ public class NaverMapCrawlingService implements DisposableBean {
                 Long lastHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
 
                 while (true) {
-                    driver.executeScript("arguments[0].scrollTop += 600", scrollableElement);
-                    sleep(1500); // 스크롤 후 약간 대기
+                    driver.executeScript("arguments[0].scrollTop += 1000", scrollableElement);
+                    sleep(3000); // 스크롤 후 약간 대기
                     Long newHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
                     if (Objects.equals(newHeight, lastHeight)) {
                         // scroll to top
@@ -94,7 +97,7 @@ public class NaverMapCrawlingService implements DisposableBean {
                 // 스터디룸 리스트 검색
                 List<WebElement> studyRooms = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(".VLTHu.OW9LQ"))); // 스터디룸 리스트 대기
                 sleep(2000);
-
+                log.info("Found {} study rooms for region: {}", studyRooms.size(), region.getKorName());
                 for (WebElement room : studyRooms) {
                     try {
                         String thumbnail = getAttributeSafely(By.cssSelector(".place_thumb img"), room, "src");
