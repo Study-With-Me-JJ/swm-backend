@@ -1,6 +1,5 @@
 package com.jj.swm.domain.studyroom.entity;
 
-import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -31,4 +30,8 @@ public class StudyRoomTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public void modifyTag(String tag) {
+        this.tag = tag;
+    }
 }

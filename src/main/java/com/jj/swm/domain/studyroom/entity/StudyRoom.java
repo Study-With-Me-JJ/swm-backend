@@ -1,6 +1,7 @@
 package com.jj.swm.domain.studyroom.entity;
 
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
+import com.jj.swm.domain.studyroom.dto.request.StudyRoomUpdateRequest;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
 import com.jj.swm.domain.user.entity.User;
@@ -112,6 +113,24 @@ public class StudyRoom extends BaseTimeEntity {
     public void modifyRoomAdmin(User user){
         this.user = user;
         user.addStudyRoom(this);
+    }
+
+    public void modifyStudyRoom(StudyRoomUpdateRequest request) {
+        this.title = request.getTitle();
+        this.subtitle = request.getSubtitle();
+        this.introduce = request.getIntroduce();
+        this.notice = request.getNotice();
+        this.guideline = request.getGuideline();
+        this.openingTime = request.getOpeningTime();
+        this.closingTime = request.getClosingTime();
+        this.address = request.getAddress();
+        this.point = request.getPoint();
+        this.thumbnail = request.getThumbnail();
+        this.referenceUrl = request.getReferenceUrl();
+        this.phoneNumber = request.getPhoneNumber();
+        this.minReserveTime = request.getMinReserveTime();
+        this.entireMinHeadcount = request.getEntireMinHeadcount();
+        this.entireMaxHeadcount = request.getEntireMaxHeadcount();
     }
 
 }
