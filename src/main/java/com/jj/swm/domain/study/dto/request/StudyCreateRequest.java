@@ -2,6 +2,7 @@ package com.jj.swm.domain.study.dto.request;
 
 import com.jj.swm.domain.study.entity.StudyCategory;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -31,7 +32,7 @@ public class StudyCreateRequest {
     @Size(max = 100)
     private List<String> imageUrls;
 
-    @NotNull
+    @NotEmpty
     @Size(max = 100)
     private List<StudyRecruitPositionsCreateRequest> recruitPositionsCreateRequests;
 }

@@ -41,11 +41,7 @@ public class StudyCommandService {
             studyImageRepository.batchInsert(study, createRequest.getImageUrls());
         }
 
-        if (createRequest.getRecruitPositionsCreateRequests() != null &&
-                !createRequest.getRecruitPositionsCreateRequests().isEmpty()
-        ) {
-            studyRecruitmentPositionRepository.batchInsert(study, createRequest.getRecruitPositionsCreateRequests());
-        }
+        studyRecruitmentPositionRepository.batchInsert(study, createRequest.getRecruitPositionsCreateRequests());
     }
 
     @Transactional
