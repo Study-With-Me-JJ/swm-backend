@@ -2,8 +2,8 @@ package com.jj.swm.domain.studyroom.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.jj.swm.domain.studyroom.StudyRoomCreateRequestFixture;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
+import com.jj.swm.domain.studyroom.fixture.dto.StudyRoomCreateRequestFixture;
 import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,10 +36,10 @@ class StudyRoomCommandControllerTest {
 
 
     @Test
-    @DisplayName("컨트롤러에서 스터디 생성에 성공한다.")
+    @DisplayName("컨트롤러에서 스터디 룸 생성에 성공한다.")
     void createStudy_Success() throws Exception{
         //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.create();
 
         doNothing().when(commandService).create(any(StudyRoomCreateRequest.class), any(UUID.class));
 
@@ -56,7 +55,7 @@ class StudyRoomCommandControllerTest {
     }
 
     @Test
-    @DisplayName("스터디 생성 시 잘못된 데이터가 들어오면 실패한다.")
+    @DisplayName("스터디 룸 생성 시 잘못된 데이터가 들어오면 실패한다.")
     public void createStudy_FailByNotValidData() throws Exception{
         //given
         StudyRoomCreateRequest request = StudyRoomCreateRequest.builder()

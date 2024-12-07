@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom;
+package com.jj.swm.domain.studyroom.fixture.dto;
 
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomReservationTypeCreateRequest;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class StudyRoomCreateRequestFixture {
 
-    public static StudyRoomCreateRequest createStudyRoomCreateRequestFixture(){
+    public static StudyRoomCreateRequest create(){
         return StudyRoomCreateRequest.builder()
                 .title("test")
                 .subtitle("test")
@@ -41,7 +41,7 @@ public class StudyRoomCreateRequestFixture {
                 .types(List.of(StudyRoomType.STUDY, StudyRoomType.MEETING))
                 .options(List.of(StudyRoomOption.MIKE, StudyRoomOption.NO_SMOKE))
                 .reservationTypes(
-                        List.of(createStudyRoomReservationTypeCreateRequestFixture())
+                        List.of(createReservationType())
                 )
                 .minReserveTime(2)
                 .entireMinHeadcount(1)
@@ -49,7 +49,7 @@ public class StudyRoomCreateRequestFixture {
                 .build();
     }
 
-    public static StudyRoomCreateRequest createStudyRoomCreateRequestListNullFixture(){
+    public static StudyRoomCreateRequest createListNull(){
         return StudyRoomCreateRequest.builder()
                 .title("test")
                 .subtitle("test")
@@ -77,7 +77,7 @@ public class StudyRoomCreateRequestFixture {
                 .types(List.of(StudyRoomType.STUDY, StudyRoomType.MEETING))
                 .options(List.of(StudyRoomOption.MIKE, StudyRoomOption.NO_SMOKE))
                 .reservationTypes(
-                        List.of(createStudyRoomReservationTypeCreateRequestFixture())
+                        List.of(createReservationType())
                 )
                 .minReserveTime(2)
                 .entireMinHeadcount(1)
@@ -85,7 +85,7 @@ public class StudyRoomCreateRequestFixture {
                 .build();
     }
 
-    public static StudyRoomCreateRequest createStudyRoomCreateRequestListEmptyFixture(){
+    public static StudyRoomCreateRequest createListEmpty(){
         return StudyRoomCreateRequest.builder()
                 .title("test")
                 .subtitle("test")
@@ -113,7 +113,7 @@ public class StudyRoomCreateRequestFixture {
                 .types(List.of(StudyRoomType.STUDY, StudyRoomType.MEETING))
                 .options(List.of(StudyRoomOption.MIKE, StudyRoomOption.NO_SMOKE))
                 .reservationTypes(
-                        List.of(createStudyRoomReservationTypeCreateRequestFixture())
+                        List.of(createReservationType())
                 )
                 .minReserveTime(2)
                 .entireMinHeadcount(1)
@@ -121,7 +121,7 @@ public class StudyRoomCreateRequestFixture {
                 .build();
     }
 
-    public static StudyRoomReservationTypeCreateRequest createStudyRoomReservationTypeCreateRequestFixture(){
+    public static StudyRoomReservationTypeCreateRequest createReservationType(){
         return StudyRoomReservationTypeCreateRequest.builder()
                 .maxHeadcount(1)
                 .reservationOption("1인실")

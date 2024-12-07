@@ -1,19 +1,15 @@
-package com.jj.swm.domain.studyroom;
+package com.jj.swm.domain.studyroom.fixture;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
-import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
-import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
 import com.jj.swm.domain.user.entity.User;
 
-import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.List;
 
 public class StudyRoomFixture {
 
-    public static StudyRoom createStudyRoom(User user) {
+    public static StudyRoom create(User user) {
         return StudyRoom.builder()
                 .id(1L)
                 .title("test")

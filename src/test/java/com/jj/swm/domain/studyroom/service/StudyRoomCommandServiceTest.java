@@ -1,14 +1,15 @@
 package com.jj.swm.domain.studyroom.service;
 
-import com.jj.swm.domain.studyroom.StudyRoomCreateRequestFixture;
-import com.jj.swm.domain.studyroom.StudyRoomFixture;
+import com.jj.swm.domain.studyroom.dto.request.StudyRoomUpdateRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.image.StudyRoomImageModifyRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequest;
+import com.jj.swm.domain.studyroom.entity.StudyRoomImage;
+import com.jj.swm.domain.studyroom.fixture.*;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReservationTypeCreateRequest;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
-import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
-import com.jj.swm.domain.studyroom.entity.StudyRoomType;
-import com.jj.swm.domain.studyroom.entity.embeddable.Address;
-import com.jj.swm.domain.studyroom.entity.embeddable.Point;
+import com.jj.swm.domain.studyroom.fixture.dto.StudyRoomCreateRequestFixture;
+import com.jj.swm.domain.studyroom.fixture.dto.update.StudyRoomTagModifyRequestFixture;
+import com.jj.swm.domain.studyroom.fixture.dto.update.StudyRoomUpdateRequestFixture;
 import com.jj.swm.domain.studyroom.repository.*;
 import com.jj.swm.domain.user.UserFixture;
 import com.jj.swm.domain.user.entity.RoleType;
@@ -23,12 +24,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -54,14 +54,14 @@ class StudyRoomCommandServiceTest {
     @BeforeEach
     void setUp() {
         user = UserFixture.createUser();
-        studyRoom = StudyRoomFixture.createStudyRoom(user);
+        studyRoom = StudyRoomFixture.create(user);
     }
 
     @Test
     @DisplayName("스터디 룸을 생성할 수 있다.")
     void createStudyRoom_Success() throws Exception{
         //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.create();
 
         given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
                 .willReturn(Optional.ofNullable(user));
@@ -85,7 +85,7 @@ class StudyRoomCommandServiceTest {
     @DisplayName("존재하지 않는 UUID라면 예외를 반환한다.")
     void createStudyRoom_FailByUserUUIDNotFound() throws Exception{
         //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.create();
 
         UUID uuid = UUID.randomUUID();
 
@@ -100,7 +100,7 @@ class StudyRoomCommandServiceTest {
     @DisplayName("스터디 룸 생성 시 모든 List가 empty인 경우를 수행한다.")
     void createStudyRoom_WhenConditionListEmpty_Success() throws Exception{
         //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestListEmptyFixture();
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createListEmpty();
 
         given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
                 .willReturn(Optional.ofNullable(user));
@@ -124,7 +124,7 @@ class StudyRoomCommandServiceTest {
     @DisplayName("스터디 룸 생성 시 모든 List가 null인 경우를 수행한다.")
     void createStudyRoom_WhenConditionListNull_Success() throws Exception{
         //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestListNullFixture();
+        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createListNull();
 
         given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
                 .willReturn(Optional.ofNullable(user));
@@ -142,6 +142,88 @@ class StudyRoomCommandServiceTest {
         verify(optionInfoRepository, times(1)).batchInsert(request.getOptions(), studyRoom);
         verify(typeInfoRepository, times(1)).batchInsert(request.getTypes(), studyRoom);
         verify(reserveTypeRepository, times(1)).batchInsert(request.getReservationTypes(), studyRoom);
+    }
+
+    @Test
+    @DisplayName("스터디 룸을 수정할 수 있다.")
+    void updateStudyRoom_Success() throws Exception{
+        //given
+        given(studyRoomRepository.findByIdAndUserId(1L, UserFixture.uuid))
+                .willReturn(Optional.ofNullable(studyRoom));
+
+        StudyRoomUpdateRequest updateRequest = StudyRoomUpdateRequestFixture.create();
+        StudyRoomImageModifyRequest imageModifyRequest = updateRequest.getImageModification();
+
+        StudyRoomImage imageId1 = StudyRoomImageFixture.createWithId(studyRoom, 1L);
+
+        doNothing().when(imageRepository).batchInsert(
+                imageModifyRequest.getImagesToAdd(), studyRoom
+        );
+
+        given(imageRepository.findAllByIdInAndStudyRoom(List.of(1L), studyRoom)).willReturn(List.of(imageId1));
+        given(imageRepository.countStudyRoomImageByIdInAndStudyRoom(List.of(2L, 3L), studyRoom)).willReturn(2);
+        doNothing().when(imageRepository).deleteAllByIdInBatch(List.of(2L, 3L));
+
+        //when
+        studyRoomCommandService.update(updateRequest, UserFixture.uuid);
+
+        //then
+        assertThat(studyRoom.getTitle()).isEqualTo(updateRequest.getTitle());
+        assertThat(studyRoom.getSubtitle()).isEqualTo(updateRequest.getSubtitle());
+        assertThat(imageId1.getImageUrl()).isEqualTo(imageModifyRequest.getImagesToUpdate().getFirst().getImageUrl());
+        verify(studyRoomRepository, times(1)).findByIdAndUserId(1L, UserFixture.uuid);
+        verify(imageRepository, times(1)).findAllByIdInAndStudyRoom(List.of(1L), studyRoom);
+        verify(imageRepository, times(1)).countStudyRoomImageByIdInAndStudyRoom(List.of(2L, 3L), studyRoom);
+        verify(imageRepository, times(1)).deleteAllByIdInBatch(List.of(2L, 3L));
+    }
+
+    @Test
+    @DisplayName("스터디 룸 이미지 수정값이 올바르지 않다면 오류를 반환한다.")
+    void updateStudyRoom_FailByNotValidImageUpdate() throws Exception{
+        //given
+        given(studyRoomRepository.findByIdAndUserId(1L, UserFixture.uuid))
+                .willReturn(Optional.ofNullable(studyRoom));
+
+        StudyRoomUpdateRequest updateRequest = StudyRoomUpdateRequestFixture.createOnlyImageUpdate();
+
+        given(imageRepository.findAllByIdInAndStudyRoom(List.of(1L), studyRoom)).willReturn(List.of());
+
+        //when & then
+        assertThrows(GlobalException.class, () -> studyRoomCommandService.update(updateRequest, UserFixture.uuid));
+    }
+
+    @Test
+    @DisplayName("스터디 룸 이미지 삭제값이 올바르지 않다면 오류를 반환한다.")
+    void updateStudyRoom_FailByNotValidImageRemove() throws Exception{
+        //given
+        given(studyRoomRepository.findByIdAndUserId(1L, UserFixture.uuid))
+                .willReturn(Optional.ofNullable(studyRoom));
+
+        StudyRoomUpdateRequest updateRequest = StudyRoomUpdateRequestFixture.createOnlyImageRemove();
+
+        given(imageRepository.countStudyRoomImageByIdInAndStudyRoom(List.of(2L, 3L), studyRoom)).willReturn(1);
+
+        //when & then
+        assertThrows(GlobalException.class, () -> studyRoomCommandService.update(updateRequest, UserFixture.uuid));
+    }
+
+    @Test
+    @DisplayName("스터디 룸 태그를 수정할 수 있다.")
+    void updateStudyRoomTag_Success() throws Exception{
+        //given
+        given(studyRoomRepository.findByIdAndUserId(1L, UserFixture.uuid))
+                .willReturn(Optional.ofNullable(studyRoom));
+
+        StudyRoomTagModifyRequest tagModifyRequest = StudyRoomTagModifyRequestFixture.create();
+
+
+        doNothing().when(tagRepository).batchInsert(tagModifyRequest.getTagsToAdd(), studyRoom);
+
+        given(tagRepository.findAllByIdInAndStudyRoom(List.of(1L), studyRoom)).willReturn(List.of());
+        given(imageRepository.countStudyRoomImageByIdInAndStudyRoom(List.of(2L, 3L), studyRoom)).willReturn(2);
+        //when
+
+        //then
     }
 
 }
