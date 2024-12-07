@@ -51,9 +51,7 @@ public class StudyCommandService {
 
         Study study = getStudy(studyId);
 
-        Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserAndStudy(
-                user, study
-        );
+        Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserAndStudy(user, study);
 
         if (optionalStudyBookmark.isPresent()) {
             return StudyBookmarkCreateResponse.from(optionalStudyBookmark.get());
