@@ -107,6 +107,21 @@ public class StudyRoomCommandService {
         reserveTypeModifyLogic(request, studyRoom);
     }
 
+    @Transactional
+    public void delete(StudyRoomDeleteRequest request, UUID userId) {
+        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
+
+        imageRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
+        tagRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
+        optionInfoRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
+        typeInfoRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
+        reserveTypeRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
+        dayOffRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
+        studyRoomRepository.delete(studyRoom);
+
+        // 좋아요, 이용후기, 이용후기 답글, QnA, QnA 답글, 좋아요 수, 북마크 수 삭제 필요
+    }
+
     private void imageModifyLogic(StudyRoomImageModifyRequest imageModification, StudyRoom studyRoom) {
         if (imageModification != null) {
             if (imageModification.getImagesToAdd() != null && !imageModification.getImagesToAdd().isEmpty())

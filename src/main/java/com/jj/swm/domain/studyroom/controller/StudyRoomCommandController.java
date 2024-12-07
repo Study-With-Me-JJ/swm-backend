@@ -1,6 +1,7 @@
 package com.jj.swm.domain.studyroom.controller;
 
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
+import com.jj.swm.domain.studyroom.dto.request.StudyRoomDeleteRequest;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomUpdateRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.dayoff.StudyRoomDayOffModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.option.StudyRoomOptionInfoModifyRequest;
@@ -86,5 +87,12 @@ public class StudyRoomCommandController {
         return ApiResponse.ok(null);
     }
 
+    @DeleteMapping("/v1/studyroom")
+    public ApiResponse<Void> delete(
+            @Valid @RequestBody StudyRoomDeleteRequest request, Principal principal
+    ) {
+        commandService.delete(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
 
+        return ApiResponse.ok(null);
+    }
 }
