@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Long> {
+public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Long>, CustomStudyBookmarkRepository {
 
     @Query("select b from StudyBookmark b join fetch b.user where b.id = ?1")
     Optional<StudyBookmark> findWithUserById(Long bookmarkId);

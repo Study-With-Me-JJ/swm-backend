@@ -12,7 +12,7 @@ import java.util.function.Function;
 public class PageResponse<D> {
     private int numberOfElements;
     private int totalPages;
-    private long totalElements;
+        private long totalElements;
     private boolean hasNext;
     private List<D> data;
 
@@ -25,6 +25,16 @@ public class PageResponse<D> {
                 entity.getTotalElements(),
                 entity.hasNext(),
                 dto
+        );
+    }
+
+    public static <D> PageResponse<D> of(Page<D> dto) {
+        return new PageResponse<>(
+                dto.getNumberOfElements(),
+                dto.getTotalPages(),
+                dto.getTotalElements(),
+                dto.hasNext(),
+                dto.getContent()
         );
     }
 
