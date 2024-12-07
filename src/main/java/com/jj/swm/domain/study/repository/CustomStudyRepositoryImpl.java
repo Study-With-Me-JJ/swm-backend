@@ -11,7 +11,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -25,40 +24,21 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Study> findAllWithUserAndTags(Pageable pageable, StudyInquiryCondition inquiryConditionRequest) {
-        OrderSpecifier<?> orderSpecifier = createOrderSpecifier(inquiryConditionRequest.getSortCriteria());
-
-        List<Long> ids = jpaQueryFactory.select(study.id)
-                .from(study)
-                .where(
-                        studyCategoryEq(inquiryConditionRequest.getCategory()),
-                        studyStatusEq(inquiryConditionRequest.getStatus())
-                )
-                .orderBy(orderSpecifier)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
+    public List<Study> findAllWithUserAndTags(int pageSize, StudyInquiryCondition inquiryCondition) {
         return jpaQueryFactory.selectFrom(study)
                 .join(study.user)
                 .fetchJoin()
                 .leftJoin(study.studyTags)
                 .fetchJoin()
-                .where(study.id.in(ids))
-                .orderBy(orderSpecifier)
-                .distinct()
-                .fetch();
-    }
-
-    @Override
-    public Long countTotal(StudyInquiryCondition inquiryConditionRequest) {
-        return jpaQueryFactory.select(study.count())
-                .from(study)
                 .where(
-                        studyCategoryEq(inquiryConditionRequest.getCategory()),
-                        studyStatusEq(inquiryConditionRequest.getStatus())
+                        studyCategoryEq(inquiryCondition.getCategory()),
+                        studyStatusEq(inquiryCondition.getStatus()),
+                        createSortPredicate(inquiryCondition)
                 )
-                .fetchOne();
+                .orderBy(createOrderSpecifier(inquiryCondition.getSortCriteria()))
+                .distinct()
+                .limit(pageSize)
+                .fetch();
     }
 
     private BooleanBuilder studyCategoryEq(StudyCategory category) {
@@ -72,16 +52,32 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     private BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
         try {
             return new BooleanBuilder(f.get());
-        } catch (IllegalArgumentException e) {
-            return new BooleanBuilder();
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
         }
     }
 
-    private OrderSpecifier<?> createOrderSpecifier(SortCriteria sortCriteria) {
+    private OrderSpecifier<?>[] createOrderSpecifier(SortCriteria sortCriteria) {
         return switch (sortCriteria != null ? sortCriteria : SortCriteria.NEWEST) {
-            case SortCriteria.LIKE -> new OrderSpecifier<>(Order.DESC, study.likeCount);
-            case SortCriteria.OLDEST -> new OrderSpecifier<>(Order.ASC, study.id);
-            case SortCriteria.NEWEST -> new OrderSpecifier<>(Order.DESC, study.id);
+            case SortCriteria.LIKE -> new OrderSpecifier<?>[]{
+                    new OrderSpecifier<>(Order.DESC, study.likeCount),
+                    new OrderSpecifier<>(Order.DESC, study.id),
+            };
+            case SortCriteria.NEWEST -> new OrderSpecifier<?>[]{
+                    new OrderSpecifier<>(Order.DESC, study.id)
+            };
+        };
+    }
+
+    private BooleanBuilder createSortPredicate(StudyInquiryCondition inquiryCondition) {
+        Integer lastSortValue = inquiryCondition.getLastSortValue();
+        SortCriteria sortCriteria = inquiryCondition.getSortCriteria();
+        Long lastStudyId = inquiryCondition.getLastStudyId();
+
+        return switch (sortCriteria != null ? sortCriteria : SortCriteria.NEWEST) {
+            case LIKE -> this.nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
+                    .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
+            default -> this.nullSafeBuilder(() -> study.id.lt(lastStudyId));
         };
     }
 }

@@ -7,10 +7,9 @@ import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.domain.study.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.repository.StudyRepository;
 import com.jj.swm.global.common.dto.PageResponse;
+import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -28,15 +27,20 @@ public class StudyQueryService {
 
     public PageResponse<StudyInquiryResponse> getList(
             UUID userId,
-            int pageNo,
             int pageSize,
             StudyInquiryCondition inquiryCondition
     ) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        List<Study> studies = studyRepository.findAllWithUserAndTags(pageSize + 1, inquiryCondition);
 
-        List<Study> studies = studyRepository.findAllWithUserAndTags(pageable, inquiryCondition);
+        if (studies.isEmpty()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "study not found");
+        }
 
-        List<Long> studyIds = studies.stream()
+        boolean hasNext = studies.size() > pageSize;
+
+        List<Study> pagedStudies = hasNext ? studies.subList(0, pageSize) : studies;
+
+        List<Long> studyIds = pagedStudies.stream()
                 .map(Study::getId)
                 .toList();
 
@@ -46,12 +50,10 @@ public class StudyQueryService {
                     .collect(Collectors.toMap(StudyBookmarkInfo::getId, StudyBookmarkInfo::getStudyId))
                 : Collections.emptyMap();
 
-        List<StudyInquiryResponse> inquiryResponses = studies.stream()
+        List<StudyInquiryResponse> inquiryResponses = pagedStudies.stream()
                 .map(study -> StudyInquiryResponse.of(study, bookmarkIdByStudyId.getOrDefault(study.getId(), null)))
                 .toList();
 
-        Long totalStudies = studyRepository.countTotal(inquiryCondition);
-
-        return PageResponse.of(new PageImpl<>(inquiryResponses, pageable, totalStudies));
+        return PageResponse.of(inquiryResponses, hasNext);
     }
 }

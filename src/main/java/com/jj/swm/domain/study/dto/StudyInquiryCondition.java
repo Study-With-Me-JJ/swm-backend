@@ -13,5 +13,9 @@ public class StudyInquiryCondition {
 
     private StudyStatus status;
 
+    private Long lastStudyId;
+
     private SortCriteria sortCriteria;
+
+    private Integer lastSortValue;
 }
