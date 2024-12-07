@@ -11,6 +11,8 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -60,6 +62,9 @@ public class Study extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "study")
+    private List<StudyTag> studyTags = new ArrayList<>();
 
     public static Study of(User user, StudyCreateRequest createRequest) {
         return Study.builder()
