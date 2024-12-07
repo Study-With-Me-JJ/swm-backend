@@ -21,4 +21,5 @@ public interface StudyRoomTagRepository extends JpaRepository<StudyRoomTag, Long
     @Modifying
     @Query("update StudyRoomTag s set s.deletedAt = CURRENT_TIMESTAMP where s.id in :tagIds")
     void deleteAllByIdInBatch(@Param("tagIds") List<Long> tagIds);
+
 }

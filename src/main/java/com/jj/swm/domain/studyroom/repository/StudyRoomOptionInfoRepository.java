@@ -15,4 +15,6 @@ public interface StudyRoomOptionInfoRepository extends
     List<StudyRoomOptionInfo> findAllByIdInAndStudyRoom(List<Long> optionIds, StudyRoom studyRoom);
 
     int countStudyRoomOptionInfoByIdInAndStudyRoom(List<Long> optionIds, StudyRoom studyRoom);
+
+    void deleteByStudyRoom(StudyRoom studyRoom);
 }

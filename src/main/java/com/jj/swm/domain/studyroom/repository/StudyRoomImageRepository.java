@@ -14,4 +14,7 @@ public interface StudyRoomImageRepository extends JpaRepository<StudyRoomImage, 
     List<StudyRoomImage> findAllByIdInAndStudyRoom(List<Long> imageIds, StudyRoom studyRoom);
 
     int countStudyRoomImageByIdInAndStudyRoom(List<Long> imageIds, StudyRoom studyRoom);
+
+    void deleteByStudyRoom(StudyRoom studyRoom);
+
 }
