@@ -13,6 +13,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -49,6 +50,14 @@ public class StudyCommandService {
         User user = getUser(userId);
 
         Study study = getStudy(studyId);
+
+        Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserAndStudy(
+                user, study
+        );
+
+        if (optionalStudyBookmark.isPresent()) {
+            return StudyBookmarkCreateResponse.from(optionalStudyBookmark.get());
+        }
 
         StudyBookmark studyBookmark = StudyBookmark.of(study, user);
         studyBookmarkRepository.save(studyBookmark);
