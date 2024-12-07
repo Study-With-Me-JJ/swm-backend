@@ -56,6 +56,7 @@ public class StudyCommandService {
         return StudyBookmarkCreateResponse.from(studyBookmark);
     }
 
+    @Transactional
     public void deleteBookmark(UUID userId, Long bookmarkId) {
         User user = getUser(userId);
 
