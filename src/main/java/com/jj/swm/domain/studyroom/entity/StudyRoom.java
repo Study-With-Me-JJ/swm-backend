@@ -133,4 +133,12 @@ public class StudyRoom extends BaseTimeEntity {
         this.entireMaxHeadcount = request.getEntireMaxHeadcount();
     }
 
+    public void likeStudyRoom() {
+        this.likeCount++;
+    }
+
+    public void disLikeStudyRoom(){
+        this.likeCount = Math.max(0, this.likeCount - 1);
+    }
+
 }
