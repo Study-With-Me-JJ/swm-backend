@@ -19,4 +19,15 @@ public class UserFixture {
                 .studyRooms(new ArrayList<>())
                 .build();
     }
+
+    public static User createUserWithUUID() {
+        return User.builder()
+                .id(UUID.randomUUID())
+                .nickname("test")
+                .profileImageUrl("http://test.png")
+                .userRole(RoleType.USER)
+                .studyRooms(new ArrayList<>())
+                .build();
+    }
+
 }
