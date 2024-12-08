@@ -59,7 +59,7 @@ public class NaverMapCrawlingService implements DisposableBean {
         Arrays.stream(KoreaRegion.values()).toList().forEach(region -> {
             log.info("Starting Study Room crawling for region: {}", region.getKorName());
             driver = initializeChromeDriver();
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30)); // WebDriverWait 인스턴스 생성
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60)); // WebDriverWait 인스턴스 생성
             driver.get(BASE_URL);
 
             try {
@@ -82,7 +82,7 @@ public class NaverMapCrawlingService implements DisposableBean {
 
                 while (true) {
                     driver.executeScript("arguments[0].scrollTop += 1000", scrollableElement);
-                    sleep(3000); // 스크롤 후 약간 대기
+                    sleep(10000);
                     Long newHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
                     if (Objects.equals(newHeight, lastHeight)) {
                         // scroll to top
