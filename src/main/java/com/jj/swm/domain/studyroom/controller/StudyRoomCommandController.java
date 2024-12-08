@@ -8,6 +8,7 @@ import com.jj.swm.domain.studyroom.dto.request.update.option.StudyRoomOptionInfo
 import com.jj.swm.domain.studyroom.dto.request.update.reservationType.StudyRoomReservationTypeModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeInfoModifyRequest;
+import com.jj.swm.domain.studyroom.dto.response.StudyRoomLikeCreateResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -92,6 +93,31 @@ public class StudyRoomCommandController {
             @Valid @RequestBody StudyRoomDeleteRequest request, Principal principal
     ) {
         commandService.delete(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+
+        return ApiResponse.ok(null);
+    }
+
+    @PostMapping("/v1/studyroom/{studyRoomId}/like")
+    public ApiResponse<StudyRoomLikeCreateResponse> createLike(
+            @PathVariable("studyRoomId") Long studyRoomId, Principal principal
+    ) {
+        StudyRoomLikeCreateResponse response
+                = commandService.createLike(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+
+        return ApiResponse.created(response);
+    }
+
+    @DeleteMapping("/v1/studyroom/like/{studyRoomId}/{studyRoomLikeId}")
+    public ApiResponse<Void> deleteLike(
+            @PathVariable("studyRoomId") Long studyRoomId,
+            @PathVariable("studyRoomLikeId") Long studyRoomLikeId,
+            Principal principal
+    ) {
+        commandService.deleteLike(
+                studyRoomId,
+                studyRoomLikeId,
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+        );
 
         return ApiResponse.ok(null);
     }

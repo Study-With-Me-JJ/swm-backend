@@ -13,6 +13,7 @@ import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequ
 import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagUpdateRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeInfoModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeUpdateRequest;
+import com.jj.swm.domain.studyroom.dto.response.StudyRoomLikeCreateResponse;
 import com.jj.swm.domain.studyroom.entity.*;
 import com.jj.swm.domain.studyroom.repository.*;
 import com.jj.swm.domain.user.entity.RoleType;
@@ -41,6 +42,7 @@ public class StudyRoomCommandService {
     private final StudyRoomTypeInfoRepository typeInfoRepository;
     private final StudyRoomReserveTypeRepository reserveTypeRepository;
     private final StudyRoomTagRepository tagRepository;
+    private final StudyRoomLikeRepository likeRepository;
 
     @Transactional
     public void create(StudyRoomCreateRequest request, UUID userId){
@@ -121,6 +123,37 @@ public class StudyRoomCommandService {
 
         // 좋아요, 이용후기, 이용후기 답글, QnA, QnA 답글, 좋아요 수, 북마크 수 삭제 필요
     }
+
+    @Transactional
+    public StudyRoomLikeCreateResponse createLike(Long studyRoomId, UUID uuid) {
+        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
+        User user = validateUser(uuid);
+
+        validateExistsLike(studyRoom, user);
+
+        StudyRoomLike studyRoomLike = StudyRoomLike.of(studyRoom, user);
+
+        likeRepository.save(studyRoomLike);
+
+        studyRoom.likeStudyRoom();
+
+        return StudyRoomLikeCreateResponse.from(studyRoomLike);
+    }
+
+    @Transactional
+    public void deleteLike(
+            Long studyRoomId,
+            Long studyRoomLikeId,
+            UUID uuid
+    ) {
+        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
+
+        StudyRoomLike studyRoomLike = validateLike(studyRoomLikeId, uuid);
+
+        studyRoom.disLikeStudyRoom();
+        likeRepository.delete(studyRoomLike);
+    }
+
 
     private void imageModifyLogic(StudyRoomImageModifyRequest imageModification, StudyRoom studyRoom) {
         if (imageModification != null) {
@@ -384,6 +417,26 @@ public class StudyRoomCommandService {
     private StudyRoom validateStudyRoomWithUserId(Long studyRoomId, UUID userId) {
         return studyRoomRepository.findByIdAndUserId(studyRoomId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+    }
+
+    private StudyRoom validateStudyRoomWithLock(Long studyRoomId) {
+        return studyRoomRepository.findByIdWithLock(studyRoomId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+    }
+
+    private User validateUser(UUID userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "User Not Found"));
+    }
+
+    private void validateExistsLike(StudyRoom studyRoom, User user) {
+        if(likeRepository.existsByStudyRoomAndUser(studyRoom, user))
+            throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
+    }
+
+    private StudyRoomLike validateLike(Long studyRoomLikeId, UUID uuid) {
+        return likeRepository.findByIdWithUserId(studyRoomLikeId, uuid)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomLike Not Found"));
     }
 
 }

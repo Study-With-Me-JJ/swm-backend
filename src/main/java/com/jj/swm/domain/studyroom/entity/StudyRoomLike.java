@@ -22,4 +22,11 @@ public class StudyRoomLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public static StudyRoomLike of(StudyRoom studyRoom, User user) {
+        return StudyRoomLike.builder()
+                .user(user)
+                .studyRoom(studyRoom)
+                .build();
+    }
 }

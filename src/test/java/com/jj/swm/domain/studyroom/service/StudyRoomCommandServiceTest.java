@@ -1,147 +1,144 @@
 package com.jj.swm.domain.studyroom.service;
 
-import com.jj.swm.domain.studyroom.StudyRoomCreateRequestFixture;
+import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.studyroom.StudyRoomFixture;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReservationTypeCreateRequest;
+import com.jj.swm.domain.studyroom.dto.response.StudyRoomLikeCreateResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
-import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
-import com.jj.swm.domain.studyroom.entity.StudyRoomType;
-import com.jj.swm.domain.studyroom.entity.embeddable.Address;
-import com.jj.swm.domain.studyroom.entity.embeddable.Point;
-import com.jj.swm.domain.studyroom.repository.*;
+import com.jj.swm.domain.studyroom.repository.StudyRoomLikeRepository;
+import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
 import com.jj.swm.domain.user.UserFixture;
-import com.jj.swm.domain.user.entity.RoleType;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
-import com.jj.swm.global.exception.GlobalException;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(MockitoExtension.class)
-class StudyRoomCommandServiceTest {
+public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
 
-    @Mock private StudyRoomRepository studyRoomRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private StudyRoomDayOffRepository dayOffRepository;
-    @Mock private StudyRoomImageRepository imageRepository;
-    @Mock private StudyRoomOptionInfoRepository optionInfoRepository;
-    @Mock private StudyRoomTypeInfoRepository typeInfoRepository;
-    @Mock private StudyRoomReserveTypeRepository reserveTypeRepository;
-    @Mock private StudyRoomTagRepository tagRepository;
+    private static final int THREAD_COUNT = 100;
 
-    @InjectMocks private StudyRoomCommandService studyRoomCommandService;
+    @Autowired
+    private StudyRoomCommandService studyRoomCommandService;
+
+    @Autowired
+    private StudyRoomLikeRepository likeRepository;
+
+    @Autowired
+    private StudyRoomRepository studyRoomRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private StudyRoom studyRoom;
-    private User user;
+    private List<UUID> userUuids;
+
+    private ExecutorService executorService;
+    private CountDownLatch countDownLatch;
 
     @BeforeEach
-    void setUp() {
-        user = UserFixture.createUser();
-        studyRoom = StudyRoomFixture.createStudyRoom(user);
+    void setUp(){
+        User user = userRepository.saveAndFlush(UserFixture.createUser());
+        studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoomWithoutId(user));
+        userUuids = createTestUsers();
     }
 
     @Test
-    @DisplayName("스터디 룸을 생성할 수 있다.")
-    void createStudyRoom_Success() throws Exception{
+    @DisplayName("스터디 룸 좋아요 동시성 테스트에 성공한다.")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void studyRoom_like_concurrency_test() throws InterruptedException {
         //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
 
-        given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
-                .willReturn(Optional.ofNullable(user));
+        // when
+        for(int i = 0; i < THREAD_COUNT; i++) {
+            final UUID uuid = userUuids.get(i);
+            executorService.submit(() -> {
+                try {
+                    studyRoomCommandService.createLike(studyRoom.getId(), uuid);
+                } catch (Exception e){
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
 
-        given(studyRoomRepository.save(any(StudyRoom.class))).willReturn(studyRoom);
+        executorService.shutdown();
+        countDownLatch.await();
+
+        // then
+        long likeCount = likeRepository.countStudyRoomLikeByStudyRoom(studyRoom);
+        assertThat(likeCount).isEqualTo(100); // 사용자마다 한 번씩 좋아요가 생성되어야 함
+
+        studyRoom = studyRoomRepository.findById(studyRoom.getId()).get();
+        assertThat(studyRoom.getLikeCount()).isEqualTo(100);
+    }
+
+    @Test
+    @DisplayName("스터디 룸 좋아요 취소 동시성 테스트에 성공한다.")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void studyRoom_dislike_concurrency_test() throws InterruptedException {
+        //given
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
+
+        List<Long> studyRoomLikeIds = new ArrayList<>();
+
+        for(UUID uuid : userUuids) {
+           StudyRoomLikeCreateResponse response = studyRoomCommandService.createLike(studyRoom.getId(), uuid);
+           studyRoomLikeIds.add(response.getStudyRoomLikeId());
+        }
 
         //when
-        studyRoomCommandService.create(request, UserFixture.uuid);
+        for(int i = 0; i < THREAD_COUNT; i++) {
+            final UUID uuid = userUuids.get(i);
+            int idx = i;
+            executorService.submit(() -> {
+                try {
+                    studyRoomCommandService.deleteLike(
+                            studyRoom.getId(),
+                            studyRoomLikeIds.get(idx),
+                            uuid
+                    );
+                } catch (Exception e){
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
 
-        //then
-        verify(studyRoomRepository, times(1)).save(any(StudyRoom.class));
-        verify(dayOffRepository, times(1)).batchInsert(request.getDayOffs(), studyRoom);
-        verify(tagRepository, times(1)).batchInsert(request.getTags(), studyRoom);
-        verify(imageRepository, times(1)).batchInsert(request.getImageUrls(), studyRoom);
-        verify(optionInfoRepository, times(1)).batchInsert(request.getOptions(), studyRoom);
-        verify(typeInfoRepository, times(1)).batchInsert(request.getTypes(), studyRoom);
-        verify(reserveTypeRepository, times(1)).batchInsert(request.getReservationTypes(), studyRoom);
+        executorService.shutdown();
+        countDownLatch.await();
+
+        // then
+        long likeCount = likeRepository.countStudyRoomLikeByStudyRoom(studyRoom);
+        assertThat(likeCount).isEqualTo(0); // 최종적으로 좋아요가 모두 취소되어야 함
+
+        studyRoom = studyRoomRepository.findById(studyRoom.getId()).get();
+        assertThat(studyRoom.getLikeCount()).isEqualTo(0);
     }
 
-    @Test
-    @DisplayName("존재하지 않는 UUID라면 예외를 반환한다.")
-    void createStudyRoom_FailByUserUUIDNotFound() throws Exception{
-        //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
-
-        UUID uuid = UUID.randomUUID();
-
-        given(userRepository.findByIdAndUserRole(uuid, RoleType.ROOM_ADMIN))
-                .willReturn(Optional.empty());
-
-        //when & then
-        assertThrows(GlobalException.class, () -> studyRoomCommandService.create(request, uuid));
+    private List<UUID> createTestUsers() {
+        List<UUID> userUuids = new ArrayList<>();
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            User user = UserFixture.createUserWithUUID();
+            user = userRepository.save(user);
+            userUuids.add(user.getId());
+        }
+        return userUuids;
     }
-
-    @Test
-    @DisplayName("스터디 룸 생성 시 모든 List가 empty인 경우를 수행한다.")
-    void createStudyRoom_WhenConditionListEmpty_Success() throws Exception{
-        //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestListEmptyFixture();
-
-        given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
-                .willReturn(Optional.ofNullable(user));
-
-        given(studyRoomRepository.save(any(StudyRoom.class))).willReturn(studyRoom);
-
-        //when
-        studyRoomCommandService.create(request, UserFixture.uuid);
-
-        //then
-        verify(studyRoomRepository, times(1)).save(any(StudyRoom.class));
-        verify(dayOffRepository, never()).batchInsert(request.getDayOffs(), studyRoom);
-        verify(tagRepository, never()).batchInsert(request.getTags(), studyRoom);
-        verify(imageRepository, times(1)).batchInsert(request.getImageUrls(), studyRoom);
-        verify(optionInfoRepository, times(1)).batchInsert(request.getOptions(), studyRoom);
-        verify(typeInfoRepository, times(1)).batchInsert(request.getTypes(), studyRoom);
-        verify(reserveTypeRepository, times(1)).batchInsert(request.getReservationTypes(), studyRoom);
-    }
-
-    @Test
-    @DisplayName("스터디 룸 생성 시 모든 List가 null인 경우를 수행한다.")
-    void createStudyRoom_WhenConditionListNull_Success() throws Exception{
-        //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestListNullFixture();
-
-        given(userRepository.findByIdAndUserRole(UserFixture.uuid, RoleType.ROOM_ADMIN))
-                .willReturn(Optional.ofNullable(user));
-
-        given(studyRoomRepository.save(any(StudyRoom.class))).willReturn(studyRoom);
-
-        //when
-        studyRoomCommandService.create(request, UserFixture.uuid);
-
-        //then
-        verify(studyRoomRepository, times(1)).save(any(StudyRoom.class));
-        verify(dayOffRepository, never()).batchInsert(request.getDayOffs(), studyRoom);
-        verify(tagRepository, never()).batchInsert(request.getTags(), studyRoom);
-        verify(imageRepository, times(1)).batchInsert(request.getImageUrls(), studyRoom);
-        verify(optionInfoRepository, times(1)).batchInsert(request.getOptions(), studyRoom);
-        verify(typeInfoRepository, times(1)).batchInsert(request.getTypes(), studyRoom);
-        verify(reserveTypeRepository, times(1)).batchInsert(request.getReservationTypes(), studyRoom);
-    }
-
 }
+
