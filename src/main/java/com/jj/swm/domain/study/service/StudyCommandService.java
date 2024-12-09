@@ -167,7 +167,7 @@ public class StudyCommandService {
         study.incrementLikeCount();
     }
 
-    @Transactional //TODO find를 위로 올리기
+    @Transactional
     public void unLikeStudy(UUID userId, Long studyId) {
         Study study = getStudyPessimisticLock(studyId);
 
