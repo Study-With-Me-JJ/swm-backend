@@ -2,7 +2,10 @@ package com.jj.swm.domain.study.service;
 
 import com.jj.swm.domain.study.dto.request.*;
 import com.jj.swm.domain.study.dto.response.StudyBookmarkCreateResponse;
-import com.jj.swm.domain.study.entity.*;
+import com.jj.swm.domain.study.entity.Study;
+import com.jj.swm.domain.study.entity.StudyBookmark;
+import com.jj.swm.domain.study.entity.StudyLike;
+import com.jj.swm.domain.study.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.repository.*;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
@@ -21,6 +24,7 @@ public class StudyCommandService {
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
     private final StudyTagRepository studyTagRepository;
+    private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
     private final StudyRecruitmentPositionRepository studyRecruitmentPositionRepository;
@@ -155,6 +159,35 @@ public class StudyCommandService {
         studyBookmarkRepository.deleteById(studyBookmark.getId());
     }
 
+    @Transactional
+    public void likeStudy(UUID userId, Long studyId) {
+        Optional<StudyLike> optionalStudyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId);
+        if (optionalStudyLike.isPresent()) {
+            return;
+        }
+
+        User user = getUser(userId);
+
+        Study study = getStudyPessimisticLock(studyId);
+
+        StudyLike studyLike = StudyLike.of(user, study);
+        studyLikeRepository.save(studyLike);
+
+        study.incrementLikeCount();
+    }
+
+    @Transactional
+    public void unLikeStudy(UUID userId, Long studyId) {
+        Study study = getStudyPessimisticLock(studyId);
+
+        StudyLike studyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
+
+        studyLikeRepository.delete(studyLike);
+
+        study.decrementLikeCount();
+    }
+
     private User getUser(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "user not found"));
@@ -162,6 +195,11 @@ public class StudyCommandService {
 
     private Study getStudy(Long studyId) {
         return studyRepository.findById(studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+    }
+
+    private Study getStudyPessimisticLock(Long studyId) {
+        return studyRepository.findByIdWithPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 }
