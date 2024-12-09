@@ -137,7 +137,7 @@ public class StudyRoom extends BaseTimeEntity {
         this.likeCount++;
     }
 
-    public void disLikeStudyRoom(){
+    public void unLikeStudyRoom(){
         this.likeCount = Math.max(0, this.likeCount - 1);
     }
 

@@ -9,8 +9,6 @@ import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
 import com.jj.swm.domain.user.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,9 +40,6 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private EntityManagerFactory entityManagerFactory;
-
     private StudyRoom studyRoom;
     private List<UUID> userUuids;
 
@@ -59,16 +54,9 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
 
     @AfterEach
     void cleanup() {
-        EntityManager em = entityManagerFactory.createEntityManager();
-        em.getTransaction().begin();
-
-        // 모든 테이블의 데이터를 삭제
-        em.createNativeQuery("TRUNCATE TABLE study_room CASCADE").executeUpdate();
-        em.createNativeQuery("TRUNCATE TABLE study_room_like CASCADE").executeUpdate();
-        em.createNativeQuery("TRUNCATE TABLE users CASCADE").executeUpdate();
-
-        em.getTransaction().commit();
-        em.close();
+        likeRepository.deleteAllInBatch();
+        studyRoomRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
 
     @Test
@@ -126,7 +114,7 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
             final UUID uuid = userUuids.get(i);
             executorService.submit(() -> {
                 try {
-                    studyRoomCommandService.deleteLike(studyRoom.getId(), uuid);
+                    studyRoomCommandService.unLike(studyRoom.getId(), uuid);
                 } catch (Exception e){
                     e.printStackTrace();
                 } finally {

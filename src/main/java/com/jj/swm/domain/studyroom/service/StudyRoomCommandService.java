@@ -120,13 +120,13 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void deleteLike(Long studyRoomId, UUID userId) {
+    public void unLike(Long studyRoomId, UUID userId) {
         StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
         User user = userRepository.getReferenceById(userId);
 
         StudyRoomLike studyRoomLike = validateLike(studyRoom, user);
 
-        studyRoom.disLikeStudyRoom();
+        studyRoom.unLikeStudyRoom();
         likeRepository.delete(studyRoomLike);
     }
 
