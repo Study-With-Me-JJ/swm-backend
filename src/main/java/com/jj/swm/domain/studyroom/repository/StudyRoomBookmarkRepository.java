@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface StudyRoomBookmarkRepository extends JpaRepository<StudyRoomBookmark, Long> {
 
-    boolean existsByStudyRoomAndUser(StudyRoom studyRoom, User user);
+    boolean existsByStudyRoomIdAndUserId(Long studyRoomId, UUID userId);
 
     @Query("select s from StudyRoomBookmark s join fetch s.user where s.id = ?1")
     Optional<StudyRoomBookmark> findByIdWithUser(Long studyRoomBookmarkId);

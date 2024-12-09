@@ -14,9 +14,9 @@ import java.util.UUID;
 @Repository
 public interface StudyRoomLikeRepository extends JpaRepository<StudyRoomLike, Long> {
 
-    boolean existsByStudyRoomAndUser(StudyRoom studyRoom, User user);
+    boolean existsByStudyRoomIdAndUserId(Long studyRoomId, UUID userId);
 
-    Optional<StudyRoomLike> findByStudyRoomAndUser(StudyRoom studyRoom, User user);
+    Optional<StudyRoomLike> findByStudyRoomIdAndUserId(Long studyRoomId, UUID userId);
 
     int countStudyRoomLikeByStudyRoom(StudyRoom studyRoom);
 }

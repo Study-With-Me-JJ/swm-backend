@@ -105,10 +105,10 @@ public class StudyRoomCommandService {
 
     @Transactional
     public StudyRoomLikeCreateResponse createLike(Long studyRoomId, UUID userId) {
+        validateExistsLike(studyRoomId, userId);
+
         StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
         User user = userRepository.getReferenceById(userId);
-
-        validateExistsLike(studyRoom, user);
 
         StudyRoomLike studyRoomLike = StudyRoomLike.of(studyRoom, user);
 
@@ -121,10 +121,9 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void unLike(Long studyRoomId, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
-        User user = userRepository.getReferenceById(userId);
+        StudyRoomLike studyRoomLike = validateLike(studyRoomId, userId);
 
-        StudyRoomLike studyRoomLike = validateLike(studyRoom, user);
+        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
 
         studyRoom.unLikeStudyRoom();
         likeRepository.delete(studyRoomLike);
@@ -132,10 +131,9 @@ public class StudyRoomCommandService {
 
     @Transactional
     public StudyRoomBookmarkCreateResponse createBookmark(Long studyRoomId, UUID userId) {
+        validateExistsBookmark(studyRoomId, userId);
         StudyRoom studyRoom = validateStudyRoom(studyRoomId);
         User user = userRepository.getReferenceById(userId);
-
-        validateExistsBookmark(studyRoom, user);
 
         StudyRoomBookmark studyRoomBookmark = StudyRoomBookmark.of(studyRoom, user);
 
@@ -428,13 +426,13 @@ public class StudyRoomCommandService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
     }
 
-    private void validateExistsLike(StudyRoom studyRoom, User user) {
-        if(likeRepository.existsByStudyRoomAndUser(studyRoom, user))
+    private void validateExistsLike(Long studyRoomId, UUID userId) {
+        if(likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId))
             throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
     }
 
-    private StudyRoomLike validateLike(StudyRoom studyRoom, User user) {
-        return likeRepository.findByStudyRoomAndUser(studyRoom, user)
+    private StudyRoomLike validateLike(Long studyRoomId, UUID userId) {
+        return likeRepository.findByStudyRoomIdAndUserId(studyRoomId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomLike Not Found"));
     }
 
@@ -443,8 +441,8 @@ public class StudyRoomCommandService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomBookmark Not Found"));
     }
 
-    private void validateExistsBookmark(StudyRoom studyRoom, User user) {
-        if(bookmarkRepository.existsByStudyRoomAndUser(studyRoom, user))
+    private void validateExistsBookmark(Long studyRoomId, UUID userId) {
+        if(bookmarkRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId))
             throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
     }
 
