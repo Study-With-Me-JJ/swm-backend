@@ -181,9 +181,9 @@ public class StudyCommandService {
         StudyLike studyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
 
-        study.decrementLikeCount();
-
         studyLikeRepository.delete(studyLike);
+
+        study.decrementLikeCount();
     }
 
     private User getUser(UUID userId) {
