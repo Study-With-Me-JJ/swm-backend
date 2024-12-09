@@ -2,6 +2,7 @@ package com.jj.swm.domain.study.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.StudyFixture;
+import com.jj.swm.domain.study.StudyLikeFixture;
 import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.domain.study.repository.StudyLikeRepository;
 import com.jj.swm.domain.study.repository.StudyRepository;
@@ -67,7 +68,11 @@ class StudyCommandServiceConcurrencyTest extends IntegrationContainerSupporter {
         executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
         countDownLatch = new CountDownLatch(NUMBER_OF_THREADS);
 
-        List<UUID> userIds = getUserIds();
+        List<UUID> userIds = new ArrayList<>();
+        for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+            User user = userRepository.save(UserFixture.createUser());
+            userIds.add(user.getId());
+        }
 
         //when
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
@@ -90,13 +95,44 @@ class StudyCommandServiceConcurrencyTest extends IntegrationContainerSupporter {
         assertEquals(100, studyRepository.findById(study.getId()).get().getLikeCount());
     }
 
-    private List<UUID> getUserIds() {
-        List<UUID> userIds = new ArrayList<>();
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @DisplayName("동시에 100개 좋아요 취소 요청 테스트에 성공한다.")
+    void unLikeStudy_Success() throws InterruptedException {
+        //given
+        executorService = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+        countDownLatch = new CountDownLatch(NUMBER_OF_THREADS);
+
+        List<User> users = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-            User user = userRepository.save(UserFixture.createUser());
-            userIds.add(user.getId());
+            User user = userRepository.save(UserFixture.createUserWithUUID());
+            users.add(user);
         }
 
-        return userIds;
+        for (User user : users) {
+            studyLikeRepository.save(StudyLikeFixture.createStudyLike(user, study));
+        }
+
+        List<UUID> userIds = users.stream().map(User::getId).toList();
+
+        //when
+        for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+            UUID userId = userIds.get(i);
+            executorService.submit(() -> {
+                try {
+                    studyCommandService.unLikeStudy(userId, study.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+
+        countDownLatch.await();
+        executorService.shutdown();
+
+        //then
+        assertEquals(0, studyRepository.findById(study.getId()).get().getLikeCount());
     }
 }

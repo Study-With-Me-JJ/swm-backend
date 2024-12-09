@@ -91,4 +91,8 @@ public class Study extends BaseTimeEntity {
     public void incrementLikeCount() {
         this.likeCount++;
     }
+
+    public void decrementLikeCount() {
+        this.likeCount = Math.max(0, this.likeCount - 1);
+    }
 }

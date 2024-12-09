@@ -71,4 +71,11 @@ public class StudyCommandController {
 
         return ApiResponse.created(createResponse);
     }
+
+    @DeleteMapping("/v1/study/{studyId}/like")
+    public ApiResponse<Void> unLikeStudy(Principal principal, @PathVariable("studyId") Long studyId) {
+        studyCommandService.unLikeStudy(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId);
+
+        return ApiResponse.ok(null);
+    }
 }

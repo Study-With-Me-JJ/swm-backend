@@ -164,8 +164,7 @@ public class StudyCommandService {
     public StudyLikeCreateResponse likeStudy(UUID userId, Long studyId) {
         User user = getUser(userId);
 
-        Study study = studyRepository.findByIdWithPessimisticLock(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+        Study study = getStudyPessimisticLock(studyId);
 
         StudyLike studyLike = StudyLike.of(user, study);
         studyLikeRepository.save(studyLike);
@@ -175,6 +174,18 @@ public class StudyCommandService {
         return StudyLikeCreateResponse.from(studyLike);
     }
 
+    @Transactional
+    public void unLikeStudy(UUID userId, Long studyId) {
+        Study study = getStudyPessimisticLock(studyId);
+
+        StudyLike studyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
+
+        study.decrementLikeCount();
+
+        studyLikeRepository.delete(studyLike);
+    }
+
     private User getUser(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "user not found"));
@@ -182,6 +193,11 @@ public class StudyCommandService {
 
     private Study getStudy(Long studyId) {
         return studyRepository.findById(studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+    }
+
+    private Study getStudyPessimisticLock(Long studyId) {
+        return studyRepository.findByIdWithPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 }
