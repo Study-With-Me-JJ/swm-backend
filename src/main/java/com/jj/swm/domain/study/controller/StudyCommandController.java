@@ -3,7 +3,6 @@ package com.jj.swm.domain.study.controller;
 import com.jj.swm.domain.study.dto.request.StudyCreateRequest;
 import com.jj.swm.domain.study.dto.request.StudyUpdateRequest;
 import com.jj.swm.domain.study.dto.response.StudyBookmarkCreateResponse;
-import com.jj.swm.domain.study.dto.response.StudyLikeCreateResponse;
 import com.jj.swm.domain.study.service.StudyCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -64,12 +63,10 @@ public class StudyCommandController {
     }
 
     @PostMapping("/v1/study/{studyId}/like")
-    public ApiResponse<StudyLikeCreateResponse> likeStudy(Principal principal, @PathVariable("studyId") Long studyId) {
-        StudyLikeCreateResponse createResponse = studyCommandService.likeStudy(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId
-        );
+    public ApiResponse<Void> likeStudy(Principal principal, @PathVariable("studyId") Long studyId) {
+        studyCommandService.likeStudy(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId);
 
-        return ApiResponse.created(createResponse);
+        return ApiResponse.created(null);
     }
 
     @DeleteMapping("/v1/study/{studyId}/like")

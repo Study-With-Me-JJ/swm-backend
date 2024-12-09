@@ -2,7 +2,6 @@ package com.jj.swm.domain.study.service;
 
 import com.jj.swm.domain.study.dto.request.*;
 import com.jj.swm.domain.study.dto.response.StudyBookmarkCreateResponse;
-import com.jj.swm.domain.study.dto.response.StudyLikeCreateResponse;
 import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.domain.study.entity.StudyBookmark;
 import com.jj.swm.domain.study.entity.StudyLike;
@@ -161,7 +160,7 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public StudyLikeCreateResponse likeStudy(UUID userId, Long studyId) {
+    public void likeStudy(UUID userId, Long studyId) {
         User user = getUser(userId);
 
         Study study = getStudyPessimisticLock(studyId);
@@ -170,8 +169,6 @@ public class StudyCommandService {
         studyLikeRepository.save(studyLike);
 
         study.incrementLikeCount();
-
-        return StudyLikeCreateResponse.from(studyLike);
     }
 
     @Transactional
