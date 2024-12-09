@@ -1,4 +1,4 @@
-package com.jj.swm.domain.external.study.entity;
+package com.jj.swm.domain.external.studyroom.entity;
 
 import com.jj.swm.domain.common.KoreaRegion;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
