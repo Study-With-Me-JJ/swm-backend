@@ -47,7 +47,7 @@ public class StudyCommandService {
         studyRecruitmentPositionRepository.batchInsert(study, createRequest.getRecruitPositionsCreateRequests());
     }
 
-    @Transactional
+    @Transactional//TODO 조인 할 필요 없을듯
     public void update(UUID userId, Long studyId, StudyUpdateRequest updateRequest) {
         Study study = studyRepository.findWithUserByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
@@ -145,7 +145,7 @@ public class StudyCommandService {
         return StudyBookmarkCreateResponse.from(studyBookmark);
     }
 
-    @Transactional
+    @Transactional //TODO 짜를 거 짜르기
     public void unBookmarkStudy(UUID userId, Long bookmarkId) {
         User user = getUser(userId);
 
@@ -175,7 +175,7 @@ public class StudyCommandService {
         study.incrementLikeCount();
     }
 
-    @Transactional
+    @Transactional //TODO find를 위로 올리기
     public void unLikeStudy(UUID userId, Long studyId) {
         Study study = getStudyPessimisticLock(studyId);
 
@@ -188,13 +188,11 @@ public class StudyCommandService {
     }
 
     private User getUser(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "user not found"));
+        return userRepository.getReferenceById(userId);
     }
 
     private Study getStudy(Long studyId) {
-        return studyRepository.findById(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+        return studyRepository.getReferenceById(studyId);
     }
 
     private Study getStudyPessimisticLock(Long studyId) {
