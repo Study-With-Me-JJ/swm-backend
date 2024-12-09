@@ -80,8 +80,8 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void updateSettings(StudyRoomUpdateSettingRequest request, UUID uuid) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), uuid);
+    public void updateSettings(StudyRoomUpdateSettingRequest request, UUID userId) {
+        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
 
         optionModifyLogic(request.getOptionInfoModification(), studyRoom);
         typeModifyLogic(request.getTypeInfoModification(), studyRoom);
@@ -104,9 +104,9 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public StudyRoomLikeCreateResponse createLike(Long studyRoomId, UUID uuid) {
+    public StudyRoomLikeCreateResponse createLike(Long studyRoomId, UUID userId) {
         StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
-        User user = validateUser(uuid);
+        User user = userRepository.getReferenceById(userId);
 
         validateExistsLike(studyRoom, user);
 
@@ -120,9 +120,9 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void deleteLike(Long studyRoomId, UUID uuid) {
+    public void deleteLike(Long studyRoomId, UUID userId) {
         StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
-        User user = validateUser(uuid);
+        User user = userRepository.getReferenceById(userId);
 
         StudyRoomLike studyRoomLike = validateLike(studyRoom, user);
 
@@ -426,11 +426,6 @@ public class StudyRoomCommandService {
     private StudyRoom validateStudyRoomWithLock(Long studyRoomId) {
         return studyRoomRepository.findByIdWithLock(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
-    }
-
-    private User validateUser(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "User Not Found"));
     }
 
     private void validateExistsLike(StudyRoom studyRoom, User user) {
