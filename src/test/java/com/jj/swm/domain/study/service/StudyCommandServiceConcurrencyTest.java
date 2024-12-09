@@ -70,7 +70,7 @@ class StudyCommandServiceConcurrencyTest extends IntegrationContainerSupporter {
 
         List<UUID> userIds = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-            User user = userRepository.save(UserFixture.createUser());
+            User user = userRepository.save(UserFixture.createUserWithUUID());
             userIds.add(user.getId());
         }
 

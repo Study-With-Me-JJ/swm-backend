@@ -161,6 +161,11 @@ public class StudyCommandService {
 
     @Transactional
     public void likeStudy(UUID userId, Long studyId) {
+        Optional<StudyLike> optionalStudyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId);
+        if (optionalStudyLike.isPresent()) {
+            return;
+        }
+
         User user = getUser(userId);
 
         Study study = getStudyPessimisticLock(studyId);
