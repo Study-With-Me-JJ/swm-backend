@@ -10,6 +10,8 @@ import com.jj.swm.domain.user.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,9 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
+
     private StudyRoom studyRoom;
     private List<UUID> userUuids;
 
@@ -50,7 +55,20 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
     void setUp(){
         User user = userRepository.saveAndFlush(UserFixture.createUser());
         studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoomWithoutId(user));
-        userUuids = createTestUsers();
+    }
+
+    @AfterEach
+    void cleanup() {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+
+        // 모든 테이블의 데이터를 삭제
+        em.createNativeQuery("TRUNCATE TABLE study_room CASCADE").executeUpdate();
+        em.createNativeQuery("TRUNCATE TABLE study_room_like CASCADE").executeUpdate();
+        em.createNativeQuery("TRUNCATE TABLE users CASCADE").executeUpdate();
+
+        em.getTransaction().commit();
+        em.close();
     }
 
     @Test
@@ -58,6 +76,7 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void studyRoom_like_concurrency_test() throws InterruptedException {
         //given
+        userUuids = createTestUsers();
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
@@ -91,6 +110,7 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void studyRoom_dislike_concurrency_test() throws InterruptedException {
         //given
+        userUuids = createTestUsers();
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
@@ -104,14 +124,9 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
         //when
         for(int i = 0; i < THREAD_COUNT; i++) {
             final UUID uuid = userUuids.get(i);
-            int idx = i;
             executorService.submit(() -> {
                 try {
-                    studyRoomCommandService.deleteLike(
-                            studyRoom.getId(),
-                            studyRoomLikeIds.get(idx),
-                            uuid
-                    );
+                    studyRoomCommandService.deleteLike(studyRoom.getId(), uuid);
                 } catch (Exception e){
                     e.printStackTrace();
                 } finally {

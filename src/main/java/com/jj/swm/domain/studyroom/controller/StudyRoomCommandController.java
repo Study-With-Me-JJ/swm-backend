@@ -72,17 +72,11 @@ public class StudyRoomCommandController {
         return ApiResponse.created(response);
     }
 
-    @DeleteMapping("/v1/studyroom/like/{studyRoomId}/{studyRoomLikeId}")
+    @DeleteMapping("/v1/studyroom/like/{studyRoomId}")
     public ApiResponse<Void> deleteLike(
-            @PathVariable("studyRoomId") Long studyRoomId,
-            @PathVariable("studyRoomLikeId") Long studyRoomLikeId,
-            Principal principal
+            @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
-        commandService.deleteLike(
-                studyRoomId,
-                studyRoomLikeId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
-        );
+        commandService.deleteLike(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
 
         return ApiResponse.ok(null);
     }
