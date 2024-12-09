@@ -87,4 +87,8 @@ public class Study extends BaseTimeEntity {
         this.category = updateRequest.getCategory();
         this.thumbnail = updateRequest.getThumbnail();
     }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
 }
