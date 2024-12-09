@@ -1,9 +1,9 @@
-package com.jj.swm.domain.external.study.service;
+package com.jj.swm.domain.external.studyroom.service;
 
-import com.jj.swm.domain.external.study.dto.response.ExternalStudyRoomOutput;
-import com.jj.swm.domain.external.study.dto.response.GetExternalStudyRoomsResponse;
-import com.jj.swm.domain.external.study.entity.ExternalStudyRoom;
-import com.jj.swm.domain.external.study.repository.ExternalStudyRoomRepository;
+import com.jj.swm.domain.external.studyroom.dto.response.ExternalStudyRoomOutput;
+import com.jj.swm.domain.external.studyroom.dto.response.GetExternalStudyRoomsResponse;
+import com.jj.swm.domain.external.studyroom.entity.ExternalStudyRoom;
+import com.jj.swm.domain.external.studyroom.repository.ExternalStudyRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

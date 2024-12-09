@@ -1,4 +1,4 @@
-package com.jj.swm.domain.external.study.dto.response;
+package com.jj.swm.domain.external.studyroom.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

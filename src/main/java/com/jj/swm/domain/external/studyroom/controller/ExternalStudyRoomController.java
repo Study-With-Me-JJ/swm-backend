@@ -1,7 +1,7 @@
-package com.jj.swm.domain.external.study.controller;
+package com.jj.swm.domain.external.studyroom.controller;
 
-import com.jj.swm.domain.external.study.dto.response.GetExternalStudyRoomsResponse;
-import com.jj.swm.domain.external.study.service.ExternalStudyRoomService;
+import com.jj.swm.domain.external.studyroom.dto.response.GetExternalStudyRoomsResponse;
+import com.jj.swm.domain.external.studyroom.service.ExternalStudyRoomService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
