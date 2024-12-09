@@ -9,6 +9,7 @@ import com.jj.swm.domain.studyroom.dto.request.update.option.StudyRoomOptionInfo
 import com.jj.swm.domain.studyroom.dto.request.update.reservationType.StudyRoomReservationTypeModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeInfoModifyRequest;
+import com.jj.swm.domain.studyroom.dto.response.StudyRoomBookmarkCreateResponse;
 import com.jj.swm.domain.studyroom.dto.response.StudyRoomLikeCreateResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
@@ -77,6 +78,25 @@ public class StudyRoomCommandController {
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
         commandService.deleteLike(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+
+        return ApiResponse.ok(null);
+    }
+
+    @PostMapping("/v1/studyroom/{studyRoomId}/bookmark")
+    public ApiResponse<StudyRoomBookmarkCreateResponse> createBookmark(
+            @PathVariable("studyRoomId") Long studyRoomId, Principal principal
+    ) {
+        StudyRoomBookmarkCreateResponse response =
+                commandService.createBookmark(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+
+        return ApiResponse.created(response);
+    }
+
+    @DeleteMapping("/v1/studyroom/bookmark/{studyRoomBookmarkId}")
+    public ApiResponse<Void> unBookmark(
+            @PathVariable("studyRoomBookmarkId") Long studyRoomBookmarkId, Principal principal
+    ) {
+        commandService.unBookmark(studyRoomBookmarkId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
 
         return ApiResponse.ok(null);
     }

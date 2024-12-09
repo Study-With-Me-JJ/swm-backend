@@ -13,6 +13,7 @@ import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequ
 import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagUpdateRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeInfoModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeUpdateRequest;
+import com.jj.swm.domain.studyroom.dto.response.StudyRoomBookmarkCreateResponse;
 import com.jj.swm.domain.studyroom.dto.response.StudyRoomLikeCreateResponse;
 import com.jj.swm.domain.studyroom.entity.*;
 import com.jj.swm.domain.studyroom.repository.*;
@@ -44,6 +45,7 @@ public class StudyRoomCommandService {
     private final StudyRoomReserveTypeRepository reserveTypeRepository;
     private final StudyRoomTagRepository tagRepository;
     private final StudyRoomLikeRepository likeRepository;
+    private final StudyRoomBookmarkRepository bookmarkRepository;
 
     @Transactional
     public void create(StudyRoomCreateRequest request, UUID userId){
@@ -126,6 +128,30 @@ public class StudyRoomCommandService {
 
         studyRoom.disLikeStudyRoom();
         likeRepository.delete(studyRoomLike);
+    }
+
+    @Transactional
+    public StudyRoomBookmarkCreateResponse createBookmark(Long studyRoomId, UUID userId) {
+        StudyRoom studyRoom = validateStudyRoom(studyRoomId);
+        User user = userRepository.getReferenceById(userId);
+
+        validateExistsBookmark(studyRoom, user);
+
+        StudyRoomBookmark studyRoomBookmark = StudyRoomBookmark.of(studyRoom, user);
+
+        bookmarkRepository.save(studyRoomBookmark);
+
+        return StudyRoomBookmarkCreateResponse.from(studyRoomBookmark);
+    }
+
+    @Transactional
+    public void unBookmark(Long studyRoomBookmarkId, UUID userId) {
+        StudyRoomBookmark studyRoomBookmark = validateBookmarkWithUser(studyRoomBookmarkId);
+
+        if(!studyRoomBookmark.getUser().getId().equals(userId))
+            throw new GlobalException(ErrorCode.FORBIDDEN, "User does not have permission to delete the bookmark.");
+
+        bookmarkRepository.delete(studyRoomBookmark);
     }
 
     private void imageModifyLogic(StudyRoomImageModifyRequest imageModification, StudyRoom studyRoom) {
@@ -392,6 +418,11 @@ public class StudyRoomCommandService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
     }
 
+    private StudyRoom validateStudyRoom(Long studyRoomId) {
+        return studyRoomRepository.findById(studyRoomId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+    }
+
     private StudyRoom validateStudyRoomWithLock(Long studyRoomId) {
         return studyRoomRepository.findByIdWithLock(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
@@ -410,6 +441,16 @@ public class StudyRoomCommandService {
     private StudyRoomLike validateLike(StudyRoom studyRoom, User user) {
         return likeRepository.findByStudyRoomAndUser(studyRoom, user)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomLike Not Found"));
+    }
+
+    private StudyRoomBookmark validateBookmarkWithUser(Long studyRoomBookmarkId) {
+        return bookmarkRepository.findByIdWithUser(studyRoomBookmarkId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomBookmark Not Found"));
+    }
+
+    private void validateExistsBookmark(StudyRoom studyRoom, User user) {
+        if(bookmarkRepository.existsByStudyRoomAndUser(studyRoom, user))
+            throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
     }
 
 }
