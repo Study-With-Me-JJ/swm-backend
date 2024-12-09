@@ -9,7 +9,11 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.File;
 import java.io.InputStream;
@@ -43,6 +47,7 @@ public class S3ClientWrapper {
     private String secretAccessKey;
 
     private S3Client s3Client;
+    private S3Presigner presigner;
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
@@ -53,6 +58,13 @@ public class S3ClientWrapper {
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretAccessKey)))
                 .region(Region.of(region))
                 .forcePathStyle(true)
+                .build();
+
+        presigner = S3Presigner.builder()
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretAccessKey)))
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
+                .region(Region.of(region))
                 .build();
     }
 
@@ -67,6 +79,24 @@ public class S3ClientWrapper {
                 .key(System.currentTimeMillis() + Normalizer.normalize(file.getName(), Normalizer.Form.NFC))
                 .build();
         s3Client.putObject(putObjectRequest, file.toPath());
+    }
+
+    public String getPresignedURL(boolean isPublic, String key, boolean isImage) {
+        String bucketName = isPublic ? publicBucketName : privateBucketName;
+        PutObjectRequest objectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(isImage ? "image/jpeg" : "application/octet-stream")
+                .build();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(10))
+                .putObjectRequest(objectRequest)
+                .build();
+
+
+        PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
+        return presignedRequest.url().toExternalForm();
     }
 
     /**
