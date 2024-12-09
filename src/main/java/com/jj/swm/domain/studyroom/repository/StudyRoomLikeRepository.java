@@ -16,8 +16,7 @@ public interface StudyRoomLikeRepository extends JpaRepository<StudyRoomLike, Lo
 
     boolean existsByStudyRoomAndUser(StudyRoom studyRoom, User user);
 
-    @Query("select s from StudyRoomLike s join fetch s.user where s.id = ?1 and s.user.id = ?2")
-    Optional<StudyRoomLike> findByIdWithUserId(Long studyRoomLikeId, UUID userId);
+    Optional<StudyRoomLike> findByStudyRoomAndUser(StudyRoom studyRoom, User user);
 
     int countStudyRoomLikeByStudyRoom(StudyRoom studyRoom);
 }

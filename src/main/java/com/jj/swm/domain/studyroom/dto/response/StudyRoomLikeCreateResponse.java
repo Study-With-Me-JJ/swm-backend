@@ -9,10 +9,12 @@ import lombok.Getter;
 public class StudyRoomLikeCreateResponse {
 
     private Long studyRoomLikeId;
+    private int studyRoomLikeCount;
 
     public static StudyRoomLikeCreateResponse from(StudyRoomLike studyRoomLike) {
         return StudyRoomLikeCreateResponse.builder()
                 .studyRoomLikeId(studyRoomLike.getId())
+                .studyRoomLikeCount(studyRoomLike.getStudyRoom().getLikeCount())
                 .build();
     }
 }

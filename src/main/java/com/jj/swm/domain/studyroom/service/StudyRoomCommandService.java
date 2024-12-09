@@ -118,14 +118,11 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void deleteLike(
-            Long studyRoomId,
-            Long studyRoomLikeId,
-            UUID uuid
-    ) {
+    public void deleteLike(Long studyRoomId, UUID uuid) {
         StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
+        User user = validateUser(uuid);
 
-        StudyRoomLike studyRoomLike = validateLike(studyRoomLikeId, uuid);
+        StudyRoomLike studyRoomLike = validateLike(studyRoom, user);
 
         studyRoom.disLikeStudyRoom();
         likeRepository.delete(studyRoomLike);
@@ -410,8 +407,8 @@ public class StudyRoomCommandService {
             throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
     }
 
-    private StudyRoomLike validateLike(Long studyRoomLikeId, UUID uuid) {
-        return likeRepository.findByIdWithUserId(studyRoomLikeId, uuid)
+    private StudyRoomLike validateLike(StudyRoom studyRoom, User user) {
+        return likeRepository.findByStudyRoomAndUser(studyRoom, user)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomLike Not Found"));
     }
 
