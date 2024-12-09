@@ -47,9 +47,9 @@ public class StudyCommandService {
         studyRecruitmentPositionRepository.batchInsert(study, createRequest.getRecruitPositionsCreateRequests());
     }
 
-    @Transactional//TODO 조인 할 필요 없을듯
+    @Transactional
     public void update(UUID userId, Long studyId, StudyUpdateRequest updateRequest) {
-        Study study = studyRepository.findWithUserByIdAndUserId(studyId, userId)
+        Study study = studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
         study.modify(updateRequest);
