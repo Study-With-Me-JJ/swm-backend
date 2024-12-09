@@ -129,7 +129,7 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public StudyBookmarkCreateResponse createBookmark(UUID userId, Long studyId) {
+    public StudyBookmarkCreateResponse bookmarkStudy(UUID userId, Long studyId) {
         User user = getUser(userId);
 
         Study study = getStudy(studyId);
@@ -147,7 +147,7 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public void deleteBookmark(UUID userId, Long bookmarkId) {
+    public void unBookmarkStudy(UUID userId, Long bookmarkId) {
         User user = getUser(userId);
 
         StudyBookmark studyBookmark = studyBookmarkRepository.findWithUserById(bookmarkId)

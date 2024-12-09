@@ -45,10 +45,10 @@ public class StudyCommandController {
     }
 
     @PostMapping("/v1/study/{studyId}/bookmark")
-    public ApiResponse<StudyBookmarkCreateResponse> createStudyBookmark(
+    public ApiResponse<StudyBookmarkCreateResponse> bookmarkStudy(
             Principal principal, @PathVariable("studyId") Long studyId
     ) {
-        StudyBookmarkCreateResponse createResponse = studyCommandService.createBookmark(
+        StudyBookmarkCreateResponse createResponse = studyCommandService.bookmarkStudy(
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId
         );
 
@@ -56,8 +56,8 @@ public class StudyCommandController {
     }
 
     @DeleteMapping("/v1/study/bookmark/{bookmarkId}")
-    public ApiResponse<Void> deleteStudyBookmark(Principal principal, @PathVariable("bookmarkId") Long bookmarkId) {
-        studyCommandService.deleteBookmark(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), bookmarkId);
+    public ApiResponse<Void> unBookmarkStudy(Principal principal, @PathVariable("bookmarkId") Long bookmarkId) {
+        studyCommandService.unBookmarkStudy(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), bookmarkId);
 
         return ApiResponse.ok(null);
     }
