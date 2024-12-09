@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.controller;
 
 import com.jj.swm.domain.study.dto.request.StudyCreateRequest;
+import com.jj.swm.domain.study.dto.request.StudyUpdateRequest;
 import com.jj.swm.domain.study.dto.response.StudyBookmarkCreateResponse;
 import com.jj.swm.domain.study.service.StudyCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
@@ -27,6 +28,20 @@ public class StudyCommandController {
         );
 
         return ApiResponse.created(null);
+    }
+
+    @PutMapping("/v1/study/{studyId}")
+    public ApiResponse<Void> updateStudy(
+            Principal principal,
+            @PathVariable("studyId") Long studyId,
+            @Valid @RequestBody StudyUpdateRequest updateRequest
+    ) {
+        studyCommandService.update(
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                studyId,
+                updateRequest);
+
+        return ApiResponse.ok(null);
     }
 
     @PostMapping("/v1/study/{studyId}/bookmark")

@@ -42,4 +42,9 @@ public class StudyRecruitmentPosition {
                 .study(study)
                 .build();
     }
+
+    public void modify(StudyRecruitPositionsCreateRequest studyRecruitPositionsCreateRequest) {
+        this.title = studyRecruitPositionsCreateRequest.getTitle();
+        this.headcount = studyRecruitPositionsCreateRequest.getHeadcount();
+    }
 }
