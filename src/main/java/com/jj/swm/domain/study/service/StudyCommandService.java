@@ -130,15 +130,14 @@ public class StudyCommandService {
 
     @Transactional
     public StudyBookmarkCreateResponse bookmarkStudy(UUID userId, Long studyId) {
-        User user = getUser(userId);
-
-        Study study = getStudy(studyId);
-
-        Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserAndStudy(user, study);
-
+        Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserIdAndStudyId(userId, studyId);
         if (optionalStudyBookmark.isPresent()) {
             return StudyBookmarkCreateResponse.from(optionalStudyBookmark.get());
         }
+
+        User user = getUser(userId);
+
+        Study study = getStudy(studyId);
 
         StudyBookmark studyBookmark = StudyBookmark.of(study, user);
         studyBookmarkRepository.save(studyBookmark);

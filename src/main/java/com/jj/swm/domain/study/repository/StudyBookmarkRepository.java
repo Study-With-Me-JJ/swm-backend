@@ -1,6 +1,5 @@
 package com.jj.swm.domain.study.repository;
 
-import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.domain.study.entity.StudyBookmark;
 import com.jj.swm.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Long>, CustomStudyBookmarkRepository {
 
@@ -18,5 +18,5 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
     @Query("delete from StudyBookmark b where b.id = ?1")
     void deleteById(Long bookmarkId);
 
-    Optional<StudyBookmark> findByUserAndStudy(User userId, Study studyId);
+    Optional<StudyBookmark> findByUserIdAndStudyId(UUID userId, Long studyId);
 }
