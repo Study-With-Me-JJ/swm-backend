@@ -21,6 +21,7 @@ import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -72,41 +73,17 @@ public class StudyRoomCommandService {
         studyRoom.modifyStudyRoom(request);
 
         imageModifyLogic(request.getImageModification(), studyRoom);
+        tagModifyLogic(request.getTagModification(), studyRoom);
+        dayOffModifyLogic(request.getDayOffModification(), studyRoom);
     }
 
     @Transactional
-    public void updateTag(StudyRoomTagModifyRequest request, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
+    public void updateSettings(StudyRoomUpdateSettingRequest request, UUID uuid) {
+        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), uuid);
 
-        tagModifyLogic(request, studyRoom);
-    }
-
-    @Transactional
-    public void updateDayOff(StudyRoomDayOffModifyRequest request, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
-
-        dayOffModifyLogic(request, studyRoom);
-    }
-
-    @Transactional
-    public void updateOption(StudyRoomOptionInfoModifyRequest request, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
-
-        optionModifyLogic(request, studyRoom);
-    }
-
-    @Transactional
-    public void updateType(StudyRoomTypeInfoModifyRequest request, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
-
-        typeModifyLogic(request, studyRoom);
-    }
-
-    @Transactional
-    public void updateReserveType(StudyRoomReservationTypeModifyRequest request, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
-
-        reserveTypeModifyLogic(request, studyRoom);
+        optionModifyLogic(request.getOptionInfoModification(), studyRoom);
+        typeModifyLogic(request.getTypeInfoModification(), studyRoom);
+        reserveTypeModifyLogic(request.getReservationTypeModification(), studyRoom);
     }
 
     @Transactional
@@ -153,7 +130,6 @@ public class StudyRoomCommandService {
         studyRoom.disLikeStudyRoom();
         likeRepository.delete(studyRoomLike);
     }
-
 
     private void imageModifyLogic(StudyRoomImageModifyRequest imageModification, StudyRoom studyRoom) {
         if (imageModification != null) {

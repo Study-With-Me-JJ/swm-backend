@@ -13,10 +13,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyRoomOptionInfoModifyRequest {
 
-    @NotNull
-    @Positive
-    private Long studyRoomId;
-
     private List<StudyRoomOption> optionsToAdd;
     private List<StudyRoomOptionUpdateRequest> optionsToUpdate;
     private List<Long> optionsIdsToRemove;

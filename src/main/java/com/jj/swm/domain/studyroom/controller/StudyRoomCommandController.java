@@ -3,6 +3,7 @@ package com.jj.swm.domain.studyroom.controller;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomDeleteRequest;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomUpdateRequest;
+import com.jj.swm.domain.studyroom.dto.request.StudyRoomUpdateSettingRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.dayoff.StudyRoomDayOffModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.option.StudyRoomOptionInfoModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.reservationType.StudyRoomReservationTypeModifyRequest;
@@ -43,47 +44,11 @@ public class StudyRoomCommandController {
         return ApiResponse.ok(null);
     }
 
-    @PatchMapping("/v1/studyroom/tag")
-    public ApiResponse<Void> updateTag(
-            @Valid @RequestBody StudyRoomTagModifyRequest request, Principal principal
+    @PatchMapping("/v1/studyroom/settings")
+    public ApiResponse<Void> updateSettings(
+            @Valid @RequestBody StudyRoomUpdateSettingRequest request, Principal principal
     ) {
-        commandService.updateTag(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
-
-        return ApiResponse.ok(null);
-    }
-
-    @PatchMapping("/v1/studyroom/dayoff")
-    public ApiResponse<Void> updateDayOff(
-            @Valid @RequestBody StudyRoomDayOffModifyRequest request, Principal principal
-    ) {
-        commandService.updateDayOff(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
-
-        return ApiResponse.ok(null);
-    }
-
-    @PatchMapping("/v1/studyroom/option")
-    public ApiResponse<Void> updateOption(
-            @Valid @RequestBody StudyRoomOptionInfoModifyRequest request, Principal principal
-    ) {
-        commandService.updateOption(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
-
-        return ApiResponse.ok(null);
-    }
-
-    @PatchMapping("/v1/studyroom/type")
-    public ApiResponse<Void> updateType(
-            @Valid @RequestBody StudyRoomTypeInfoModifyRequest request, Principal principal
-    ) {
-        commandService.updateType(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
-
-        return ApiResponse.ok(null);
-    }
-
-    @PatchMapping("/v1/studyroom/reservetype")
-    public ApiResponse<Void> updateReserveType(
-            @Valid @RequestBody StudyRoomReservationTypeModifyRequest request, Principal principal
-    ) {
-        commandService.updateReserveType(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.updateSettings(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
 
         return ApiResponse.ok(null);
     }

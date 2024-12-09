@@ -13,10 +13,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyRoomDayOffModifyRequest {
 
-    @NotNull
-    @Positive
-    private Long studyRoomId;
-
     private List<DayOfWeek> dayOffsToAdd;
     private List<StudyRoomDayOffUpdateRequest> dayOffsToUpdate;
     private List<Long> dayOffIdsToRemove;
