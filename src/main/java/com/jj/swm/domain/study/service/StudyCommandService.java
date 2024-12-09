@@ -145,17 +145,9 @@ public class StudyCommandService {
         return StudyBookmarkCreateResponse.from(studyBookmark);
     }
 
-    @Transactional //TODO 짜를 거 짜르기
+    @Transactional
     public void unBookmarkStudy(UUID userId, Long bookmarkId) {
-        User user = getUser(userId);
-
-        StudyBookmark studyBookmark = studyBookmarkRepository.findWithUserById(bookmarkId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study bookmark not found"));
-
-        if (!studyBookmark.getUser().getId().equals(user.getId())) {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "User does not have permission to delete the bookmark.");
-        }
-        studyBookmarkRepository.deleteById(studyBookmark.getId());
+        studyBookmarkRepository.deleteByIdAndUserId(bookmarkId, userId);
     }
 
     @Transactional
