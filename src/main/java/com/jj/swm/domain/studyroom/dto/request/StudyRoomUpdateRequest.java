@@ -1,7 +1,9 @@
 package com.jj.swm.domain.studyroom.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jj.swm.domain.studyroom.dto.request.update.dayoff.StudyRoomDayOffModifyRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.image.StudyRoomImageModifyRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequest;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
 import jakarta.validation.constraints.*;
@@ -67,5 +69,9 @@ public class StudyRoomUpdateRequest {
     private Integer entireMaxHeadcount;
 
     private StudyRoomImageModifyRequest imageModification;
+
+    private StudyRoomTagModifyRequest tagModification;
+
+    private StudyRoomDayOffModifyRequest dayOffModification;
 
 }

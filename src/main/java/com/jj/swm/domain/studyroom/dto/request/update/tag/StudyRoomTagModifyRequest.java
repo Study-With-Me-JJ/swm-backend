@@ -12,10 +12,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyRoomTagModifyRequest {
 
-    @NotNull
-    @Positive
-    private Long studyRoomId;
-
     private List<String> tagsToAdd;
     private List<StudyRoomTagUpdateRequest> tagsToUpdate;
     private List<Long> tagIdsToRemove;
