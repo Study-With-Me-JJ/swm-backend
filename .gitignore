@@ -43,3 +43,5 @@ application-test.yml
 ### Docker Data ###
 docker/data/**
 docker/postgres_data/**
+
+src/main/generated
