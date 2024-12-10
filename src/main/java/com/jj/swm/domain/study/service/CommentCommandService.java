@@ -1,7 +1,8 @@
 package com.jj.swm.domain.study.service;
 
-import com.jj.swm.domain.study.dto.request.CommentCreateRequest;
+import com.jj.swm.domain.study.dto.request.CommentUpsertRequest;
 import com.jj.swm.domain.study.dto.response.CommentCreateResponse;
+import com.jj.swm.domain.study.dto.response.CommentUpdateResponse;
 import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.domain.study.entity.StudyComment;
 import com.jj.swm.domain.study.repository.CommentRepository;
@@ -30,7 +31,7 @@ public class CommentCommandService {
             UUID uuid,
             Long studyId,
             Long parentId,
-            CommentCreateRequest createRequest
+            CommentUpsertRequest createRequest
     ) {
         User user = getUser(uuid);
 
@@ -51,6 +52,20 @@ public class CommentCommandService {
         return CommentCreateResponse.from(comment);
     }
 
+    @Transactional
+    public CommentUpdateResponse update(
+            UUID userId,
+            Long commentId,
+            CommentUpsertRequest updateRequest
+    ) {
+        StudyComment comment = commentRepository.findByIdAndUserId(commentId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
+
+        comment.modify(updateRequest);
+
+        return CommentUpdateResponse.from(comment);
+    }
+
     private User getUser(UUID userId) {
         return userRepository.getReferenceById(userId);
     }
@@ -59,5 +74,4 @@ public class CommentCommandService {
         return studyRepository.findByIdWithPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
-
 }

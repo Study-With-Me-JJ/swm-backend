@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.entity;
 
-import com.jj.swm.domain.study.dto.request.CommentCreateRequest;
+import com.jj.swm.domain.study.dto.request.CommentUpsertRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -50,10 +50,10 @@ public class StudyComment extends BaseTimeEntity {
     public static StudyComment of(
             Study study,
             User user,
-            CommentCreateRequest commentCreateRequest
+            CommentUpsertRequest commentUpsertRequest
     ) {
         return StudyComment.builder()
-                .content(commentCreateRequest.getContent())
+                .content(commentUpsertRequest.getContent())
                 .study(study)
                 .user(user)
                 .build();
@@ -61,5 +61,9 @@ public class StudyComment extends BaseTimeEntity {
 
     public void addParent(StudyComment parent) {
         this.parent = parent;
+    }
+
+    public void modify(CommentUpsertRequest commentUpdateRequest) {
+        this.content = commentUpdateRequest.getContent();
     }
 }
