@@ -15,7 +15,7 @@ public class StudyInquiryCondition {
 
     private Long lastStudyId;
 
-    private SortCriteria sortCriteria;
+    private SortCriteria sortCriteria = SortCriteria.NEWEST;
 
     private Integer lastSortValue;
 }

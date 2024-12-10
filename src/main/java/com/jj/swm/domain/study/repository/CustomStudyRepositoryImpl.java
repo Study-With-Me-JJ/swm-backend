@@ -58,7 +58,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     }
 
     private OrderSpecifier<?>[] createOrderSpecifier(SortCriteria sortCriteria) {
-        return switch (sortCriteria != null ? sortCriteria : SortCriteria.NEWEST) {
+        return switch (sortCriteria) {
             case SortCriteria.LIKE -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.DESC, study.likeCount),
                     new OrderSpecifier<>(Order.DESC, study.id),
@@ -74,7 +74,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
         SortCriteria sortCriteria = inquiryCondition.getSortCriteria();
         Long lastStudyId = inquiryCondition.getLastStudyId();
 
-        return switch (sortCriteria != null ? sortCriteria : SortCriteria.NEWEST) {
+        return switch (sortCriteria) {
             case LIKE -> this.nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
                     .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
             default -> this.nullSafeBuilder(() -> study.id.lt(lastStudyId));

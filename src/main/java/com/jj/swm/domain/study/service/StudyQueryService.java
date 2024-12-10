@@ -33,7 +33,7 @@ public class StudyQueryService {
         List<Study> studies = studyRepository.findAllWithUserAndTags(pageSize + 1, inquiryCondition);
 
         if (studies.isEmpty()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "study not found");
+            throw new GlobalException(ErrorCode.NOT_FOUND, "studies not found");
         }
 
         boolean hasNext = studies.size() > pageSize;
