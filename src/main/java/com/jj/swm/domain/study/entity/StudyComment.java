@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.entity;
 
+import com.jj.swm.domain.study.dto.request.CommentCreateRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -45,4 +46,20 @@ public class StudyComment extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "parent")
     private List<StudyComment> children = new ArrayList<>();
+
+    public static StudyComment of(
+            Study study,
+            User user,
+            CommentCreateRequest commentCreateRequest
+    ) {
+        return StudyComment.builder()
+                .content(commentCreateRequest.getContent())
+                .study(study)
+                .user(user)
+                .build();
+    }
+
+    public void addParent(StudyComment parent) {
+        this.parent = parent;
+    }
 }
