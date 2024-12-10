@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,17 +29,21 @@ public class CommentCommandService {
     public CommentCreateResponse create(
             UUID uuid,
             Long studyId,
+            Long parentId,
             CommentCreateRequest createRequest
     ) {
         User user = getUser(uuid);
 
         Study study = getStudyPessimisticLock(studyId);
 
+        Optional<StudyComment> optionalComment = commentRepository.findById(parentId);
+
         StudyComment comment = StudyComment.of(
                 study,
                 user,
                 createRequest
         );
+        optionalComment.ifPresent(comment::addParent);
         commentRepository.save(comment);
 
         study.incrementCommentCount();

@@ -17,15 +17,17 @@ public class CommentCommandController {
 
     private final CommentCommandService commentCommandService;
 
-    @PostMapping("/v1/study/{studyId}/comment")
+    @PostMapping({"/v1/study/{studyId}/comment", "/v1/study/{studyId}/comment/{parentId}"})
     public ApiResponse<CommentCreateResponse> createComment(
             Principal principal,
             @PathVariable("studyId") Long studyId,
+            @PathVariable(value = "parentId", required = false) Long parentId,
             @RequestBody CommentCreateRequest createRequest
     ) {
         CommentCreateResponse createResponse = commentCommandService.create(
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
                 studyId,
+                parentId != null ? parentId : 0L,
                 createRequest
         );
 

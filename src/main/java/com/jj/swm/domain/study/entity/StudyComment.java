@@ -58,4 +58,8 @@ public class StudyComment extends BaseTimeEntity {
                 .user(user)
                 .build();
     }
+
+    public void addParent(StudyComment parent) {
+        this.parent = parent;
+    }
 }
