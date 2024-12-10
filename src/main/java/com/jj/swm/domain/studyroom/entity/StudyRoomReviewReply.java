@@ -36,4 +36,16 @@ public class StudyRoomReviewReply extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_review_id", nullable = false)
     private StudyRoomReview studyRoomReview;
+
+    public static StudyRoomReviewReply of(String reply, StudyRoomReview studyRoomReview, User user) {
+        return StudyRoomReviewReply.builder()
+                .reply(reply)
+                .studyRoomReview(studyRoomReview)
+                .user(user)
+                .build();
+    }
+
+    public void modifyReply(String reply) {
+        this.reply = reply;
+    }
 }

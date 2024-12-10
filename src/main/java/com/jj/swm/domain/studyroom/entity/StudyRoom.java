@@ -133,12 +133,21 @@ public class StudyRoom extends BaseTimeEntity {
         this.entireMaxHeadcount = request.getEntireMaxHeadcount();
     }
 
+    // 스터디 룸 연계 개수 카운트 메소드
     public void likeStudyRoom() {
         this.likeCount++;
     }
 
     public void unLikeStudyRoom(){
         this.likeCount = Math.max(0, this.likeCount - 1);
+    }
+
+    public void addReviewStudyRoom(int rating) {
+        this.averageRating = (this.averageRating * this.reviewCount + rating) / ++this.reviewCount;
+    }
+
+    public void updateAverageRating(int oldRating, int newRating) {
+        this.averageRating += (double) (newRating - oldRating) / this.reviewCount;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.jj.swm.domain.studyroom.entity;
 
+import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewUpdateRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -39,4 +40,18 @@ public class StudyRoomReview extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public static StudyRoomReview of(String comment, int rating, StudyRoom studyRoom, User user) {
+        return StudyRoomReview.builder()
+                .comment(comment)
+                .rating(rating)
+                .studyRoom(studyRoom)
+                .user(user)
+                .build();
+    }
+
+    public void modifyReview(StudyRoomReviewUpdateRequest request) {
+        this.comment = request.getComment();
+        this.rating = request.getRating();
+    }
 }

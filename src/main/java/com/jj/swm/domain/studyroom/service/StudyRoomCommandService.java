@@ -22,7 +22,6 @@ import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,6 @@ public class StudyRoomCommandService {
     private final StudyRoomTagRepository tagRepository;
     private final StudyRoomLikeRepository likeRepository;
     private final StudyRoomBookmarkRepository bookmarkRepository;
-    private final StudyRoomBookmarkRepository studyRoomBookmarkRepository;
 
     @Transactional
     public void create(StudyRoomCreateRequest request, UUID userId){
@@ -145,7 +143,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void unBookmark(Long studyRoomBookmarkId, UUID userId) {
-        StudyRoomBookmark studyRoomBookmark = studyRoomBookmarkRepository.findByIdAndUserId(studyRoomBookmarkId, userId)
+        StudyRoomBookmark studyRoomBookmark = bookmarkRepository.findByIdAndUserId(studyRoomBookmarkId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomBookmark Not Found"));
 
         bookmarkRepository.delete(studyRoomBookmark);
@@ -433,11 +431,6 @@ public class StudyRoomCommandService {
     private StudyRoomLike validateLike(Long studyRoomId, UUID userId) {
         return likeRepository.findByStudyRoomIdAndUserId(studyRoomId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomLike Not Found"));
-    }
-
-    private StudyRoomBookmark validateBookmarkWithUser(Long studyRoomBookmarkId) {
-        return bookmarkRepository.findByIdWithUser(studyRoomBookmarkId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomBookmark Not Found"));
     }
 
     private void validateExistsBookmark(Long studyRoomId, UUID userId) {
