@@ -17,4 +17,6 @@ public interface StudyRoomBookmarkRepository extends JpaRepository<StudyRoomBook
 
     @Query("select s from StudyRoomBookmark s join fetch s.user where s.id = ?1")
     Optional<StudyRoomBookmark> findByIdWithUser(Long studyRoomBookmarkId);
+
+    Optional<StudyRoomBookmark> findByIdAndUserId(Long studyRoomBookmarkId, UUID userId);
 }

@@ -46,6 +46,7 @@ public class StudyRoomCommandService {
     private final StudyRoomTagRepository tagRepository;
     private final StudyRoomLikeRepository likeRepository;
     private final StudyRoomBookmarkRepository bookmarkRepository;
+    private final StudyRoomBookmarkRepository studyRoomBookmarkRepository;
 
     @Transactional
     public void create(StudyRoomCreateRequest request, UUID userId){
@@ -144,10 +145,8 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void unBookmark(Long studyRoomBookmarkId, UUID userId) {
-        StudyRoomBookmark studyRoomBookmark = validateBookmarkWithUser(studyRoomBookmarkId);
-
-        if(!studyRoomBookmark.getUser().getId().equals(userId))
-            throw new GlobalException(ErrorCode.FORBIDDEN, "User does not have permission to delete the bookmark.");
+        StudyRoomBookmark studyRoomBookmark = studyRoomBookmarkRepository.findByIdAndUserId(studyRoomBookmarkId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomBookmark Not Found"));
 
         bookmarkRepository.delete(studyRoomBookmark);
     }
