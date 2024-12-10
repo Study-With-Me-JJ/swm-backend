@@ -184,7 +184,8 @@ public class StudyCommandService {
     }
 
     private Study getStudy(Long studyId) {
-        return studyRepository.getReferenceById(studyId);
+        return studyRepository.findById(studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
     private Study getStudyPessimisticLock(Long studyId) {
