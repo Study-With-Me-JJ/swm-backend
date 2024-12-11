@@ -11,10 +11,9 @@ import java.util.UUID;
 
 public interface StudyRepository extends JpaRepository<Study, Long>, CustomStudyRepository {
 
-    @Query("select s from Study s where s.id = ?1 and s.user.id = ?2")
     Optional<Study> findByIdAndUserId(Long id, UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select s from Study s where s.id = ?1")
+    @Query("select s from Study s where s.id = ?1 and s.deletedAt is null")
     Optional<Study> findByIdWithPessimisticLock(Long studyId);
 }
