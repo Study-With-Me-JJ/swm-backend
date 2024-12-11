@@ -1,5 +1,6 @@
 package com.jj.swm.domain.external.studyroom.service;
 
+import com.jj.swm.domain.common.KoreaRegion;
 import com.jj.swm.domain.external.studyroom.dto.response.ExternalStudyRoomOutput;
 import com.jj.swm.domain.external.studyroom.dto.response.GetExternalStudyRoomsResponse;
 import com.jj.swm.domain.external.studyroom.entity.ExternalStudyRoom;
@@ -14,9 +15,14 @@ import org.springframework.stereotype.Service;
 public class ExternalStudyRoomService {
     private final ExternalStudyRoomRepository externalStudyRoomRepository;
 
-    public GetExternalStudyRoomsResponse getExternalStudies(Pageable pageable) {
-        Page<ExternalStudyRoom> externalStudyRooms = externalStudyRoomRepository.findAll(pageable);
+    public GetExternalStudyRoomsResponse getExternalStudyRooms(Pageable pageable, KoreaRegion koreaRegion) {
+        Page<ExternalStudyRoom> externalStudyRooms;
+        if(koreaRegion != null) {
+            externalStudyRooms = externalStudyRoomRepository.findAllByKoreaRegion(pageable, koreaRegion);
+        }
+        else {
+            externalStudyRooms = externalStudyRoomRepository.findAll(pageable);
+        }
         return new GetExternalStudyRoomsResponse(externalStudyRooms.map(ExternalStudyRoomOutput::from));
     }
-
 }
