@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/external/studyroom")
+@RequestMapping("/api/v1/external/studyrooms")
 @RequiredArgsConstructor
 public class ExternalStudyRoomController {
     private final ExternalStudyRoomService externalStudyRoomService;
