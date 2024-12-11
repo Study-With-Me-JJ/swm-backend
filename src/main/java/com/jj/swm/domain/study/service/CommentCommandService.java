@@ -15,7 +15,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,26 +27,36 @@ public class CommentCommandService {
 
     @Transactional
     public CommentCreateResponse create(
-            UUID uuid,
+            UUID userId,
             Long studyId,
             Long parentId,
             CommentUpsertRequest createRequest
     ) {
-        User user = getUser(uuid);
+        User user = getUser(userId);
 
-        Study study = getStudyPessimisticLock(studyId);
-
-        Optional<StudyComment> optionalComment = commentRepository.findById(parentId);
+        Study study;
+        StudyComment parent = null;
+        if (parentId != null) {
+            study = studyRepository.findById(studyId)
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+            parent = commentRepository.findByIdAndUserId(parentId, userId)
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
+        } else {
+            study = studyRepository.getReferenceById(studyId);
+            study.incrementCommentCount();
+        }
 
         StudyComment comment = StudyComment.of(
                 study,
                 user,
                 createRequest
         );
-        optionalComment.ifPresent(comment::addParent);
-        commentRepository.save(comment);
 
-        study.incrementCommentCount();
+        if (parent != null) {
+            comment.addParent(parent);
+        }
+
+        commentRepository.save(comment);
 
         return CommentCreateResponse.from(comment);
     }

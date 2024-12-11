@@ -28,7 +28,7 @@ public class CommentCommandController {
         CommentCreateResponse createResponse = commentCommandService.create(
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
                 studyId,
-                parentId != null ? parentId : 0L,
+                parentId,
                 createRequest
         );
 
