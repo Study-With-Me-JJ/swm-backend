@@ -76,6 +76,23 @@ public class CommentCommandService {
         return CommentUpdateResponse.from(comment);
     }
 
+    @Transactional
+    public void delete(
+            UUID userId,
+            Long studyId,
+            Long commentId
+    ) {
+        StudyComment comment = commentRepository.findWithParentByIdAndUserId(commentId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
+
+        if (comment.getParent() == null) {
+            Study study = getStudyPessimisticLock(studyId);
+            study.decrementCommentCount();
+        }
+
+        commentRepository.deleteAllByIdOrParentId(commentId);
+    }
+
     private User getUser(UUID userId) {
         return userRepository.getReferenceById(userId);
     }
