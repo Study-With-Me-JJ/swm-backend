@@ -39,8 +39,9 @@ public class CommentCommandService {
         if (parentId != null) {
             study = studyRepository.findById(studyId)
                     .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
-            parent = commentRepository.findByIdAndUserId(parentId, userId)
+            parent = commentRepository.findWithParentById(parentId, userId)
                     .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
+            parent = parent.getParent() == null ? parent : parent.getParent();
         } else {
             study = studyRepository.getReferenceById(studyId);
             study.incrementCommentCount();
