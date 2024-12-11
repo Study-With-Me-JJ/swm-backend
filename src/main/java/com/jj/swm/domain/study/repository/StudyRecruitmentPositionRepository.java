@@ -1,6 +1,5 @@
 package com.jj.swm.domain.study.repository;
 
-import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.domain.study.entity.StudyRecruitmentPosition;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,7 +10,7 @@ import java.util.List;
 public interface StudyRecruitmentPositionRepository extends
         JpaRepository<StudyRecruitmentPosition, Long>, JdbcStudyRecruitmentPositionRepository {
 
-    List<StudyRecruitmentPosition> findAllByIdInAndStudy(List<Long> recruitPositionIds, Study study);
+    List<StudyRecruitmentPosition> findAllByIdInAndStudyId(List<Long> recruitPositionIds, Long studyId);
 
     @Modifying
     @Query("update StudyRecruitmentPosition srp set srp.deletedAt = CURRENT_TIMESTAMP " +

@@ -118,7 +118,7 @@ public class StudyCommandService {
         }
 
         List<StudyRecruitmentPosition> studyRecruitmentPositions =
-                studyRecruitmentPositionRepository.findAllByIdInAndStudy(recruitPositionIds, study);
+                studyRecruitmentPositionRepository.findAllByIdInAndStudyId(recruitPositionIds, study.getId());
 
         if (studyRecruitmentPositions.size() != updateRequests.size()) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Some recruit position not matching Study.");
