@@ -28,7 +28,7 @@ public class CommentCommandController {
         CommentCreateResponse createResponse = commentCommandService.create(
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
                 studyId,
-                parentId != null ? parentId : 0L,
+                parentId,
                 createRequest
         );
 
@@ -48,5 +48,20 @@ public class CommentCommandController {
         );
 
         return ApiResponse.ok(updateResponse);
+    }
+
+    @DeleteMapping("/v1/study/{studyId}/comment/{commentId}")
+    public ApiResponse<Void> deleteComment(
+            Principal principal,
+            @PathVariable("studyId") Long studyId,
+            @PathVariable("commentId") Long commentId
+    ) {
+        commentCommandService.delete(
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                studyId,
+                commentId
+        );
+
+        return ApiResponse.ok(null);
     }
 }
