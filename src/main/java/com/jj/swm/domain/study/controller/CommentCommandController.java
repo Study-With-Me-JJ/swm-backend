@@ -59,7 +59,8 @@ public class CommentCommandController {
         commentCommandService.delete(
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
                 studyId,
-                commentId);
+                commentId
+        );
 
         return ApiResponse.ok(null);
     }
