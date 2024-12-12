@@ -10,6 +10,7 @@ import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -25,20 +26,25 @@ public class StudyQueryService {
     private final StudyRepository studyRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
 
+    @Value("${study.page.size}")
+    private int studyPageSize;
+
+    @Value("${study.comment.page.size}")
+    private int commentPageSize;
+
     public PageResponse<StudyInquiryResponse> getList(
             UUID userId,
-            int pageSize,
             StudyInquiryCondition inquiryCondition
     ) {
-        List<Study> studies = studyRepository.findAllWithUserAndTags(pageSize + 1, inquiryCondition);
+        List<Study> studies = studyRepository.findAllWithUserAndTags(studyPageSize + 1, inquiryCondition);
 
         if (studies.isEmpty()) {
             throw new GlobalException(ErrorCode.NOT_FOUND, "studies not found");
         }
 
-        boolean hasNext = studies.size() > pageSize;
+        boolean hasNext = studies.size() > studyPageSize;
 
-        List<Study> pagedStudies = hasNext ? studies.subList(0, pageSize) : studies;
+        List<Study> pagedStudies = hasNext ? studies.subList(0, studyPageSize) : studies;
 
         List<Long> studyIds = pagedStudies.stream()
                 .map(Study::getId)

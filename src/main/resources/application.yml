@@ -20,3 +20,6 @@ logging:
 study:
   page:
     size: 20
+  comment:
+    page:
+      size: 10
