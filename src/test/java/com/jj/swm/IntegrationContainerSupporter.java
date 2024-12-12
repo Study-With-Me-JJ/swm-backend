@@ -20,7 +20,7 @@ import org.testcontainers.utility.DockerImageName;
 
 @DataJpaTest(
         includeFilters = {
-                @Filter(type = FilterType.ANNOTATION, value = {Service.class, Repository.class}),
+                @Filter(type = FilterType.ANNOTATION, value = {Service.class}),
         }
 )
 @ActiveProfiles("test")

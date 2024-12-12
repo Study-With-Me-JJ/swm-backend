@@ -76,13 +76,16 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     void studyRoom_review_create_Success() {
         //given
         StudyRoomReviewCreateRequest request = StudyRoomReviewCreateRequest.builder()
-                .studyRoomId(studyRoom.getId())
                 .comment("test")
                 .rating(5)
                 .build();
 
         //when
-        StudyRoomReviewCreateResponse response = commandService.createReview(request, createReviewUser.getId());
+        StudyRoomReviewCreateResponse response = commandService.createReview(
+                request,
+                studyRoom.getId(),
+                createReviewUser.getId()
+        );
 
         //then
         StudyRoomReview studyRoomReview = reviewRepository.findById(response.getStudyRoomReviewId()).get();
@@ -99,9 +102,6 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     void studyRoom_review_update_Success() {
         //given
         StudyRoomReviewUpdateRequest request = StudyRoomReviewUpdateRequest.builder()
-                .studyRoomId(studyRoom.getId())
-                .studyRoomReviewId(studyRoomReview.getId())
-                .studyRoomId(studyRoom.getId())
                 .comment("update_test")
                 .rating(4)
                 .build();
@@ -111,7 +111,12 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
 
         //when
         studyRoom = studyRoomRepository.findById(studyRoom.getId()).get();
-        commandService.updateReview(request, createReviewUser.getId());
+        commandService.updateReview(
+                request,
+                studyRoom.getId(),
+                studyRoomReview.getId(),
+                createReviewUser.getId()
+        );
 
         //then
         studyRoomReview = reviewRepository.findById(studyRoomReview.getId()).get();
@@ -133,11 +138,9 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
         for (UUID uuid : userUuids) {
             commandService.createReview(
                     StudyRoomReviewCreateRequest.builder()
-                            .studyRoomId(studyRoom.getId())
                             .comment("test")
                             .rating(rating--)
-                            .build(), uuid
-            );
+                            .build(), studyRoom.getId(), uuid);
         }
 
         //then
@@ -152,23 +155,19 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     void studyRoom_review_create_normal_user_and_room_admin_Success() {
         //given
         StudyRoomReviewReplyCreateRequest requestNormalUser = StudyRoomReviewReplyCreateRequest.builder()
-                .studyRoomReviewId(studyRoomReview.getId())
-                .studyRoomId(studyRoom.getId())
                 .reply("normalUser")
                 .build();
 
         StudyRoomReviewReplyCreateRequest requestRoomAdmin = StudyRoomReviewReplyCreateRequest.builder()
-                .studyRoomReviewId(studyRoomReview.getId())
-                .studyRoomId(studyRoom.getId())
                 .reply("roomAdmin")
                 .build();
 
         //when
         StudyRoomReviewReplyCreateResponse responseNormalUser
-                = commandService.createReviewReply(requestNormalUser, createReviewUser.getId());
+                = commandService.createReviewReply(requestNormalUser, studyRoomReview.getId(), createReviewUser.getId());
 
         StudyRoomReviewReplyCreateResponse responseRoomAdmin
-                = commandService.createReviewReply(requestRoomAdmin, studyRoom.getUser().getId());
+                = commandService.createReviewReply(requestRoomAdmin, studyRoomReview.getId(), studyRoom.getUser().getId());
 
         //then
         StudyRoomReviewReply studyRoomReviewReply
@@ -185,13 +184,11 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     void studyRoom_review_create_unknown_user_Fail() {
         //given
         StudyRoomReviewReplyCreateRequest request = StudyRoomReviewReplyCreateRequest.builder()
-                .studyRoomReviewId(studyRoomReview.getId())
-                .studyRoomId(studyRoom.getId())
                 .reply("test")
                 .build();
 
         //when & then
-        assertThatThrownBy(() -> commandService.createReviewReply(request, UUID.randomUUID()))
+        assertThatThrownBy(() -> commandService.createReviewReply(request, studyRoomReview.getId(), UUID.randomUUID()))
                 .isInstanceOf(GlobalException.class);
     }
 
@@ -208,12 +205,11 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
         );
 
         StudyRoomReviewReplyUpdateRequest request = StudyRoomReviewReplyUpdateRequest.builder()
-                .studyRoomReviewReplyId(studyRoomReviewReply.getId())
                 .reply("update_test")
                 .build();
 
         //when
-        commandService.updateReviewReply(request, createReviewUser.getId());
+        commandService.updateReviewReply(request, studyRoomReviewReply.getId(), createReviewUser.getId());
 
         //then
         studyRoomReviewReply = reviewReplyRepository.findById(studyRoomReviewReply.getId()).get();
@@ -231,7 +227,6 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
         CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
 
         StudyRoomReviewCreateRequest request = StudyRoomReviewCreateRequest.builder()
-                .studyRoomId(studyRoom.getId())
                 .comment("test")
                 .rating(5)
                 .build();
@@ -241,7 +236,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
             final UUID uuid = userUuids.get(i);
             executorService.submit(() -> {
                 try {
-                    commandService.createReview(request, uuid);
+                    commandService.createReview(request, studyRoom.getId(), uuid);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
