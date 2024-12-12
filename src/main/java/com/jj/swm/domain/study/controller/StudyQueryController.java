@@ -26,8 +26,8 @@ public class StudyQueryController {
             StudyInquiryCondition inquiryCondition
     ) {
         PageResponse<StudyInquiryResponse> pageResponse = studyQueryService.getList(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
-                //                principal != null ? UUID.fromString(principal.getName()) : null,
+//                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                                principal != null ? UUID.fromString(principal.getName()) : null,
                 inquiryCondition
         );
 

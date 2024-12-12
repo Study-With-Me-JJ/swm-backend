@@ -57,7 +57,11 @@ public class StudyQueryService {
                 : Collections.emptyMap();
 
         List<StudyInquiryResponse> inquiryResponses = pagedStudies.stream()
-                .map(study -> StudyInquiryResponse.of(study, bookmarkIdByStudyId.getOrDefault(study.getId(), null)))
+                .map(study -> StudyInquiryResponse.of(
+                        study,
+                        bookmarkIdByStudyId.getOrDefault(study.getId(), null),
+                        study.getUser().getId().equals(userId)
+                ))
                 .toList();
 
         return PageResponse.of(inquiryResponses, hasNext);
