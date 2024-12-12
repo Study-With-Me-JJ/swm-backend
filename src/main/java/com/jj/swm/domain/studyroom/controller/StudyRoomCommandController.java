@@ -36,29 +36,39 @@ public class StudyRoomCommandController {
         return ApiResponse.created(null);
     }
 
-    @PatchMapping("/v1/studyroom")
+    @PatchMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> update(
-            @Valid @RequestBody StudyRoomUpdateRequest request, Principal principal
+            @Valid @RequestBody StudyRoomUpdateRequest request,
+            Long studyRoomId,
+            Principal principal
     ) {
-        commandService.update(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.update(
+                request,
+                studyRoomId,
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+        );
 
         return ApiResponse.ok(null);
     }
 
-    @PatchMapping("/v1/studyroom/settings")
+    @PatchMapping("/v1/studyroom/settings/{studyRoomId}")
     public ApiResponse<Void> updateSettings(
-            @Valid @RequestBody StudyRoomUpdateSettingRequest request, Principal principal
+            @Valid @RequestBody StudyRoomUpdateSettingRequest request,
+            Long studyRoomId,
+            Principal principal
     ) {
-        commandService.updateSettings(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.updateSettings(
+                request,
+                studyRoomId,
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+        );
 
         return ApiResponse.ok(null);
     }
 
-    @DeleteMapping("/v1/studyroom")
-    public ApiResponse<Void> delete(
-            @Valid @RequestBody StudyRoomDeleteRequest request, Principal principal
-    ) {
-        commandService.delete(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+    @DeleteMapping("/v1/studyroom/{studyRoomId}")
+    public ApiResponse<Void> delete(@PathVariable("studyRoomId") Long studyRoomId, Principal principal) {
+        commandService.delete(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
 
         return ApiResponse.ok(null);
     }

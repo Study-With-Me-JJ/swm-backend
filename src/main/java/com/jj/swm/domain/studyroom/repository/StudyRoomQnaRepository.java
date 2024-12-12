@@ -29,8 +29,6 @@ public interface StudyRoomQnaRepository extends JpaRepository<StudyRoomQna, Long
 
     // Test 코드를 위한 JPQL
     @Modifying
-    @Query(value = "DELETE FROM study_room_qna " +
-            "WHERE (parent_id = :studyRoomQnaId OR id = :studyRoomQnaId) " +
-            "AND deleted_at IS NOT NULL", nativeQuery = true)
+    @Query(value = "DELETE FROM study_room_qna", nativeQuery = true)
     void deleteAllByIdOrParentId(@Param("studyRoomQnaId") Long studyRoomQnaId);
 }

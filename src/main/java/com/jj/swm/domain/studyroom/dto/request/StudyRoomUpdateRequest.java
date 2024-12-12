@@ -17,10 +17,6 @@ import java.time.LocalTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyRoomUpdateRequest {
 
-    @NotNull
-    @Positive
-    private Long studyRoomId;
-
     @NotBlank
     private String title;
 

@@ -37,9 +37,13 @@ public class StudyRoomReviewCommandService {
     private final StudyRoomReviewReplyRepository reviewReplyRepository;
 
     @Transactional
-    public StudyRoomReviewCreateResponse createReview(StudyRoomReviewCreateRequest request, UUID userId) {
+    public StudyRoomReviewCreateResponse createReview(
+            StudyRoomReviewCreateRequest request,
+            Long studyRoomId,
+            UUID userId
+    ) {
         // 이용 내역 검증 로직 필요
-        StudyRoom studyRoom = validateStudyRoomWithLock(request.getStudyRoomId());
+        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
         User user = userRepository.getReferenceById(userId);
 
         StudyRoomReview studyRoomReview = StudyRoomReview.of(
@@ -57,9 +61,14 @@ public class StudyRoomReviewCommandService {
     }
 
     @Transactional
-    public StudyRoomReviewUpdateResponse updateReview(StudyRoomReviewUpdateRequest request, UUID userId) {
-        StudyRoomReview studyRoomReview = validateReviewWithUserId(request.getStudyRoomReviewId(), userId);
-        StudyRoom studyRoom = validateStudyRoomWithLock(request.getStudyRoomId());
+    public StudyRoomReviewUpdateResponse updateReview(
+            StudyRoomReviewUpdateRequest request,
+            Long studyRoomId,
+            Long studyRoomReviewId,
+            UUID userId
+    ) {
+        StudyRoomReview studyRoomReview = validateReviewWithUserId(studyRoomReviewId, userId);
+        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
 
         studyRoom.updateAverageRating(studyRoomReview.getRating(), request.getRating());
 
@@ -69,8 +78,12 @@ public class StudyRoomReviewCommandService {
     }
 
     @Transactional
-    public StudyRoomReviewReplyCreateResponse createReviewReply(StudyRoomReviewReplyCreateRequest request, UUID userId){
-        StudyRoomReview studyRoomReview = validateReviewAndGetStudyRoomAndUser(request.getStudyRoomReviewId(), userId);
+    public StudyRoomReviewReplyCreateResponse createReviewReply(
+            StudyRoomReviewReplyCreateRequest request,
+            Long studyRoomReviewId,
+            UUID userId
+    ){
+        StudyRoomReview studyRoomReview = validateReviewAndGetStudyRoomAndUser(studyRoomReviewId, userId);
 
         User user = userRepository.getReferenceById(userId);
 
@@ -82,9 +95,13 @@ public class StudyRoomReviewCommandService {
     }
 
     @Transactional
-    public void updateReviewReply(StudyRoomReviewReplyUpdateRequest request, UUID userId) {
+    public void updateReviewReply(
+            StudyRoomReviewReplyUpdateRequest request,
+            Long studyRoomReviewReplyId,
+            UUID userId
+    ) {
         StudyRoomReviewReply studyRoomReviewReply
-                = validateReviewReplyWithUserId(request.getStudyRoomReviewReplyId(), userId);
+                = validateReviewReplyWithUserId(studyRoomReviewReplyId, userId);
 
         studyRoomReviewReply.modifyReply(request.getReply());
     }

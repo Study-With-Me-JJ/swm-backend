@@ -10,14 +10,6 @@ import org.checkerframework.checker.units.qual.A;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyRoomReviewUpdateRequest {
 
-    @NotNull
-    @Positive
-    private Long studyRoomReviewId;
-
-    @NotNull
-    @Positive
-    private Long studyRoomId;
-
     @NotBlank
     private String comment;
 

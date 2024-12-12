@@ -13,10 +13,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyRoomUpdateSettingRequest {
 
-    @NotNull
-    @Positive
-    private Long studyRoomId;
-
     private StudyRoomOptionInfoModifyRequest optionInfoModification;
 
     private StudyRoomTypeInfoModifyRequest typeInfoModification;
