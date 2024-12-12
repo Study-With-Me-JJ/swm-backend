@@ -51,7 +51,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
-        User roomAdmin = userRepository.saveAndFlush(UserFixture.createUser());
+        User roomAdmin = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
         studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoomWithoutId(roomAdmin));
 
         if(ignoreBeforeEachMethod.contains(testInfo.getTestMethod().orElseThrow().getName())) {
