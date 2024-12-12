@@ -46,4 +46,20 @@ public class StudyRoomQna extends BaseTimeEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent", orphanRemoval = true)
     private List<StudyRoomQna> children = new ArrayList<>();
+
+    public static StudyRoomQna of(String comment, StudyRoom studyRoom, User user) {
+        return StudyRoomQna.builder()
+                .comment(comment)
+                .studyRoom(studyRoom)
+                .user(user)
+                .build();
+    }
+
+    public void addParent(StudyRoomQna parent) {
+        this.parent = parent;
+    }
+
+    public void modify(String comment){
+        this.comment = comment;
+    }
 }
