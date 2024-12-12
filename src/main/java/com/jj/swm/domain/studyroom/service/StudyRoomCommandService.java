@@ -68,8 +68,12 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void update(StudyRoomUpdateRequest request, UUID userId){
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
+    public void update(
+            StudyRoomUpdateRequest request,
+            Long studyRoomId,
+            UUID userId
+    ){
+        StudyRoom studyRoom = validateStudyRoomWithUserId(studyRoomId, userId);
 
         studyRoom.modifyStudyRoom(request);
 
@@ -79,8 +83,12 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void updateSettings(StudyRoomUpdateSettingRequest request, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
+    public void updateSettings(
+            StudyRoomUpdateSettingRequest request,
+            Long studyRoomId,
+            UUID userId
+    ) {
+        StudyRoom studyRoom = validateStudyRoomWithUserId(studyRoomId, userId);
 
         optionModifyLogic(request.getOptionInfoModification(), studyRoom);
         typeModifyLogic(request.getTypeInfoModification(), studyRoom);
@@ -88,8 +96,8 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void delete(StudyRoomDeleteRequest request, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(request.getStudyRoomId(), userId);
+    public void delete(Long studyRoomId, UUID userId) {
+        StudyRoom studyRoom = validateStudyRoomWithUserId(studyRoomId, userId);
 
         imageRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
         tagRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));

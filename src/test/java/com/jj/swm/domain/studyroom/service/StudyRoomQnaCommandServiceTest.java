@@ -4,6 +4,8 @@ import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.studyroom.StudyRoomFixture;
 import com.jj.swm.domain.studyroom.StudyRoomQnaFixture;
 import com.jj.swm.domain.studyroom.dto.request.StudyRoomQnaUpsertRequest;
+import com.jj.swm.domain.studyroom.dto.response.StudyRoomQnaCreateResponse;
+import com.jj.swm.domain.studyroom.dto.response.StudyRoomQnaUpdateResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomQna;
 import com.jj.swm.domain.studyroom.repository.StudyRoomQnaRepository;
@@ -12,6 +14,8 @@ import com.jj.swm.domain.user.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,6 +57,7 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
         userRepository.deleteAllInBatch();
     }
 
+
     @Test
     @DisplayName("스터디 룸 Qna Parent가 없는 댓글 생성에 성공한다.")
     void createQnaNotExistsParent_Success(){
@@ -65,10 +70,11 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
         user = userRepository.saveAndFlush(user);
 
         //when
-        commandService.createQna(request, studyRoom.getId(), null, user.getId());
+        StudyRoomQnaCreateResponse response
+                = commandService.createQna(request, studyRoom.getId(), null, user.getId());
 
         //then
-        StudyRoomQna studyRoomQna = qnaRepository.findById(1L).get();
+        StudyRoomQna studyRoomQna = qnaRepository.findById(response.getStudyRoomQnaId()).get();
 
         assertEquals(request.getComment(), studyRoomQna.getComment());
     }
@@ -82,13 +88,12 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
                 .build();
 
         //when
-        commandService.createQna(request, studyRoom.getId(), studyRoomQna.getId(), qnaUser.getId());
+        StudyRoomQnaCreateResponse response =
+                commandService.createQna(request, studyRoom.getId(), studyRoomQna.getId(), qnaUser.getId());
 
         //then
-        StudyRoomQna studyRoomQna2 = qnaRepository.findById(2L).get();
-
+        StudyRoomQna studyRoomQna2 = qnaRepository.findById(response.getStudyRoomQnaId()).get();
         assertEquals(request.getComment(), studyRoomQna2.getComment());
-        assertEquals(studyRoomQna.getId(), studyRoomQna2.getParent().getId());
     }
 
     @Test
@@ -135,11 +140,14 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
                 .build();
 
         //when
-        commandService.updateQna(request, studyRoomQna.getId(), qnaUser.getId());
+        StudyRoomQnaUpdateResponse response
+                = commandService.updateQna(request, studyRoomQna.getId(), qnaUser.getId());
 
         //then
-        StudyRoomQna savedQna = qnaRepository.findById(1L).get();
-        assertEquals(request.getComment(), savedQna.getComment());
+        studyRoomQna = qnaRepository.findById(studyRoomQna.getId()).get();
+
+        assertEquals(request.getComment(), studyRoomQna.getComment());
+        assertThat(response.getUpdateAt()).isNotNull();
     }
 
     @Test

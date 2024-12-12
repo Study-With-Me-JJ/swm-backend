@@ -51,14 +51,13 @@ public class StudyRoomQnaCommandService {
 
             parent = parent.getParent() == null ? parent : parent.getParent();
 
-            if(!parent.getUser().getId().equals(user.getId()) && !studyRoom.getUser().getId().equals(user.getId()))
+            if(isNotQnaAuthorAndRoomAdmin(parent, user, studyRoom))
                 throw new GlobalException(ErrorCode.FORBIDDEN, "Qna Create Access Denied");
 
             studyRoomQna.addParent(parent);
         }
 
         qnaRepository.save(studyRoomQna);
-
         return StudyRoomQnaCreateResponse.from(studyRoomQna);
     }
 
@@ -79,5 +78,10 @@ public class StudyRoomQnaCommandService {
     @Transactional
     public void deleteQna(Long studyRoomQnaId, UUID userId) {
         qnaRepository.deleteAllByIdOrParentIdAndUserId(studyRoomQnaId, userId);
+    }
+
+    private boolean isNotQnaAuthorAndRoomAdmin(StudyRoomQna parent, User user, StudyRoom studyRoom){
+        return !parent.getUser().getId().equals(user.getId())
+                && !studyRoom.getUser().getId().equals(user.getId());
     }
 }

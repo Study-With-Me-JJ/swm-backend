@@ -11,14 +11,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyRoomReviewReplyCreateRequest {
 
-    @NotNull
-    @Positive
-    private Long studyRoomReviewId;
-
-    @NotNull
-    @Positive
-    private Long studyRoomId;
-
     @NotBlank
     private String reply;
 }
