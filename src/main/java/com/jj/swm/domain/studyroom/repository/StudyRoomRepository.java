@@ -21,4 +21,8 @@ public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from StudyRoom s where s.id = :studyRoomId and s.deletedAt is null")
     Optional<StudyRoom> findByIdWithLock(@Param("studyRoomId") Long studyRoomId);
+
+    @Query("select s from StudyRoom s join fetch s.user " +
+            "where s.id = ?1 and s.deletedAt is null")
+    Optional<StudyRoom> findByIdWithUser(Long studyRoomId);
 }

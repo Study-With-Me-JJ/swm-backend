@@ -5,7 +5,6 @@ import com.jj.swm.domain.studyroom.StudyRoomFixture;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.repository.StudyRoomLikeRepository;
 import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
-import com.jj.swm.domain.studyroom.repository.StudyRoomReviewRepository;
 import com.jj.swm.domain.user.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
@@ -40,7 +39,7 @@ public class StudyRoomCommandServiceTest extends IntegrationContainerSupporter {
 
     @BeforeEach
     void setUp(){
-        User user = userRepository.saveAndFlush(UserFixture.createUser());
+        User user = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
         studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoomWithoutId(user));
     }
 

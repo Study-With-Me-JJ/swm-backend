@@ -10,7 +10,7 @@ public class UserFixture {
 
     public static final UUID uuid = UUID.randomUUID();
 
-    public static User createUser() {
+    public static User createRoomAdmin() {
         return User.builder()
                 .id(uuid)
                 .nickname("test")
