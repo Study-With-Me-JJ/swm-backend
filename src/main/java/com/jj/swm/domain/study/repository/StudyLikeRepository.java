@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface StudyLikeRepository extends JpaRepository<StudyLike, Long> {
 
     Optional<StudyLike> findByUserIdAndStudyId(UUID userId, Long studyId);
+
+    boolean existsByUserIdAndStudyId(UUID userId, Long studyId);
 }

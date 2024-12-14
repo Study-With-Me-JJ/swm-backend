@@ -103,4 +103,8 @@ public class Study extends BaseTimeEntity {
     public void decrementCommentCount() {
         this.commentCount = Math.max(0, this.commentCount - 1);
     }
+
+    public void incrementViewCount() {
+        this.viewCount++;
+    }
 }

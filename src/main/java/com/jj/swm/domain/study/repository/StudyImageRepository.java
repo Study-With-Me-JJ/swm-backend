@@ -12,4 +12,6 @@ public interface StudyImageRepository extends JpaRepository<StudyImage, Long>, J
     @Modifying
     @Query("delete from StudyImage si where si.id in ?1 and si.study.id = ?2")
     void deleteAllByIdInAndStudyId(List<Long> deleteImageIds, Long studyId);
+
+    List<StudyImage> findAllByStudyId(Long studyId);
 }
