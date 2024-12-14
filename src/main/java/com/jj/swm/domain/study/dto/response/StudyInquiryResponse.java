@@ -14,6 +14,8 @@ public class StudyInquiryResponse {
 
     private Long studyId;
 
+    private boolean ownerStatus;
+
     private String title;
 
     private String content;
@@ -38,9 +40,10 @@ public class StudyInquiryResponse {
 
     private List<StudyTagInquiryResponse> tagInquiryListResponse;
 
-    public static StudyInquiryResponse of(Study study, Long studyBookmarkId) {
+    public static StudyInquiryResponse of(Study study, Long studyBookmarkId, boolean ownerStatus) {
         return StudyInquiryResponse.builder()
                 .studyId(study.getId())
+                .ownerStatus(ownerStatus)
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
