@@ -30,7 +30,7 @@ public class StudyCommandController {
         return ApiResponse.created(null);
     }
 
-    @PutMapping("/v1/study/{studyId}")
+    @PatchMapping("/v1/study/{studyId}")
     public ApiResponse<Void> updateStudy(
             Principal principal,
             @PathVariable("studyId") Long studyId,

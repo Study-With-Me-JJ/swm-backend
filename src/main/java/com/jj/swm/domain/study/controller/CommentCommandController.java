@@ -35,7 +35,7 @@ public class CommentCommandController {
         return ApiResponse.created(createResponse);
     }
 
-    @PutMapping("/v1/study/comment/{commentId}")
+    @PatchMapping("/v1/study/comment/{commentId}")
     public ApiResponse<CommentUpdateResponse> updateComment(
             Principal principal,
             @PathVariable("commentId") Long commentId,
