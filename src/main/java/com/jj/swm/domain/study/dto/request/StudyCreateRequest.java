@@ -34,5 +34,5 @@ public class StudyCreateRequest {
 
     @NotEmpty
     @Size(max = 100)
-    private List<StudyRecruitPositionsCreateRequest> recruitPositionsCreateRequests;
+    private List<RecruitPositionUpsertRequest> recruitPositionCreateRequests;
 }

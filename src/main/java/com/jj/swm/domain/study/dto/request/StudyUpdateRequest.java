@@ -25,6 +25,4 @@ public class StudyUpdateRequest {
     private StudyTagModifyRequest tagModifyRequest;
 
     private StudyImageModifyRequest imageModifyRequest;
-
-    private StudyRecruitPositionModifyRequest recruitPositionModifyRequest;
 }

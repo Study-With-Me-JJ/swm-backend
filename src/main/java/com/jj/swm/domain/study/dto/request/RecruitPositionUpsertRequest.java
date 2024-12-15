@@ -1,19 +1,20 @@
 package com.jj.swm.domain.study.dto.request;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRecruitPositionUpdateRequest {
+public class RecruitPositionUpsertRequest {
 
-    @NotNull
-    @Positive
-    private Long recruitPositionId;
+    @NotBlank
+    private String title;
 
+    @Min(1)
     @NotNull
-    private StudyRecruitPositionsCreateRequest recruitPositionChanges;
+    private Integer headcount;
 }

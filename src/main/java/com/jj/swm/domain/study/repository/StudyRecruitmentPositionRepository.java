@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface StudyRecruitmentPositionRepository extends
@@ -39,4 +40,7 @@ public interface StudyRecruitmentPositionRepository extends
             nativeQuery = true
     )
     List<ParticipantStatusInfo> findParticipantStatusByStudyIdAndUserId(Long studyId, UUID userId);
+
+    @Query("select srp from StudyRecruitmentPosition srp where srp.id = ?1 and srp.study.user.id = ?2")
+    Optional<StudyRecruitmentPosition> findByIdAndUserId(Long recruitPositionId, UUID userId);
 }
