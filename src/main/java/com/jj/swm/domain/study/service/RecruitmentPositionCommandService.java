@@ -59,6 +59,11 @@ public class RecruitmentPositionCommandService {
             return RecruitmentPositionApplyResponse.from(optionalStudyParticipant.get());
         }
 
+        Integer acceptedCount = participantRepository.countAcceptedByRecruitmentPositionId(recruitmentPosition);
+        if (acceptedCount >= recruitmentPosition.getHeadcount()) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "It is already full");
+        }
+
         StudyParticipant participant = StudyParticipant.of(recruitmentPosition, user);
         participantRepository.save(participant);
 
