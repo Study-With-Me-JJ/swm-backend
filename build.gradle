@@ -96,3 +96,7 @@ tasks.register('copyTestSecret', Copy) {
     include "*.yml"  // 복사할 파일들
     into 'src/test/resources'  // 복사 위치
 }
+
+clean {
+    delete file('src/main/generated')
+}
