@@ -58,4 +58,15 @@ public class RecruitmentPositionCommandController {
 
         return ApiResponse.ok(null);
     }
+
+    @DeleteMapping("/v1/study/participant/{participantId}")
+    public ApiResponse<Void> cancelRecruitmentApplication(
+            Principal principal, @PathVariable("participantId") Long participantId
+    ) {
+        recruitmentPositionCommandService.withdraw(
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), participantId
+        );
+
+        return ApiResponse.ok(null);
+    }
 }

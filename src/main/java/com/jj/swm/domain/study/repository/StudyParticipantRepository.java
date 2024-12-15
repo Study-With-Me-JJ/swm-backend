@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface StudyParticipantRepository extends JpaRepository<StudyParticipant, Long> {
 
     Optional<StudyParticipant> findByUserIdAndStudyRecruitmentPositionId(UUID userId, Long recruitmentPositionId);
+
+    Optional<StudyParticipant> findByIdAndUserId(Long id, UUID userId);
 }
