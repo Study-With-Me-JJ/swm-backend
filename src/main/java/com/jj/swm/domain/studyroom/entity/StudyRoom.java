@@ -13,6 +13,8 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -82,12 +84,24 @@ public class StudyRoom extends BaseTimeEntity {
     @Column(name = "entire_max_headcount", nullable = false)
     private int entireMaxHeadcount;
 
+    @Column(name = "entire_min_price_per_hour", nullable = false)
+    private int entireMinPricePerHour;
+
+    @Column(name = "entire_max_price_per_hour", nullable = false)
+    private int entireMaxPricePerHour;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "studyRoom")
+    private List<StudyRoomTag> tags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyRoom")
+    private List<StudyRoomOptionInfo> optionInfos = new ArrayList<>();
 
     public static StudyRoom of(StudyRoomCreateRequest request) {
         return StudyRoom.builder()

@@ -35,6 +35,8 @@ public class StudyRoomFixture {
                 .minReserveTime(2)
                 .entireMinHeadcount(1)
                 .entireMaxHeadcount(2)
+                .entireMinPricePerHour(1000)
+                .entireMaxPricePerHour(10000)
                 .user(user)
                 .build();
     }
@@ -64,6 +66,8 @@ public class StudyRoomFixture {
                 .minReserveTime(2)
                 .entireMinHeadcount(1)
                 .entireMaxHeadcount(2)
+                .entireMinPricePerHour(1000)
+                .entireMaxPricePerHour(10000)
                 .user(user)
                 .deletedAt(null)
                 .build();
