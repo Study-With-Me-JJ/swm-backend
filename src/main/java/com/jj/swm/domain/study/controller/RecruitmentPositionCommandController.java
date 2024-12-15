@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.controller;
 
 import com.jj.swm.domain.study.dto.request.RecruitPositionUpsertRequest;
+import com.jj.swm.domain.study.dto.response.RecruitmentPositionApplyResponse;
 import com.jj.swm.domain.study.dto.response.RecruitmentPositionCreateResponse;
 import com.jj.swm.domain.study.service.RecruitmentPositionCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
@@ -30,6 +31,17 @@ public class RecruitmentPositionCommandController {
         );
 
         return ApiResponse.created(createResponse);
+    }
+
+    @PostMapping("/v1/study/recruitment-position/{recruitPositionId}")
+    public ApiResponse<RecruitmentPositionApplyResponse> applyRecruitmentPosition(
+            Principal principal, @PathVariable("recruitPositionId") Long recruitPositionId
+    ) {
+        RecruitmentPositionApplyResponse applyResponse = recruitmentPositionCommandService.apply(
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), recruitPositionId
+        );
+
+        return ApiResponse.created(applyResponse);
     }
 
     @PatchMapping("/v1/study/recruitment-position/{recruitPositionId}")

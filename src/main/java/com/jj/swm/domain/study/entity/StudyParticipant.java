@@ -30,4 +30,12 @@ public class StudyParticipant {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public static StudyParticipant of(StudyRecruitmentPosition studyRecruitmentPosition, User user) {
+        return StudyParticipant.builder()
+                .status(StudyParticipantStatus.PENDING)
+                .studyRecruitmentPosition(studyRecruitmentPosition)
+                .user(user)
+                .build();
+    }
 }
