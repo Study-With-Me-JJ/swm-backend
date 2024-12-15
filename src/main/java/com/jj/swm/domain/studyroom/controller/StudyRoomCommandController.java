@@ -39,7 +39,7 @@ public class StudyRoomCommandController {
     @PatchMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> update(
             @Valid @RequestBody StudyRoomUpdateRequest request,
-            Long studyRoomId,
+            @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {
         commandService.update(
@@ -54,7 +54,7 @@ public class StudyRoomCommandController {
     @PatchMapping("/v1/studyroom/settings/{studyRoomId}")
     public ApiResponse<Void> updateSettings(
             @Valid @RequestBody StudyRoomUpdateSettingRequest request,
-            Long studyRoomId,
+            @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {
         commandService.updateSettings(

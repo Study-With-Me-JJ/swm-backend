@@ -64,6 +64,14 @@ public class StudyRoomUpdateRequest {
     @NotNull
     private Integer entireMaxHeadcount;
 
+    @NotNull
+    @Positive
+    private Integer entireMinPricePerHour;
+
+    @NotNull
+    @Positive
+    private Integer entireMaxPricePerHour;
+
     private StudyRoomImageModifyRequest imageModification;
 
     private StudyRoomTagModifyRequest tagModification;

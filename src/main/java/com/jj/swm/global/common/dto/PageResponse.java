@@ -28,6 +28,16 @@ public class PageResponse<D> {
         );
     }
 
+    public static <D> PageResponse<D> of(List<D> dto, boolean hasNext) {
+        return new PageResponse<>(
+                dto.size(),
+                -1,
+                -1,
+                hasNext,
+                dto
+        );
+    }
+
     private static <E, D> List<D> convertToDto(Page<E> entity, Function<E, D> makeDto) {
         return entity.getContent()
                 .stream()

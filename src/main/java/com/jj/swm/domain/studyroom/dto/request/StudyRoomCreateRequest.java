@@ -82,4 +82,12 @@ public class StudyRoomCreateRequest {
     @Min(2)
     @NotNull
     private Integer entireMaxHeadcount;
+
+    @NotNull
+    @Positive
+    private Integer entireMinPricePerHour;
+
+    @NotNull
+    @Positive
+    private Integer entireMaxPricePerHour;
 }
