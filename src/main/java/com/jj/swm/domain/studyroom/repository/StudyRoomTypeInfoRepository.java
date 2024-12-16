@@ -14,6 +14,4 @@ public interface StudyRoomTypeInfoRepository extends JpaRepository<StudyRoomType
     List<StudyRoomTypeInfo> findAllByIdInAndStudyRoom(List<Long> typeIds, StudyRoom studyRoom);
 
     int countStudyRoomTypeInfoByIdInAndStudyRoom(List<Long> optionIds, StudyRoom studyRoom);
-
-    void deleteByStudyRoom(StudyRoom studyRoom);
 }
