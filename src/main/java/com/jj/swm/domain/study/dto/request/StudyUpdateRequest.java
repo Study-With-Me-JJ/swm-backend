@@ -17,6 +17,9 @@ public class StudyUpdateRequest {
     @NotBlank
     private String content;
 
+    @NotBlank
+    private String openChatUrl;
+
     @NotNull
     private StudyCategory category;
 

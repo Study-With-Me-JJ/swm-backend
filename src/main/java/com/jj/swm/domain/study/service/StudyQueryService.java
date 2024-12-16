@@ -1,11 +1,13 @@
 package com.jj.swm.domain.study.service;
 
-import com.jj.swm.domain.study.dto.*;
+import com.jj.swm.domain.study.dto.ReplyCountInfo;
+import com.jj.swm.domain.study.dto.StudyBookmarkInfo;
+import com.jj.swm.domain.study.dto.StudyInquiryCondition;
 import com.jj.swm.domain.study.dto.response.*;
 import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.domain.study.entity.StudyComment;
 import com.jj.swm.domain.study.entity.StudyImage;
-import com.jj.swm.domain.study.entity.StudyParticipantStatus;
+import com.jj.swm.domain.study.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.repository.*;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
@@ -19,7 +21,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,41 +85,24 @@ public class StudyQueryService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
         boolean likeStatus = false;
+        if (userId != null) {
+            likeStatus = studyLikeRepository.existsByUserIdAndStudyId(userId, studyId);
+        }
 
         study.incrementViewCount();
 
         List<StudyImage> images = studyImageRepository.findAllByStudyId(studyId);
 
         List<StudyImageInquiryResponse> imageInquiryResponses = images.stream()
-                .map(StudyImageInquiryResponse::from).toList();
+                .map(StudyImageInquiryResponse::from)
+                .toList();
 
-        List<StudyPositionAcceptedCountInfo> positionAcceptedCountInfos =
-                studyRecruitmentPositionRepository.findPositionAcceptedCountInfoByStudyId(studyId);
+        List<StudyRecruitmentPosition> recruitmentPositions =
+                studyRecruitmentPositionRepository.findAllByStudyId(studyId);
 
-        Map<Long, StudyParticipantStatus> participantStatusByRecruitPositionId;
-        if (userId != null) {
-            likeStatus = studyLikeRepository.existsByUserIdAndStudyId(userId, studyId);
-
-            List<ParticipantStatusInfo> participantStatusInfos =
-                    studyRecruitmentPositionRepository.findParticipantStatusByStudyIdAndUserId(studyId, userId);
-            participantStatusByRecruitPositionId = new HashMap<>();
-            for (ParticipantStatusInfo participantStatusInfo : participantStatusInfos) {
-                participantStatusByRecruitPositionId.put(
-                        participantStatusInfo.getId(),
-                        participantStatusInfo.getStatus() == null ?
-                                StudyParticipantStatus.ABSENT : participantStatusInfo.getStatus()
-                );
-            }
-        } else {
-            participantStatusByRecruitPositionId = Collections.emptyMap();
-        }
-
-        List<StudyRecruitPositionInquiryResponse> recruitPositionInquiryResponses = positionAcceptedCountInfos.stream()
-                .map(positionAcceptedCountInfo -> StudyRecruitPositionInquiryResponse.of(
-                                positionAcceptedCountInfo, participantStatusByRecruitPositionId.getOrDefault(
-                                        positionAcceptedCountInfo.getId(), StudyParticipantStatus.ABSENT)
-                        )
-                ).toList();
+        List<StudyRecruitPositionInquiryResponse> recruitPositionInquiryResponses = recruitmentPositions.stream()
+                .map(StudyRecruitPositionInquiryResponse::from)
+                .toList();
 
         Pageable pageable = PageRequest.of(0, commentPageSize, Sort.by("id").descending());
         Page<StudyComment> pageComments = commentRepository.findCommentWithUserByStudyId(studyId, pageable);
@@ -140,6 +128,7 @@ public class StudyQueryService {
         return StudyDetailsResponse.of(
                 likeStatus,
                 study.getViewCount(),
+                study.getOpenChatUrl(),
                 imageInquiryResponses,
                 recruitPositionInquiryResponses,
                 commentPageResponse

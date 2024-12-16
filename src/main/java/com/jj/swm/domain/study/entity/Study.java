@@ -35,6 +35,9 @@ public class Study extends BaseTimeEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
+    @Column(name = "open_chat_url", length = 300, nullable = false)
+    private String openChatUrl;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -71,6 +74,7 @@ public class Study extends BaseTimeEntity {
         return Study.builder()
                 .title(createRequest.getTitle())
                 .content(createRequest.getContent())
+                .openChatUrl(createRequest.getOpenChatUrl())
                 .category(createRequest.getCategory())
                 .likeCount(0)
                 .commentCount(0)
@@ -86,6 +90,7 @@ public class Study extends BaseTimeEntity {
         this.content = updateRequest.getContent();
         this.category = updateRequest.getCategory();
         this.thumbnail = updateRequest.getThumbnail();
+        this.openChatUrl = updateRequest.getOpenChatUrl();
     }
 
     public void incrementLikeCount() {

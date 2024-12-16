@@ -14,6 +14,8 @@ public class StudyDetailsResponse {
 
     private int viewCount;
 
+    private String openChatUrl;
+
     private List<StudyImageInquiryResponse> imageInquiryResponses;
 
     private List<StudyRecruitPositionInquiryResponse> recruitPositionInquiryResponses;
@@ -23,12 +25,14 @@ public class StudyDetailsResponse {
     public static StudyDetailsResponse of(
             boolean likeStatus,
             int viewCount,
+            String openChatUrl,
             List<StudyImageInquiryResponse> imageInquiryResponses,
             List<StudyRecruitPositionInquiryResponse> recruitPositionInquiryResponses,
             PageResponse<CommentInquiryResponse> commentPageResponse) {
         return StudyDetailsResponse.builder()
                 .likeStatus(likeStatus)
                 .viewCount(viewCount)
+                .openChatUrl(openChatUrl)
                 .imageInquiryResponses(imageInquiryResponses)
                 .recruitPositionInquiryResponses(recruitPositionInquiryResponses)
                 .commentPageResponse(commentPageResponse)
