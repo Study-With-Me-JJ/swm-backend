@@ -6,12 +6,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class StudyRoomQnaCreateResponse {
+public class CreateStudyRoomQnaResponse {
 
     private Long studyRoomQnaId;
 
-    public static StudyRoomQnaCreateResponse from(StudyRoomQna studyRoomQna) {
-        return StudyRoomQnaCreateResponse.builder()
+    public static CreateStudyRoomQnaResponse from(StudyRoomQna studyRoomQna) {
+        return CreateStudyRoomQnaResponse.builder()
                 .studyRoomQnaId(studyRoomQna.getId())
                 .build();
     }

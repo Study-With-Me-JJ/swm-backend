@@ -1,7 +1,7 @@
 package com.jj.swm.domain.studyroom;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReservationTypeCreateRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReservationTypeRequest;
 import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
@@ -13,8 +13,8 @@ import java.util.List;
 
 public class StudyRoomCreateRequestFixture {
 
-    public static StudyRoomCreateRequest createStudyRoomCreateRequestFixture(){
-        return StudyRoomCreateRequest.builder()
+    public static CreateStudyRoomRequest createStudyRoomCreateRequestFixture(){
+        return CreateStudyRoomRequest.builder()
                 .title("test")
                 .subtitle("test")
                 .introduce("test")
@@ -49,8 +49,8 @@ public class StudyRoomCreateRequestFixture {
                 .build();
     }
 
-    public static StudyRoomCreateRequest createStudyRoomCreateRequestListNullFixture(){
-        return StudyRoomCreateRequest.builder()
+    public static CreateStudyRoomRequest createStudyRoomCreateRequestListNullFixture(){
+        return CreateStudyRoomRequest.builder()
                 .title("test")
                 .subtitle("test")
                 .introduce("test")
@@ -85,8 +85,8 @@ public class StudyRoomCreateRequestFixture {
                 .build();
     }
 
-    public static StudyRoomCreateRequest createStudyRoomCreateRequestListEmptyFixture(){
-        return StudyRoomCreateRequest.builder()
+    public static CreateStudyRoomRequest createStudyRoomCreateRequestListEmptyFixture(){
+        return CreateStudyRoomRequest.builder()
                 .title("test")
                 .subtitle("test")
                 .introduce("test")
@@ -121,8 +121,8 @@ public class StudyRoomCreateRequestFixture {
                 .build();
     }
 
-    public static StudyRoomReservationTypeCreateRequest createStudyRoomReservationTypeCreateRequestFixture(){
-        return StudyRoomReservationTypeCreateRequest.builder()
+    public static CreateStudyRoomReservationTypeRequest createStudyRoomReservationTypeCreateRequestFixture(){
+        return CreateStudyRoomReservationTypeRequest.builder()
                 .maxHeadcount(1)
                 .reservationOption("1인실")
                 .pricePerHour(1000)

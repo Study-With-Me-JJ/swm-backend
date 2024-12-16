@@ -2,12 +2,12 @@ package com.jj.swm.domain.studyroom.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.studyroom.StudyRoomFixture;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewReplyCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewReplyUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomReviewCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomReviewReplyCreateResponse;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReviewRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReviewReplyRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewReplyRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewRequest;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomReviewResponse;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomReviewReplyResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReviewReply;
@@ -75,13 +75,13 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     @DisplayName("스터디 룸 이용후기 생성에 성공한다.")
     void studyRoom_review_create_Success() {
         //given
-        StudyRoomReviewCreateRequest request = StudyRoomReviewCreateRequest.builder()
+        CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
                 .rating(5)
                 .build();
 
         //when
-        StudyRoomReviewCreateResponse response = commandService.createReview(
+        CreateStudyRoomReviewResponse response = commandService.createReview(
                 request,
                 studyRoom.getId(),
                 createReviewUser.getId()
@@ -101,7 +101,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     @DisplayName("스터디 룸 이용후기 수정에 성공한다.")
     void studyRoom_review_update_Success() {
         //given
-        StudyRoomReviewUpdateRequest request = StudyRoomReviewUpdateRequest.builder()
+        UpdateStudyRoomReviewRequest request = UpdateStudyRoomReviewRequest.builder()
                 .comment("update_test")
                 .rating(4)
                 .build();
@@ -137,7 +137,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
         //when
         for (UUID uuid : userUuids) {
             commandService.createReview(
-                    StudyRoomReviewCreateRequest.builder()
+                    CreateStudyRoomReviewRequest.builder()
                             .comment("test")
                             .rating(rating--)
                             .build(), studyRoom.getId(), uuid);
@@ -154,19 +154,19 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     @DisplayName("스터디 룸 이용후기를 작성한 일반 유저 혹은 관리자이면 답글 생성에 성공한다.")
     void studyRoom_review_create_normal_user_and_room_admin_Success() {
         //given
-        StudyRoomReviewReplyCreateRequest requestNormalUser = StudyRoomReviewReplyCreateRequest.builder()
+        CreateStudyRoomReviewReplyRequest requestNormalUser = CreateStudyRoomReviewReplyRequest.builder()
                 .reply("normalUser")
                 .build();
 
-        StudyRoomReviewReplyCreateRequest requestRoomAdmin = StudyRoomReviewReplyCreateRequest.builder()
+        CreateStudyRoomReviewReplyRequest requestRoomAdmin = CreateStudyRoomReviewReplyRequest.builder()
                 .reply("roomAdmin")
                 .build();
 
         //when
-        StudyRoomReviewReplyCreateResponse responseNormalUser
+        CreateStudyRoomReviewReplyResponse responseNormalUser
                 = commandService.createReviewReply(requestNormalUser, studyRoomReview.getId(), createReviewUser.getId());
 
-        StudyRoomReviewReplyCreateResponse responseRoomAdmin
+        CreateStudyRoomReviewReplyResponse responseRoomAdmin
                 = commandService.createReviewReply(requestRoomAdmin, studyRoomReview.getId(), studyRoom.getUser().getId());
 
         //then
@@ -183,7 +183,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     @DisplayName("스터디 룸 이용후기를 작성한 유저가 아니라면 실패한다.")
     void studyRoom_review_create_unknown_user_Fail() {
         //given
-        StudyRoomReviewReplyCreateRequest request = StudyRoomReviewReplyCreateRequest.builder()
+        CreateStudyRoomReviewReplyRequest request = CreateStudyRoomReviewReplyRequest.builder()
                 .reply("test")
                 .build();
 
@@ -204,7 +204,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
                 )
         );
 
-        StudyRoomReviewReplyUpdateRequest request = StudyRoomReviewReplyUpdateRequest.builder()
+        UpdateStudyRoomReviewReplyRequest request = UpdateStudyRoomReviewReplyRequest.builder()
                 .reply("update_test")
                 .build();
 
@@ -226,7 +226,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
         ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
 
-        StudyRoomReviewCreateRequest request = StudyRoomReviewCreateRequest.builder()
+        CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
                 .rating(5)
                 .build();

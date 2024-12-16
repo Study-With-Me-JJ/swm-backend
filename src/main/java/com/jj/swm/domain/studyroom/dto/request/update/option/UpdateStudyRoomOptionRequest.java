@@ -5,15 +5,16 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRoomOptionInfoModifyRequest {
+public class UpdateStudyRoomOptionRequest {
 
-    private List<StudyRoomOption> optionsToAdd;
-    private List<StudyRoomOptionUpdateRequest> optionsToUpdate;
-    private List<Long> optionsIdsToRemove;
+    @NotNull
+    @Positive
+    private Long optionId;
+
+    @NotNull
+    private StudyRoomOption option;
 }

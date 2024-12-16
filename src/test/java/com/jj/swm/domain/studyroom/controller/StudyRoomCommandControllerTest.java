@@ -3,7 +3,7 @@ package com.jj.swm.domain.studyroom.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.jj.swm.domain.studyroom.StudyRoomCreateRequestFixture;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -40,9 +39,9 @@ class StudyRoomCommandControllerTest {
     @DisplayName("컨트롤러에서 스터디 생성에 성공한다.")
     void createStudy_Success() throws Exception{
         //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
+        CreateStudyRoomRequest request = StudyRoomCreateRequestFixture.createStudyRoomCreateRequestFixture();
 
-        doNothing().when(commandService).create(any(StudyRoomCreateRequest.class), any(UUID.class));
+        doNothing().when(commandService).create(any(CreateStudyRoomRequest.class), any(UUID.class));
 
         //when & then
         mockMvc.perform(post("/api/v1/studyroom")
@@ -59,11 +58,11 @@ class StudyRoomCommandControllerTest {
     @DisplayName("스터디 생성 시 잘못된 데이터가 들어오면 실패한다.")
     public void createStudy_FailByNotValidData() throws Exception{
         //given
-        StudyRoomCreateRequest request = StudyRoomCreateRequest.builder()
+        CreateStudyRoomRequest request = CreateStudyRoomRequest.builder()
                         .title("Not Valid")
                         .build();
 
-        doNothing().when(commandService).create(any(StudyRoomCreateRequest.class), any(UUID.class));
+        doNothing().when(commandService).create(any(CreateStudyRoomRequest.class), any(UUID.class));
 
         //when & then
         mockMvc.perform(post("/api/v1/studyroom")

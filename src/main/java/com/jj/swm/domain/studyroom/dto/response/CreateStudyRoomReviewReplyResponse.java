@@ -6,13 +6,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class StudyRoomReviewReplyCreateResponse {
+public class CreateStudyRoomReviewReplyResponse {
 
     private Long studyRoomReviewId;
     private Long studyRoomReviewReplyId;
 
-    public static StudyRoomReviewReplyCreateResponse from(StudyRoomReviewReply studyRoomReviewReply) {
-        return StudyRoomReviewReplyCreateResponse.builder()
+    public static CreateStudyRoomReviewReplyResponse from(StudyRoomReviewReply studyRoomReviewReply) {
+        return CreateStudyRoomReviewReplyResponse.builder()
                 .studyRoomReviewId(studyRoomReviewReply.getStudyRoomReview().getId())
                 .studyRoomReviewReplyId(studyRoomReviewReply.getId())
                 .build();

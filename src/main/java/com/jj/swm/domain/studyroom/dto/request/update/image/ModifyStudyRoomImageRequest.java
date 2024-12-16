@@ -8,9 +8,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRoomImageModifyRequest {
+public class ModifyStudyRoomImageRequest {
 
     private List<String> imagesToAdd;
-    private List<StudyRoomImageUpdateRequest> imagesToUpdate;
+    private List<UpdateStudyRoomImageRequest> imagesToUpdate;
     private List<Long> imageIdsToRemove;
 }

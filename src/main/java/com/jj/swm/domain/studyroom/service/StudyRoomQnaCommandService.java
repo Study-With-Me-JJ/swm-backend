@@ -1,8 +1,8 @@
 package com.jj.swm.domain.studyroom.service;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomQnaUpsertRequest;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomQnaCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomQnaUpdateResponse;
+import com.jj.swm.domain.studyroom.dto.request.UpsertStudyRoomQnaRequest;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomQnaResponse;
+import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomQna;
 import com.jj.swm.domain.studyroom.repository.StudyRoomQnaRepository;
@@ -28,8 +28,8 @@ public class StudyRoomQnaCommandService {
     private final StudyRoomQnaRepository qnaRepository;
 
     @Transactional
-    public StudyRoomQnaCreateResponse createQna(
-            StudyRoomQnaUpsertRequest request,
+    public CreateStudyRoomQnaResponse createQna(
+            UpsertStudyRoomQnaRequest request,
             Long studyRoomId,
             Long parentId,
             UUID userId
@@ -58,12 +58,12 @@ public class StudyRoomQnaCommandService {
         }
 
         qnaRepository.save(studyRoomQna);
-        return StudyRoomQnaCreateResponse.from(studyRoomQna);
+        return CreateStudyRoomQnaResponse.from(studyRoomQna);
     }
 
     @Transactional
-    public StudyRoomQnaUpdateResponse updateQna(
-            StudyRoomQnaUpsertRequest request,
+    public UpdateStudyRoomQnaResponse updateQna(
+            UpsertStudyRoomQnaRequest request,
             Long studyRoomQnaId,
             UUID userId
     ) {
@@ -72,7 +72,7 @@ public class StudyRoomQnaCommandService {
 
         studyRoomQna.modify(request.getComment());
 
-        return StudyRoomQnaUpdateResponse.from(studyRoomQna);
+        return UpdateStudyRoomQnaResponse.from(studyRoomQna);
     }
 
     @Transactional

@@ -1,20 +1,20 @@
 package com.jj.swm.domain.studyroom.service;
 
 import com.jj.swm.domain.studyroom.dto.request.*;
-import com.jj.swm.domain.studyroom.dto.request.update.dayoff.StudyRoomDayOffModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.dayoff.StudyRoomDayOffUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.image.StudyRoomImageModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.image.StudyRoomImageUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.option.StudyRoomOptionInfoModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.option.StudyRoomOptionUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.reservationType.StudyRoomReservationTypeModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.reservationType.StudyRoomReservationTypeUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeInfoModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomBookmarkCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomLikeCreateResponse;
+import com.jj.swm.domain.studyroom.dto.request.update.dayoff.ModifyStudyRoomDayOffRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.dayoff.UpdateStudyRoomDayOffRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.image.ModifyStudyRoomImageRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.image.UpdateStudyRoomImageRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.option.ModifyStudyRoomOptionInfoRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.option.UpdateStudyRoomOptionRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.reservationType.ModifyStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.reservationType.UpdateStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.tag.ModifyStudyRoomTagRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.tag.UpdateStudyRoomTagRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.type.ModifyStudyRoomTypeInfoRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.type.UpdateStudyRoomTypeRequest;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomBookmarkResponse;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomLikeResponse;
 import com.jj.swm.domain.studyroom.entity.*;
 import com.jj.swm.domain.studyroom.repository.*;
 import com.jj.swm.domain.user.entity.RoleType;
@@ -47,7 +47,7 @@ public class StudyRoomCommandService {
     private final StudyRoomBookmarkRepository bookmarkRepository;
 
     @Transactional
-    public void create(StudyRoomCreateRequest request, UUID userId){
+    public void create(CreateStudyRoomRequest request, UUID userId){
         User user = validateRoomAdmin(userId);
 
         StudyRoom studyRoom = StudyRoom.of(request);
@@ -58,7 +58,7 @@ public class StudyRoomCommandService {
         createAllOfStudyRoomRelatedInfo(request, studyRoom);
     }
 
-    private void createAllOfStudyRoomRelatedInfo(StudyRoomCreateRequest request, StudyRoom studyRoom) {
+    private void createAllOfStudyRoomRelatedInfo(CreateStudyRoomRequest request, StudyRoom studyRoom) {
         validateDayOffs(request.getDayOffs(), studyRoom);
         validateTags(request.getTags(), studyRoom);
         imageRepository.batchInsert(request.getImageUrls(), studyRoom);
@@ -69,7 +69,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void update(
-            StudyRoomUpdateRequest request,
+            UpdateStudyRoomRequest request,
             Long studyRoomId,
             UUID userId
     ){
@@ -84,7 +84,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void updateSettings(
-            StudyRoomUpdateSettingRequest request,
+            UpdateStudyRoomSettingRequest request,
             Long studyRoomId,
             UUID userId
     ) {
@@ -111,7 +111,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public StudyRoomLikeCreateResponse createLike(Long studyRoomId, UUID userId) {
+    public CreateStudyRoomLikeResponse createLike(Long studyRoomId, UUID userId) {
         validateExistsLike(studyRoomId, userId);
 
         StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
@@ -123,7 +123,7 @@ public class StudyRoomCommandService {
 
         studyRoom.likeStudyRoom();
 
-        return StudyRoomLikeCreateResponse.from(studyRoomLike);
+        return CreateStudyRoomLikeResponse.from(studyRoomLike);
     }
 
     @Transactional
@@ -137,7 +137,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public StudyRoomBookmarkCreateResponse createBookmark(Long studyRoomId, UUID userId) {
+    public CreateStudyRoomBookmarkResponse createBookmark(Long studyRoomId, UUID userId) {
         validateExistsBookmark(studyRoomId, userId);
         StudyRoom studyRoom = validateStudyRoom(studyRoomId);
         User user = userRepository.getReferenceById(userId);
@@ -146,7 +146,7 @@ public class StudyRoomCommandService {
 
         bookmarkRepository.save(studyRoomBookmark);
 
-        return StudyRoomBookmarkCreateResponse.from(studyRoomBookmark);
+        return CreateStudyRoomBookmarkResponse.from(studyRoomBookmark);
     }
 
     @Transactional
@@ -157,7 +157,7 @@ public class StudyRoomCommandService {
         bookmarkRepository.delete(studyRoomBookmark);
     }
 
-    private void imageModifyLogic(StudyRoomImageModifyRequest imageModification, StudyRoom studyRoom) {
+    private void imageModifyLogic(ModifyStudyRoomImageRequest imageModification, StudyRoom studyRoom) {
         if (imageModification != null) {
             if (imageModification.getImagesToAdd() != null && !imageModification.getImagesToAdd().isEmpty())
                 imageRepository.batchInsert(imageModification.getImagesToAdd(), studyRoom);
@@ -168,11 +168,11 @@ public class StudyRoomCommandService {
         }
     }
 
-    private void updateImages(List<StudyRoomImageUpdateRequest> imagesToUpdate, StudyRoom studyRoom) {
+    private void updateImages(List<UpdateStudyRoomImageRequest> imagesToUpdate, StudyRoom studyRoom) {
         Map<Long, String> imageMap = new HashMap<>();
         List<Long> imageIds = new ArrayList<>();
 
-        for (StudyRoomImageUpdateRequest imageToUpdate : imagesToUpdate) {
+        for (UpdateStudyRoomImageRequest imageToUpdate : imagesToUpdate) {
             imageMap.put(imageToUpdate.getImageId(), imageToUpdate.getImageUrl());
             imageIds.add(imageToUpdate.getImageId());
         }
@@ -198,7 +198,7 @@ public class StudyRoomCommandService {
         }
     }
 
-    private void tagModifyLogic(StudyRoomTagModifyRequest request, StudyRoom studyRoom) {
+    private void tagModifyLogic(ModifyStudyRoomTagRequest request, StudyRoom studyRoom) {
         if (request.getTagsToAdd() != null && !request.getTagsToAdd().isEmpty())
             tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
         if (request.getTagsToUpdate() != null && !request.getTagsToUpdate().isEmpty())
@@ -207,11 +207,11 @@ public class StudyRoomCommandService {
             removeTags(request.getTagIdsToRemove(), studyRoom);
     }
 
-    private void updateTags(List<StudyRoomTagUpdateRequest> tagsToUpdate, StudyRoom studyRoom) {
+    private void updateTags(List<UpdateStudyRoomTagRequest> tagsToUpdate, StudyRoom studyRoom) {
         Map<Long, String> tagMap = new HashMap<>();
         List<Long> tagIds = new ArrayList<>();
 
-        for (StudyRoomTagUpdateRequest tagToUpdate : tagsToUpdate) {
+        for (UpdateStudyRoomTagRequest tagToUpdate : tagsToUpdate) {
             tagMap.put(tagToUpdate.getTagId(), tagToUpdate.getTag());
             tagIds.add(tagToUpdate.getTagId());
         }
@@ -237,7 +237,7 @@ public class StudyRoomCommandService {
         }
     }
 
-    private void dayOffModifyLogic(StudyRoomDayOffModifyRequest request, StudyRoom studyRoom) {
+    private void dayOffModifyLogic(ModifyStudyRoomDayOffRequest request, StudyRoom studyRoom) {
         if (request.getDayOffsToAdd() != null && !request.getDayOffsToAdd().isEmpty())
             dayOffRepository.batchInsert(request.getDayOffsToAdd(), studyRoom);
         if (request.getDayOffsToUpdate() != null && !request.getDayOffsToUpdate().isEmpty())
@@ -246,11 +246,11 @@ public class StudyRoomCommandService {
             removeDayOffs(request.getDayOffIdsToRemove(), studyRoom);
     }
 
-    private void updateDayOffs(List<StudyRoomDayOffUpdateRequest> dayOffsToUpdate, StudyRoom studyRoom) {
+    private void updateDayOffs(List<UpdateStudyRoomDayOffRequest> dayOffsToUpdate, StudyRoom studyRoom) {
         Map<Long, DayOfWeek> dayOffMap = new HashMap<>();
         List<Long> dayOffIds = new ArrayList<>();
 
-        for (StudyRoomDayOffUpdateRequest dayOffToUpdate : dayOffsToUpdate) {
+        for (UpdateStudyRoomDayOffRequest dayOffToUpdate : dayOffsToUpdate) {
             dayOffMap.put(dayOffToUpdate.getDayOffId(), dayOffToUpdate.getDayOff());
             dayOffIds.add(dayOffToUpdate.getDayOffId());
         }
@@ -276,7 +276,7 @@ public class StudyRoomCommandService {
         }
     }
 
-    private void optionModifyLogic(StudyRoomOptionInfoModifyRequest request, StudyRoom studyRoom) {
+    private void optionModifyLogic(ModifyStudyRoomOptionInfoRequest request, StudyRoom studyRoom) {
         if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty())
             optionInfoRepository.batchInsert(request.getOptionsToAdd(), studyRoom);
         if (request.getOptionsToUpdate() != null && !request.getOptionsToUpdate().isEmpty())
@@ -285,11 +285,11 @@ public class StudyRoomCommandService {
             removeOptions(request.getOptionsIdsToRemove(), studyRoom);
     }
 
-    private void updateOptions(List<StudyRoomOptionUpdateRequest> optionsToUpdate, StudyRoom studyRoom) {
+    private void updateOptions(List<UpdateStudyRoomOptionRequest> optionsToUpdate, StudyRoom studyRoom) {
         Map<Long, StudyRoomOption> optionMap = new HashMap<>();
         List<Long> optionIds = new ArrayList<>();
 
-        for (StudyRoomOptionUpdateRequest optionToUpdate : optionsToUpdate) {
+        for (UpdateStudyRoomOptionRequest optionToUpdate : optionsToUpdate) {
             optionMap.put(optionToUpdate.getOptionId(), optionToUpdate.getOption());
             optionIds.add(optionToUpdate.getOptionId());
         }
@@ -315,7 +315,7 @@ public class StudyRoomCommandService {
         }
     }
 
-    private void typeModifyLogic(StudyRoomTypeInfoModifyRequest request, StudyRoom studyRoom) {
+    private void typeModifyLogic(ModifyStudyRoomTypeInfoRequest request, StudyRoom studyRoom) {
         if (request.getTypesToAdd() != null && !request.getTypesToAdd().isEmpty())
             typeInfoRepository.batchInsert(request.getTypesToAdd(), studyRoom);
         if (request.getTypesToUpdate() != null && !request.getTypesToUpdate().isEmpty())
@@ -324,11 +324,11 @@ public class StudyRoomCommandService {
             removeTypes(request.getTypeIdsToRemove(), studyRoom);
     }
 
-    private void updateTypes(List<StudyRoomTypeUpdateRequest> typesToUpdate, StudyRoom studyRoom) {
+    private void updateTypes(List<UpdateStudyRoomTypeRequest> typesToUpdate, StudyRoom studyRoom) {
         Map<Long, StudyRoomType> typeMap = new HashMap<>();
         List<Long> typeIds = new ArrayList<>();
 
-        for (StudyRoomTypeUpdateRequest typeToUpdate : typesToUpdate) {
+        for (UpdateStudyRoomTypeRequest typeToUpdate : typesToUpdate) {
             typeMap.put(typeToUpdate.getTypeId(), typeToUpdate.getType());
             typeIds.add(typeToUpdate.getTypeId());
         }
@@ -354,7 +354,7 @@ public class StudyRoomCommandService {
         }
     }
 
-    private void reserveTypeModifyLogic(StudyRoomReservationTypeModifyRequest request, StudyRoom studyRoom) {
+    private void reserveTypeModifyLogic(ModifyStudyRoomReservationTypeRequest request, StudyRoom studyRoom) {
         if (request.getReservationTypesToAdd() != null)
             reserveTypeRepository.batchInsert(request.getReservationTypesToAdd(), studyRoom);
         if (request.getReservationTypesToUpdate() != null && !request.getReservationTypesToUpdate().isEmpty())
@@ -364,12 +364,12 @@ public class StudyRoomCommandService {
     }
 
     private void updateReserveTypes(
-            List<StudyRoomReservationTypeUpdateRequest> reservationTypesToUpdate, StudyRoom studyRoom
+            List<UpdateStudyRoomReservationTypeRequest> reservationTypesToUpdate, StudyRoom studyRoom
     ) {
-        Map<Long, StudyRoomReservationTypeCreateRequest> reserveTypeMap = new HashMap<>();
+        Map<Long, CreateStudyRoomReservationTypeRequest> reserveTypeMap = new HashMap<>();
         List<Long> reserveTypeIds = new ArrayList<>();
 
-        for (StudyRoomReservationTypeUpdateRequest reserveTypeToUpdate : reservationTypesToUpdate) {
+        for (UpdateStudyRoomReservationTypeRequest reserveTypeToUpdate : reservationTypesToUpdate) {
             reserveTypeMap.put(reserveTypeToUpdate.getReservationTypeId(), reserveTypeToUpdate.getReservationType());
             reserveTypeIds.add(reserveTypeToUpdate.getReservationTypeId());
         }

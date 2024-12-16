@@ -1,12 +1,12 @@
 package com.jj.swm.domain.studyroom.controller;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewReplyCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewReplyUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomReviewCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomReviewReplyCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomReviewUpdateResponse;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReviewRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReviewReplyRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewReplyRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewRequest;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomReviewResponse;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomReviewReplyResponse;
+import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomReviewResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomReviewCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -24,12 +24,12 @@ public class StudyRoomReviewCommandController {
     private final StudyRoomReviewCommandService commandService;
 
     @PostMapping("/v1/studyroom/{studyRoomId}/review")
-    public ApiResponse<StudyRoomReviewCreateResponse> createReview(
-            @Valid @RequestBody StudyRoomReviewCreateRequest request,
+    public ApiResponse<CreateStudyRoomReviewResponse> createReview(
+            @Valid @RequestBody CreateStudyRoomReviewRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {
-        StudyRoomReviewCreateResponse response = commandService.createReview(
+        CreateStudyRoomReviewResponse response = commandService.createReview(
                 request,
                 studyRoomId,
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
@@ -39,13 +39,13 @@ public class StudyRoomReviewCommandController {
     }
 
     @PatchMapping("/v1/studyroom/{studyRoomId}/review/{studyRoomReviewId}")
-    public ApiResponse<StudyRoomReviewUpdateResponse> updateReview(
-            @Valid @RequestBody StudyRoomReviewUpdateRequest request,
+    public ApiResponse<UpdateStudyRoomReviewResponse> updateReview(
+            @Valid @RequestBody UpdateStudyRoomReviewRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             @PathVariable("studyRoomReviewId") Long studyRoomReviewId,
             Principal principal
     ) {
-        StudyRoomReviewUpdateResponse response = commandService.updateReview(
+        UpdateStudyRoomReviewResponse response = commandService.updateReview(
                 request,
                 studyRoomId,
                 studyRoomReviewId,
@@ -56,12 +56,12 @@ public class StudyRoomReviewCommandController {
     }
 
     @PostMapping("/v1/studyroom/review/{studyRoomReviewId}/reply")
-    public ApiResponse<StudyRoomReviewReplyCreateResponse> createReviewReply(
-            @Valid @RequestBody StudyRoomReviewReplyCreateRequest request,
+    public ApiResponse<CreateStudyRoomReviewReplyResponse> createReviewReply(
+            @Valid @RequestBody CreateStudyRoomReviewReplyRequest request,
             @PathVariable("studyRoomReviewId") Long studyRoomReviewId,
             Principal principal
     ) {
-        StudyRoomReviewReplyCreateResponse response = commandService.createReviewReply(
+        CreateStudyRoomReviewReplyResponse response = commandService.createReviewReply(
                 request,
                 studyRoomReviewId,
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
@@ -72,7 +72,7 @@ public class StudyRoomReviewCommandController {
 
     @PatchMapping("/v1/studyroom/review/reply/{studyRoomReviewReplyId}")
     public ApiResponse<Void> updateReviewReply(
-            @Valid @RequestBody StudyRoomReviewReplyUpdateRequest request,
+            @Valid @RequestBody UpdateStudyRoomReviewReplyRequest request,
             @PathVariable("studyRoomReviewReplyId") Long studyRoomReviewReplyId,
             Principal principal
     ) {

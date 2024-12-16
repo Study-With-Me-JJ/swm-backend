@@ -1,6 +1,6 @@
 package com.jj.swm.domain.studyroom.entity;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReservationTypeCreateRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReservationTypeRequest;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,7 +39,7 @@ public class StudyRoomReserveType extends BaseTimeEntity {
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
 
-    public void modifyReserveType(StudyRoomReservationTypeCreateRequest request) {
+    public void modifyReserveType(CreateStudyRoomReservationTypeRequest request) {
         this.maxHeadcount = request.getMaxHeadcount();
         this.reservationOption = request.getReservationOption();
         this.pricePerHour = request.getPricePerHour();
