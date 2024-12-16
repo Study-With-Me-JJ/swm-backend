@@ -15,7 +15,7 @@ public interface StudyRoomQnaRepository extends JpaRepository<StudyRoomQna, Long
 
     @Query("select s from StudyRoomQna s " +
             "left join fetch s.parent p " +
-            "where s.id = ?1 and s.deletedAt is null")
+            "where s.id = ?1")
     Optional<StudyRoomQna> findByIdWithParent(Long studyRoomQnaId, UUID userId);
 
     Optional<StudyRoomQna> findByIdAndUserId(Long studyRoomQnaId, UUID userId);
