@@ -1,9 +1,9 @@
 package com.jj.swm.domain.studyroom.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jj.swm.domain.studyroom.dto.request.update.dayoff.StudyRoomDayOffModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.image.StudyRoomImageModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.dayoff.ModifyStudyRoomDayOffRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.image.ModifyStudyRoomImageRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.tag.ModifyStudyRoomTagRequest;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
 import jakarta.validation.constraints.*;
@@ -15,7 +15,7 @@ import java.time.LocalTime;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRoomUpdateRequest {
+public class UpdateStudyRoomRequest {
 
     @NotBlank
     private String title;
@@ -72,10 +72,10 @@ public class StudyRoomUpdateRequest {
     @Positive
     private Integer entireMaxPricePerHour;
 
-    private StudyRoomImageModifyRequest imageModification;
+    private ModifyStudyRoomImageRequest imageModification;
 
-    private StudyRoomTagModifyRequest tagModification;
+    private ModifyStudyRoomTagRequest tagModification;
 
-    private StudyRoomDayOffModifyRequest dayOffModification;
+    private ModifyStudyRoomDayOffRequest dayOffModification;
 
 }

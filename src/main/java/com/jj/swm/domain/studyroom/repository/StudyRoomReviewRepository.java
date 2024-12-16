@@ -21,8 +21,8 @@ public interface StudyRoomReviewRepository extends JpaRepository<StudyRoomReview
             "from study_room_review srr " +
             "inner join study_room sr on srr.study_room_id = sr.id " +
             "inner join users u on sr.user_id = u.id " +
-            "where srr.id = :studyRoomReviewId and (srr.user_id = :userId or u.id = :userId )",
-            nativeQuery = true)
+            "where srr.id = :studyRoomReviewId and (srr.user_id = :userId or u.id = :userId " +
+            "and srr.deleted_at is null)", nativeQuery = true)
     Optional<StudyRoomReview> findByStudyRoomReviewWithNativeQuery(
             @Param("studyRoomReviewId") Long studyRoomReviewId,
             @Param("userId") UUID userId);

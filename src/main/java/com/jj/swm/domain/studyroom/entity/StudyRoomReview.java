@@ -1,6 +1,6 @@
 package com.jj.swm.domain.studyroom.entity;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewUpdateRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -50,7 +50,7 @@ public class StudyRoomReview extends BaseTimeEntity {
                 .build();
     }
 
-    public void modifyReview(StudyRoomReviewUpdateRequest request) {
+    public void modifyReview(UpdateStudyRoomReviewRequest request) {
         this.comment = request.getComment();
         this.rating = request.getRating();
     }

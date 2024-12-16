@@ -1,16 +1,10 @@
 package com.jj.swm.domain.studyroom.controller;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomDeleteRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomUpdateSettingRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.dayoff.StudyRoomDayOffModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.option.StudyRoomOptionInfoModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.reservationType.StudyRoomReservationTypeModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.tag.StudyRoomTagModifyRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.type.StudyRoomTypeInfoModifyRequest;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomBookmarkCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomLikeCreateResponse;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomSettingRequest;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomBookmarkResponse;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomLikeResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -29,7 +23,7 @@ public class StudyRoomCommandController {
 
     @PostMapping("/v1/studyroom")
     public ApiResponse<Void> create(
-            @Valid @RequestBody StudyRoomCreateRequest request, Principal principal
+            @Valid @RequestBody CreateStudyRoomRequest request, Principal principal
     ) {
         commandService.create(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
 
@@ -38,7 +32,7 @@ public class StudyRoomCommandController {
 
     @PatchMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> update(
-            @Valid @RequestBody StudyRoomUpdateRequest request,
+            @Valid @RequestBody UpdateStudyRoomRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {
@@ -53,7 +47,7 @@ public class StudyRoomCommandController {
 
     @PatchMapping("/v1/studyroom/settings/{studyRoomId}")
     public ApiResponse<Void> updateSettings(
-            @Valid @RequestBody StudyRoomUpdateSettingRequest request,
+            @Valid @RequestBody UpdateStudyRoomSettingRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {
@@ -74,10 +68,10 @@ public class StudyRoomCommandController {
     }
 
     @PostMapping("/v1/studyroom/{studyRoomId}/like")
-    public ApiResponse<StudyRoomLikeCreateResponse> createLike(
+    public ApiResponse<CreateStudyRoomLikeResponse> createLike(
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
-        StudyRoomLikeCreateResponse response
+        CreateStudyRoomLikeResponse response
                 = commandService.createLike(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
 
         return ApiResponse.created(response);
@@ -93,10 +87,10 @@ public class StudyRoomCommandController {
     }
 
     @PostMapping("/v1/studyroom/{studyRoomId}/bookmark")
-    public ApiResponse<StudyRoomBookmarkCreateResponse> createBookmark(
+    public ApiResponse<CreateStudyRoomBookmarkResponse> createBookmark(
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
-        StudyRoomBookmarkCreateResponse response =
+        CreateStudyRoomBookmarkResponse response =
                 commandService.createBookmark(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
 
         return ApiResponse.created(response);

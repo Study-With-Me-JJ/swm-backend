@@ -1,6 +1,6 @@
-package com.jj.swm.domain.studyroom.dto.request.update.option;
+package com.jj.swm.domain.studyroom.dto.request.update.type;
 
-import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
+import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
@@ -9,12 +9,12 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRoomOptionUpdateRequest {
+public class UpdateStudyRoomTypeRequest {
 
     @NotNull
     @Positive
-    private Long optionId;
+    private Long typeId;
 
     @NotNull
-    private StudyRoomOption option;
+    private StudyRoomType type;
 }

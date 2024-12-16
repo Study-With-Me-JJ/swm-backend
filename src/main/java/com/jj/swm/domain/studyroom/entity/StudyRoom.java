@@ -1,7 +1,7 @@
 package com.jj.swm.domain.studyroom.entity;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomUpdateRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
 import com.jj.swm.domain.user.entity.User;
@@ -103,7 +103,7 @@ public class StudyRoom extends BaseTimeEntity {
     @OneToMany(mappedBy = "studyRoom")
     private List<StudyRoomOptionInfo> optionInfos = new ArrayList<>();
 
-    public static StudyRoom of(StudyRoomCreateRequest request) {
+    public static StudyRoom of(CreateStudyRoomRequest request) {
         return StudyRoom.builder()
                 .title(request.getTitle())
                 .subtitle(request.getSubtitle())
@@ -129,7 +129,7 @@ public class StudyRoom extends BaseTimeEntity {
         user.addStudyRoom(this);
     }
 
-    public void modifyStudyRoom(StudyRoomUpdateRequest request) {
+    public void modifyStudyRoom(UpdateStudyRoomRequest request) {
         this.title = request.getTitle();
         this.subtitle = request.getSubtitle();
         this.introduce = request.getIntroduce();

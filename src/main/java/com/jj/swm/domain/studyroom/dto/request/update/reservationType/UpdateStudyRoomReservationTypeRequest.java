@@ -1,6 +1,6 @@
 package com.jj.swm.domain.studyroom.dto.request.update.reservationType;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReservationTypeCreateRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReservationTypeRequest;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
@@ -9,12 +9,12 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRoomReservationTypeUpdateRequest {
+public class UpdateStudyRoomReservationTypeRequest {
 
     @NotNull
     @Positive
     private Long reservationTypeId;
 
     @NotNull
-    private StudyRoomReservationTypeCreateRequest reservationType;
+    private CreateStudyRoomReservationTypeRequest reservationType;
 }

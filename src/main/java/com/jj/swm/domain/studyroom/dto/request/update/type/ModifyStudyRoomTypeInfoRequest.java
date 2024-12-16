@@ -1,8 +1,6 @@
 package com.jj.swm.domain.studyroom.dto.request.update.type;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoomType;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.util.List;
@@ -11,9 +9,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRoomTypeInfoModifyRequest {
+public class ModifyStudyRoomTypeInfoRequest {
 
     private List<StudyRoomType> typesToAdd;
-    private List<StudyRoomTypeUpdateRequest> typesToUpdate;
+    private List<UpdateStudyRoomTypeRequest> typesToUpdate;
     private List<Long> typeIdsToRemove;
 }

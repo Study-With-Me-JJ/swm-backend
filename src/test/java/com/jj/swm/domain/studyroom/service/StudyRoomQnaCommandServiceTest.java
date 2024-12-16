@@ -3,9 +3,9 @@ package com.jj.swm.domain.studyroom.service;
 import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.studyroom.StudyRoomFixture;
 import com.jj.swm.domain.studyroom.StudyRoomQnaFixture;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomQnaUpsertRequest;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomQnaCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomQnaUpdateResponse;
+import com.jj.swm.domain.studyroom.dto.request.UpsertStudyRoomQnaRequest;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomQnaResponse;
+import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomQna;
 import com.jj.swm.domain.studyroom.repository.StudyRoomQnaRepository;
@@ -14,8 +14,6 @@ import com.jj.swm.domain.user.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -62,7 +60,7 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 룸 Qna Parent가 없는 댓글 생성에 성공한다.")
     void createQnaNotExistsParent_Success(){
         //given
-        StudyRoomQnaUpsertRequest request = StudyRoomQnaUpsertRequest.builder()
+        UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("test")
                 .build();
 
@@ -70,7 +68,7 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
         user = userRepository.saveAndFlush(user);
 
         //when
-        StudyRoomQnaCreateResponse response
+        CreateStudyRoomQnaResponse response
                 = commandService.createQna(request, studyRoom.getId(), null, user.getId());
 
         //then
@@ -83,12 +81,12 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 룸 Qna Parent가 있는 경우 본인 댓글의 대댓글 생성에 성공한다.")
     void createQnaExistsParent_Success(){
         //given
-        StudyRoomQnaUpsertRequest request = StudyRoomQnaUpsertRequest.builder()
+        UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("test2")
                 .build();
 
         //when
-        StudyRoomQnaCreateResponse response =
+        CreateStudyRoomQnaResponse response =
                 commandService.createQna(request, studyRoom.getId(), studyRoomQna.getId(), qnaUser.getId());
 
         //then
@@ -100,7 +98,7 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 룸 Qna Parent가 있는 경우 룸 관리자가 대댓글 생성에 성공한다.")
     void createQnaExistsParentWithRoomAdmin_Success(){
         //given
-        StudyRoomQnaUpsertRequest request = StudyRoomQnaUpsertRequest.builder()
+        UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("test2")
                 .build();
 
@@ -120,7 +118,7 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 룸 Qna Parent가 있는 경우 룸 관리자나 본인 댓글의 아닌 경우 대댓글 생성에 실패한다.")
     void createQnaExistsParentWithRoomAdmin_Fail(){
         //given
-        StudyRoomQnaUpsertRequest request = StudyRoomQnaUpsertRequest.builder()
+        UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("test2")
                 .build();
 
@@ -135,12 +133,12 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 룸 Qna 수정에 성공한다.")
     void updateQna_Success(){
         //given
-        StudyRoomQnaUpsertRequest request = StudyRoomQnaUpsertRequest.builder()
+        UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("update_test")
                 .build();
 
         //when
-        StudyRoomQnaUpdateResponse response
+        UpdateStudyRoomQnaResponse response
                 = commandService.updateQna(request, studyRoomQna.getId(), qnaUser.getId());
 
         //then
@@ -154,7 +152,7 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 룸 Qna 작성한 사람이 아닌 경우 수정에 실패한다.")
     void updateQna_FailWhenNotAuthor(){
         //given
-        StudyRoomQnaUpsertRequest request = StudyRoomQnaUpsertRequest.builder()
+        UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("update_test")
                 .build();
 

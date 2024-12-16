@@ -1,7 +1,5 @@
 package com.jj.swm.domain.studyroom.dto.request.update.dayoff;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.DayOfWeek;
@@ -11,9 +9,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRoomDayOffModifyRequest {
+public class ModifyStudyRoomDayOffRequest {
 
     private List<DayOfWeek> dayOffsToAdd;
-    private List<StudyRoomDayOffUpdateRequest> dayOffsToUpdate;
+    private List<UpdateStudyRoomDayOffRequest> dayOffsToUpdate;
     private List<Long> dayOffIdsToRemove;
 }

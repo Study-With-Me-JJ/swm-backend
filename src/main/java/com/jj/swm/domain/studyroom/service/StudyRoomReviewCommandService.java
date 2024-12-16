@@ -1,12 +1,12 @@
 package com.jj.swm.domain.studyroom.service;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewReplyCreateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewReplyUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomReviewUpdateRequest;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomReviewCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomReviewReplyCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomReviewUpdateResponse;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReviewRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReviewReplyRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewReplyRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewRequest;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomReviewResponse;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomReviewReplyResponse;
+import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomReviewResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReviewReply;
@@ -17,8 +17,6 @@ import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,8 +35,8 @@ public class StudyRoomReviewCommandService {
     private final StudyRoomReviewReplyRepository reviewReplyRepository;
 
     @Transactional
-    public StudyRoomReviewCreateResponse createReview(
-            StudyRoomReviewCreateRequest request,
+    public CreateStudyRoomReviewResponse createReview(
+            CreateStudyRoomReviewRequest request,
             Long studyRoomId,
             UUID userId
     ) {
@@ -57,12 +55,12 @@ public class StudyRoomReviewCommandService {
 
         studyRoom.addReviewStudyRoom(request.getRating());
 
-        return StudyRoomReviewCreateResponse.from(studyRoomReview);
+        return CreateStudyRoomReviewResponse.from(studyRoomReview);
     }
 
     @Transactional
-    public StudyRoomReviewUpdateResponse updateReview(
-            StudyRoomReviewUpdateRequest request,
+    public UpdateStudyRoomReviewResponse updateReview(
+            UpdateStudyRoomReviewRequest request,
             Long studyRoomId,
             Long studyRoomReviewId,
             UUID userId
@@ -74,12 +72,12 @@ public class StudyRoomReviewCommandService {
 
         studyRoomReview.modifyReview(request);
 
-        return StudyRoomReviewUpdateResponse.of(studyRoomReview, studyRoom.getAverageRating());
+        return UpdateStudyRoomReviewResponse.of(studyRoomReview, studyRoom.getAverageRating());
     }
 
     @Transactional
-    public StudyRoomReviewReplyCreateResponse createReviewReply(
-            StudyRoomReviewReplyCreateRequest request,
+    public CreateStudyRoomReviewReplyResponse createReviewReply(
+            CreateStudyRoomReviewReplyRequest request,
             Long studyRoomReviewId,
             UUID userId
     ){
@@ -91,12 +89,12 @@ public class StudyRoomReviewCommandService {
 
         reviewReplyRepository.save(studyRoomReviewReply);
 
-        return StudyRoomReviewReplyCreateResponse.from(studyRoomReviewReply);
+        return CreateStudyRoomReviewReplyResponse.from(studyRoomReviewReply);
     }
 
     @Transactional
     public void updateReviewReply(
-            StudyRoomReviewReplyUpdateRequest request,
+            UpdateStudyRoomReviewReplyRequest request,
             Long studyRoomReviewReplyId,
             UUID userId
     ) {

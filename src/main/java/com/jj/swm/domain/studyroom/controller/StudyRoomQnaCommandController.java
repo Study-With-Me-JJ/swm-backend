@@ -1,8 +1,8 @@
 package com.jj.swm.domain.studyroom.controller;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomQnaUpsertRequest;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomQnaCreateResponse;
-import com.jj.swm.domain.studyroom.dto.response.StudyRoomQnaUpdateResponse;
+import com.jj.swm.domain.studyroom.dto.request.UpsertStudyRoomQnaRequest;
+import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomQnaResponse;
+import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomQnaCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -20,13 +20,13 @@ public class StudyRoomQnaCommandController {
     private final StudyRoomQnaCommandService commandService;
 
     @PostMapping({"/v1/studyroom/{studyRoomId}/qna", "/v1/studyroom/{studyRoomId}/qna/{parentId}"})
-    public ApiResponse<StudyRoomQnaCreateResponse> createQna(
-            @Valid @RequestBody StudyRoomQnaUpsertRequest request,
+    public ApiResponse<CreateStudyRoomQnaResponse> createQna(
+            @Valid @RequestBody UpsertStudyRoomQnaRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             @PathVariable(value = "parentId", required = false) Long parentId,
             Principal principal
     ) {
-        StudyRoomQnaCreateResponse response = commandService.createQna(
+        CreateStudyRoomQnaResponse response = commandService.createQna(
                 request,
                 studyRoomId,
                 parentId,
@@ -37,12 +37,12 @@ public class StudyRoomQnaCommandController {
     }
 
     @PatchMapping("/v1/studyroom/qna/{studyRoomQnaId}")
-    public ApiResponse<StudyRoomQnaUpdateResponse> updateQna(
-            @Valid @RequestBody StudyRoomQnaUpsertRequest request,
+    public ApiResponse<UpdateStudyRoomQnaResponse> updateQna(
+            @Valid @RequestBody UpsertStudyRoomQnaRequest request,
             @PathVariable("studyRoomQnaId") Long studyRoomQnaId,
             Principal principal
     ) {
-        StudyRoomQnaUpdateResponse response = commandService.updateQna(
+        UpdateStudyRoomQnaResponse response = commandService.updateQna(
                 request,
                 studyRoomQnaId,
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")

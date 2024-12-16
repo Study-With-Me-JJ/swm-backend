@@ -7,8 +7,8 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyRoomQnaUpsertRequest {
+public class UpdateStudyRoomReviewReplyRequest {
 
     @NotBlank
-    private String comment;
+    private String reply;
 }

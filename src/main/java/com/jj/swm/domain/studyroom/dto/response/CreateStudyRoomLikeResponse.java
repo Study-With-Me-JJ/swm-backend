@@ -6,13 +6,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class StudyRoomLikeCreateResponse {
+public class CreateStudyRoomLikeResponse {
 
     private Long studyRoomLikeId;
     private int studyRoomLikeCount;
 
-    public static StudyRoomLikeCreateResponse from(StudyRoomLike studyRoomLike) {
-        return StudyRoomLikeCreateResponse.builder()
+    public static CreateStudyRoomLikeResponse from(StudyRoomLike studyRoomLike) {
+        return CreateStudyRoomLikeResponse.builder()
                 .studyRoomLikeId(studyRoomLike.getId())
                 .studyRoomLikeCount(studyRoomLike.getStudyRoom().getLikeCount())
                 .build();
