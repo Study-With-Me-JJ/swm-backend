@@ -4,7 +4,7 @@ import com.jj.swm.domain.study.dto.request.RecruitPositionUpsertRequest;
 import com.jj.swm.domain.study.dto.response.RecruitmentPositionCreateResponse;
 import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.domain.study.entity.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.repository.StudyRecruitmentPositionRepository;
+import com.jj.swm.domain.study.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.repository.StudyRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
@@ -19,7 +19,7 @@ import java.util.UUID;
 public class RecruitmentPositionCommandService {
 
     private final StudyRepository studyRepository;
-    private final StudyRecruitmentPositionRepository recruitmentPositionRepository;
+    private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional
     public RecruitmentPositionCreateResponse create(

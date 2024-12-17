@@ -36,7 +36,7 @@ public class StudyQueryService {
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
-    private final StudyRecruitmentPositionRepository studyRecruitmentPositionRepository;
+    private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Value("${study.page.size}")
     private int studyPageSize;
@@ -98,10 +98,10 @@ public class StudyQueryService {
                 .toList();
 
         List<StudyRecruitmentPosition> recruitmentPositions =
-                studyRecruitmentPositionRepository.findAllByStudyId(studyId);
+                recruitmentPositionRepository.findAllByStudyId(studyId);
 
-        List<StudyRecruitPositionInquiryResponse> recruitPositionInquiryResponses = recruitmentPositions.stream()
-                .map(StudyRecruitPositionInquiryResponse::from)
+        List<RecruitPositionInquiryResponse> recruitPositionInquiryResponses = recruitmentPositions.stream()
+                .map(RecruitPositionInquiryResponse::from)
                 .toList();
 
         Pageable pageable = PageRequest.of(0, commentPageSize, Sort.by("id").descending());

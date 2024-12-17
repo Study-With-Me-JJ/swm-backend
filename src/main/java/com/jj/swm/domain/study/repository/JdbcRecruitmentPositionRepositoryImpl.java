@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class JdbcStudyRecruitmentPositionRepositoryImpl implements JdbcStudyRecruitmentPositionRepository {
+public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPositionRepository {
 
     private final JdbcTemplate jdbcTemplate;
 

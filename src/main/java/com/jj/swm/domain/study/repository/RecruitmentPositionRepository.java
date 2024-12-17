@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StudyRecruitmentPositionRepository extends
-        JpaRepository<StudyRecruitmentPosition, Long>, JdbcStudyRecruitmentPositionRepository {
+public interface RecruitmentPositionRepository extends
+        JpaRepository<StudyRecruitmentPosition, Long>, JdbcRecruitmentPositionRepository {
 
     @Query("select srp from StudyRecruitmentPosition srp where srp.study.id = ?1")
     List<StudyRecruitmentPosition> findAllByStudyId(Long studyId);

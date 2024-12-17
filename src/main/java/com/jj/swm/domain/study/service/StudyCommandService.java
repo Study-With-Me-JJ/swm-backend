@@ -28,7 +28,7 @@ public class StudyCommandService {
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
-    private final StudyRecruitmentPositionRepository studyRecruitmentPositionRepository;
+    private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional
     public void create(UUID userId, StudyCreateRequest createRequest) {
@@ -45,7 +45,7 @@ public class StudyCommandService {
             studyImageRepository.batchInsert(study, createRequest.getImageUrls());
         }
 
-        studyRecruitmentPositionRepository.batchInsert(study, createRequest.getRecruitPositionCreateRequests());
+        recruitmentPositionRepository.batchInsert(study, createRequest.getRecruitPositionCreateRequests());
     }
 
     @Transactional

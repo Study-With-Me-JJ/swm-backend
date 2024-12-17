@@ -18,7 +18,7 @@ public class StudyDetailsResponse {
 
     private List<StudyImageInquiryResponse> imageInquiryResponses;
 
-    private List<StudyRecruitPositionInquiryResponse> recruitPositionInquiryResponses;
+    private List<RecruitPositionInquiryResponse> recruitPositionInquiryResponses;
 
     private PageResponse<CommentInquiryResponse> commentPageResponse;
 
@@ -27,7 +27,7 @@ public class StudyDetailsResponse {
             int viewCount,
             String openChatUrl,
             List<StudyImageInquiryResponse> imageInquiryResponses,
-            List<StudyRecruitPositionInquiryResponse> recruitPositionInquiryResponses,
+            List<RecruitPositionInquiryResponse> recruitPositionInquiryResponses,
             PageResponse<CommentInquiryResponse> commentPageResponse) {
         return StudyDetailsResponse.builder()
                 .likeStatus(likeStatus)
