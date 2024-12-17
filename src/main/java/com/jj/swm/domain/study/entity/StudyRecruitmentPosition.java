@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.entity;
 
-import com.jj.swm.domain.study.dto.request.StudyRecruitPositionsCreateRequest;
+import com.jj.swm.domain.study.dto.request.RecruitPositionUpsertRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -28,6 +28,9 @@ public class StudyRecruitmentPosition {
     @Column(name = "headcount", nullable = false)
     private Integer headcount;
 
+    @Column(name = "accepted_count", nullable = false)
+    private int acceptedCount;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -35,16 +38,18 @@ public class StudyRecruitmentPosition {
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    public static StudyRecruitmentPosition of(Study study, StudyRecruitPositionsCreateRequest createRequest) {
+    public static StudyRecruitmentPosition of(Study study, RecruitPositionUpsertRequest createRequest) {
         return StudyRecruitmentPosition.builder()
                 .title(createRequest.getTitle())
                 .headcount(createRequest.getHeadcount())
+                .acceptedCount(0)
                 .study(study)
                 .build();
     }
 
-    public void modify(StudyRecruitPositionsCreateRequest studyRecruitPositionsCreateRequest) {
-        this.title = studyRecruitPositionsCreateRequest.getTitle();
-        this.headcount = studyRecruitPositionsCreateRequest.getHeadcount();
+    public void modify(RecruitPositionUpsertRequest updateRequest) {
+        this.title = updateRequest.getTitle();
+        this.headcount = updateRequest.getHeadcount();
+        this.acceptedCount = updateRequest.getAcceptedCount();
     }
 }

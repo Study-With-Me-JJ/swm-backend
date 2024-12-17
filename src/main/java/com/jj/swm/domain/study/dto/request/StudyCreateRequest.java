@@ -21,6 +21,9 @@ public class StudyCreateRequest {
     @NotBlank
     private String content;
 
+    @NotBlank
+    private String openChatUrl;
+
     @NotNull
     private StudyCategory category;
 
@@ -34,5 +37,5 @@ public class StudyCreateRequest {
 
     @NotEmpty
     @Size(max = 100)
-    private List<StudyRecruitPositionsCreateRequest> recruitPositionsCreateRequests;
+    private List<RecruitPositionUpsertRequest> recruitPositionCreateRequests;
 }

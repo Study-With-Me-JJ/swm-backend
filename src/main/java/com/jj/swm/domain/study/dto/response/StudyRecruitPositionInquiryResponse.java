@@ -1,7 +1,6 @@
 package com.jj.swm.domain.study.dto.response;
 
-import com.jj.swm.domain.study.dto.StudyPositionAcceptedCountInfo;
-import com.jj.swm.domain.study.entity.StudyParticipantStatus;
+import com.jj.swm.domain.study.entity.StudyRecruitmentPosition;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,17 +16,12 @@ public class StudyRecruitPositionInquiryResponse {
 
     private Integer acceptedCount;
 
-    private StudyParticipantStatus status;
-
-    public static StudyRecruitPositionInquiryResponse of(
-            StudyPositionAcceptedCountInfo participantInfo, StudyParticipantStatus status
-    ) {
+    public static StudyRecruitPositionInquiryResponse from(StudyRecruitmentPosition recruitmentPosition) {
         return StudyRecruitPositionInquiryResponse.builder()
-                .recruitPositionId(participantInfo.getId())
-                .title(participantInfo.getTitle())
-                .headcount(participantInfo.getHeadcount())
-                .acceptedCount(participantInfo.getAcceptedCount())
-                .status(status)
+                .recruitPositionId(recruitmentPosition.getId())
+                .title(recruitmentPosition.getTitle())
+                .headcount(recruitmentPosition.getHeadcount())
+                .acceptedCount(recruitmentPosition.getAcceptedCount())
                 .build();
     }
 }
