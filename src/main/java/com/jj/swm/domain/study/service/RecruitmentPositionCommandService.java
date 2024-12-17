@@ -45,6 +45,10 @@ public class RecruitmentPositionCommandService {
                 recruitmentPositionRepository.findByIdAndUserId(recruitPositionId, userId)
                         .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
 
+        if (updateRequest.getHeadcount() < updateRequest.getAcceptedCount()) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "The number of accepted exceeds the recruitment limit.");
+        }
+
         recruitmentPosition.modify(updateRequest);
     }
 

@@ -50,5 +50,6 @@ public class StudyRecruitmentPosition {
     public void modify(RecruitPositionUpsertRequest updateRequest) {
         this.title = updateRequest.getTitle();
         this.headcount = updateRequest.getHeadcount();
+        this.acceptedCount = updateRequest.getAcceptedCount();
     }
 }

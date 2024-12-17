@@ -19,4 +19,9 @@ public class RecruitPositionUpsertRequest {
     @Max(100)
     @NotNull
     private Integer headcount;
+
+    @Min(0)
+    @Max(100)
+    @NotNull
+    private Integer acceptedCount;
 }
