@@ -52,6 +52,11 @@ public class RecruitmentPositionCommandService {
         recruitmentPosition.modify(updateRequest);
     }
 
+    @Transactional
+    public void delete(UUID userId, Long recruitPositionId) {
+        recruitmentPositionRepository.deleteByIdAndUserId(recruitPositionId, userId);
+    }
+
 //    @Transactional
 //    public RecruitmentPositionApplyResponse apply(UUID userId, Long recruitPositionId) {
 //        User user = userRepository.getReferenceById(userId);

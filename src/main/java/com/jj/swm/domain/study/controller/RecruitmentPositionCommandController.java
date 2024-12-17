@@ -47,6 +47,17 @@ public class RecruitmentPositionCommandController {
         return ApiResponse.ok(null);
     }
 
+    @DeleteMapping("/v1/study/recruitment-position/{recruitPositionId}")
+    public ApiResponse<Void> deleteRecruitmentPosition(
+            Principal principal, @PathVariable("recruitPositionId") Long recruitPositionId
+    ) {
+        recruitmentPositionCommandService.delete(
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), recruitPositionId
+        );
+
+        return ApiResponse.ok(null);
+    }
+
 //    TODO 폼 형식일 때 재구현
 //    @PostMapping("/v1/study/recruitment-position/{recruitPositionId}")
 //    public ApiResponse<RecruitmentPositionApplyResponse> applyRecruitmentPosition(
