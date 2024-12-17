@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.controller;
 
 import com.jj.swm.domain.study.dto.request.StudyCreateRequest;
+import com.jj.swm.domain.study.dto.request.StudyStatusUpdateRequest;
 import com.jj.swm.domain.study.dto.request.StudyUpdateRequest;
 import com.jj.swm.domain.study.dto.response.StudyBookmarkCreateResponse;
 import com.jj.swm.domain.study.service.StudyCommandService;
@@ -40,6 +41,21 @@ public class StudyCommandController {
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
                 studyId,
                 updateRequest);
+
+        return ApiResponse.ok(null);
+    }
+
+    @PatchMapping("/v1/study/{studyId}/status")
+    public ApiResponse<Void> updateStudyStatus(
+            Principal principal,
+            @PathVariable("studyId") Long studyId,
+            @RequestBody StudyStatusUpdateRequest updateRequest
+    ) {
+        studyCommandService.updateStatus(
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                studyId,
+                updateRequest
+        );
 
         return ApiResponse.ok(null);
     }

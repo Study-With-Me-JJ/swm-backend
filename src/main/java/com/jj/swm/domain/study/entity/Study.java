@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.entity;
 
 import com.jj.swm.domain.study.dto.request.StudyCreateRequest;
+import com.jj.swm.domain.study.dto.request.StudyStatusUpdateRequest;
 import com.jj.swm.domain.study.dto.request.StudyUpdateRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
@@ -91,6 +92,10 @@ public class Study extends BaseTimeEntity {
         this.category = updateRequest.getCategory();
         this.thumbnail = updateRequest.getThumbnail();
         this.openChatUrl = updateRequest.getOpenChatUrl();
+    }
+
+    public void modifyStatus(StudyStatusUpdateRequest updateRequest) {
+        this.status = updateRequest.getStatus();
     }
 
     public void incrementLikeCount() {

@@ -50,8 +50,7 @@ public class StudyCommandService {
 
     @Transactional
     public void update(UUID userId, Long studyId, StudyUpdateRequest updateRequest) {
-        Study study = studyRepository.findByIdAndUserId(studyId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+        Study study = getStudy(userId, studyId);
 
         study.modify(updateRequest);
 
@@ -85,6 +84,17 @@ public class StudyCommandService {
                 studyImageRepository.deleteAllByIdInAndStudyId(deleteImageIds, study.getId());
             }
         }
+    }
+
+    @Transactional
+    public void updateStatus(
+            UUID userId,
+            Long studyId,
+            StudyStatusUpdateRequest updateRequest
+    ) {
+        Study study = getStudy(userId, studyId);
+
+        study.modifyStatus(updateRequest);
     }
 
     @Transactional
@@ -144,6 +154,11 @@ public class StudyCommandService {
 
     private Study getStudy(Long studyId) {
         return studyRepository.findById(studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+    }
+
+    private Study getStudy(UUID userId, Long studyId) {
+        return studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
