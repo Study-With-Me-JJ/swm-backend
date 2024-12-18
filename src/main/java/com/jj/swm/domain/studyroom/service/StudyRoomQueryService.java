@@ -2,11 +2,12 @@ package com.jj.swm.domain.studyroom.service;
 
 import com.jj.swm.domain.studyroom.dto.GetStudyRoomCondition;
 import com.jj.swm.domain.studyroom.dto.StudyRoomBookmarkInfo;
-import com.jj.swm.domain.studyroom.dto.response.GetStudyRoomResponse;
-import com.jj.swm.domain.studyroom.entity.StudyRoom;
-import com.jj.swm.domain.studyroom.repository.StudyRoomBookmarkRepository;
-import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
+import com.jj.swm.domain.studyroom.dto.response.*;
+import com.jj.swm.domain.studyroom.entity.*;
+import com.jj.swm.domain.studyroom.repository.*;
 import com.jj.swm.global.common.dto.PageResponse;
+import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,13 @@ import java.util.stream.Collectors;
 public class StudyRoomQueryService {
 
     private final StudyRoomRepository studyRoomRepository;
-    private final StudyRoomBookmarkRepository studyRoomBookmarkRepository;
+    private final StudyRoomBookmarkRepository bookmarkRepository;
+    private final StudyRoomLikeRepository likeRepository;
+    private final StudyRoomOptionInfoRepository optionInfoRepository;
+    private final StudyRoomDayOffRepository dayOffRepository;
+    private final StudyRoomReserveTypeRepository reserveTypeRepository;
+    private final StudyRoomImageRepository imageRepository;
+    private final StudyRoomTypeInfoRepository typeReInfoRepository;
 
     @Value("${studyroom.page.size}")
     private int studyRoomPageSize;
@@ -60,9 +67,49 @@ public class StudyRoomQueryService {
         return PageResponse.of(responses, hasNext);
     }
 
+    public GetStudyRoomDetailResponse getStudyRoomDetail(Long studyRoomId, UUID userId) {
+        StudyRoom studyRoom = studyRoomRepository.findByIdWithTags(studyRoomId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+
+        boolean likeStatus = userId != null && likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId);
+
+        List<GetStudyRoomImageResponse> imageResponses = imageRepository.findAllByStudyRoomId(studyRoomId).stream()
+                .map(GetStudyRoomImageResponse::from)
+                .toList();;
+
+        List<GetStudyRoomDayOffResponse> dayOffResponses = dayOffRepository.findAllByStudyRoomId(studyRoomId).stream()
+                .map(GetStudyRoomDayOffResponse::from)
+                .toList();;
+
+        List<GetStudyRoomReserveTypeResponse> reserveTypeResponses =
+                reserveTypeRepository.findAllByStudyRoomId(studyRoomId).stream()
+                .map(GetStudyRoomReserveTypeResponse::from)
+                .toList();;
+
+        List<GetStudyRoomOptionInfoResponse> optionInfoResponses = optionInfoRepository.findAllByStudyRoomId(studyRoomId)
+                .stream()
+                .map(GetStudyRoomOptionInfoResponse::from)
+                .toList();
+
+        List<GetStudyRoomTypeInfoResponse> typeInfoResponses = typeReInfoRepository.findAllByStudyRoomId(studyRoomId)
+                .stream()
+                .map(GetStudyRoomTypeInfoResponse::from)
+                .toList();
+
+        return GetStudyRoomDetailResponse.of(
+                studyRoom,
+                likeStatus,
+                imageResponses,
+                dayOffResponses,
+                reserveTypeResponses,
+                optionInfoResponses,
+                typeInfoResponses
+        );
+    }
+
     private Map<Long, Long> mappingStudyRoomBookmarkAndUser(List<Long> studyRoomIds, UUID userId) {
         return userId != null
-                ? studyRoomBookmarkRepository.findAllByUserIdAndStudyRoomIds(userId, studyRoomIds)
+                ? bookmarkRepository.findAllByUserIdAndStudyRoomIds(userId, studyRoomIds)
                 .stream()
                 .collect(Collectors.toMap(StudyRoomBookmarkInfo::getId, StudyRoomBookmarkInfo::getStudyRoomId))
                 : Collections.emptyMap();

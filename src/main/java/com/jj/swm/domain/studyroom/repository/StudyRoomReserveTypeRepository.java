@@ -23,4 +23,5 @@ public interface StudyRoomReserveTypeRepository extends
     @Query("update StudyRoomReserveType s set s.deletedAt = CURRENT_TIMESTAMP where s.id in :reserveTypeIds")
     void deleteAllByIdInBatch(@Param("reserveTypeIds") List<Long> reserveTypeIds);
 
+    List<StudyRoomReserveType> findAllByStudyRoomId(Long studyRoomId);
 }
