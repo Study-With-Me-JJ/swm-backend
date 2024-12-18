@@ -16,4 +16,6 @@ public interface StudyRoomDayOffRepository extends JpaRepository<StudyRoomDayOff
     int countStudyRoomDayOffByIdInAndStudyRoom(List<Long> dayOffIds, StudyRoom studyRoom);
 
     void deleteByStudyRoom(StudyRoom studyRoom);
+
+    List<StudyRoomDayOff> findAllByStudyRoomId(Long studyRoomId);
 }

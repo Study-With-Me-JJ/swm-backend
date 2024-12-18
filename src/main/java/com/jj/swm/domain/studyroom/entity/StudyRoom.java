@@ -120,6 +120,8 @@ public class StudyRoom extends BaseTimeEntity {
                 .minReserveTime(request.getMinReserveTime())
                 .entireMinHeadcount(request.getEntireMinHeadcount())
                 .entireMaxHeadcount(request.getEntireMaxHeadcount())
+                .entireMaxPricePerHour(request.getEntireMaxPricePerHour())
+                .entireMinPricePerHour(request.getEntireMinPricePerHour())
                 .build();
     }
 

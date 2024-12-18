@@ -17,4 +17,5 @@ public interface StudyRoomImageRepository extends JpaRepository<StudyRoomImage, 
 
     void deleteByStudyRoom(StudyRoom studyRoom);
 
+    List<StudyRoomImage> findAllByStudyRoomId(Long studyRoomId);
 }

@@ -6,6 +6,7 @@ import com.jj.swm.domain.studyroom.repository.jdbc.JdbcOptionInfoRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -15,4 +16,6 @@ public interface StudyRoomOptionInfoRepository extends
     List<StudyRoomOptionInfo> findAllByIdInAndStudyRoom(List<Long> optionIds, StudyRoom studyRoom);
 
     int countStudyRoomOptionInfoByIdInAndStudyRoom(List<Long> optionIds, StudyRoom studyRoom);
+
+    List<StudyRoomOptionInfo> findAllByStudyRoomId(Long studyRoomId);
 }

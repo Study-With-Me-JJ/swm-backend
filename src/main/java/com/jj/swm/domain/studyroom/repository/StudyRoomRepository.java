@@ -26,4 +26,7 @@ public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long>, Cus
     @Query("select s from StudyRoom s join fetch s.user " +
             "where s.id = ?1")
     Optional<StudyRoom> findByIdWithUser(Long studyRoomId);
+
+    @Query("select distinct(s) from StudyRoom s join fetch s.tags where s.id = ?1")
+    Optional<StudyRoom> findByIdWithTags(Long studyRoomId);
 }
