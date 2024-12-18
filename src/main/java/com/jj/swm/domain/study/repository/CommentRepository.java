@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface CommentRepository extends JpaRepository<StudyComment, Long> {
+public interface CommentRepository extends JpaRepository<StudyComment, Long>, CustomCommentRepository {
 
     Optional<StudyComment> findByIdAndUserId(Long commentId, UUID userId);
 

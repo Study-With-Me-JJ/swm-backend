@@ -1,11 +1,9 @@
 package com.jj.swm.domain.study.service;
 
-import com.jj.swm.domain.study.dto.ReplyCountInfo;
 import com.jj.swm.domain.study.dto.StudyBookmarkInfo;
 import com.jj.swm.domain.study.dto.StudyInquiryCondition;
 import com.jj.swm.domain.study.dto.response.*;
 import com.jj.swm.domain.study.entity.Study;
-import com.jj.swm.domain.study.entity.StudyComment;
 import com.jj.swm.domain.study.entity.StudyImage;
 import com.jj.swm.domain.study.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.repository.*;
@@ -15,7 +13,6 @@ import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -32,7 +29,7 @@ import java.util.stream.Collectors;
 public class StudyQueryService {
 
     private final StudyRepository studyRepository;
-    private final CommentRepository commentRepository;
+    private final CommentQueryService commentQueryService;
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
@@ -105,25 +102,8 @@ public class StudyQueryService {
                 .toList();
 
         Pageable pageable = PageRequest.of(0, commentPageSize, Sort.by("id").descending());
-        Page<StudyComment> pageComments = commentRepository.findCommentWithUserByStudyId(studyId, pageable);
-
-        List<Long> parentIds = pageComments.get().map(StudyComment::getId).toList();
-
-        Map<Long, Integer> replyCountByParentId = commentRepository.countReplyByParentId(parentIds).stream()
-                .collect(Collectors.toMap(ReplyCountInfo::getParentId, ReplyCountInfo::getReplyCount));
-
-        List<CommentInquiryResponse> commentInquiryResponses = pageComments.get()
-                .map(comment -> CommentInquiryResponse.of(
-                        comment, replyCountByParentId.getOrDefault(comment.getId(), 0))
-                ).toList();
-
-        PageResponse<CommentInquiryResponse> commentPageResponse = PageResponse.of(
-                pageComments.getNumberOfElements(),
-                pageComments.getTotalPages(),
-                pageComments.getTotalElements(),
-                pageComments.hasNext(),
-                commentInquiryResponses
-        );
+        PageResponse<CommentInquiryResponse> commentPageResponse =
+                commentQueryService.getCommentPageResponse(studyId, pageable);
 
         return StudyDetailsResponse.of(
                 likeStatus,
