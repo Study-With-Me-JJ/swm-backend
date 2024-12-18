@@ -2,9 +2,12 @@ package com.jj.swm.domain.study.service;
 
 import com.jj.swm.domain.study.dto.ReplyCountInfo;
 import com.jj.swm.domain.study.dto.response.CommentInquiryResponse;
+import com.jj.swm.domain.study.dto.response.ReplyInquiryResponse;
 import com.jj.swm.domain.study.entity.StudyComment;
 import com.jj.swm.domain.study.repository.CommentRepository;
 import com.jj.swm.global.common.dto.PageResponse;
+import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -24,12 +27,37 @@ public class CommentQueryService {
     @Value("${study.comment.page.size}")
     private int commentPageSize;
 
+    @Value("${study.reply.page.size}")
+    private int replyPageSize;
+
     private final CommentRepository commentRepository;
 
     public PageResponse<CommentInquiryResponse> getList(Long studyId, int pageNo) {
         Pageable pageable = PageRequest.of(pageNo, commentPageSize, Sort.by("id").descending());
 
         return getCommentPageResponse(studyId, pageable);
+    }
+
+    public PageResponse<ReplyInquiryResponse> getReplyList(Long parentId, Long lastReplyId) {
+        List<StudyComment> replies = commentRepository.findAllWithUserByParentId(
+                replyPageSize + 1,
+                parentId,
+                lastReplyId
+        );
+
+        if (replies.isEmpty()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "replies not found");
+        }
+
+        boolean hasNext = replies.size() > replyPageSize;
+
+        List<StudyComment> pagedReplies = hasNext ? replies.subList(0, replyPageSize) : replies;
+
+        List<ReplyInquiryResponse> replyInquiryResponses = pagedReplies.stream()
+                .map(ReplyInquiryResponse::from)
+                .toList();
+
+        return PageResponse.of(replyInquiryResponses, hasNext);
     }
 
     protected PageResponse<CommentInquiryResponse> getCommentPageResponse(Long studyId, Pageable pageable) {
