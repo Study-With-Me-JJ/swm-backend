@@ -4,6 +4,7 @@ import com.jj.swm.domain.study.dto.request.RecruitPositionUpsertRequest;
 import com.jj.swm.domain.study.dto.response.RecruitmentPositionCreateResponse;
 import com.jj.swm.domain.study.service.RecruitmentPositionCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class RecruitmentPositionCommandController {
     public ApiResponse<RecruitmentPositionCreateResponse> createRecruitmentPosition(
             Principal principal,
             @PathVariable("studyId") Long studyId,
-            @RequestBody RecruitPositionUpsertRequest createRequest
+            @Valid @RequestBody RecruitPositionUpsertRequest createRequest
     ) {
         RecruitmentPositionCreateResponse createResponse = recruitmentPositionCommandService.create(
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
@@ -36,7 +37,7 @@ public class RecruitmentPositionCommandController {
     public ApiResponse<Void> updateRecruitmentPosition(
             Principal principal,
             @PathVariable("recruitPositionId") Long recruitPositionId,
-            @RequestBody RecruitPositionUpsertRequest updateRequest
+            @Valid @RequestBody RecruitPositionUpsertRequest updateRequest
     ) {
         recruitmentPositionCommandService.update(
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
@@ -51,9 +52,7 @@ public class RecruitmentPositionCommandController {
     public ApiResponse<Void> deleteRecruitmentPosition(
             Principal principal, @PathVariable("recruitPositionId") Long recruitPositionId
     ) {
-        recruitmentPositionCommandService.delete(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), recruitPositionId
-        );
+        recruitmentPositionCommandService.delete(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), recruitPositionId);
 
         return ApiResponse.ok(null);
     }

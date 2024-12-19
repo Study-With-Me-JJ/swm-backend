@@ -24,13 +24,10 @@ public class StudyQueryController {
 
     @GetMapping("/v1/study")
     public ApiResponse<PageResponse<StudyInquiryResponse>> getStudyList(
-            Principal principal,
-            StudyInquiryCondition inquiryCondition
+            Principal principal, StudyInquiryCondition inquiryCondition
     ) {
         PageResponse<StudyInquiryResponse> pageResponse = studyQueryService.getList(
-//                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
-                                principal != null ? UUID.fromString(principal.getName()) : null,
-                inquiryCondition
+                principal != null ? UUID.fromString(principal.getName()) : null, inquiryCondition
         );
 
         return ApiResponse.ok(pageResponse);
@@ -39,9 +36,7 @@ public class StudyQueryController {
     @GetMapping("/v1/study/{studyId}")
     public ApiResponse<StudyDetailsResponse> getStudyDetails(Principal principal, @PathVariable("studyId") Long studyId) {
         StudyDetailsResponse detailsResponse = studyQueryService.get(
-//                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
-                principal != null ? UUID.fromString(principal.getName()) : null,
-                studyId
+                principal != null ? UUID.fromString(principal.getName()) : null, studyId
         );
 
         return ApiResponse.ok(detailsResponse);
