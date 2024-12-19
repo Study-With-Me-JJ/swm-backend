@@ -24,4 +24,6 @@ public interface StudyRoomReserveTypeRepository extends
     void deleteAllByIdInBatch(@Param("reserveTypeIds") List<Long> reserveTypeIds);
 
     List<StudyRoomReserveType> findAllByStudyRoomId(Long studyRoomId);
+
+    void deleteAllByStudyRoomId(Long studyRoomId);
 }

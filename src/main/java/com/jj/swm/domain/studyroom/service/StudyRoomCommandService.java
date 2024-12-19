@@ -99,12 +99,12 @@ public class StudyRoomCommandService {
     public void delete(Long studyRoomId, UUID userId) {
         StudyRoom studyRoom = validateStudyRoomWithUserId(studyRoomId, userId);
 
-        imageRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
-        tagRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
-        optionInfoRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
-        typeInfoRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
-        reserveTypeRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
-        dayOffRepository.deleteAllByIdInBatch(List.of(studyRoom.getId()));
+        imageRepository.deleteAllByStudyRoomId(studyRoomId);
+        tagRepository.deleteAllByStudyRoomId(studyRoomId);
+        optionInfoRepository.deleteAllByStudyRoomId(studyRoomId);
+        typeInfoRepository.deleteAllByStudyRoomId(studyRoomId);
+        reserveTypeRepository.deleteAllByStudyRoomId(studyRoomId);
+        dayOffRepository.deleteAllByStudyRoomId(studyRoomId);
         studyRoomRepository.delete(studyRoom);
 
         // 좋아요, 이용후기, 이용후기 답글, QnA, QnA 답글, 좋아요 수, 북마크 수 삭제 필요
