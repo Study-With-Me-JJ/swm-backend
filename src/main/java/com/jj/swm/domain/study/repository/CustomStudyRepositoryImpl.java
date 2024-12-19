@@ -24,7 +24,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Study> findAllWithUserAndTags(int pageSize, StudyInquiryCondition inquiryCondition) {
+    public List<Study> findPagedWithUserAndTags(int pageSize, StudyInquiryCondition inquiryCondition) {
         return jpaQueryFactory.selectFrom(study)
                 .join(study.user)
                 .fetchJoin()

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface CustomCommentRepository {
 
-    List<StudyComment> findAllWithUserByParentId(
+    List<StudyComment> findPagedWithUserByParentId(
             int pageSize,
             Long parentId,
             Long lastReplyId

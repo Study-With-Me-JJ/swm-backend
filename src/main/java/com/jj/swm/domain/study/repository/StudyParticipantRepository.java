@@ -7,7 +7,7 @@
 //
 //    Optional<StudyParticipant> findByUserIdAndStudyRecruitmentPositionId(UUID userId, Long recruitmentPositionId);
 //
-//    Optional<StudyParticipant> findByIdAndUserId(Long id, UUID userId);
+//    Optional<StudyParticipant> findByIdAndStudyUserId(Long id, UUID userId);
 //
 //    @Query("select count(p) from StudyParticipant p where p.status = 'ACCEPTED' and p.studyRecruitmentPosition = ?1")
 //    Integer countAcceptedByRecruitmentPositionId(StudyRecruitmentPosition recruitmentPosition);

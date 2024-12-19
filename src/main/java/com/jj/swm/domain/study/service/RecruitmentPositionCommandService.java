@@ -42,7 +42,7 @@ public class RecruitmentPositionCommandService {
             Long recruitPositionId,
             RecruitPositionUpsertRequest updateRequest) {
         StudyRecruitmentPosition recruitmentPosition =
-                recruitmentPositionRepository.findByIdAndUserId(recruitPositionId, userId)
+                recruitmentPositionRepository.findByIdAndStudyUserId(recruitPositionId, userId)
                         .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
 
         if (updateRequest.getHeadcount() < updateRequest.getAcceptedCount()) {
@@ -54,7 +54,7 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public void delete(UUID userId, Long recruitPositionId) {
-        recruitmentPositionRepository.deleteByIdAndUserId(recruitPositionId, userId);
+        recruitmentPositionRepository.deleteByIdAndStudyUserId(recruitPositionId, userId);
     }
 
 //    @Transactional
@@ -86,7 +86,7 @@ public class RecruitmentPositionCommandService {
 //    @Transactional
 //    public void withdraw(UUID userId, Long participantId) {
 //        StudyParticipant studyParticipant =
-//                participantRepository.findByIdAndUserId(participantId, userId)
+//                participantRepository.findByIdAndStudyUserId(participantId, userId)
 //                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
 //
 //        if (studyParticipant.getStatus() != StudyParticipantStatus.PENDING) {

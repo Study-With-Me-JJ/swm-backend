@@ -39,7 +39,7 @@ public class CommentQueryService {
     }
 
     public PageResponse<ReplyInquiryResponse> getReplyList(Long parentId, Long lastReplyId) {
-        List<StudyComment> replies = commentRepository.findAllWithUserByParentId(
+        List<StudyComment> replies = commentRepository.findPagedWithUserByParentId(
                 replyPageSize + 1,
                 parentId,
                 lastReplyId

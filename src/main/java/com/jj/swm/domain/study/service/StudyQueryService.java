@@ -45,7 +45,7 @@ public class StudyQueryService {
             UUID userId,
             StudyInquiryCondition inquiryCondition
     ) {
-        List<Study> studies = studyRepository.findAllWithUserAndTags(studyPageSize + 1, inquiryCondition);
+        List<Study> studies = studyRepository.findPagedWithUserAndTags(studyPageSize + 1, inquiryCondition);
 
         if (studies.isEmpty()) {
             throw new GlobalException(ErrorCode.NOT_FOUND, "studies not found");

@@ -16,7 +16,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<StudyComment> findAllWithUserByParentId(
+    public List<StudyComment> findPagedWithUserByParentId(
             int pageSize,
             Long parentId,
             Long lastReplyId
