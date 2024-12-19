@@ -26,5 +26,4 @@ public interface StudyRoomReviewRepository extends JpaRepository<StudyRoomReview
     Optional<StudyRoomReview> findByStudyRoomReviewWithNativeQuery(
             @Param("studyRoomReviewId") Long studyRoomReviewId,
             @Param("userId") UUID userId);
-
 }

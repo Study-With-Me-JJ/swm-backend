@@ -4,6 +4,8 @@ import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomImage;
 import com.jj.swm.domain.studyroom.repository.jdbc.JdbcImageRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,7 +17,7 @@ public interface StudyRoomImageRepository extends JpaRepository<StudyRoomImage, 
 
     int countStudyRoomImageByIdInAndStudyRoom(List<Long> imageIds, StudyRoom studyRoom);
 
-    void deleteByStudyRoom(StudyRoom studyRoom);
-
     List<StudyRoomImage> findAllByStudyRoomId(Long studyRoomId);
+
+    void deleteAllByStudyRoomId(Long studyRoomId);
 }

@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface StudyRoomReviewReplyRepository extends JpaRepository<StudyRoomReviewReply, Long> {
 
     Optional<StudyRoomReviewReply> findByIdAndUserId(Long studyRoomReviewReplyId, UUID userId);
+
+    void deleteAllByStudyRoomReviewId(Long studyRoomReviewId);
 }
