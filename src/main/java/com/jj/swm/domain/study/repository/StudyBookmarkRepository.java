@@ -15,4 +15,8 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
     void deleteByIdAndUserId(Long bookmarkId, UUID userId);
 
     Optional<StudyBookmark> findByUserIdAndStudyId(UUID userId, Long studyId);
+
+    @Modifying
+    @Query("delete from StudyBookmark b where b.study.id = ?1")
+    void deleteAllByStudyId(Long studyId);
 }

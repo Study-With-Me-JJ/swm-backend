@@ -60,6 +60,13 @@ public class StudyCommandController {
         return ApiResponse.ok(null);
     }
 
+    @DeleteMapping("/v1/study/{studyId}")
+    public ApiResponse<Void> deleteStudy(Principal principal, @PathVariable("studyId") Long studyId) {
+        studyCommandService.delete(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId);
+
+        return ApiResponse.ok(null);
+    }
+
     @PostMapping("/v1/study/{studyId}/bookmark")
     public ApiResponse<StudyBookmarkCreateResponse> bookmarkStudy(
             Principal principal, @PathVariable("studyId") Long studyId
