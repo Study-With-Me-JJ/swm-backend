@@ -16,26 +16,24 @@ public interface CommentRepository extends JpaRepository<StudyComment, Long>, Cu
 
     Optional<StudyComment> findByIdAndUserId(Long commentId, UUID userId);
 
-    @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1 and c.deletedAt is null")
+    @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1")
     Optional<StudyComment> findWithParentById(Long id, UUID UserId);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")
     void deleteAllByIdOrParentId(Long commentId);
 
-    @Query("select c from StudyComment c left join fetch c.parent " +
-            "where c.id = ?1 and c.user.id = ?2 and c.deletedAt is null")
+    @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1 and c.user.id = ?2")
     Optional<StudyComment> findWithParentByIdAndUserId(Long commentId, UUID userId);
 
-    @Query("select p from StudyComment p join fetch p.user " +
-            "where p.study.id = ?1 and p.parent.id is null and p.deletedAt is null")
+    @Query("select p from StudyComment p join fetch p.user where p.study.id = ?1 and p.parent.id is null")
     Page<StudyComment> findCommentWithUserByStudyId(Long studyId, Pageable pageable);
 
     @Query(
             value = "select lc.parent_id, count(*) as replyCount " +
                     "from (select parent_id " +
                     "       from study_comment " +
-                    "       where parent_id in ?1 and deleted_at is null " +
+                    "       where parent_id in ?1 " +
                     "       limit 100) as lc " +
                     "group by lc.parent_id",
             nativeQuery = true

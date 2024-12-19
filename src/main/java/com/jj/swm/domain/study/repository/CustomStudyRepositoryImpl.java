@@ -33,8 +33,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .where(
                         studyCategoryEq(inquiryCondition.getCategory()),
                         studyStatusEq(inquiryCondition.getStatus()),
-                        createSortPredicate(inquiryCondition),
-                        study.deletedAt.isNull()
+                        createSortPredicate(inquiryCondition)
                 )
                 .orderBy(createOrderSpecifier(inquiryCondition.getSortCriteria()))
                 .distinct()
