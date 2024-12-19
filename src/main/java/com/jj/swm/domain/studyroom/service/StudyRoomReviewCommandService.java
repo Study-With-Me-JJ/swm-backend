@@ -6,11 +6,13 @@ import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewReplyRequest
 import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewRequest;
 import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomReviewResponse;
 import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomReviewReplyResponse;
+import com.jj.swm.domain.studyroom.dto.response.DeleteStudyRoomReviewResponse;
 import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomReviewResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReviewReply;
 import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
+import com.jj.swm.domain.studyroom.repository.StudyRoomReviewImageRepository;
 import com.jj.swm.domain.studyroom.repository.StudyRoomReviewReplyRepository;
 import com.jj.swm.domain.studyroom.repository.StudyRoomReviewRepository;
 import com.jj.swm.domain.user.entity.User;
@@ -33,6 +35,7 @@ public class StudyRoomReviewCommandService {
     private final StudyRoomRepository studyRoomRepository;
     private final StudyRoomReviewRepository reviewRepository;
     private final StudyRoomReviewReplyRepository reviewReplyRepository;
+    private final StudyRoomReviewImageRepository reviewImageRepository;
 
     @Transactional
     public CreateStudyRoomReviewResponse createReview(
@@ -53,9 +56,11 @@ public class StudyRoomReviewCommandService {
 
         reviewRepository.save(studyRoomReview);
 
+        reviewImageRepository.batchInsert(request.getImageUrls(), studyRoomReview);
+
         studyRoom.addReviewStudyRoom(request.getRating());
 
-        return CreateStudyRoomReviewResponse.from(studyRoomReview);
+        return CreateStudyRoomReviewResponse.of(studyRoomReview, request.getImageUrls());
     }
 
     @Transactional
@@ -73,6 +78,25 @@ public class StudyRoomReviewCommandService {
         studyRoomReview.modifyReview(request);
 
         return UpdateStudyRoomReviewResponse.of(studyRoomReview, studyRoom.getAverageRating());
+    }
+
+    @Transactional
+    public DeleteStudyRoomReviewResponse deleteReview(
+            Long studyRoomId,
+            Long studyRoomReviewId,
+            UUID userId
+    ) {
+        StudyRoomReview studyRoomReview = validateReviewWithUserId(studyRoomReviewId, userId);
+        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
+
+        studyRoom.deleteReviewStudyRoom(studyRoomReview.getRating());
+
+        reviewReplyRepository.deleteAllByStudyRoomReviewId(studyRoomReviewId);
+        reviewImageRepository.deleteAllByStudyRoomReviewId(studyRoomReviewId);
+
+        reviewRepository.delete(studyRoomReview);
+
+        return DeleteStudyRoomReviewResponse.of(studyRoomReviewId, studyRoom.getAverageRating());
     }
 
     @Transactional
@@ -102,6 +126,13 @@ public class StudyRoomReviewCommandService {
                 = validateReviewReplyWithUserId(studyRoomReviewReplyId, userId);
 
         studyRoomReviewReply.modifyReply(request.getReply());
+    }
+
+    @Transactional
+    public void deleteReviewReply(Long studyRoomReviewReplyId, UUID userId) {
+        StudyRoomReviewReply studyRoomReviewReply = validateReviewReplyWithUserId(studyRoomReviewReplyId, userId);
+
+        reviewReplyRepository.delete(studyRoomReviewReply);
     }
 
     private StudyRoom validateStudyRoomWithLock(Long studyRoomId) {
