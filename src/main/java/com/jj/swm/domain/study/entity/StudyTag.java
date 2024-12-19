@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @Table(name = "study_tag")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "update study_tag set deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 public class StudyTag {

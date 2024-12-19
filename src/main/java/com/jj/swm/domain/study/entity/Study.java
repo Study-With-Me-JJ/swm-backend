@@ -20,8 +20,8 @@ import java.util.List;
 @Entity
 @Builder
 @Table(name = "study")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "update study set deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 public class Study extends BaseTimeEntity {
