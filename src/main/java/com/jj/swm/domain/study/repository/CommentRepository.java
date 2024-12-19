@@ -41,4 +41,8 @@ public interface CommentRepository extends JpaRepository<StudyComment, Long>, Cu
             nativeQuery = true
     )
     List<ReplyCountInfo> countReplyByParentId(List<Long> parentIds);
+
+    @Modifying
+    @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id = ?1")
+    void deleteAllByStudyId(Long studyId);
 }

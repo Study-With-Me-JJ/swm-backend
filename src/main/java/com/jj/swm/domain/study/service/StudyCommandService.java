@@ -24,6 +24,7 @@ public class StudyCommandService {
 
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
+    private final CommentRepository commentRepository;
     private final StudyTagRepository studyTagRepository;
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
@@ -95,6 +96,19 @@ public class StudyCommandService {
         Study study = getStudy(userId, studyId);
 
         study.modifyStatus(updateRequest);
+    }
+
+    @Transactional
+    public void delete(UUID userId, Long studyId) {
+        Study study = getStudy(userId, studyId);
+
+        studyTagRepository.deleteAllByStudyId(studyId);
+        studyImageRepository.deleteAllByStudyId(studyId);
+        recruitmentPositionRepository.deleteAllByStudyId(studyId);
+        studyLikeRepository.deleteAllByStudyId(studyId);
+        commentRepository.deleteAllByStudyId(studyId);
+        studyBookmarkRepository.deleteAllByStudyId(studyId);
+        studyRepository.delete(study);
     }
 
     @Transactional
