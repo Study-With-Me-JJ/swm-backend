@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom.dto.request.update.dayoff;
+package com.jj.swm.domain.studyroom.dto.request.update;
 
 import lombok.*;
 
@@ -12,6 +12,6 @@ import java.util.List;
 public class ModifyStudyRoomDayOffRequest {
 
     private List<DayOfWeek> dayOffsToAdd;
-    private List<UpdateStudyRoomDayOffRequest> dayOffsToUpdate;
+
     private List<Long> dayOffIdsToRemove;
 }

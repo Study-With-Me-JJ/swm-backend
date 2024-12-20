@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom.dto.request.update.option;
+package com.jj.swm.domain.studyroom.dto.request.update;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import lombok.*;
@@ -12,6 +12,6 @@ import java.util.List;
 public class ModifyStudyRoomOptionInfoRequest {
 
     private List<StudyRoomOption> optionsToAdd;
-    private List<UpdateStudyRoomOptionRequest> optionsToUpdate;
+
     private List<Long> optionsIdsToRemove;
 }

@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom.dto.request.update.tag;
+package com.jj.swm.domain.studyroom.dto.request.update;
 
 import lombok.*;
 
@@ -11,6 +11,6 @@ import java.util.List;
 public class ModifyStudyRoomTagRequest {
 
     private List<String> tagsToAdd;
-    private List<UpdateStudyRoomTagRequest> tagsToUpdate;
+
     private List<Long> tagIdsToRemove;
 }

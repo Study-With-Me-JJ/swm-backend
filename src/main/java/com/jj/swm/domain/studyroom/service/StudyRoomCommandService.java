@@ -1,18 +1,13 @@
 package com.jj.swm.domain.studyroom.service;
 
 import com.jj.swm.domain.studyroom.dto.request.*;
-import com.jj.swm.domain.studyroom.dto.request.update.dayoff.ModifyStudyRoomDayOffRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.dayoff.UpdateStudyRoomDayOffRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.image.ModifyStudyRoomImageRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.image.UpdateStudyRoomImageRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.option.ModifyStudyRoomOptionInfoRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.option.UpdateStudyRoomOptionRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.reservationType.ModifyStudyRoomReservationTypeRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.reservationType.UpdateStudyRoomReservationTypeRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.tag.ModifyStudyRoomTagRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.tag.UpdateStudyRoomTagRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.type.ModifyStudyRoomTypeInfoRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.type.UpdateStudyRoomTypeRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomDayOffRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomImageRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomOptionInfoRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.UpdateStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomTagRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomTypeInfoRequest;
 import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomBookmarkResponse;
 import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomLikeResponse;
 import com.jj.swm.domain.studyroom.entity.*;
@@ -161,31 +156,9 @@ public class StudyRoomCommandService {
         if (imageModification != null) {
             if (imageModification.getImagesToAdd() != null && !imageModification.getImagesToAdd().isEmpty())
                 imageRepository.batchInsert(imageModification.getImagesToAdd(), studyRoom);
-            if (imageModification.getImagesToUpdate() != null && !imageModification.getImagesToUpdate().isEmpty())
-                updateImages(imageModification.getImagesToUpdate(), studyRoom);
             if (imageModification.getImageIdsToRemove() != null && !imageModification.getImageIdsToRemove().isEmpty())
                 removeImages(imageModification.getImageIdsToRemove(), studyRoom);
         }
-    }
-
-    private void updateImages(List<UpdateStudyRoomImageRequest> imagesToUpdate, StudyRoom studyRoom) {
-        Map<Long, String> imageMap = new HashMap<>();
-        List<Long> imageIds = new ArrayList<>();
-
-        for (UpdateStudyRoomImageRequest imageToUpdate : imagesToUpdate) {
-            imageMap.put(imageToUpdate.getImageId(), imageToUpdate.getImageUrl());
-            imageIds.add(imageToUpdate.getImageId());
-        }
-
-        List<StudyRoomImage> studyRoomImages = imageRepository.findAllByIdInAndStudyRoom(imageIds, studyRoom);
-
-        if (studyRoomImages.size() != imagesToUpdate.size()) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Some image not matching StudyRoom.");
-        }
-
-        studyRoomImages.forEach(studyRoomImage ->
-                studyRoomImage.modifyImageUrl(imageMap.get(studyRoomImage.getId()))
-        );
     }
 
     private void removeImages(List<Long> imageIdsToRemove, StudyRoom studyRoom) {
@@ -201,30 +174,8 @@ public class StudyRoomCommandService {
     private void tagModifyLogic(ModifyStudyRoomTagRequest request, StudyRoom studyRoom) {
         if (request.getTagsToAdd() != null && !request.getTagsToAdd().isEmpty())
             tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
-        if (request.getTagsToUpdate() != null && !request.getTagsToUpdate().isEmpty())
-            updateTags(request.getTagsToUpdate(), studyRoom);
         if (request.getTagIdsToRemove() != null && !request.getTagIdsToRemove().isEmpty())
             removeTags(request.getTagIdsToRemove(), studyRoom);
-    }
-
-    private void updateTags(List<UpdateStudyRoomTagRequest> tagsToUpdate, StudyRoom studyRoom) {
-        Map<Long, String> tagMap = new HashMap<>();
-        List<Long> tagIds = new ArrayList<>();
-
-        for (UpdateStudyRoomTagRequest tagToUpdate : tagsToUpdate) {
-            tagMap.put(tagToUpdate.getTagId(), tagToUpdate.getTag());
-            tagIds.add(tagToUpdate.getTagId());
-        }
-
-        List<StudyRoomTag> studyRoomTags = tagRepository.findAllByIdInAndStudyRoom(tagIds, studyRoom);
-
-        if (studyRoomTags.size() != tagsToUpdate.size()) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Some image not matching StudyRoom.");
-        }
-
-        studyRoomTags.forEach(studyRoomTag ->
-                studyRoomTag.modifyTag(tagMap.get(studyRoomTag.getId()))
-        );
     }
 
     private void removeTags(List<Long> tagIdsToRemove, StudyRoom studyRoom) {
@@ -240,30 +191,8 @@ public class StudyRoomCommandService {
     private void dayOffModifyLogic(ModifyStudyRoomDayOffRequest request, StudyRoom studyRoom) {
         if (request.getDayOffsToAdd() != null && !request.getDayOffsToAdd().isEmpty())
             dayOffRepository.batchInsert(request.getDayOffsToAdd(), studyRoom);
-        if (request.getDayOffsToUpdate() != null && !request.getDayOffsToUpdate().isEmpty())
-            updateDayOffs(request.getDayOffsToUpdate(), studyRoom);
         if (request.getDayOffIdsToRemove() != null && !request.getDayOffIdsToRemove().isEmpty())
             removeDayOffs(request.getDayOffIdsToRemove(), studyRoom);
-    }
-
-    private void updateDayOffs(List<UpdateStudyRoomDayOffRequest> dayOffsToUpdate, StudyRoom studyRoom) {
-        Map<Long, DayOfWeek> dayOffMap = new HashMap<>();
-        List<Long> dayOffIds = new ArrayList<>();
-
-        for (UpdateStudyRoomDayOffRequest dayOffToUpdate : dayOffsToUpdate) {
-            dayOffMap.put(dayOffToUpdate.getDayOffId(), dayOffToUpdate.getDayOff());
-            dayOffIds.add(dayOffToUpdate.getDayOffId());
-        }
-
-        List<StudyRoomDayOff> studyRoomDayOffs = dayOffRepository.findAllByIdInAndStudyRoom(dayOffIds, studyRoom);
-
-        if (studyRoomDayOffs.size() != dayOffsToUpdate.size()) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Some day-off not matching StudyRoom.");
-        }
-
-        studyRoomDayOffs.forEach(studyRoomDayOff ->
-                studyRoomDayOff.modifyDayOff(dayOffMap.get(studyRoomDayOff.getId()))
-        );
     }
 
     private void removeDayOffs(List<Long> dayOffIdsToRemove, StudyRoom studyRoom) {
@@ -279,30 +208,8 @@ public class StudyRoomCommandService {
     private void optionModifyLogic(ModifyStudyRoomOptionInfoRequest request, StudyRoom studyRoom) {
         if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty())
             optionInfoRepository.batchInsert(request.getOptionsToAdd(), studyRoom);
-        if (request.getOptionsToUpdate() != null && !request.getOptionsToUpdate().isEmpty())
-            updateOptions(request.getOptionsToUpdate(), studyRoom);
         if (request.getOptionsIdsToRemove() != null && !request.getOptionsIdsToRemove().isEmpty())
             removeOptions(request.getOptionsIdsToRemove(), studyRoom);
-    }
-
-    private void updateOptions(List<UpdateStudyRoomOptionRequest> optionsToUpdate, StudyRoom studyRoom) {
-        Map<Long, StudyRoomOption> optionMap = new HashMap<>();
-        List<Long> optionIds = new ArrayList<>();
-
-        for (UpdateStudyRoomOptionRequest optionToUpdate : optionsToUpdate) {
-            optionMap.put(optionToUpdate.getOptionId(), optionToUpdate.getOption());
-            optionIds.add(optionToUpdate.getOptionId());
-        }
-
-        List<StudyRoomOptionInfo> studyRoomOptions = optionInfoRepository.findAllByIdInAndStudyRoom(optionIds, studyRoom);
-
-        if (studyRoomOptions.size() != optionsToUpdate.size()) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Some option not matching StudyRoom.");
-        }
-
-        studyRoomOptions.forEach(studyRoomOption ->
-                studyRoomOption.modifyOption(optionMap.get(studyRoomOption.getId()))
-        );
     }
 
     private void removeOptions(List<Long> optionIdsToRemove, StudyRoom studyRoom) {
@@ -318,30 +225,8 @@ public class StudyRoomCommandService {
     private void typeModifyLogic(ModifyStudyRoomTypeInfoRequest request, StudyRoom studyRoom) {
         if (request.getTypesToAdd() != null && !request.getTypesToAdd().isEmpty())
             typeInfoRepository.batchInsert(request.getTypesToAdd(), studyRoom);
-        if (request.getTypesToUpdate() != null && !request.getTypesToUpdate().isEmpty())
-            updateTypes(request.getTypesToUpdate(), studyRoom);
         if (request.getTypeIdsToRemove() != null && !request.getTypeIdsToRemove().isEmpty())
             removeTypes(request.getTypeIdsToRemove(), studyRoom);
-    }
-
-    private void updateTypes(List<UpdateStudyRoomTypeRequest> typesToUpdate, StudyRoom studyRoom) {
-        Map<Long, StudyRoomType> typeMap = new HashMap<>();
-        List<Long> typeIds = new ArrayList<>();
-
-        for (UpdateStudyRoomTypeRequest typeToUpdate : typesToUpdate) {
-            typeMap.put(typeToUpdate.getTypeId(), typeToUpdate.getType());
-            typeIds.add(typeToUpdate.getTypeId());
-        }
-
-        List<StudyRoomTypeInfo> studyRoomTypes = typeInfoRepository.findAllByIdInAndStudyRoom(typeIds, studyRoom);
-
-        if (studyRoomTypes.size() != typesToUpdate.size()) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Some type not matching StudyRoom.");
-        }
-
-        studyRoomTypes.forEach(studyRoomType ->
-                studyRoomType.modifyType(typeMap.get(studyRoomType.getId()))
-        );
     }
 
     private void removeTypes(List<Long> typeIdsToRemove, StudyRoom studyRoom) {

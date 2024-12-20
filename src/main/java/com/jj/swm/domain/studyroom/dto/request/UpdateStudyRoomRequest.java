@@ -1,9 +1,9 @@
 package com.jj.swm.domain.studyroom.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jj.swm.domain.studyroom.dto.request.update.dayoff.ModifyStudyRoomDayOffRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.image.ModifyStudyRoomImageRequest;
-import com.jj.swm.domain.studyroom.dto.request.update.tag.ModifyStudyRoomTagRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomDayOffRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomImageRequest;
+import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomTagRequest;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
 import jakarta.validation.constraints.*;
@@ -63,14 +63,6 @@ public class UpdateStudyRoomRequest {
     @Min(2)
     @NotNull
     private Integer entireMaxHeadcount;
-
-    @NotNull
-    @Positive
-    private Integer entireMinPricePerHour;
-
-    @NotNull
-    @Positive
-    private Integer entireMaxPricePerHour;
 
     private ModifyStudyRoomImageRequest imageModification;
 

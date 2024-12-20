@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom.dto.request.update.type;
+package com.jj.swm.domain.studyroom.dto.request.update;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import lombok.*;
@@ -12,6 +12,6 @@ import java.util.List;
 public class ModifyStudyRoomTypeInfoRequest {
 
     private List<StudyRoomType> typesToAdd;
-    private List<UpdateStudyRoomTypeRequest> typesToUpdate;
+
     private List<Long> typeIdsToRemove;
 }
