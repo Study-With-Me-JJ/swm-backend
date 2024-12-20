@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom.dto.request.update.image;
+package com.jj.swm.domain.studyroom.dto.request.update;
 
 import lombok.*;
 
@@ -11,6 +11,6 @@ import java.util.List;
 public class ModifyStudyRoomImageRequest {
 
     private List<String> imagesToAdd;
-    private List<UpdateStudyRoomImageRequest> imagesToUpdate;
+
     private List<Long> imageIdsToRemove;
 }

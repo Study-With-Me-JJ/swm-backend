@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom.dto.request.update.reservationType;
+package com.jj.swm.domain.studyroom.dto.request.update;
 
 import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReservationTypeRequest;
 import lombok.*;
@@ -12,6 +12,8 @@ import java.util.List;
 public class ModifyStudyRoomReservationTypeRequest {
 
     private List<CreateStudyRoomReservationTypeRequest> reservationTypesToAdd;
+
     private List<UpdateStudyRoomReservationTypeRequest> reservationTypesToUpdate;
+
     private List<Long> reservationTypeIdsToRemove;
 }

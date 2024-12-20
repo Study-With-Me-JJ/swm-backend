@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom.dto.request.update.reservationType;
+package com.jj.swm.domain.studyroom.dto.request.update;
 
 import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReservationTypeRequest;
 import jakarta.validation.constraints.NotNull;
