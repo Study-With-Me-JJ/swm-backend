@@ -34,7 +34,7 @@ public class StudyCommandController {
             @Valid @RequestBody StudyUpdateRequest updateRequest
     ) {
         studyCommandService.update(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                UUID.fromString(principal.getName()),
                 studyId,
                 updateRequest);
 
@@ -48,7 +48,7 @@ public class StudyCommandController {
             @Valid @RequestBody StudyStatusUpdateRequest updateRequest
     ) {
         studyCommandService.updateStatus(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                UUID.fromString(principal.getName()),
                 studyId,
                 updateRequest
         );
@@ -58,7 +58,7 @@ public class StudyCommandController {
 
     @DeleteMapping("/v1/study/{studyId}")
     public ApiResponse<Void> deleteStudy(Principal principal, @PathVariable("studyId") Long studyId) {
-        studyCommandService.delete(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId);
+        studyCommandService.delete(UUID.fromString(principal.getName()), studyId);
 
         return ApiResponse.ok(null);
     }
@@ -68,7 +68,7 @@ public class StudyCommandController {
             Principal principal, @PathVariable("studyId") Long studyId
     ) {
         StudyBookmarkCreateResponse createResponse = studyCommandService.bookmarkStudy(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId
+                UUID.fromString(principal.getName()), studyId
         );
 
         return ApiResponse.created(createResponse);
@@ -76,21 +76,21 @@ public class StudyCommandController {
 
     @DeleteMapping("/v1/study/bookmark/{bookmarkId}")
     public ApiResponse<Void> unBookmarkStudy(Principal principal, @PathVariable("bookmarkId") Long bookmarkId) {
-        studyCommandService.unBookmarkStudy(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), bookmarkId);
+        studyCommandService.unBookmarkStudy(UUID.fromString(principal.getName()), bookmarkId);
 
         return ApiResponse.ok(null);
     }
 
     @PostMapping("/v1/study/{studyId}/like")
     public ApiResponse<Void> likeStudy(Principal principal, @PathVariable("studyId") Long studyId) {
-        studyCommandService.likeStudy(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId);
+        studyCommandService.likeStudy(UUID.fromString(principal.getName()), studyId);
 
         return ApiResponse.created(null);
     }
 
     @DeleteMapping("/v1/study/{studyId}/like")
     public ApiResponse<Void> unLikeStudy(Principal principal, @PathVariable("studyId") Long studyId) {
-        studyCommandService.unLikeStudy(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), studyId);
+        studyCommandService.unLikeStudy(UUID.fromString(principal.getName()), studyId);
 
         return ApiResponse.ok(null);
     }

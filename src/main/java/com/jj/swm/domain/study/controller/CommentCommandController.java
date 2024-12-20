@@ -27,7 +27,7 @@ public class CommentCommandController {
             @Valid @RequestBody CommentUpsertRequest createRequest
     ) {
         CommentCreateResponse createResponse = commentCommandService.create(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                UUID.fromString(principal.getName()),
                 studyId,
                 parentId,
                 createRequest
@@ -43,7 +43,7 @@ public class CommentCommandController {
             @Valid @RequestBody CommentUpsertRequest updateRequest
     ) {
         CommentUpdateResponse updateResponse = commentCommandService.update(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                UUID.fromString(principal.getName()),
                 commentId,
                 updateRequest
         );
@@ -58,7 +58,7 @@ public class CommentCommandController {
             @PathVariable("commentId") Long commentId
     ) {
         commentCommandService.delete(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                UUID.fromString(principal.getName()),
                 studyId,
                 commentId
         );

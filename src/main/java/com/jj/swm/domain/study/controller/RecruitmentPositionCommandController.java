@@ -25,7 +25,7 @@ public class RecruitmentPositionCommandController {
             @Valid @RequestBody RecruitPositionUpsertRequest createRequest
     ) {
         RecruitmentPositionCreateResponse createResponse = recruitmentPositionCommandService.create(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                UUID.fromString(principal.getName()),
                 studyId,
                 createRequest
         );
@@ -40,7 +40,7 @@ public class RecruitmentPositionCommandController {
             @Valid @RequestBody RecruitPositionUpsertRequest updateRequest
     ) {
         recruitmentPositionCommandService.update(
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),
+                UUID.fromString(principal.getName()),
                 recruitPositionId,
                 updateRequest
         );
@@ -52,7 +52,7 @@ public class RecruitmentPositionCommandController {
     public ApiResponse<Void> deleteRecruitmentPosition(
             Principal principal, @PathVariable("recruitPositionId") Long recruitPositionId
     ) {
-        recruitmentPositionCommandService.delete(UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"), recruitPositionId);
+        recruitmentPositionCommandService.delete(UUID.fromString(principal.getName()), recruitPositionId);
 
         return ApiResponse.ok(null);
     }
