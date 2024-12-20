@@ -40,7 +40,8 @@ public class RecruitmentPositionCommandService {
     public void update(
             UUID userId,
             Long recruitPositionId,
-            RecruitPositionUpsertRequest updateRequest) {
+            RecruitPositionUpsertRequest updateRequest
+    ) {
         StudyRecruitmentPosition recruitmentPosition =
                 recruitmentPositionRepository.findByIdAndStudyUserId(recruitPositionId, userId)
                         .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));

@@ -32,18 +32,16 @@ public class CommentCommandService {
             Long parentId,
             CommentUpsertRequest createRequest
     ) {
-        User user = getUser(userId);
+        User user = userRepository.getReferenceById(userId);
 
         Study study;
         StudyComment parent = null;
         if (parentId != null) {
             study = studyRepository.findById(studyId)
                     .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
-            parent = commentRepository.findWithParentById(parentId, userId)
-                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
-            parent = parent.getParent() == null ? parent : parent.getParent();
+            parent = getParent(userId, parentId);
         } else {
-            study = studyRepository.getReferenceById(studyId);
+            study = getStudyPessimisticLock(studyId);
             study.incrementCommentCount();
         }
 
@@ -70,7 +68,6 @@ public class CommentCommandService {
     ) {
         StudyComment comment = commentRepository.findByIdAndUserId(commentId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
-
         comment.modify(updateRequest);
 
         return CommentUpdateResponse.from(comment);
@@ -93,12 +90,15 @@ public class CommentCommandService {
         commentRepository.deleteAllByIdOrParentId(commentId);
     }
 
-    private User getUser(UUID userId) {
-        return userRepository.getReferenceById(userId);
-    }
-
     private Study getStudyPessimisticLock(Long studyId) {
         return studyRepository.findByIdWithPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+    }
+
+    private StudyComment getParent(UUID userId, Long parentId) {
+        StudyComment parent = commentRepository.findWithParentById(parentId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
+
+        return parent.getParent() == null ? parent : parent.getParent();
     }
 }

@@ -52,7 +52,6 @@ public class StudyCommandService {
     @Transactional
     public void update(UUID userId, Long studyId, StudyUpdateRequest updateRequest) {
         Study study = getStudy(userId, studyId);
-
         study.modify(updateRequest);
 
         modifyTags(study, updateRequest.getTagModifyRequest());
@@ -94,7 +93,6 @@ public class StudyCommandService {
             StudyStatusUpdateRequest updateRequest
     ) {
         Study study = getStudy(userId, studyId);
-
         study.modifyStatus(updateRequest);
     }
 
@@ -102,13 +100,7 @@ public class StudyCommandService {
     public void delete(UUID userId, Long studyId) {
         Study study = getStudy(userId, studyId);
 
-        studyTagRepository.deleteAllByStudyId(studyId);
-        studyImageRepository.deleteAllByStudyId(studyId);
-        recruitmentPositionRepository.deleteAllByStudyId(studyId);
-        studyLikeRepository.deleteAllByStudyId(studyId);
-        commentRepository.deleteAllByStudyId(studyId);
-        studyBookmarkRepository.deleteAllByStudyId(studyId);
-        studyRepository.delete(study);
+        deleteStudy(studyId, study);
     }
 
     @Transactional
@@ -120,7 +112,8 @@ public class StudyCommandService {
 
         User user = getUser(userId);
 
-        Study study = getStudy(studyId);
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
         StudyBookmark studyBookmark = StudyBookmark.of(study, user);
         studyBookmarkRepository.save(studyBookmark);
@@ -166,11 +159,6 @@ public class StudyCommandService {
         return userRepository.getReferenceById(userId);
     }
 
-    private Study getStudy(Long studyId) {
-        return studyRepository.findById(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
-    }
-
     private Study getStudy(UUID userId, Long studyId) {
         return studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
@@ -179,5 +167,15 @@ public class StudyCommandService {
     private Study getStudyPessimisticLock(Long studyId) {
         return studyRepository.findByIdWithPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+    }
+
+    private void deleteStudy(Long studyId, Study study) {
+        studyTagRepository.deleteAllByStudyId(studyId);
+        studyImageRepository.deleteAllByStudyId(studyId);
+        recruitmentPositionRepository.deleteAllByStudyId(studyId);
+        studyLikeRepository.deleteAllByStudyId(studyId);
+        commentRepository.deleteAllByStudyId(studyId);
+        studyBookmarkRepository.deleteAllByStudyId(studyId);
+        studyRepository.delete(study);
     }
 }
