@@ -7,8 +7,8 @@ import lombok.*;
 @Entity
 @Builder
 @Table(name = "study_image")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyImage {
 
     @Id

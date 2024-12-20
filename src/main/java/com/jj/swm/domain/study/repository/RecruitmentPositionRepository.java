@@ -12,18 +12,18 @@ import java.util.UUID;
 public interface RecruitmentPositionRepository extends
         JpaRepository<StudyRecruitmentPosition, Long>, JdbcRecruitmentPositionRepository {
 
-    @Query("select srp from StudyRecruitmentPosition srp where srp.study.id = ?1")
+    @Query("select rp from StudyRecruitmentPosition rp where rp.study.id = ?1")
     List<StudyRecruitmentPosition> findAllByStudyId(Long studyId);
 
-    @Query("select srp from StudyRecruitmentPosition srp where srp.id = ?1 and srp.study.user.id = ?2")
-    Optional<StudyRecruitmentPosition> findByIdAndUserId(Long recruitPositionId, UUID userId);
+    @Query("select rp from StudyRecruitmentPosition rp where rp.id = ?1 and rp.study.user.id = ?2")
+    Optional<StudyRecruitmentPosition> findByIdAndStudyUserId(Long recruitPositionId, UUID userId);
 
     @Modifying
-    @Query("update StudyRecruitmentPosition srp set srp.deletedAt = CURRENT_TIMESTAMP " +
-            "where srp.id = ?1 and srp.study.user.id = ?2")
-    void deleteByIdAndUserId(Long recruitPositionId, UUID userId);
+    @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP " +
+            "where rp.id = ?1 and rp.study.user.id = ?2")
+    void deleteByIdAndStudyUserId(Long recruitPositionId, UUID userId);
 
     @Modifying
-    @Query("update StudyRecruitmentPosition srp set srp.deletedAt = CURRENT_TIMESTAMP where srp.study.id = ?1")
+    @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP where rp.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
 }

@@ -10,10 +10,10 @@ import java.util.List;
 public interface StudyTagRepository extends JpaRepository<StudyTag, Long>, JdbcStudyTagRepository {
 
     @Modifying
-    @Query("update StudyTag st set st.deletedAt = CURRENT_TIMESTAMP where st.id in ?1 and st.study.id = ?2")
+    @Query("update StudyTag t set t.deletedAt = CURRENT_TIMESTAMP where t.id in ?1 and t.study.id = ?2")
     void deleteAllByIdInAndStudyId(List<Long> ids, Long studyId);
 
     @Modifying
-    @Query("update StudyTag st set st.deletedAt = CURRENT_TIMESTAMP where st.study.id = ?1")
+    @Query("update StudyTag t set t.deletedAt = CURRENT_TIMESTAMP where t.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
 }

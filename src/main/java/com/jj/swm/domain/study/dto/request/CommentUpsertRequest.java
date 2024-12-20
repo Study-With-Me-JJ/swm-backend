@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -8,5 +9,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentUpsertRequest {
 
+    @NotBlank
     private String content;
 }

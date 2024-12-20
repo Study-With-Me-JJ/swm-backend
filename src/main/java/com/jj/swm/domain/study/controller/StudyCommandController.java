@@ -21,12 +21,8 @@ public class StudyCommandController {
     private final StudyCommandService studyCommandService;
 
     @PostMapping("/v1/study")
-    public ApiResponse<Void> createStudy(
-            Principal principal, @Valid @RequestBody StudyCreateRequest createRequest
-    ) {
-        studyCommandService.create(
-                UUID.fromString(principal.getName()), createRequest
-        );
+    public ApiResponse<Void> createStudy(Principal principal, @Valid @RequestBody StudyCreateRequest createRequest) {
+        studyCommandService.create(UUID.fromString(principal.getName()), createRequest);
 
         return ApiResponse.created(null);
     }
@@ -49,7 +45,7 @@ public class StudyCommandController {
     public ApiResponse<Void> updateStudyStatus(
             Principal principal,
             @PathVariable("studyId") Long studyId,
-            @RequestBody StudyStatusUpdateRequest updateRequest
+            @Valid @RequestBody StudyStatusUpdateRequest updateRequest
     ) {
         studyCommandService.updateStatus(
                 UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"),

@@ -33,13 +33,17 @@ public class CommentQueryService {
     private final CommentRepository commentRepository;
 
     public PageResponse<CommentInquiryResponse> getList(Long studyId, int pageNo) {
-        Pageable pageable = PageRequest.of(pageNo, commentPageSize, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                commentPageSize,
+                Sort.by("id").descending()
+        );
 
         return getCommentPageResponse(studyId, pageable);
     }
 
     public PageResponse<ReplyInquiryResponse> getReplyList(Long parentId, Long lastReplyId) {
-        List<StudyComment> replies = commentRepository.findAllWithUserByParentId(
+        List<StudyComment> replies = commentRepository.findPagedWithUserByParentId(
                 replyPageSize + 1,
                 parentId,
                 lastReplyId
@@ -63,7 +67,9 @@ public class CommentQueryService {
     protected PageResponse<CommentInquiryResponse> getCommentPageResponse(Long studyId, Pageable pageable) {
         Page<StudyComment> pageComments = commentRepository.findCommentWithUserByStudyId(studyId, pageable);
 
-        List<Long> parentIds = pageComments.get().map(StudyComment::getId).toList();
+        List<Long> parentIds = pageComments.get()
+                .map(StudyComment::getId)
+                .toList();
 
         Map<Long, Integer> replyCountByParentId = commentRepository.countReplyByParentId(parentIds).stream()
                 .collect(Collectors.toMap(ReplyCountInfo::getParentId, ReplyCountInfo::getReplyCount));
@@ -71,7 +77,8 @@ public class CommentQueryService {
         List<CommentInquiryResponse> commentInquiryResponses = pageComments.get()
                 .map(comment -> CommentInquiryResponse.of(
                         comment, replyCountByParentId.getOrDefault(comment.getId(), 0))
-                ).toList();
+                )
+                .toList();
 
         return PageResponse.of(
                 pageComments.getNumberOfElements(),

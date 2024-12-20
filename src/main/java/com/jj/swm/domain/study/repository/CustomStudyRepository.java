@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface CustomStudyRepository {
 
-    List<Study> findAllWithUserAndTags(int pageSize, StudyInquiryCondition inquiryCondition);
+    List<Study> findPagedWithUserAndTags(int pageSize, StudyInquiryCondition inquiryCondition);
 }

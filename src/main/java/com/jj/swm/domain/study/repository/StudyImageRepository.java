@@ -10,12 +10,12 @@ import java.util.List;
 public interface StudyImageRepository extends JpaRepository<StudyImage, Long>, JdbcStudyImageRepository {
 
     @Modifying
-    @Query("delete from StudyImage si where si.id in ?1 and si.study.id = ?2")
+    @Query("delete from StudyImage i where i.id in ?1 and i.study.id = ?2")
     void deleteAllByIdInAndStudyId(List<Long> deleteImageIds, Long studyId);
 
     List<StudyImage> findAllByStudyId(Long studyId);
 
     @Modifying
-    @Query("delete from StudyImage si where si.study.id = ?1")
+    @Query("delete from StudyImage i where i.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
 }

@@ -16,6 +16,6 @@ public interface StudyLikeRepository extends JpaRepository<StudyLike, Long> {
     boolean existsByUserIdAndStudyId(UUID userId, Long studyId);
 
     @Modifying
-    @Query("delete from StudyLike sl where sl.study.id = ?1")
+    @Query("delete from StudyLike l where l.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
 }

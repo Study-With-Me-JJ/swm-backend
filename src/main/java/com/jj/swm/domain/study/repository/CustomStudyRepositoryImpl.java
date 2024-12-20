@@ -24,7 +24,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Study> findAllWithUserAndTags(int pageSize, StudyInquiryCondition inquiryCondition) {
+    public List<Study> findPagedWithUserAndTags(int pageSize, StudyInquiryCondition inquiryCondition) {
         return jpaQueryFactory.selectFrom(study)
                 .join(study.user)
                 .fetchJoin()
@@ -33,8 +33,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .where(
                         studyCategoryEq(inquiryCondition.getCategory()),
                         studyStatusEq(inquiryCondition.getStatus()),
-                        createSortPredicate(inquiryCondition),
-                        study.deletedAt.isNull()
+                        createSortPredicate(inquiryCondition)
                 )
                 .orderBy(createOrderSpecifier(inquiryCondition.getSortCriteria()))
                 .distinct()
