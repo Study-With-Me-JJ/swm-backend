@@ -7,14 +7,13 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
 public class StudyInquiryResponse {
 
     private Long studyId;
-
-    private boolean ownerStatus;
 
     private String title;
 
@@ -32,6 +31,8 @@ public class StudyInquiryResponse {
 
     private int viewCount;
 
+    private UUID userId;
+
     private String nickname;
 
     private String profileImageUrl;
@@ -40,10 +41,9 @@ public class StudyInquiryResponse {
 
     private List<StudyTagInquiryResponse> tagInquiryListResponse;
 
-    public static StudyInquiryResponse of(Study study, Long studyBookmarkId, boolean ownerStatus) {
+    public static StudyInquiryResponse of(Study study, Long studyBookmarkId) {
         return StudyInquiryResponse.builder()
                 .studyId(study.getId())
-                .ownerStatus(ownerStatus)
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
@@ -52,6 +52,7 @@ public class StudyInquiryResponse {
                 .commentCount(study.getCommentCount())
                 .status(study.getStatus())
                 .viewCount(study.getViewCount())
+                .userId(study.getUser().getId())
                 .nickname(study.getUser().getNickname())
                 .profileImageUrl(study.getUser().getProfileImageUrl())
                 .studyBookmarkId(studyBookmarkId)
