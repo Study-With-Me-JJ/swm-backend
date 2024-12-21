@@ -8,8 +8,8 @@ import lombok.*;
 @Entity
 @Builder
 @Table(name = "study_bookmark")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyBookmark {
 
     @Id
@@ -23,4 +23,11 @@ public class StudyBookmark {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public static StudyBookmark of(Study study, User user) {
+        return StudyBookmark.builder()
+                .study(study)
+                .user(user)
+                .build();
+    }
 }

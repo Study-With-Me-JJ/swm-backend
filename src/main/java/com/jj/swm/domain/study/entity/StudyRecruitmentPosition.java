@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.entity;
 
+import com.jj.swm.domain.study.dto.request.RecruitPositionUpsertRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -11,8 +12,8 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @Table(name = "study_recruitment_position")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "update study_recruitment_position set deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 public class StudyRecruitmentPosition {
@@ -27,10 +28,28 @@ public class StudyRecruitmentPosition {
     @Column(name = "headcount", nullable = false)
     private Integer headcount;
 
+    @Column(name = "accepted_count", nullable = false)
+    private int acceptedCount;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
+
+    public static StudyRecruitmentPosition of(Study study, RecruitPositionUpsertRequest createRequest) {
+        return StudyRecruitmentPosition.builder()
+                .title(createRequest.getTitle())
+                .headcount(createRequest.getHeadcount())
+                .acceptedCount(0)
+                .study(study)
+                .build();
+    }
+
+    public void modify(RecruitPositionUpsertRequest updateRequest) {
+        this.title = updateRequest.getTitle();
+        this.headcount = updateRequest.getHeadcount();
+        this.acceptedCount = updateRequest.getAcceptedCount();
+    }
 }

@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @Table(name = "study_tag")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "update study_tag set deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 public class StudyTag {
@@ -30,4 +30,11 @@ public class StudyTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
+
+    public static StudyTag of(Study study, String name) {
+        return StudyTag.builder()
+                .name(name)
+                .study(study)
+                .build();
+    }
 }
