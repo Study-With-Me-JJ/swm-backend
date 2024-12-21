@@ -10,13 +10,13 @@ import com.jj.swm.domain.study.repository.*;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +41,7 @@ public class StudyQueryService {
     @Value("${study.comment.page.size}")
     private int commentPageSize;
 
+    @Transactional(readOnly = true)
     public PageResponse<StudyInquiryResponse> getList(
             UUID userId,
             StudyInquiryCondition inquiryCondition

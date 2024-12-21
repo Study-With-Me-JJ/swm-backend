@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class CommentQueryService {
 
     private final CommentRepository commentRepository;
 
+    @Transactional(readOnly = true)
     public PageResponse<CommentInquiryResponse> getList(Long studyId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
@@ -42,6 +44,7 @@ public class CommentQueryService {
         return getCommentPageResponse(studyId, pageable);
     }
 
+    @Transactional(readOnly = true)
     public PageResponse<ReplyInquiryResponse> getReplyList(Long parentId, Long lastReplyId) {
         List<StudyComment> replies = commentRepository.findPagedWithUserByParentId(
                 replyPageSize + 1,
