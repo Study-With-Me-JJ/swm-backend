@@ -9,6 +9,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -40,6 +42,12 @@ public class StudyRoomReview extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    @OneToMany(mappedBy = "studyRoomReview")
+    private List<StudyRoomReviewReply> replies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyRoomReview")
+    private List<StudyRoomReviewImage> images = new ArrayList<>();
 
     public static StudyRoomReview of(String comment, int rating, StudyRoom studyRoom, User user) {
         return StudyRoomReview.builder()
