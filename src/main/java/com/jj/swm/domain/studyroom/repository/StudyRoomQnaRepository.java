@@ -1,6 +1,8 @@
 package com.jj.swm.domain.studyroom.repository;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoomQna;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +33,7 @@ public interface StudyRoomQnaRepository extends JpaRepository<StudyRoomQna, Long
     @Modifying
     @Query(value = "DELETE FROM study_room_qna", nativeQuery = true)
     void deleteAllByIdOrParentId(@Param("studyRoomQnaId") Long studyRoomQnaId);
+
+    @Query("select s from StudyRoomQna s join fetch s.user where s.studyRoom.id = ?1 and s.parent is null")
+    Page<StudyRoomQna> findPagedQnaWithUserByStudyRoomId(Long studyRoomId, Pageable pageable);
 }

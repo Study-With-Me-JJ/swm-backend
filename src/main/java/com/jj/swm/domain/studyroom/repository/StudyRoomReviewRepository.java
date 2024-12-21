@@ -2,6 +2,8 @@ package com.jj.swm.domain.studyroom.repository;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReview;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +28,12 @@ public interface StudyRoomReviewRepository extends JpaRepository<StudyRoomReview
     Optional<StudyRoomReview> findByStudyRoomReviewWithNativeQuery(
             @Param("studyRoomReviewId") Long studyRoomReviewId,
             @Param("userId") UUID userId);
+
+    @Query("select s from StudyRoomReview s join fetch s.user where s.studyRoom.id = ?1")
+    Page<StudyRoomReview> findPagedReviewWithUserByStudyRoomId(Long studyRoomId, Pageable pageable);
+
+    @Query("select s from StudyRoomReview s join fetch s.user " +
+            "where exists (select 1 from StudyRoomReviewImage sri where sri.studyRoomReview.id = s.id) " +
+            "and s.studyRoom.id = ?1")
+    Page<StudyRoomReview> findPagedReviewWithOnlyImageAndUserByStudyRoomId(Long studyRoomId, Pageable pageable);
 }

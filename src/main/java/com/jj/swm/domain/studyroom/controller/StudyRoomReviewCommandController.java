@@ -33,7 +33,7 @@ public class StudyRoomReviewCommandController {
         CreateStudyRoomReviewResponse response = commandService.createReview(
                 request,
                 studyRoomId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb7")
         );
 
         return ApiResponse.ok(response);
