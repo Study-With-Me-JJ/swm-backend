@@ -17,7 +17,7 @@ import java.util.List;
 @SQLDelete(sql = "UPDATE study_room_review SET deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "study_room_review")
 public class StudyRoomReview extends BaseTimeEntity {
