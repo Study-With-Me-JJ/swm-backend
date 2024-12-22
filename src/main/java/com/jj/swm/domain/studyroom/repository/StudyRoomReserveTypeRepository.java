@@ -19,11 +19,11 @@ public interface StudyRoomReserveTypeRepository extends
 
     int countStudyRoomReserveTypeByIdInAndStudyRoom(List<Long> reserveTypeIds, StudyRoom studyRoom);
 
+    List<StudyRoomReserveType> findAllByStudyRoomId(Long studyRoomId);
+
     @Modifying
     @Query("update StudyRoomReserveType s set s.deletedAt = CURRENT_TIMESTAMP where s.id in :reserveTypeIds")
     void deleteAllByIdInBatch(@Param("reserveTypeIds") List<Long> reserveTypeIds);
-
-    List<StudyRoomReserveType> findAllByStudyRoomId(Long studyRoomId);
 
     @Modifying
     @Query("update StudyRoomReserveType s set s.deletedAt = CURRENT_TIMESTAMP where s.studyRoom.id = ?1")

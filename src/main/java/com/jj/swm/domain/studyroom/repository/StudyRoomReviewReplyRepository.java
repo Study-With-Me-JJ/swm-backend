@@ -15,6 +15,8 @@ public interface StudyRoomReviewReplyRepository extends JpaRepository<StudyRoomR
 
     Optional<StudyRoomReviewReply> findByIdAndUserId(Long studyRoomReviewReplyId, UUID userId);
 
+    @Modifying
+    @Query("update StudyRoomReviewReply s set s.deletedAt = CURRENT_TIMESTAMP where s.studyRoomReview.id = ?1")
     void deleteAllByStudyRoomReviewId(Long studyRoomReviewId);
 
     @Modifying

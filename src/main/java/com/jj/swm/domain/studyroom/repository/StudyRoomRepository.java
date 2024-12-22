@@ -16,11 +16,11 @@ import java.util.UUID;
 @Repository
 public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long>, CustomStudyRoomRepository {
 
+    boolean existsByIdAndUserId(Long studyRoomId, UUID userId);
+
     @Query("select s from StudyRoom s join fetch s.user " +
             "where s.id = :studyRoomId and s.user.id = :userId")
     Optional<StudyRoom> findByIdAndUserIdWithUser(@Param("studyRoomId") Long studyRoomId, @Param("userId") UUID userId);
-
-    boolean existsByIdAndUserId(Long studyRoomId, UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from StudyRoom s where s.id = :studyRoomId")

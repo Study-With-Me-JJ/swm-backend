@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface StudyRoomReviewImageRepository extends JpaRepository<StudyRoomReviewImage, Long>, JdbcReviewImageRepository {
 
+    @Modifying
+    @Query("delete from StudyRoomReviewImage s where s.studyRoomReview.id = ?1")
     void deleteAllByStudyRoomReviewId(Long studyRoomReviewId);
 
     @Modifying
