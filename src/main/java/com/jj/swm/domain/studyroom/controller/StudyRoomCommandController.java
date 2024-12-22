@@ -25,7 +25,7 @@ public class StudyRoomCommandController {
     public ApiResponse<Void> create(
             @Valid @RequestBody CreateStudyRoomRequest request, Principal principal
     ) {
-        commandService.create(request, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.create(request, UUID.fromString(principal.getName()));
 
         return ApiResponse.created(null);
     }
@@ -39,7 +39,7 @@ public class StudyRoomCommandController {
         commandService.update(
                 request,
                 studyRoomId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);
@@ -54,7 +54,7 @@ public class StudyRoomCommandController {
         commandService.updateSettings(
                 request,
                 studyRoomId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);
@@ -62,7 +62,7 @@ public class StudyRoomCommandController {
 
     @DeleteMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> delete(@PathVariable("studyRoomId") Long studyRoomId, Principal principal) {
-        commandService.delete(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.delete(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -72,7 +72,7 @@ public class StudyRoomCommandController {
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
         CreateStudyRoomLikeResponse response
-                = commandService.createLike(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+                = commandService.createLike(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.created(response);
     }
@@ -81,7 +81,7 @@ public class StudyRoomCommandController {
     public ApiResponse<Void> unLike(
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
-        commandService.unLike(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.unLike(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -91,7 +91,7 @@ public class StudyRoomCommandController {
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
         CreateStudyRoomBookmarkResponse response =
-                commandService.createBookmark(studyRoomId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+                commandService.createBookmark(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.created(response);
     }
@@ -100,7 +100,7 @@ public class StudyRoomCommandController {
     public ApiResponse<Void> unBookmark(
             @PathVariable("studyRoomBookmarkId") Long studyRoomBookmarkId, Principal principal
     ) {
-        commandService.unBookmark(studyRoomBookmarkId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.unBookmark(studyRoomBookmarkId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

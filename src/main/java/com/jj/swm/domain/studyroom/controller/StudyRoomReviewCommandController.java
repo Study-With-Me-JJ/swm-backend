@@ -33,7 +33,7 @@ public class StudyRoomReviewCommandController {
         CreateStudyRoomReviewResponse response = commandService.createReview(
                 request,
                 studyRoomId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb7")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(response);
@@ -50,7 +50,7 @@ public class StudyRoomReviewCommandController {
                 request,
                 studyRoomId,
                 studyRoomReviewId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(response);
@@ -65,7 +65,7 @@ public class StudyRoomReviewCommandController {
         DeleteStudyRoomReviewResponse response = commandService.deleteReview(
                 studyRoomId,
                 studyRoomReviewId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(response);
@@ -80,7 +80,7 @@ public class StudyRoomReviewCommandController {
         CreateStudyRoomReviewReplyResponse response = commandService.createReviewReply(
                 request,
                 studyRoomReviewId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(response);
@@ -95,7 +95,7 @@ public class StudyRoomReviewCommandController {
         commandService.updateReviewReply(
                 request,
                 studyRoomReviewReplyId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);
@@ -106,7 +106,7 @@ public class StudyRoomReviewCommandController {
             @PathVariable("studyRoomReviewReplyId") Long studyRoomReviewReplyId,
             Principal principal
     ) {
-        commandService.deleteReviewReply(studyRoomReviewReplyId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.deleteReviewReply(studyRoomReviewReplyId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

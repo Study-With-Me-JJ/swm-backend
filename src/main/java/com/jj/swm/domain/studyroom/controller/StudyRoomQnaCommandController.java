@@ -30,7 +30,7 @@ public class StudyRoomQnaCommandController {
                 request,
                 studyRoomId,
                 parentId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.created(response);
@@ -45,7 +45,7 @@ public class StudyRoomQnaCommandController {
         UpdateStudyRoomQnaResponse response = commandService.updateQna(
                 request,
                 studyRoomQnaId,
-                UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9")
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(response);
@@ -55,7 +55,7 @@ public class StudyRoomQnaCommandController {
     public ApiResponse<Void> deleteQna(
             @PathVariable("studyRoomQnaId") Long studyRoomQnaId, Principal principal
     ) {
-        commandService.deleteQna(studyRoomQnaId, UUID.fromString("d554b429-366f-4d8e-929d-bb5479623eb9"));
+        commandService.deleteQna(studyRoomQnaId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

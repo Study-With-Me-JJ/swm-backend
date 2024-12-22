@@ -37,8 +37,7 @@ public class StudyRoomQueryController {
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
         GetStudyRoomDetailResponse response = queryService.getStudyRoomDetail(
-                studyRoomId, principal != null ? UUID.fromString(principal.getName()) : null
-        );
+                studyRoomId, principal != null ? UUID.fromString(principal.getName()) : null);
 
         return ApiResponse.ok(response);
     }
