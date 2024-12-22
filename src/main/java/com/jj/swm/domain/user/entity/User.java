@@ -29,7 +29,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "id", nullable = false)
     private UUID id = UUID.randomUUID();
 
-    @Column(name = "nickname", nullable = false, length = 50)
+    @Column(name = "nickname", nullable = false, length = 50, unique = true)
     private String nickname;
 
     @Column(name = "profile_image_url", length = 300)
