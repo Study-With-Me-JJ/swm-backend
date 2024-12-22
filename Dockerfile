@@ -12,7 +12,6 @@ RUN yum update -y && \
 
 ENV GOOGLE_CHROME_BIN=/usr/bin/google-chrome
 
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY build/libs/*.jar app.jar
 
-# 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
