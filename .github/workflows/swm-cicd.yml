@@ -50,7 +50,7 @@ jobs:
           password: ${{ secrets.BREAKTIME_REGISTRY_PASSWORD }}
 
       - name: Docker Image Build
-        run: docker build -t registry.breakti.me/study-with-me:1.0
+        run: docker build -t registry.breakti.me/study-with-me:1.0 .
 
       - name: Docker Image Push
         run: docker push registry.breakti.me/study-with-me:1.0
