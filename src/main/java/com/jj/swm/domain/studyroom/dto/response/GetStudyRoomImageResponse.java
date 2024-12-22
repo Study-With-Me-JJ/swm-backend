@@ -9,7 +9,6 @@ import lombok.Getter;
 public class GetStudyRoomImageResponse {
 
     private Long imageId;
-
     private String imageUrl;
 
     public static GetStudyRoomImageResponse from(StudyRoomImage studyRoomImage) {

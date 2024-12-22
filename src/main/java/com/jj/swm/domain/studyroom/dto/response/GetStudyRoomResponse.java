@@ -11,25 +11,15 @@ import java.util.List;
 public class GetStudyRoomResponse {
 
     private Long studyRoomId;
-
     private String title;
-
     private String thumbnail;
-
     private String locality;
-
     private int likeCount;
-
     private int reviewCount;
-
     private int entireMinPricePerHour;
-
     private int entireMaxHeadcount;
-
     private double starAvg;
-
     private Long studyBookmarkId;
-
     private List<GetStudyRoomTagResponse> tags;
 
     public static GetStudyRoomResponse of(StudyRoom studyRoom, Long studyBookmarkId) {

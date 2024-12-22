@@ -10,11 +10,8 @@ import lombok.Getter;
 public class GetStudyRoomReserveTypeResponse {
 
     private Long reserveTypeId;
-
     private int maxHeadcount;
-
     private String reservationOption;
-
     private int pricePerHour;
 
     public static GetStudyRoomReserveTypeResponse from(StudyRoomReserveType reserveType) {

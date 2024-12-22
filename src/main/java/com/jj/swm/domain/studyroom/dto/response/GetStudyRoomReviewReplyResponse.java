@@ -10,9 +10,7 @@ import lombok.Getter;
 public class GetStudyRoomReviewReplyResponse {
 
     private Long studyRoomReviewReplyId;
-
     private UserInfoResponse userInfo;
-
     private String reply;
 
     public static GetStudyRoomReviewReplyResponse from(StudyRoomReviewReply studyRoomReviewReply) {

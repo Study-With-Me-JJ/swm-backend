@@ -10,7 +10,6 @@ import lombok.Getter;
 public class GetStudyRoomOptionInfoResponse {
 
     private Long optionInfoId;
-
     private StudyRoomOption option;
 
     public static GetStudyRoomOptionInfoResponse from(StudyRoomOptionInfo studyRoomOptionInfo) {

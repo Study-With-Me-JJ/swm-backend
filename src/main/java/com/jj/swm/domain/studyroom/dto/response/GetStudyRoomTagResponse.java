@@ -9,7 +9,6 @@ import lombok.Getter;
 public class GetStudyRoomTagResponse {
 
     private Long studyRoomTagId;
-
     private String tag;
 
     public static GetStudyRoomTagResponse from(StudyRoomTag studyRoomTag) {
