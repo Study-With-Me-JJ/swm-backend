@@ -67,12 +67,21 @@ public class StudyRoomQueryService {
         return PageResponse.of(responses, hasNext);
     }
 
+    @Transactional(readOnly = true)
     public GetStudyRoomDetailResponse getStudyRoomDetail(Long studyRoomId, UUID userId) {
         StudyRoom studyRoom = studyRoomRepository.findByIdWithTags(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
 
         boolean likeStatus = userId != null && likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId);
 
+        return createAllOfStudyRoomRelatedResponse(studyRoomId, likeStatus, studyRoom);
+    }
+
+    private GetStudyRoomDetailResponse createAllOfStudyRoomRelatedResponse(
+            Long studyRoomId,
+            boolean likeStatus,
+            StudyRoom studyRoom
+    ) {
         List<GetStudyRoomImageResponse> imageResponses = imageRepository.findAllByStudyRoomId(studyRoomId).stream()
                 .map(GetStudyRoomImageResponse::from)
                 .toList();;
@@ -83,8 +92,8 @@ public class StudyRoomQueryService {
 
         List<GetStudyRoomReserveTypeResponse> reserveTypeResponses =
                 reserveTypeRepository.findAllByStudyRoomId(studyRoomId).stream()
-                .map(GetStudyRoomReserveTypeResponse::from)
-                .toList();;
+                        .map(GetStudyRoomReserveTypeResponse::from)
+                        .toList();;
 
         List<GetStudyRoomOptionInfoResponse> optionInfoResponses = optionInfoRepository.findAllByStudyRoomId(studyRoomId)
                 .stream()
