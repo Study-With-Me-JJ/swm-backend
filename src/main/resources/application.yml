@@ -16,3 +16,20 @@ springdoc:
 logging:
   level:
     org.openqa.selenium.devtools.CdpVersionFinder: ERROR
+
+study:
+  page:
+    size: 20
+  comment:
+    page:
+      size: 10
+  reply:
+    page:
+      size: 5
+
+studyroom:
+  page:
+    size: 10
+  review:
+    page:
+      size: 3

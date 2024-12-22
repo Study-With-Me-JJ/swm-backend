@@ -1,6 +1,6 @@
-package com.jj.swm.domain.external.study.dto.response;
+package com.jj.swm.domain.external.studyroom.dto.response;
 
-import com.jj.swm.domain.external.study.entity.ExternalStudyRoom;
+import com.jj.swm.domain.external.studyroom.entity.ExternalStudyRoom;
 import lombok.Getter;
 
 @Getter

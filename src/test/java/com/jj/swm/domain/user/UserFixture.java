@@ -20,6 +20,16 @@ public class UserFixture {
                 .build();
     }
 
+    public static User createUser() {
+        return User.builder()
+                .id(uuid)
+                .nickname("test")
+                .profileImageUrl("http://test.png")
+                .userRole(RoleType.USER)
+                .studyRooms(new ArrayList<>())
+                .build();
+    }
+
     public static User createUserWithUUID() {
         return User.builder()
                 .id(UUID.randomUUID())

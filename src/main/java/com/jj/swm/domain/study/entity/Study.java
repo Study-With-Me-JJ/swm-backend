@@ -1,5 +1,8 @@
 package com.jj.swm.domain.study.entity;
 
+import com.jj.swm.domain.study.dto.request.StudyCreateRequest;
+import com.jj.swm.domain.study.dto.request.StudyStatusUpdateRequest;
+import com.jj.swm.domain.study.dto.request.StudyUpdateRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -10,13 +13,15 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
 @Builder
 @Table(name = "study")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "update study set deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 public class Study extends BaseTimeEntity {
@@ -30,6 +35,9 @@ public class Study extends BaseTimeEntity {
 
     @Column(name = "content", nullable = false)
     private String content;
+
+    @Column(name = "open_chat_url", length = 300, nullable = false)
+    private String openChatUrl;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
@@ -59,4 +67,54 @@ public class Study extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "study")
+    private List<StudyTag> studyTags = new ArrayList<>();
+
+    public static Study of(User user, StudyCreateRequest createRequest) {
+        return Study.builder()
+                .title(createRequest.getTitle())
+                .content(createRequest.getContent())
+                .openChatUrl(createRequest.getOpenChatUrl())
+                .category(createRequest.getCategory())
+                .likeCount(0)
+                .commentCount(0)
+                .status(StudyStatus.ACTIVE)
+                .viewCount(0)
+                .thumbnail(createRequest.getThumbnail())
+                .user(user)
+                .build();
+    }
+
+    public void modify(StudyUpdateRequest updateRequest) {
+        this.title = updateRequest.getTitle();
+        this.content = updateRequest.getContent();
+        this.category = updateRequest.getCategory();
+        this.thumbnail = updateRequest.getThumbnail();
+        this.openChatUrl = updateRequest.getOpenChatUrl();
+    }
+
+    public void modifyStatus(StudyStatusUpdateRequest updateRequest) {
+        this.status = updateRequest.getStatus();
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount++;
+    }
+
+    public void decrementLikeCount() {
+        this.likeCount = Math.max(0, this.likeCount - 1);
+    }
+
+    public void incrementCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decrementCommentCount() {
+        this.commentCount = Math.max(0, this.commentCount - 1);
+    }
+
+    public void incrementViewCount() {
+        this.viewCount++;
+    }
 }

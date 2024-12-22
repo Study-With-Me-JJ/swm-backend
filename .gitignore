@@ -29,6 +29,7 @@ application-dev.yml
 application-local.yml
 application-prod.yml
 application-test.yml
+src/main/generated
 
 ### NetBeans ###
 /nbproject/private/
@@ -43,5 +44,3 @@ application-test.yml
 ### Docker Data ###
 docker/data/**
 docker/postgres_data/**
-
-src/main/generated

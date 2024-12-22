@@ -7,8 +7,8 @@ import lombok.*;
 @Entity
 @Builder
 @Table(name = "study_image")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class StudyImage {
 
     @Id
@@ -21,4 +21,11 @@ public class StudyImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
+
+    public static StudyImage of(Study study, String imageUrl) {
+        return StudyImage.builder()
+                .imageUrl(imageUrl)
+                .study(study)
+                .build();
+    }
 }
