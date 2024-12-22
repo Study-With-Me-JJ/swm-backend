@@ -33,3 +33,6 @@ studyroom:
   review:
     page:
       size: 3
+  qna:
+    page:
+      size: 3
