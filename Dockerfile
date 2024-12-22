@@ -29,13 +29,6 @@ RUN yum update -y && \
     # Google Chrome 설치
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
     yum install -y ./google-chrome-stable_current_x86_64.rpm && \
-    # ChromeDriver 다운로드 및 설치
-    CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
-    wget https://chromedriver.storage.googleapis.com/${CHROME_DRIVER_VERSION}/chromedriver_linux64.zip && \
-    unzip chromedriver_linux64.zip -d /usr/local/bin/ && \
-    chmod +x /usr/local/bin/chromedriver && \
-    # 설치된 파일 정리
-    rm -f google-chrome-stable_current_x86_64.rpm chromedriver_linux64.zip && \
     yum clean all
 
 # Chrome 환경변수 설정
