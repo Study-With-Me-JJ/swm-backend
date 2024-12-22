@@ -1,43 +1,37 @@
-# 1단계: 빌드 이미지
-FROM amazoncorretto:21 as builder
+#=========================================================================
+## BUILD STAGE 1 - JRE 추출
+# Step 1: Amazon Corretto JDK 기반으로 빌더 이미지 생성
+FROM amazoncorretto:21-alpine3.18 as builder-jre
 
-# 작업 디렉토리 설정
+# Step 2: binutils 패키지 설치 (오브젝트 파일을 복사하거나 변환시 필요)
+RUN apk add --no-cache binutils
+
+# Step 3: jlink를 사용하여 최소한의 JRE 생성
+RUN $JAVA_HOME/bin/jlink \
+         --module-path "$JAVA_HOME/jmods" \
+         --verbose \
+         --add-modules ALL-MODULE-PATH \
+         --strip-debug \
+         --no-man-pages \
+         --no-header-files \
+         --compress=2 \
+         --output /jre
+
+
+#=========================================================================
+## BUILD STAGE 2 - APP 실행
+
+FROM alpine:3.18.4
+
+ENV JAVA_HOME=/jre
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
+COPY --from=builder-jre /jre $JAVA_HOME
+
 WORKDIR /app
+COPY build/libs/*-SNAPSHOT.jar app.jar
 
-# Gradle wrapper와 소스 코드 복사
-COPY gradlew gradlew
-COPY gradle gradle
-COPY build.gradle settings.gradle ./
-COPY src ./src
-COPY swm-backend-secret ./swm-backend-secret
+RUN apk add --no-cache \
+   chromium
 
-# Gradle 캐시를 활용한 종속성 미리 다운로드
-RUN ./gradlew dependencies --no-daemon --stacktrace
-
-# 애플리케이션 빌드
-RUN ./gradlew bootJar --no-daemon --stacktrace
-
-# 2단계: 런타임 이미지
-FROM amazoncorretto:21 as runtime
-
-# 작업 디렉토리 설정
-WORKDIR /app
-
-# Chrome 및 ChromeDriver 설치를 위한 패키지 업데이트
-RUN yum update -y && \
-    yum install -y wget unzip && \
-    # Google Chrome 설치
-    wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
-    yum install -y ./google-chrome-stable_current_x86_64.rpm && \
-    rm google-chrome-stable_current_x86_64.rpm && \
-    yum clean all
-
-# Chrome 환경변수 설정
-ENV GOOGLE_CHROME_BIN=/usr/bin/google-chrome
-ENV CHROMEDRIVER=/usr/local/bin/chromedriver
-
-# 빌드된 JAR 파일 복사
-COPY --from=builder /app/build/libs/*.jar app.jar
-
-# 애플리케이션 실행
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
