@@ -13,8 +13,6 @@ import java.util.List;
 @Repository
 public interface StudyRoomTagRepository extends JpaRepository<StudyRoomTag, Long>, JdbcTagRepository {
 
-    List<StudyRoomTag> findAllByIdInAndStudyRoom(List<Long> tagIds, StudyRoom studyRoom);
-
     int countStudyRoomTagByIdInAndStudyRoom(List<Long> tagIds, StudyRoom studyRoom);
 
     @Modifying

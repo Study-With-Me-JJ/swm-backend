@@ -1,6 +1,5 @@
 package com.jj.swm.domain.studyroom.service;
 
-import com.jj.swm.domain.studyroom.dto.response.GetStudyRoomReviewReplyResponse;
 import com.jj.swm.domain.studyroom.dto.response.GetStudyRoomReviewResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.repository.StudyRoomReviewRepository;

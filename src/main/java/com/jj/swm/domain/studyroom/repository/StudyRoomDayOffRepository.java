@@ -13,11 +13,7 @@ import java.util.List;
 @Repository
 public interface StudyRoomDayOffRepository extends JpaRepository<StudyRoomDayOff, Long>, JdbcDayOffRepository {
 
-    List<StudyRoomDayOff> findAllByIdInAndStudyRoom(List<Long> dayOffIds, StudyRoom studyRoom);
-
     int countStudyRoomDayOffByIdInAndStudyRoom(List<Long> dayOffIds, StudyRoom studyRoom);
-
-    void deleteByStudyRoom(StudyRoom studyRoom);
 
     List<StudyRoomDayOff> findAllByStudyRoomId(Long studyRoomId);
 

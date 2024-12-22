@@ -15,8 +15,6 @@ import java.util.List;
 public interface StudyRoomOptionInfoRepository extends
         JpaRepository<StudyRoomOptionInfo, Long>, JdbcOptionInfoRepository {
 
-    List<StudyRoomOptionInfo> findAllByIdInAndStudyRoom(List<Long> optionIds, StudyRoom studyRoom);
-
     int countStudyRoomOptionInfoByIdInAndStudyRoom(List<Long> optionIds, StudyRoom studyRoom);
 
     List<StudyRoomOptionInfo> findAllByStudyRoomId(Long studyRoomId);

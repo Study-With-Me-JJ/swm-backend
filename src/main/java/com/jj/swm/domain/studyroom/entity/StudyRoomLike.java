@@ -3,6 +3,7 @@ package com.jj.swm.domain.studyroom.entity;
 import com.jj.swm.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

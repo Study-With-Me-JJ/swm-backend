@@ -13,8 +13,6 @@ import java.util.List;
 @Repository
 public interface StudyRoomImageRepository extends JpaRepository<StudyRoomImage, Long>, JdbcImageRepository {
 
-    List<StudyRoomImage> findAllByIdInAndStudyRoom(List<Long> imageIds, StudyRoom studyRoom);
-
     int countStudyRoomImageByIdInAndStudyRoom(List<Long> imageIds, StudyRoom studyRoom);
 
     List<StudyRoomImage> findAllByStudyRoomId(Long studyRoomId);
