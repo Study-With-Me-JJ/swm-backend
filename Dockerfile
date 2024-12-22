@@ -29,6 +29,7 @@ RUN yum update -y && \
     # Google Chrome 설치
     wget https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm && \
     yum install -y ./google-chrome-stable_current_x86_64.rpm && \
+    rm google-chrome-stable_current_x86_64.rpm && \
     yum clean all
 
 # Chrome 환경변수 설정
