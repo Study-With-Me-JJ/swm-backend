@@ -1,6 +1,7 @@
 package com.jj.swm.domain.studyroom.entity;
 
-import com.jj.swm.domain.studyroom.dto.request.StudyRoomCreateRequest;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomRequest;
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
 import com.jj.swm.domain.user.entity.User;
@@ -12,10 +13,12 @@ import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE study_room SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE study_room SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @Table(name = "study_room")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -81,6 +84,12 @@ public class StudyRoom extends BaseTimeEntity {
     @Column(name = "entire_max_headcount", nullable = false)
     private int entireMaxHeadcount;
 
+    @Column(name = "entire_min_price_per_hour", nullable = false)
+    private int entireMinPricePerHour;
+
+    @Column(name = "entire_max_price_per_hour", nullable = false)
+    private int entireMaxPricePerHour;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -88,7 +97,13 @@ public class StudyRoom extends BaseTimeEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public static StudyRoom of(StudyRoomCreateRequest request) {
+    @OneToMany(mappedBy = "studyRoom")
+    private List<StudyRoomTag> tags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyRoom")
+    private List<StudyRoomOptionInfo> optionInfos = new ArrayList<>();
+
+    public static StudyRoom of(CreateStudyRoomRequest request) {
         return StudyRoom.builder()
                 .title(request.getTitle())
                 .subtitle(request.getSubtitle())
@@ -105,6 +120,8 @@ public class StudyRoom extends BaseTimeEntity {
                 .minReserveTime(request.getMinReserveTime())
                 .entireMinHeadcount(request.getEntireMinHeadcount())
                 .entireMaxHeadcount(request.getEntireMaxHeadcount())
+                .entireMaxPricePerHour(request.getEntireMaxPricePerHour())
+                .entireMinPricePerHour(request.getEntireMinPricePerHour())
                 .build();
     }
 
@@ -114,4 +131,42 @@ public class StudyRoom extends BaseTimeEntity {
         user.addStudyRoom(this);
     }
 
+    public void modifyStudyRoom(UpdateStudyRoomRequest request) {
+        this.title = request.getTitle();
+        this.subtitle = request.getSubtitle();
+        this.introduce = request.getIntroduce();
+        this.notice = request.getNotice();
+        this.guideline = request.getGuideline();
+        this.openingTime = request.getOpeningTime();
+        this.closingTime = request.getClosingTime();
+        this.address = request.getAddress();
+        this.point = request.getPoint();
+        this.thumbnail = request.getThumbnail();
+        this.referenceUrl = request.getReferenceUrl();
+        this.phoneNumber = request.getPhoneNumber();
+        this.minReserveTime = request.getMinReserveTime();
+        this.entireMinHeadcount = request.getEntireMinHeadcount();
+        this.entireMaxHeadcount = request.getEntireMaxHeadcount();
+    }
+
+    // 스터디 룸 연계 개수 카운트 메소드
+    public void likeStudyRoom() {
+        this.likeCount++;
+    }
+
+    public void unLikeStudyRoom(){
+        this.likeCount = Math.max(0, this.likeCount - 1);
+    }
+
+    public void addReviewStudyRoom(int rating) {
+        this.averageRating = (this.averageRating * this.reviewCount + rating) / ++this.reviewCount;
+    }
+
+    public void updateAverageRating(int oldRating, int newRating) {
+        this.averageRating += (double) (newRating - oldRating) / this.reviewCount;
+    }
+
+    public void deleteReviewStudyRoom(int rating) {
+        this.averageRating = (this.averageRating * this.reviewCount - rating) / --this.reviewCount;
+    }
 }

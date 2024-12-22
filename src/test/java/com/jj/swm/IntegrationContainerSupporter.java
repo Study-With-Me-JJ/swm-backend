@@ -1,20 +1,32 @@
 package com.jj.swm;
 
-import org.springframework.boot.test.context.SpringBootTest;
+import com.jj.swm.global.config.JpaConfig;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.stereotype.Service;
 import org.testcontainers.utility.DockerImageName;
 
-@SpringBootTest
+@DataJpaTest(
+        includeFilters = {
+                @Filter(type = FilterType.ANNOTATION, value = {Service.class}),
+        }
+)
 @ActiveProfiles("test")
 @Testcontainers
+@Import(JpaConfig.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public abstract class IntegrationContainerSupporter {
 
     private static final String REDIS_IMAGE = "bitnami/valkey:8.0.1";

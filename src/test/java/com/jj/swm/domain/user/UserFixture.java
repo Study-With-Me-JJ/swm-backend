@@ -10,6 +10,16 @@ public class UserFixture {
 
     public static final UUID uuid = UUID.randomUUID();
 
+    public static User createRoomAdmin() {
+        return User.builder()
+                .id(uuid)
+                .nickname("test")
+                .profileImageUrl("http://test.png")
+                .userRole(RoleType.USER)
+                .studyRooms(new ArrayList<>())
+                .build();
+    }
+
     public static User createUser() {
         return User.builder()
                 .id(uuid)

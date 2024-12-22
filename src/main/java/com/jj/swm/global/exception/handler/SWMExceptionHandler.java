@@ -23,7 +23,7 @@ public class SWMExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse<Void> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.error("MethodArgumentNotValidException: {}", e.getDetailMessageArguments());
+        log.error("MethodArgumentNotValidException: {}", e.getMessage());
         return ApiResponse.fail(ErrorCode.NOT_VALID, "Not Valid Argument");
     }
 

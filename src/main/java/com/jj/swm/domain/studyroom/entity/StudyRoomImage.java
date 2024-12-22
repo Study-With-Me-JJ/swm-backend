@@ -21,4 +21,8 @@ public class StudyRoomImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public void modifyImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

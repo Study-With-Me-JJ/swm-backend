@@ -1,12 +1,10 @@
 package com.jj.swm.domain.studyroom.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
-import com.jj.swm.domain.user.entity.User;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -15,10 +13,10 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class StudyRoomCreateRequest {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class CreateStudyRoomRequest {
 
     @NotBlank
     private String title;
@@ -59,17 +57,17 @@ public class StudyRoomCreateRequest {
 
     private List<DayOfWeek> dayOffs;
 
-    @NotNull
+    @NotEmpty
     private List<String> imageUrls;
 
-    @NotNull
+    @NotEmpty
     private List<StudyRoomType> types;
 
-    @NotNull
+    @NotEmpty
     private List<StudyRoomOption> options;
 
-    @NotNull
-    private List<StudyRoomReservationTypeCreateRequest> reservationTypes;
+    @NotEmpty
+    private List<CreateStudyRoomReservationTypeRequest> reservationTypes;
 
     @Min(1)
     @NotNull
@@ -82,4 +80,12 @@ public class StudyRoomCreateRequest {
     @Min(2)
     @NotNull
     private Integer entireMaxHeadcount;
+
+    @NotNull
+    @Positive
+    private Integer entireMinPricePerHour;
+
+    @NotNull
+    @Positive
+    private Integer entireMaxPricePerHour;
 }

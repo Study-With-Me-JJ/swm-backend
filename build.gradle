@@ -60,6 +60,9 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
     testImplementation 'org.testcontainers:postgresql:1.20.4'
 
+    // Jackson
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2' // Jackson 버전에 맞게 수정
+
     //QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"

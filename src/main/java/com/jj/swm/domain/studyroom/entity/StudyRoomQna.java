@@ -14,10 +14,10 @@ import java.util.List;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE study_room_qna SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE study_room_qna SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "study_room_qna")
 public class StudyRoomQna extends BaseTimeEntity {
@@ -46,4 +46,20 @@ public class StudyRoomQna extends BaseTimeEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent", orphanRemoval = true)
     private List<StudyRoomQna> children = new ArrayList<>();
+
+    public static StudyRoomQna of(String comment, StudyRoom studyRoom, User user) {
+        return StudyRoomQna.builder()
+                .comment(comment)
+                .studyRoom(studyRoom)
+                .user(user)
+                .build();
+    }
+
+    public void addParent(StudyRoomQna parent) {
+        this.parent = parent;
+    }
+
+    public void modify(String comment){
+        this.comment = comment;
+    }
 }

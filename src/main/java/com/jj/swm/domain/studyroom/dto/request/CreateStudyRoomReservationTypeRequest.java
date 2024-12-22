@@ -7,10 +7,10 @@ import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class StudyRoomReservationTypeCreateRequest {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class CreateStudyRoomReservationTypeRequest {
 
     @Min(1)
     @NotNull

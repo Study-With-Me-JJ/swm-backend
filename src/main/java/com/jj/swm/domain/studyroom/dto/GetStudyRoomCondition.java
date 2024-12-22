@@ -1,0 +1,34 @@
+package com.jj.swm.domain.studyroom.dto;
+
+import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
+public class GetStudyRoomCondition {
+
+    private String title;
+
+    private int headCount;
+
+    private int minPricePerHour = 0;
+
+    private int maxPricePerHour = 300000;
+
+    private List<StudyRoomOption> options = new ArrayList<>();
+
+    private SortCriteria sortCriteria = SortCriteria.STARS;
+
+    private Long lastStudyRoomId;
+
+    private Integer lastSortValue;
+
+    private Double lastAverageRatingValue = 5.0;
+
+    private int page;
+}
+

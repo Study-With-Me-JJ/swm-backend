@@ -1,5 +1,6 @@
 package com.jj.swm.domain.studyroom.entity;
 
+import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -8,13 +9,15 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE study_room_review SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE study_room_review SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Table(name = "study_room_review")
 public class StudyRoomReview extends BaseTimeEntity {
@@ -39,4 +42,24 @@ public class StudyRoomReview extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    @OneToMany(mappedBy = "studyRoomReview")
+    private List<StudyRoomReviewReply> replies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyRoomReview")
+    private List<StudyRoomReviewImage> images = new ArrayList<>();
+
+    public static StudyRoomReview of(String comment, int rating, StudyRoom studyRoom, User user) {
+        return StudyRoomReview.builder()
+                .comment(comment)
+                .rating(rating)
+                .studyRoom(studyRoom)
+                .user(user)
+                .build();
+    }
+
+    public void modifyReview(UpdateStudyRoomReviewRequest request) {
+        this.comment = request.getComment();
+        this.rating = request.getRating();
+    }
 }

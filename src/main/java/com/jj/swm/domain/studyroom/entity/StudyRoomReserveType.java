@@ -1,6 +1,6 @@
 package com.jj.swm.domain.studyroom.entity;
 
-import com.jj.swm.domain.user.entity.User;
+import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReservationTypeRequest;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE study_room_reserve_type SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE study_room_reserve_type SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -38,4 +38,10 @@ public class StudyRoomReserveType extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public void modifyReserveType(CreateStudyRoomReservationTypeRequest request) {
+        this.maxHeadcount = request.getMaxHeadcount();
+        this.reservationOption = request.getReservationOption();
+        this.pricePerHour = request.getPricePerHour();
+    }
 }

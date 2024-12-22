@@ -26,3 +26,10 @@ study:
   reply:
     page:
       size: 5
+
+studyroom:
+  page:
+    size: 10
+  review:
+    page:
+      size: 3
