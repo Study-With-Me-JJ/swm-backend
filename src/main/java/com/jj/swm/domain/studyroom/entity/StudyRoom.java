@@ -18,7 +18,7 @@ import java.util.List;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE study_room SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE study_room SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @Table(name = "study_room")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
