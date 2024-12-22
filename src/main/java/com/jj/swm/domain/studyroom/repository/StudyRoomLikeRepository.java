@@ -4,6 +4,7 @@ import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomLike;
 import com.jj.swm.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,8 @@ public interface StudyRoomLikeRepository extends JpaRepository<StudyRoomLike, Lo
     Optional<StudyRoomLike> findByStudyRoomIdAndUserId(Long studyRoomId, UUID userId);
 
     int countStudyRoomLikeByStudyRoom(StudyRoom studyRoom);
+
+    @Modifying
+    @Query("delete from StudyRoomLike s where s.studyRoom.id = ?1")
+    void deleteAllByStudyRoomId(Long studyRoomId);
 }

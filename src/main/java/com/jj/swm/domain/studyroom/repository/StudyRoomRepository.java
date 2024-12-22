@@ -5,6 +5,7 @@ import com.jj.swm.domain.studyroom.repository.custom.CustomStudyRoomRepository;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,9 @@ public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long>, Cus
 
     @Query("select s from StudyRoom s join fetch s.user " +
             "where s.id = :studyRoomId and s.user.id = :userId")
-    Optional<StudyRoom> findByIdAndUserId(@Param("studyRoomId") Long studyRoomId, @Param("userId") UUID userId);
+    Optional<StudyRoom> findByIdAndUserIdWithUser(@Param("studyRoomId") Long studyRoomId, @Param("userId") UUID userId);
+
+    boolean existsByIdAndUserId(Long studyRoomId, UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from StudyRoom s where s.id = :studyRoomId")
@@ -29,4 +32,8 @@ public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long>, Cus
 
     @Query("select distinct(s) from StudyRoom s join fetch s.tags where s.id = ?1")
     Optional<StudyRoom> findByIdWithTags(Long studyRoomId);
+
+    @Modifying
+    @Query("update StudyRoom s set s.deletedAt = CURRENT_TIMESTAMP where s.id = ?1")
+    void deleteByIdWithJpql(Long studyRoomId);
 }

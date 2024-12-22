@@ -29,11 +29,15 @@ public interface StudyRoomQnaRepository extends JpaRepository<StudyRoomQna, Long
             "or s.parent.id = ?1")
     void deleteAllByIdOrParentIdAndUserId(Long studyRoomQnaId, UUID userId);
 
+    @Query("select s from StudyRoomQna s join fetch s.user where s.studyRoom.id = ?1 and s.parent is null")
+    Page<StudyRoomQna> findPagedQnaWithUserByStudyRoomId(Long studyRoomId, Pageable pageable);
+
+    @Modifying
+    @Query("update StudyRoomQna s set s.deletedAt = CURRENT_TIMESTAMP where s.studyRoom.id = ?1")
+    void deleteAllByStudyRoomId(Long studyRoomId);
+
     // Test 코드를 위한 JPQL
     @Modifying
     @Query(value = "DELETE FROM study_room_qna", nativeQuery = true)
     void deleteAllByIdOrParentId(@Param("studyRoomQnaId") Long studyRoomQnaId);
-
-    @Query("select s from StudyRoomQna s join fetch s.user where s.studyRoom.id = ?1 and s.parent is null")
-    Page<StudyRoomQna> findPagedQnaWithUserByStudyRoomId(Long studyRoomId, Pageable pageable);
 }

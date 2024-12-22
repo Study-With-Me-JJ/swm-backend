@@ -25,5 +25,7 @@ public interface StudyRoomReserveTypeRepository extends
 
     List<StudyRoomReserveType> findAllByStudyRoomId(Long studyRoomId);
 
+    @Modifying
+    @Query("update StudyRoomReserveType s set s.deletedAt = CURRENT_TIMESTAMP where s.studyRoom.id = ?1")
     void deleteAllByStudyRoomId(Long studyRoomId);
 }

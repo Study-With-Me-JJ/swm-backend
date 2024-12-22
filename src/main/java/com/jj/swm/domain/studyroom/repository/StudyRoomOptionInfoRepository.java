@@ -21,5 +21,7 @@ public interface StudyRoomOptionInfoRepository extends
 
     List<StudyRoomOptionInfo> findAllByStudyRoomId(Long studyRoomId);
 
+    @Modifying
+    @Query("delete from StudyRoomOptionInfo s where s.studyRoom.id = ?1")
     void deleteAllByStudyRoomId(Long studyRoomId);
 }

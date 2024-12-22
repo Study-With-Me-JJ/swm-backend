@@ -19,5 +19,7 @@ public interface StudyRoomImageRepository extends JpaRepository<StudyRoomImage, 
 
     List<StudyRoomImage> findAllByStudyRoomId(Long studyRoomId);
 
+    @Modifying
+    @Query("delete from StudyRoomImage s where s.studyRoom.id = ?1")
     void deleteAllByStudyRoomId(Long studyRoomId);
 }

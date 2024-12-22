@@ -40,6 +40,10 @@ public class StudyRoomCommandService {
     private final StudyRoomTagRepository tagRepository;
     private final StudyRoomLikeRepository likeRepository;
     private final StudyRoomBookmarkRepository bookmarkRepository;
+    private final StudyRoomReviewRepository reviewRepository;
+    private final StudyRoomReviewReplyRepository reviewReplyRepository;
+    private final StudyRoomReviewImageRepository reviewImageRepository;
+    private final StudyRoomQnaRepository qnaRepository;
 
     @Transactional
     public void create(CreateStudyRoomRequest request, UUID userId){
@@ -92,17 +96,10 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void delete(Long studyRoomId, UUID userId) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(studyRoomId, userId);
-
-        imageRepository.deleteAllByStudyRoomId(studyRoomId);
-        tagRepository.deleteAllByStudyRoomId(studyRoomId);
-        optionInfoRepository.deleteAllByStudyRoomId(studyRoomId);
-        typeInfoRepository.deleteAllByStudyRoomId(studyRoomId);
-        reserveTypeRepository.deleteAllByStudyRoomId(studyRoomId);
-        dayOffRepository.deleteAllByStudyRoomId(studyRoomId);
-        studyRoomRepository.delete(studyRoom);
-
-        // 좋아요, 이용후기, 이용후기 답글, QnA, QnA 답글, 좋아요 수, 북마크 수 삭제 필요
+        if(!studyRoomRepository.existsByIdAndUserId(studyRoomId, userId))
+            throw new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found");
+        else
+            deleteStudyRoomLogic(studyRoomId);
     }
 
     @Transactional
@@ -282,6 +279,29 @@ public class StudyRoomCommandService {
         }
     }
 
+    private void deleteStudyRoomLogic(Long studyRoomId) {
+        imageRepository.deleteAllByStudyRoomId(studyRoomId);
+        tagRepository.deleteAllByStudyRoomId(studyRoomId);
+        optionInfoRepository.deleteAllByStudyRoomId(studyRoomId);
+        typeInfoRepository.deleteAllByStudyRoomId(studyRoomId);
+        reserveTypeRepository.deleteAllByStudyRoomId(studyRoomId);
+        dayOffRepository.deleteAllByStudyRoomId(studyRoomId);
+        likeRepository.deleteAllByStudyRoomId(studyRoomId);
+        bookmarkRepository.deleteAllByStudyRoomId(studyRoomId);
+
+        List<StudyRoomReview> reviews = reviewRepository.findByStudyRoomId(studyRoomId);
+        List<Long> reviewIds = reviews.stream()
+                        .map(StudyRoomReview::getId)
+                        .toList();
+
+        reviewReplyRepository.deleteAllByStudyRoomReviewIdIn(reviewIds);
+        reviewImageRepository.deleteAllByStudyRoomReviewIdIn(reviewIds);
+
+        reviewRepository.deleteAllByReviewIds(reviewIds);
+        qnaRepository.deleteAllByStudyRoomId(studyRoomId);
+        studyRoomRepository.deleteByIdWithJpql(studyRoomId);
+    }
+
     private void validateDayOffs(List<DayOfWeek> dayOffs, StudyRoom studyRoom) {
         // DayOff 생성 및 저장
         if (dayOffs != null && !dayOffs.isEmpty()) {
@@ -302,7 +322,7 @@ public class StudyRoomCommandService {
     }
 
     private StudyRoom validateStudyRoomWithUserId(Long studyRoomId, UUID userId) {
-        return studyRoomRepository.findByIdAndUserId(studyRoomId, userId)
+        return studyRoomRepository.findByIdAndUserIdWithUser(studyRoomId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
     }
 
