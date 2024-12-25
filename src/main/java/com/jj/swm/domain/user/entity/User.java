@@ -1,6 +1,7 @@
 package com.jj.swm.domain.user.entity;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
+import com.jj.swm.domain.user.dto.CustomUserCreateRequest;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,5 +49,14 @@ public class User extends BaseTimeEntity {
 
     public void addStudyRoom(StudyRoom studyRoom) {
         studyRooms.add(studyRoom);
+    }
+
+    public static User from(CustomUserCreateRequest createRequest) {
+        return User.builder()
+                .id(UUID.randomUUID())
+                .nickname(createRequest.getNickname())
+                .profileImageUrl(createRequest.getProfileImageUrl())
+                .userRole(RoleType.USER)
+                .build();
     }
 }
