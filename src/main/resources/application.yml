@@ -26,13 +26,3 @@ study:
   reply:
     page:
       size: 5
-
-studyroom:
-  page:
-    size: 10
-  review:
-    page:
-      size: 3
-  qna:
-    page:
-      size: 3

@@ -7,9 +7,9 @@ import com.jj.swm.domain.studyroom.entity.*;
 import com.jj.swm.domain.studyroom.repository.*;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.common.enums.PageSize;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,24 +32,21 @@ public class StudyRoomQueryService {
     private final StudyRoomImageRepository imageRepository;
     private final StudyRoomTypeInfoRepository typeReInfoRepository;
 
-    @Value("${studyroom.page.size}")
-    private int studyRoomPageSize;
-
     @Transactional(readOnly = true)
     public PageResponse<GetStudyRoomResponse> getStudyRooms(
             GetStudyRoomCondition condition,
             UUID userId
     ) {
         List<StudyRoom> studyRooms
-                = studyRoomRepository.findAllWithPaginationAndCondition(studyRoomPageSize + 1, condition);
+                = studyRoomRepository.findAllWithPaginationAndCondition(PageSize.StudyRoom + 1, condition);
 
         if(studyRooms.isEmpty()) {
             return PageResponse.of(List.of(), false);
         }
 
-        boolean hasNext = studyRooms.size() > studyRoomPageSize;
+        boolean hasNext = studyRooms.size() > PageSize.StudyRoom;
 
-        List<StudyRoom> pagedStudyRooms = hasNext ? studyRooms.subList(0, studyRoomPageSize) : studyRooms;
+        List<StudyRoom> pagedStudyRooms = hasNext ? studyRooms.subList(0, PageSize.StudyRoom) : studyRooms;
 
         List<Long> studyRoomIds = pagedStudyRooms.stream()
                 .map(StudyRoom::getId)
