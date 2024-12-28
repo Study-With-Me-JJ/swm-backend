@@ -3,6 +3,7 @@ package com.jj.swm.global.exception.handler;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -31,6 +32,12 @@ public class SWMExceptionHandler {
     public ApiResponse<Void> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.error("HttpMessageNotReadableException: {}", e.getMessage());
         return ApiResponse.fail(ErrorCode.NOT_VALID, "JSON Format Error");
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ApiResponse<Void> handleConstraintViolationException(ConstraintViolationException e) {
+        log.error("ConstraintViolationException: {}", e.getMessage());
+        return ApiResponse.fail(ErrorCode.NOT_VALID, "Query Parameter Format Error");
     }
 
     @ExceptionHandler(IOException.class)
