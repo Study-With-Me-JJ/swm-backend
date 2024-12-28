@@ -4,6 +4,7 @@ import com.jj.swm.domain.studyroom.dto.response.GetStudyRoomReviewResponse;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.repository.StudyRoomReviewRepository;
 import com.jj.swm.global.common.dto.PageResponse;
+import com.jj.swm.global.common.enums.PageSize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -19,16 +20,13 @@ public class StudyRoomReviewQueryService {
 
     private final StudyRoomReviewRepository reviewRepository;
 
-    @Value("${studyroom.review.page.size}")
-    private int reviewPageSize;
-
     @Transactional(readOnly = true)
     public PageResponse<GetStudyRoomReviewResponse> getStudyRoomReviews(
             Long studyRoomId,
             boolean onlyImage,
             int pageNo
     ) {
-        Pageable pageable = PageRequest.of(pageNo, reviewPageSize, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(pageNo, PageSize.StudyRoomReview, Sort.by("id").descending());
 
         Page<StudyRoomReview> pagedReviews;
 
