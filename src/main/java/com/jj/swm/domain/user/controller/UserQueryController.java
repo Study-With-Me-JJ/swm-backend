@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -19,19 +18,17 @@ public class UserQueryController {
 
     private final UserQueryService userQueryService;
 
-    //중복 여부는 상태코드로 확인.
-    //바꾸고 싶으믄 바꾸셈
     @GetMapping("/v1/user/login-id/validation")
-    public ApiResponse<Void> validateUserLoginId(@Email @NotBlank @RequestParam("loginId") String loginId) {
+    public ApiResponse<Boolean> validateUserLoginId(@Email @NotBlank @RequestParam("loginId") String loginId) {
         userQueryService.validateLoginId(loginId);
 
-        return ApiResponse.ok(null);
+        return ApiResponse.ok(true);
     }
 
     @GetMapping("/v1/user/nickname/validation")
-    public ApiResponse<Void> validateUserNickname(@RequestParam("nickname") String nickname) {
+    public ApiResponse<Boolean> validateUserNickname(@RequestParam("nickname") String nickname) {
         userQueryService.validateNickname(nickname);
 
-        return ApiResponse.ok(null);
+        return ApiResponse.ok(true);
     }
 }

@@ -15,6 +15,7 @@ import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,8 +27,7 @@ public class UserCommandService {
     private final RedisService redisService;
     private final EmailService emailService;
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
-    private final UserQueryService userQueryService;
+    private final PasswordEncoder passwordEncoder;
     private final UserCredentialRepository userCredentialRepository;
 
     public void sendAuthCode(String loginId) {
@@ -58,16 +58,15 @@ public class UserCommandService {
 
     @Transactional
     public void createCustomUser(CustomUserCreateRequest createRequest) {
-        userQueryService.validateNickname(createRequest.getNickname());
+        validateNicknameAndLoginId(createRequest.getNickname(), createRequest.getLoginId());
 
         User user = User.from(createRequest);
         userRepository.save(user);
 
-        userQueryService.validateLoginId(createRequest.getLoginId());
         String storedAuthCode = redisService.getValue(RedisPrefix.AUTH_CODE.getValue() + createRequest.getLoginId());
 
         if (!AUTH_CODE_VERIFIED.equals(storedAuthCode)) {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "auth code mismatch");
+            throw new GlobalException(ErrorCode.FORBIDDEN, "Unverified Auth Code");
         }
 
         String encryptedPassword = passwordEncoder.encode(createRequest.getPassword());
@@ -75,5 +74,19 @@ public class UserCommandService {
 
         UserCredential userCredential = UserCredential.of(user, createRequest);
         userCredentialRepository.save(userCredential);
+    }
+
+    private void validateNicknameAndLoginId(String nickname, String loginId) {
+        boolean nicknameDuplicatedStatus = userRepository.existsByNickname(nickname);
+
+        if (nicknameDuplicatedStatus) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "duplicated nickname");
+        }
+
+        boolean loginIdDuplicatedStatus = userCredentialRepository.existsByLoginId(loginId);
+
+        if (loginIdDuplicatedStatus) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "duplicated loginId");
+        }
     }
 }

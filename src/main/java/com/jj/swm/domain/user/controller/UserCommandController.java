@@ -22,14 +22,13 @@ public class UserCommandController {
         return ApiResponse.ok(null);
     }
 
-    //상태코드로 정삭 여부 판별 -> 바디값 없음 ( 수정 원하면 수정 )
     @PostMapping("/v1/user/login-id/verification")
-    public ApiResponse<Void> verifyAuthCodeForLoginId(
+    public ApiResponse<Boolean> verifyAuthCodeForLoginId(
             @Email @NotBlank @RequestParam("loginId") String loginId, @RequestParam("authCode") String authCode
     ) {
         userCommandService.verifyAuthCode(loginId, authCode);
 
-        return ApiResponse.ok(null);
+        return ApiResponse.ok(true);
     }
 
     @PostMapping("/v1/custom/user")
