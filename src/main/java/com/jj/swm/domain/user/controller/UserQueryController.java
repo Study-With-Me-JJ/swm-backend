@@ -31,4 +31,9 @@ public class UserQueryController {
 
         return ApiResponse.ok(true);
     }
+
+    @GetMapping("/health")
+    public ApiResponse<String> healthCheck() {
+        return ApiResponse.ok("OK");
+    }
 }
