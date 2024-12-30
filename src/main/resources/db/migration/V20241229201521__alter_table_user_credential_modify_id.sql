@@ -1,0 +1,3 @@
+ALTER TABLE user_credential DROP COLUMN id;
+
+ALTER TABLE user_credential ADD COLUMN id BIGSERIAL PRIMARY KEY;

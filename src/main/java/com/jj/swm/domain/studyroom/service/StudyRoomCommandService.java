@@ -47,7 +47,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void create(CreateStudyRoomRequest request, UUID userId){
-        User user = validateRoomAdmin(userId);
+        User user = userRepository.getReferenceById(userId);
 
         StudyRoom studyRoom = StudyRoom.of(request);
         studyRoom.modifyRoomAdmin(user);
@@ -316,24 +316,19 @@ public class StudyRoomCommandService {
         }
     }
 
-    private User validateRoomAdmin(UUID userId) {
-        return userRepository.findByIdAndUserRole(userId, RoleType.ROOM_ADMIN)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "User Not Found"));
-    }
-
     private StudyRoom validateStudyRoomWithUserId(Long studyRoomId, UUID userId) {
         return studyRoomRepository.findByIdAndUserIdWithUser(studyRoomId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "StudyRoom Not Found"));
     }
 
     private StudyRoom validateStudyRoom(Long studyRoomId) {
         return studyRoomRepository.findById(studyRoomId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "StudyRoom Not Found"));
     }
 
     private StudyRoom validateStudyRoomWithLock(Long studyRoomId) {
         return studyRoomRepository.findByIdWithLock(studyRoomId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "StudyRoom Not Found"));
     }
 
     private void validateExistsLike(Long studyRoomId, UUID userId) {
