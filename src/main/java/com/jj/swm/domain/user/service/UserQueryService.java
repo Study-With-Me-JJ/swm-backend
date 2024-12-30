@@ -14,19 +14,11 @@ public class UserQueryService {
     private final UserRepository userRepository;
     private final UserCredentialRepository userCredentialRepository;
 
-    public void validateLoginId(String loginId) {
-        boolean loginIdDuplicatedStatus = userCredentialRepository.existsByLoginId(loginId);
-
-        if (loginIdDuplicatedStatus) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "duplicated loginId");
-        }
+    public boolean validateLoginId(String loginId) {
+        return userCredentialRepository.existsByLoginId(loginId);
     }
 
-    public void validateNickname(String nickname) {
-        boolean nicknameDuplicatedStatus = userRepository.existsByNickname(nickname);
-
-        if (nicknameDuplicatedStatus) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "duplicated nickname");
-        }
+    public boolean validateNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 }

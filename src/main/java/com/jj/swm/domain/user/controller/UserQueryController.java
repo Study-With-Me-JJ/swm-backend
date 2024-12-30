@@ -20,16 +20,16 @@ public class UserQueryController {
 
     @GetMapping("/v1/user/login-id/validation")
     public ApiResponse<Boolean> validateUserLoginId(@Email @NotBlank @RequestParam("loginId") String loginId) {
-        userQueryService.validateLoginId(loginId);
+        boolean response = userQueryService.validateLoginId(loginId);
 
-        return ApiResponse.ok(true);
+        return ApiResponse.ok(response);
     }
 
     @GetMapping("/v1/user/nickname/validation")
     public ApiResponse<Boolean> validateUserNickname(@RequestParam("nickname") String nickname) {
-        userQueryService.validateNickname(nickname);
+        boolean response = userQueryService.validateNickname(nickname);
 
-        return ApiResponse.ok(true);
+        return ApiResponse.ok(response);
     }
 
     @GetMapping("/health")
