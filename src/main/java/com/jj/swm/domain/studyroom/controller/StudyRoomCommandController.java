@@ -9,6 +9,7 @@ import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -21,6 +22,7 @@ public class StudyRoomCommandController {
 
     private final StudyRoomCommandService commandService;
 
+    @Secured("ROLE_ROOM_ADMIN")
     @PostMapping("/v1/studyroom")
     public ApiResponse<Void> create(
             @Valid @RequestBody CreateStudyRoomRequest request, Principal principal
@@ -30,6 +32,7 @@ public class StudyRoomCommandController {
         return ApiResponse.created(null);
     }
 
+    @Secured("ROLE_ROOM_ADMIN")
     @PatchMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> update(
             @Valid @RequestBody UpdateStudyRoomRequest request,
@@ -45,6 +48,7 @@ public class StudyRoomCommandController {
         return ApiResponse.ok(null);
     }
 
+    @Secured("ROLE_ROOM_ADMIN")
     @PatchMapping("/v1/studyroom/settings/{studyRoomId}")
     public ApiResponse<Void> updateSettings(
             @Valid @RequestBody UpdateStudyRoomSettingRequest request,
@@ -60,6 +64,7 @@ public class StudyRoomCommandController {
         return ApiResponse.ok(null);
     }
 
+    @Secured("ROLE_ROOM_ADMIN")
     @DeleteMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> delete(@PathVariable("studyRoomId") Long studyRoomId, Principal principal) {
         commandService.delete(studyRoomId, UUID.fromString(principal.getName()));
