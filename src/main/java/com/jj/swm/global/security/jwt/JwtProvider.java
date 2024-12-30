@@ -37,7 +37,7 @@ public class JwtProvider {
     @Value("${jwt.secret-key}")
     private String key;
     private SecretKey secretKey;
-    private final TokenService tokenService;
+    private final TokenRedisService tokenRedisService;
 
     private static final String KEY_ROLE = "role";
 
@@ -68,7 +68,7 @@ public class JwtProvider {
 
     public String generateRefreshToken(Authentication authentication) {
         String refreshToken = createToken(authentication, ExpirationTime.REFRESH_TOKEN.getValue());
-        tokenService.saveRefreshToken(authentication.getName(), refreshToken); // redis에 저장
+        tokenRedisService.saveRefreshToken(authentication.getName(), refreshToken); // redis에 저장
 
         return refreshToken;
     }
@@ -109,13 +109,13 @@ public class JwtProvider {
             validateToken(refreshToken);
             String userId = getUserSubject(refreshToken);
 
-            return generateAccessToken(getAuthentication(tokenService.findByUserIdOrThrow(userId)));
+            return generateAccessToken(getAuthentication(tokenRedisService.findByUserIdOrThrow(userId)));
         }
         return null;
     }
 
     public void validateLogout(String accessToken) {
-        String isLogout = tokenService.findByAccessToken(accessToken);
+        String isLogout = tokenRedisService.findByAccessToken(accessToken);
 
         if(isLogout != null && isLogout.equals("logout"))
             throw new TokenException(ErrorCode.INVALID_TOKEN, "User Logout");
