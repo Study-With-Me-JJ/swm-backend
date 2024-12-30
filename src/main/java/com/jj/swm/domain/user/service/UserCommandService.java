@@ -42,18 +42,20 @@ public class UserCommandService {
         emailService.sendEmail(loginId, randomCode);
     }
 
-    public void verifyAuthCode(String loginId, String authCode) {
+    public boolean verifyAuthCode(String loginId, String authCode) {
         String storedAuthCode = redisService.getValue(RedisPrefix.AUTH_CODE.getValue() + loginId);
 
         if (!authCode.equals(storedAuthCode)) {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "auth code mismatch");
-        }
+            return false;
+        } else {
+            redisService.setValueWithExpiration(
+                    RedisPrefix.AUTH_CODE.getValue() + loginId,
+                    AUTH_CODE_VERIFIED,
+                    ExpirationTime.EMAIL_VERIFIED.getValue()
+            );
 
-        redisService.setValueWithExpiration(
-                RedisPrefix.AUTH_CODE.getValue() + loginId,
-                AUTH_CODE_VERIFIED,
-                ExpirationTime.EMAIL_VERIFIED.getValue()
-        );
+            return true;
+        }
     }
 
     @Transactional
