@@ -1,6 +1,6 @@
 package com.jj.swm.global.security.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.auth.TokenException;
 import com.jj.swm.global.security.AllowedPaths;
@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -28,6 +29,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
@@ -41,6 +43,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(StringUtils.hasText(accessToken)){
             // accessToken 검증
+            UUID userId = UUID.fromString(jwtProvider.getUserSubject(accessToken));
+            userRepository.findById(userId).orElseThrow(() -> new TokenException(ErrorCode.NOT_VALID, "User Not Found"));
+
             jwtProvider.validateLogout(accessToken);
             jwtProvider.validateToken(accessToken);
 
