@@ -33,13 +33,15 @@ public class UserCommandService {
     public void sendAuthCode(String loginId) {
         String randomCode = RandomUtils.generateRandomCode();
 
-        redisService.setValueWithExpiration(
-                RedisPrefix.AUTH_CODE.getValue() + loginId,
-                randomCode,
-                ExpirationTime.EMAIL.getValue()
-        );
-
-        emailService.sendEmail(loginId, randomCode);
+        emailService.sendEmail(loginId, randomCode).thenAccept(success -> {
+            if(success) {
+                redisService.setValueWithExpiration(
+                        RedisPrefix.AUTH_CODE.getValue() + loginId,
+                        randomCode,
+                        ExpirationTime.EMAIL.getValue()
+                );
+            }
+        });
     }
 
     public boolean verifyAuthCode(String loginId, String authCode) {
