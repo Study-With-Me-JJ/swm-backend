@@ -12,6 +12,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,8 +23,8 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Async
-    public void sendEmail(String toEmail, String text) {
+    @Async("asyncExecutor")
+    public CompletableFuture<Boolean> sendEmail(String toEmail, String text) {
         String htmlContent = createHTMLEmail(text);
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -33,11 +35,13 @@ public class EmailService {
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
+
+            return CompletableFuture.completedFuture(true);
         } catch (MessagingException | MailException e) {
             log.error("MailService.sendEmail exception occur toEmail: {}, " +
                     "title: {}, text: {}", toEmail, title, text);
 
-            throw new GlobalException(ErrorCode.INTERNAL_SERVER_ERROR, "Email Send Error");
+            return CompletableFuture.completedFuture(false);
         }
     }
 
