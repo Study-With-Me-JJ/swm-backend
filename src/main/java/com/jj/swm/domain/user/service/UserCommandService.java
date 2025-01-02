@@ -1,6 +1,7 @@
 package com.jj.swm.domain.user.service;
 
 import com.jj.swm.domain.user.dto.CustomUserCreateRequest;
+import com.jj.swm.domain.user.dto.request.UpgradeRoomAdminRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.entity.UserCredential;
 import com.jj.swm.domain.user.repository.UserCredentialRepository;
@@ -14,9 +15,10 @@ import com.jj.swm.global.common.util.RandomUtils;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,8 @@ public class UserCommandService {
 
     private final RedisService redisService;
     private final EmailService emailService;
+    private final BusinessStatusService businessStatusService;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserCredentialRepository userCredentialRepository;
@@ -91,6 +95,18 @@ public class UserCommandService {
 
         if (loginIdDuplicatedStatus) {
             throw new GlobalException(ErrorCode.NOT_VALID, "duplicated loginId");
+        }
+    }
+
+    @Transactional
+    public void validateBusinessStatus(UpgradeRoomAdminRequest request, UUID userId) {
+        if (!businessStatusService.validateBusinessStatus(request)) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "국세청에 등록되지 않은 사업자등록번호입니다.");
+        } else {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "User Not Found"));
+
+            user.modifyRoleRoomAdmin();
         }
     }
 }
