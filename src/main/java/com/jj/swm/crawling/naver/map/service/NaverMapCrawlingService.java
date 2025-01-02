@@ -100,8 +100,6 @@ public class NaverMapCrawlingService implements DisposableBean {
                 log.info("Found {} study rooms for region: {}", studyRooms.size(), region.getKorName());
                 for (WebElement room : studyRooms) {
                     try {
-                        String thumbnail = getAttributeSafely(By.cssSelector(".place_thumb img"), room, "src");
-
                         // 클릭하기 전에 클릭 가능 상태인지 확인
                         WebElement clickableElement = wait.until(ExpectedConditions.elementToBeClickable(room.findElement(By.cssSelector(".place_bluelink.C6RjW"))));
                         driver.executeScript("arguments[0].click()", clickableElement);
@@ -123,7 +121,7 @@ public class NaverMapCrawlingService implements DisposableBean {
                         } catch (NoSuchElementException | TimeoutException ignored) {
                             // 내용 확장 버튼이 없는 경우 무시
                         }
-
+                        String thumbnail = getAttributeSafely(By.cssSelector(".place_thumb.QX0J7 img"), driver, "src");
                         String description = getElementTextSafely(By.className("zPfVt"), driver);
                         String number = getElementTextSafely(By.className("xlx7Q"), driver);
                         String link = getElementTextSafely(By.className("jO09N"), driver);
@@ -180,6 +178,14 @@ public class NaverMapCrawlingService implements DisposableBean {
     }
 
     private String getAttributeSafely(By selector, WebElement context, String attribute) {
+        try {
+            return context.findElement(selector).getAttribute(attribute);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    private String getAttributeSafely(By selector, ChromeDriver context, String attribute) {
         try {
             return context.findElement(selector).getAttribute(attribute);
         } catch (NoSuchElementException e) {

@@ -10,6 +10,8 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -136,6 +138,20 @@ public class S3ClientWrapper {
             // S3에 저장할 키 생성
             String key = S3KeyGenerator.generateKey(fileData);
 
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
+
+            // 이미 있으면 이미지 업로드 스킵
+            try {
+                s3Client.headObject(headObjectRequest);
+                return endpoint + "/" + bucketName + "/" + key;
+            } catch (NoSuchKeyException ignored) {
+
+            }
+            
             // S3 업로드 요청 생성
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
