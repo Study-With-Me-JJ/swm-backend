@@ -14,7 +14,9 @@ public enum ErrorCode {
     INVALID_TOKEN(10004, HttpStatus.UNAUTHORIZED, "Invalid Token"),
     INVALID_JWT_SIGNATURE(10005, HttpStatus.UNAUTHORIZED, "Invalid JWT Signature"),
     EXPIRED_TOKEN(10006, HttpStatus.UNAUTHORIZED, "Expired Token"),
-    INTERNAL_SERVER_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),;
+    INTERNAL_SERVER_ERROR(20000, HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error"),
+
+    EXTERNAL_API_ERROR(30000, HttpStatus.INTERNAL_SERVER_ERROR, "External API Error");
 
     private final Integer code;
     private final HttpStatus httpStatus;

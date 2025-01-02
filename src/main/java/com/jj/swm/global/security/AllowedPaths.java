@@ -11,8 +11,8 @@ public enum AllowedPaths {
     REISSUE("/api/auth/reissue/**"),
     HEALTH_CHECK("/api/health/**"),
     USER("/api/v1/user/**"),
-
-    SWAGGER("/swagger-ui.html"),
+    SWAGGER_API_DOCS("/v3/api-docs/**"),
+    SWAGGER_INDEX("/swagger-ui/**"),
     FAVICON("/favicon.ico");
 
     private final String path;
@@ -25,7 +25,8 @@ public enum AllowedPaths {
             HEALTH_CHECK.path,
             USER.path,
             FAVICON.path,
-            SWAGGER.path
+            SWAGGER_INDEX.path,
+            SWAGGER_API_DOCS.path
         };
     }
 }

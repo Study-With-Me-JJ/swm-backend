@@ -2,12 +2,16 @@ package com.jj.swm.domain.user.controller;
 
 import com.jj.swm.domain.user.dto.CustomUserCreateRequest;
 import com.jj.swm.domain.user.dto.request.SendAuthCodeRequest;
+import com.jj.swm.domain.user.dto.request.UpgradeRoomAdminRequest;
 import com.jj.swm.domain.user.dto.request.VerifyAuthCodeRequest;
 import com.jj.swm.domain.user.service.UserCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +39,13 @@ public class UserCommandController {
         userCommandService.createCustomUser(createRequest);
 
         return ApiResponse.created(null);
+    }
+
+    @PatchMapping("/v1/business/user/validation")
+    public ApiResponse<Void> validateBusinessStatus(
+            @Valid @RequestBody UpgradeRoomAdminRequest request, Principal principal) {
+        userCommandService.validateBusinessStatus(request, UUID.fromString(principal.getName()));
+
+        return ApiResponse.ok(null);
     }
 }
