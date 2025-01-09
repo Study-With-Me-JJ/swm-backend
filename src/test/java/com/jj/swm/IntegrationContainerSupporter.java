@@ -1,31 +1,33 @@
 package com.jj.swm;
 
+import com.jj.swm.config.TestConfig;
+import com.jj.swm.config.studyroom.StudyRoomQnaTestConfig;
+import com.jj.swm.config.studyroom.StudyRoomReviewTestConfig;
+import com.jj.swm.config.studyroom.StudyRoomTestConfig;
+import com.jj.swm.crawling.holaworld.service.HolaWorldCrawlingService;
 import com.jj.swm.global.config.JpaConfig;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.ComponentScan.Filter;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
-import org.springframework.stereotype.Repository;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.springframework.stereotype.Service;
 import org.testcontainers.utility.DockerImageName;
 
-@DataJpaTest(
-        includeFilters = {
-                @Filter(type = FilterType.ANNOTATION, value = {Service.class}),
-        }
-)
+@SpringBootTest
+@Transactional
 @ActiveProfiles("test")
 @Testcontainers
-@Import(JpaConfig.class)
+@Import(TestConfig.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public abstract class IntegrationContainerSupporter {
 
