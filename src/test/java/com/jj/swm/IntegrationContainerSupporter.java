@@ -1,25 +1,16 @@
 package com.jj.swm;
 
 import com.jj.swm.config.TestConfig;
-import com.jj.swm.config.studyroom.StudyRoomQnaTestConfig;
-import com.jj.swm.config.studyroom.StudyRoomReviewTestConfig;
-import com.jj.swm.config.studyroom.StudyRoomTestConfig;
-import com.jj.swm.crawling.holaworld.service.HolaWorldCrawlingService;
-import com.jj.swm.global.config.JpaConfig;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
@@ -38,9 +29,17 @@ public abstract class IntegrationContainerSupporter {
     private static final String POSTGRES_IMAGE = "postgres:17";
     private static final GenericContainer REDIS_CONTAINER;
 
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer POSTGRES_CONTAINER = new PostgreSQLContainer(DockerImageName.parse(POSTGRES_IMAGE));
+    static GenericContainer POSTGRES_CONTAINER = new PostgreSQLContainer(DockerImageName.parse(POSTGRES_IMAGE))
+            .withDatabaseName("swm")
+            .withExposedPorts(5432)
+            .withEnv("POSTGRES_USER", "test")
+            .withEnv("POSTGRES_PASSWORD", "test")
+            .withReuse(true);
+
+    @BeforeAll
+    public static void beforeAll(){
+        POSTGRES_CONTAINER.start();
+    }
 
     static {
         REDIS_CONTAINER = new GenericContainer(DockerImageName.parse(REDIS_IMAGE))
@@ -57,5 +56,11 @@ public abstract class IntegrationContainerSupporter {
         registry.add("redis.host", REDIS_CONTAINER::getHost);
         registry.add("redis.port", () -> String.valueOf(REDIS_CONTAINER.getMappedPort(REDIS_PORT)));
         registry.add("redis.password", () -> REDIS_PASSWORD);
+
+        // PostgreSQL
+        registry.add("spring.datasource.url",
+                () -> "jdbc:postgresql://localhost:" + POSTGRES_CONTAINER.getMappedPort(5432) + "/swm");
+        registry.add("spring.datasource.username", () -> "test");
+        registry.add("spring.datasource.password", () -> "test");
     }
 }
