@@ -24,6 +24,9 @@ jobs:
           restore-keys: |
             gradle-
 
+      - name: Gradle Build
+        run: ./gradlew clean build -x test
+
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
@@ -63,3 +66,4 @@ jobs:
                -X POST \
                -d '{"content": "❌ Deployment failed for branch: ${{ github.ref_name }}"}' \
                ${{ secrets.DISCORD_WEBHOOK_URL }}
+
