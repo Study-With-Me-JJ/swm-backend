@@ -9,6 +9,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
+@Profile("!test")
 public class HolaWorldCrawlingService implements DisposableBean {
     private final ExternalStudyRepository externalStudyRepository;
     private ChromeDriver driver;

@@ -1,8 +1,8 @@
 package com.jj.swm.domain.studyroom.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
-import com.jj.swm.domain.studyroom.StudyRoomFixture;
-import com.jj.swm.domain.studyroom.StudyRoomQnaFixture;
+import com.jj.swm.domain.studyroom.fixture.StudyRoomFixture;
+import com.jj.swm.domain.studyroom.fixture.StudyRoomQnaFixture;
 import com.jj.swm.domain.studyroom.dto.request.UpsertStudyRoomQnaRequest;
 import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomQnaResponse;
@@ -14,11 +14,11 @@ import com.jj.swm.domain.user.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:cleanup/studyroom.sql")
 class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
 
     @Autowired private UserRepository userRepository;
@@ -42,19 +43,11 @@ class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
     @BeforeEach
     void setUp() {
         User user = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
-        studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoomWithoutId(user));
+        studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoom(user));
 
         qnaUser = userRepository.saveAndFlush(UserFixture.createUserWithUUID());
         studyRoomQna = qnaRepository.saveAndFlush(StudyRoomQnaFixture.createStudyRoomQna(studyRoom, qnaUser));
     }
-
-    @AfterEach
-    void cleanup() {
-        qnaRepository.deleteAllByIdOrParentId(studyRoomQna.getId());
-        studyRoomRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
-    }
-
 
     @Test
     @DisplayName("스터디 룸 Qna Parent가 없는 댓글 생성에 성공한다.")

@@ -1,4 +1,4 @@
-package com.jj.swm.domain.studyroom;
+package com.jj.swm.domain.studyroom.fixture;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomQna;

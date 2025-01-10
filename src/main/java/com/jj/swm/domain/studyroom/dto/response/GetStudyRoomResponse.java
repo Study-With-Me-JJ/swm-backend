@@ -34,7 +34,10 @@ public class GetStudyRoomResponse {
                 .entireMinPricePerHour(studyRoom.getEntireMinPricePerHour())
                 .entireMaxHeadcount(studyRoom.getEntireMaxHeadcount())
                 .studyBookmarkId(studyBookmarkId)
-                .tags(studyRoom.getTags().stream().map(GetStudyRoomTagResponse::from).toList())
+                .tags(studyRoom.getTags() != null ?
+                        studyRoom.getTags().stream().map(GetStudyRoomTagResponse::from).toList()
+                        : null
+                )
                 .build();
     }
 

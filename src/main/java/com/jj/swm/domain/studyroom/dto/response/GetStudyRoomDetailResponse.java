@@ -70,7 +70,10 @@ public class GetStudyRoomDetailResponse {
                 .likeCount(studyRoom.getLikeCount())
                 .reviewCount(studyRoom.getReviewCount())
                 .starAvg(studyRoom.getAverageRating())
-                .tags(studyRoom.getTags().stream().map(GetStudyRoomTagResponse::from).toList())
+                .tags(studyRoom.getTags() != null ?
+                        studyRoom.getTags().stream().map(GetStudyRoomTagResponse::from).toList()
+                        : null
+                )
                 .images(imageResponses)
                 .dayOffs(dayOffResponses)
                 .optionInfos(optionInfoResponses)

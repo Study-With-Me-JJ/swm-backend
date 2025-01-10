@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StudyRoomReviewCommandService {
@@ -56,7 +55,8 @@ public class StudyRoomReviewCommandService {
 
         reviewRepository.save(studyRoomReview);
 
-        reviewImageRepository.batchInsert(request.getImageUrls(), studyRoomReview);
+        if(request.getImageUrls() != null)
+            reviewImageRepository.batchInsert(request.getImageUrls(), studyRoomReview);
 
         studyRoom.addReviewStudyRoom(request.getRating());
 

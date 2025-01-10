@@ -117,7 +117,7 @@ public class StudyRoomQueryService {
         return userId != null
                 ? bookmarkRepository.findAllByUserIdAndStudyRoomIds(userId, studyRoomIds)
                 .stream()
-                .collect(Collectors.toMap(StudyRoomBookmarkInfo::getId, StudyRoomBookmarkInfo::getStudyRoomId))
+                .collect(Collectors.toMap(StudyRoomBookmarkInfo::getStudyRoomId, StudyRoomBookmarkInfo::getId))
                 : Collections.emptyMap();
     }
 }

@@ -21,10 +21,10 @@ public class CustomStudyRoomBookmarkRepositoryImpl implements CustomStudyRoomBoo
 
     @Override
     public List<StudyRoomBookmarkInfo> findAllByUserIdAndStudyRoomIds(UUID userId, List<Long> studyRoomIds) {
-        return jpaQueryFactory.select(new QStudyRoomBookmarkInfo(studyRoom.id, studyRoomBookmark.id))
+        return jpaQueryFactory.select(new QStudyRoomBookmarkInfo(studyRoomBookmark.id, studyRoom.id))
                 .from(studyRoomBookmark)
                 .join(studyRoomBookmark.studyRoom, studyRoom)
-                .join(studyRoom.user, user)
+                .join(studyRoomBookmark.user, user)
                 .where(user.id.eq(userId), studyRoom.id.in(studyRoomIds))
                 .fetch();
     }

@@ -1,7 +1,7 @@
 package com.jj.swm.domain.studyroom.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
-import com.jj.swm.domain.studyroom.StudyRoomFixture;
+import com.jj.swm.domain.studyroom.fixture.StudyRoomFixture;
 import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReviewRequest;
 import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomReviewReplyRequest;
 import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomReviewReplyRequest;
@@ -20,10 +20,10 @@ import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:cleanup/studyroom.sql")
 public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSupporter {
 
     private static final int THREAD_COUNT = 100;
@@ -52,7 +53,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
     @BeforeEach
     void setUp(TestInfo testInfo) {
         User roomAdmin = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
-        studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoomWithoutId(roomAdmin));
+        studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoom(roomAdmin));
 
         if(ignoreBeforeEachMethod.contains(testInfo.getTestMethod().orElseThrow().getName())) {
             return;
@@ -78,6 +79,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
                 .rating(5)
+                .imageUrls(null)
                 .build();
 
         //when
@@ -136,11 +138,12 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
 
         //when
         for (UUID uuid : userUuids) {
-            commandService.createReview(
-                    CreateStudyRoomReviewRequest.builder()
+            commandService.createReview(CreateStudyRoomReviewRequest.builder()
                             .comment("test")
                             .rating(rating--)
-                            .build(), studyRoom.getId(), uuid);
+                            .imageUrls(null)
+                            .build(),
+                    studyRoom.getId(), uuid);
         }
 
         //then
@@ -229,6 +232,7 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
                 .rating(5)
+                .imageUrls(null)
                 .build();
 
         //when
@@ -256,13 +260,11 @@ public class StudyRoomReviewCommandServiceTest extends IntegrationContainerSuppo
         assertThat(studyRoom.getReviewCount()).isEqualTo(100);
     }
 
-    private List<UUID> createTestUsers(int count) {
-        List<UUID> userUuids = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            User user = UserFixture.createUserWithUUID();
-            user = userRepository.save(user);
-            userUuids.add(user.getId());
-        }
-        return userUuids;
+    private List<UUID> createTestUsers(int size) {
+        List<User> users = UserFixture.multiUser(size);
+
+        userRepository.saveAll(users);
+
+        return users.stream().map(User::getId).toList();
     }
 }
