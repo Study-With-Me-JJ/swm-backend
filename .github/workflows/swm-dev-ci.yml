@@ -5,14 +5,14 @@ on:
   pull_request:
     branches: [ "dev" ]
 
-permissions:
-  contents: read
-  checks: write
-
 jobs:
   dev-CI:
     name: Continuous Integration
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
