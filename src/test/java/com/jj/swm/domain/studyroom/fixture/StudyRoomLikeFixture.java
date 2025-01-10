@@ -12,5 +12,4 @@ public class StudyRoomLikeFixture {
                 .user(user)
                 .build();
     }
-
 }
