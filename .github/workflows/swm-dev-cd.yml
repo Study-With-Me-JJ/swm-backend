@@ -1,0 +1,65 @@
+name: SWM CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'dev'
+
+jobs:
+  dev-CD:
+    name: Continuous Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          registry: https://registry.breakti.me
+          username: ${{ secrets.BREAKTIME_REGISTRY_USERNAME }}
+          password: ${{ secrets.BREAKTIME_REGISTRY_PASSWORD }}
+
+      - name: Docker Image Build
+        run: docker build -t registry.breakti.me/study-with-me:1.0 .
+
+      - name: Docker Image Push
+        run: docker push registry.breakti.me/study-with-me:1.0
+
+      - name: SWM 서버 접속
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd study_with_me/scripts
+            ./deploy.sh
+
+      - name: Notify Discord on Success
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d '{"content": "✅ Deployment succeeded for branch: ${{ github.ref_name }}"}' \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Notify Discord on Failure
+        if: failure()
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d '{"content": "❌ Deployment failed for branch: ${{ github.ref_name }}"}' \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
