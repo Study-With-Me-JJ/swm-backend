@@ -12,20 +12,17 @@ import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomBookmarkResponse;
 import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomLikeResponse;
 import com.jj.swm.domain.studyroom.entity.*;
 import com.jj.swm.domain.studyroom.repository.*;
-import com.jj.swm.domain.user.entity.RoleType;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.util.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StudyRoomCommandService {
@@ -149,12 +146,12 @@ public class StudyRoomCommandService {
         bookmarkRepository.delete(studyRoomBookmark);
     }
 
-    private void imageModifyLogic(ModifyStudyRoomImageRequest imageModification, StudyRoom studyRoom) {
-        if (imageModification != null) {
-            if (imageModification.getImagesToAdd() != null && !imageModification.getImagesToAdd().isEmpty())
-                imageRepository.batchInsert(imageModification.getImagesToAdd(), studyRoom);
-            if (imageModification.getImageIdsToRemove() != null && !imageModification.getImageIdsToRemove().isEmpty())
-                removeImages(imageModification.getImageIdsToRemove(), studyRoom);
+    private void imageModifyLogic(ModifyStudyRoomImageRequest request, StudyRoom studyRoom) {
+        if (request != null) {
+            if (request.getImagesToAdd() != null && !request.getImagesToAdd().isEmpty())
+                imageRepository.batchInsert(request.getImagesToAdd(), studyRoom);
+            if (request.getImageIdsToRemove() != null && !request.getImageIdsToRemove().isEmpty())
+                removeImages(request.getImageIdsToRemove(), studyRoom);
         }
     }
 
@@ -169,10 +166,12 @@ public class StudyRoomCommandService {
     }
 
     private void tagModifyLogic(ModifyStudyRoomTagRequest request, StudyRoom studyRoom) {
-        if (request.getTagsToAdd() != null && !request.getTagsToAdd().isEmpty())
-            tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
-        if (request.getTagIdsToRemove() != null && !request.getTagIdsToRemove().isEmpty())
-            removeTags(request.getTagIdsToRemove(), studyRoom);
+        if(request != null){
+            if (request.getTagsToAdd() != null && !request.getTagsToAdd().isEmpty())
+                tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
+            if (request.getTagIdsToRemove() != null && !request.getTagIdsToRemove().isEmpty())
+                removeTags(request.getTagIdsToRemove(), studyRoom);
+        }
     }
 
     private void removeTags(List<Long> tagIdsToRemove, StudyRoom studyRoom) {
@@ -186,10 +185,12 @@ public class StudyRoomCommandService {
     }
 
     private void dayOffModifyLogic(ModifyStudyRoomDayOffRequest request, StudyRoom studyRoom) {
-        if (request.getDayOffsToAdd() != null && !request.getDayOffsToAdd().isEmpty())
-            dayOffRepository.batchInsert(request.getDayOffsToAdd(), studyRoom);
-        if (request.getDayOffIdsToRemove() != null && !request.getDayOffIdsToRemove().isEmpty())
-            removeDayOffs(request.getDayOffIdsToRemove(), studyRoom);
+        if(request != null){
+            if (request.getDayOffsToAdd() != null && !request.getDayOffsToAdd().isEmpty())
+                dayOffRepository.batchInsert(request.getDayOffsToAdd(), studyRoom);
+            if (request.getDayOffIdsToRemove() != null && !request.getDayOffIdsToRemove().isEmpty())
+                removeDayOffs(request.getDayOffIdsToRemove(), studyRoom);
+        }
     }
 
     private void removeDayOffs(List<Long> dayOffIdsToRemove, StudyRoom studyRoom) {
@@ -203,10 +204,12 @@ public class StudyRoomCommandService {
     }
 
     private void optionModifyLogic(ModifyStudyRoomOptionInfoRequest request, StudyRoom studyRoom) {
-        if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty())
-            optionInfoRepository.batchInsert(request.getOptionsToAdd(), studyRoom);
-        if (request.getOptionsIdsToRemove() != null && !request.getOptionsIdsToRemove().isEmpty())
-            removeOptions(request.getOptionsIdsToRemove(), studyRoom);
+        if(request != null){
+            if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty())
+                optionInfoRepository.batchInsert(request.getOptionsToAdd(), studyRoom);
+            if (request.getOptionsIdsToRemove() != null && !request.getOptionsIdsToRemove().isEmpty())
+                removeOptions(request.getOptionsIdsToRemove(), studyRoom);
+        }
     }
 
     private void removeOptions(List<Long> optionIdsToRemove, StudyRoom studyRoom) {
@@ -220,10 +223,12 @@ public class StudyRoomCommandService {
     }
 
     private void typeModifyLogic(ModifyStudyRoomTypeInfoRequest request, StudyRoom studyRoom) {
-        if (request.getTypesToAdd() != null && !request.getTypesToAdd().isEmpty())
-            typeInfoRepository.batchInsert(request.getTypesToAdd(), studyRoom);
-        if (request.getTypeIdsToRemove() != null && !request.getTypeIdsToRemove().isEmpty())
-            removeTypes(request.getTypeIdsToRemove(), studyRoom);
+        if(request != null){
+            if (request.getTypesToAdd() != null && !request.getTypesToAdd().isEmpty())
+                typeInfoRepository.batchInsert(request.getTypesToAdd(), studyRoom);
+            if (request.getTypeIdsToRemove() != null && !request.getTypeIdsToRemove().isEmpty())
+                removeTypes(request.getTypeIdsToRemove(), studyRoom);
+        }
     }
 
     private void removeTypes(List<Long> typeIdsToRemove, StudyRoom studyRoom) {
@@ -237,12 +242,14 @@ public class StudyRoomCommandService {
     }
 
     private void reserveTypeModifyLogic(ModifyStudyRoomReservationTypeRequest request, StudyRoom studyRoom) {
-        if (request.getReservationTypesToAdd() != null)
-            reserveTypeRepository.batchInsert(request.getReservationTypesToAdd(), studyRoom);
-        if (request.getReservationTypesToUpdate() != null && !request.getReservationTypesToUpdate().isEmpty())
-            updateReserveTypes(request.getReservationTypesToUpdate(), studyRoom);
-        if (request.getReservationTypeIdsToRemove() != null && !request.getReservationTypeIdsToRemove().isEmpty())
-            removeReserveTypes(request.getReservationTypeIdsToRemove(), studyRoom);
+        if(request != null){
+            if (request.getReservationTypesToAdd() != null)
+                reserveTypeRepository.batchInsert(request.getReservationTypesToAdd(), studyRoom);
+            if (request.getReservationTypesToUpdate() != null && !request.getReservationTypesToUpdate().isEmpty())
+                updateReserveTypes(request.getReservationTypesToUpdate(), studyRoom);
+            if (request.getReservationTypeIdsToRemove() != null && !request.getReservationTypeIdsToRemove().isEmpty())
+                removeReserveTypes(request.getReservationTypeIdsToRemove(), studyRoom);
+        }
     }
 
     private void updateReserveTypes(
