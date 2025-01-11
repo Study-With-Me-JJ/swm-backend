@@ -1,4 +1,4 @@
-package com.jj.swm.domain.user;
+package com.jj.swm.domain.user.fixture;
 
 import com.jj.swm.domain.user.entity.RoleType;
 import com.jj.swm.domain.user.entity.User;

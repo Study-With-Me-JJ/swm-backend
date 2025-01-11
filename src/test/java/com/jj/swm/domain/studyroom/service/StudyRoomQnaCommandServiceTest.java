@@ -10,7 +10,7 @@ import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.StudyRoomQna;
 import com.jj.swm.domain.studyroom.repository.StudyRoomQnaRepository;
 import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
-import com.jj.swm.domain.user.UserFixture;
+import com.jj.swm.domain.user.fixture.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;
