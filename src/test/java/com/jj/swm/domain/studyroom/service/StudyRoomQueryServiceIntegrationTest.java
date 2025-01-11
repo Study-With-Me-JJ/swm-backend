@@ -8,7 +8,7 @@ import com.jj.swm.domain.studyroom.dto.response.GetStudyRoomResponse;
 import com.jj.swm.domain.studyroom.entity.*;
 import com.jj.swm.domain.studyroom.fixture.*;
 import com.jj.swm.domain.studyroom.repository.*;
-import com.jj.swm.domain.user.UserFixture;
+import com.jj.swm.domain.user.fixture.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.dto.PageResponse;

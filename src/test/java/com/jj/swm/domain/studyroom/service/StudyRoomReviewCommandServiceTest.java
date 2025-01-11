@@ -14,7 +14,7 @@ import com.jj.swm.domain.studyroom.entity.StudyRoomReviewReply;
 import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
 import com.jj.swm.domain.studyroom.repository.StudyRoomReviewReplyRepository;
 import com.jj.swm.domain.studyroom.repository.StudyRoomReviewRepository;
-import com.jj.swm.domain.user.UserFixture;
+import com.jj.swm.domain.user.fixture.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;

@@ -70,7 +70,8 @@ public record OAuth2UserInfo(
     public User toUserEntity() {
         return User.builder()
                 .id(UUID.randomUUID())
-                .nickname(value)
+                .nickname(email)
+                .name(email)
                 .profileImageUrl(profile)
                 .userRole(RoleType.USER)
                 .build();

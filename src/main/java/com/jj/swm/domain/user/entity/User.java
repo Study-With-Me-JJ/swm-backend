@@ -1,7 +1,8 @@
 package com.jj.swm.domain.user.entity;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
-import com.jj.swm.domain.user.dto.CustomUserCreateRequest;
+import com.jj.swm.domain.user.dto.request.CreateUserRequest;
+import com.jj.swm.domain.user.dto.request.UpdateUserRequest;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,6 +40,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "name", length = 10, nullable = false)
+    private String name;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     @JdbcType(value = PostgreSQLEnumJdbcType.class)
@@ -51,16 +55,23 @@ public class User extends BaseTimeEntity {
         studyRooms.add(studyRoom);
     }
 
-    public static User from(CustomUserCreateRequest createRequest) {
+    public static User from(CreateUserRequest createRequest) {
         return User.builder()
                 .id(UUID.randomUUID())
                 .nickname(createRequest.getNickname())
                 .profileImageUrl(createRequest.getProfileImageUrl())
                 .userRole(RoleType.USER)
+                .name(createRequest.getName())
                 .build();
     }
 
     public void modifyRoleRoomAdmin() {
         this.userRole = RoleType.ROOM_ADMIN;
+    }
+
+    public void modify(UpdateUserRequest request) {
+        this.nickname = request.getNickname();
+        this.name = request.getName();
+        this.profileImageUrl = request.getProfileImageUrl();
     }
 }

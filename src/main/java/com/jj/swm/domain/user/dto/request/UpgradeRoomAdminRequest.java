@@ -1,8 +1,6 @@
 package com.jj.swm.domain.user.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
@@ -25,5 +23,9 @@ public class UpgradeRoomAdminRequest {
     private String businessName;
 
     @NotBlank
+    @Pattern(
+            regexp = "\\d{8}$",
+            message = "사업자 등록 날짜는 8자리 숫자로만 입력해야 함."
+    )
     private String businessRegistrationDate;
 }
