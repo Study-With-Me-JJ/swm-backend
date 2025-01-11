@@ -50,6 +50,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/user").authenticated()
                         .requestMatchers(AllowedPaths.getAllowedPaths()).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/studyroom/**").permitAll()
                         .anyRequest().authenticated()

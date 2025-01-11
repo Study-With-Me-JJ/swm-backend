@@ -1,6 +1,6 @@
 package com.jj.swm.domain.user.entity;
 
-import com.jj.swm.domain.user.dto.CustomUserCreateRequest;
+import com.jj.swm.domain.user.dto.request.CreateUserRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
@@ -33,11 +33,15 @@ public class UserCredential {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public static UserCredential of(User user, CustomUserCreateRequest createRequest) {
+    public static UserCredential of(User user, CreateUserRequest createRequest) {
         return UserCredential.builder()
                 .loginId(createRequest.getLoginId())
                 .value(createRequest.getPassword())
                 .user(user)
                 .build();
+    }
+
+    public void modifyPassword(String encryptedPassword) {
+        this.value = encryptedPassword;
     }
 }
