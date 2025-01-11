@@ -25,7 +25,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // 1. 유저 정보(attributes) 가져오기
-        System.out.println("sadlfjasdklfjlkdsajfklsdajfldsjk");
         Map<String, Object> oAuth2UserAttributes = super.loadUser(userRequest).getAttributes();
 
         // 2. registrationId 가져오기 (third-party id)

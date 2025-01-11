@@ -1,4 +1,4 @@
-package com.jj.swm.domain.user.dto;
+package com.jj.swm.domain.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CustomUserCreateRequest {
+public class CreateUserRequest {
 
     @NotBlank
     private String nickname;
@@ -17,6 +17,9 @@ public class CustomUserCreateRequest {
 
     @NotBlank
     private String password;
+
+    @NotBlank
+    private String name;
 
     @Email
     @NotBlank

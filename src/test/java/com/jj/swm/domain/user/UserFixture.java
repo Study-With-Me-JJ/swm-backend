@@ -15,26 +15,7 @@ public class UserFixture {
         return User.builder()
                 .id(uuid)
                 .nickname("test")
-                .profileImageUrl("http://test.png")
-                .userRole(RoleType.USER)
-                .studyRooms(new ArrayList<>())
-                .build();
-    }
-
-    public static User createUser() {
-        return User.builder()
-                .id(uuid)
-                .nickname("test")
-                .profileImageUrl("http://test.png")
-                .userRole(RoleType.USER)
-                .studyRooms(new ArrayList<>())
-                .build();
-    }
-
-    public static User createNormalUser() {
-        return User.builder()
-                .id(UUID.randomUUID())
-                .nickname("test")
+                .name("test")
                 .profileImageUrl("http://test.png")
                 .userRole(RoleType.USER)
                 .studyRooms(new ArrayList<>())
@@ -45,6 +26,7 @@ public class UserFixture {
         return User.builder()
                 .id(UUID.randomUUID())
                 .nickname(UUID.randomUUID().toString())
+                .name("test")
                 .profileImageUrl("http://test.png")
                 .userRole(RoleType.USER)
                 .studyRooms(new ArrayList<>())
