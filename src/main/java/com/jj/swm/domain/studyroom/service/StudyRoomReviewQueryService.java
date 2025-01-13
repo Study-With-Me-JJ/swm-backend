@@ -6,7 +6,6 @@ import com.jj.swm.domain.studyroom.repository.StudyRoomReviewRepository;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.PageSize;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +37,7 @@ public class StudyRoomReviewQueryService {
 
         // 추후, 본인 글 수정 가능 표시 추가 가능
         return PageResponse.of(
-                pagedReviews, review -> GetStudyRoomReviewResponse.of(review, review.getReplies())
+                pagedReviews, GetStudyRoomReviewResponse::from
         );
     }
 }
