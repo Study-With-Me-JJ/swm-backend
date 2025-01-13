@@ -40,7 +40,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Column(name = "name", length = 10, nullable = false)
+    @Column(name = "name", length = 30, nullable = false)
     private String name;
 
     @Enumerated(EnumType.STRING)
