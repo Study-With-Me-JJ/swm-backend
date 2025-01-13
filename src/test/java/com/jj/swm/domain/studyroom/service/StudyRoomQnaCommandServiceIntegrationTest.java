@@ -28,13 +28,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:cleanup/studyroom.sql")
-class StudyRoomQnaCommandServiceTest extends IntegrationContainerSupporter {
+class StudyRoomQnaCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
+    // Target Service Bean
+    @Autowired private StudyRoomQnaCommandService commandService;
+
+    // Repository Bean
     @Autowired private UserRepository userRepository;
     @Autowired private StudyRoomRepository studyRoomRepository;
     @Autowired private StudyRoomQnaRepository qnaRepository;
-
-    @Autowired private StudyRoomQnaCommandService commandService;
 
     private StudyRoom studyRoom;
     private StudyRoomQna studyRoomQna;
