@@ -13,6 +13,7 @@ import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.PageSize;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,18 +34,23 @@ public class StudyRoomQnaQueryServiceIntegrationTest extends IntegrationContaine
     @Autowired private StudyRoomRepository studyRoomRepository;
     @Autowired private UserRepository userRepository;
 
+    //EntityManager
     @Autowired private EntityManager entityManager;
+
+    private User roomAdmin;
+    private StudyRoom studyRoom;
+
+    @BeforeEach
+    void setUp() {
+        roomAdmin = UserFixture.createRoomAdmin();
+        userRepository.save(roomAdmin);
+        studyRoom = studyRoomRepository.save(StudyRoomFixture.createStudyRoom(roomAdmin));
+    }
 
     @Test
     @DisplayName("스터디 룸 QnA 페이지네이션 조회에 성공한다.")
     void studyRoomQna_getStudyRoomQnas_Success() {
         //given
-        User roomAdmin = UserFixture.createRoomAdmin();
-        userRepository.save(roomAdmin);
-
-        StudyRoom studyRoom
-                = studyRoomRepository.save(StudyRoomFixture.createStudyRoom(roomAdmin));
-
         for(int i = 0; i < PageSize.StudyRoomQna; i++){
             User user = UserFixture.createUserWithUUID();
             user = userRepository.save(user);
@@ -73,12 +79,6 @@ public class StudyRoomQnaQueryServiceIntegrationTest extends IntegrationContaine
     @DisplayName("스터디 룸 QnA의 자식 조회에 성공한다.")
     void studyRoomQna_getStudyRoomQnas_retrieveChild_Success() {
         //given
-        User roomAdmin = UserFixture.createRoomAdmin();
-        userRepository.save(roomAdmin);
-
-        StudyRoom studyRoom
-                = studyRoomRepository.save(StudyRoomFixture.createStudyRoom(roomAdmin));
-
         User user = UserFixture.createUserWithUUID();
         userRepository.save(user);
 
