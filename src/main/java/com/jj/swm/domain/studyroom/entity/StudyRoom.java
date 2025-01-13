@@ -167,6 +167,7 @@ public class StudyRoom extends BaseTimeEntity {
     }
 
     public void deleteReviewStudyRoom(int rating) {
-        this.averageRating = (this.averageRating * this.reviewCount - rating) / --this.reviewCount;
+        this.averageRating = this.reviewCount == 1 ?
+                --this.reviewCount : (this.averageRating * this.reviewCount - rating) / --this.reviewCount;
     }
 }

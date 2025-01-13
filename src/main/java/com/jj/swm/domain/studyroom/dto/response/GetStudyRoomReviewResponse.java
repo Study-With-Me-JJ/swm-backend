@@ -3,7 +3,6 @@ package com.jj.swm.domain.studyroom.dto.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.entity.StudyRoomReviewImage;
-import com.jj.swm.domain.studyroom.entity.StudyRoomReviewReply;
 import com.jj.swm.domain.user.dto.response.UserInfoResponse;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,22 +25,26 @@ public class GetStudyRoomReviewResponse {
     private UserInfoResponse userInfo;
     private List<GetStudyRoomReviewReplyResponse> replies;
 
-    public static GetStudyRoomReviewResponse of(
-            StudyRoomReview studyRoomReview, List<StudyRoomReviewReply> replies
+    public static GetStudyRoomReviewResponse from(
+            StudyRoomReview studyRoomReview
     ) {
         return GetStudyRoomReviewResponse.builder()
                 .studyRoomReviewId(studyRoomReview.getId())
                 .comment(studyRoomReview.getComment())
                 .rating(studyRoomReview.getRating())
                 .updatedAt(studyRoomReview.getUpdatedAt())
-                .imageUrls(studyRoomReview.getImages()
+                .imageUrls(studyRoomReview.getImages() != null
+                        ? studyRoomReview.getImages()
                         .stream()
                         .map(StudyRoomReviewImage::getImageUrl)
-                        .toList())
+                        .toList() : null
+                )
                 .userInfo(UserInfoResponse.from(studyRoomReview.getUser()))
-                .replies(replies.stream()
+                .replies(studyRoomReview.getReplies() != null
+                        ? studyRoomReview.getReplies()
+                        .stream()
                         .map(GetStudyRoomReviewReplyResponse::from)
-                        .toList()
+                        .toList() : null
                 )
                 .build();
     }
