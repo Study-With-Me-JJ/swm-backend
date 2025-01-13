@@ -25,10 +25,10 @@ public class GetStudyRoomQnaResponse {
     public static GetStudyRoomQnaResponse from(StudyRoomQna qna) {
         List<GetStudyRoomQnaResponse> childQnas = null;
         if (qna.getParent() == null) {
-            childQnas = qna.getChildren()
+            childQnas = qna.getChildren() != null ? qna.getChildren()
                     .stream()
                     .map(GetStudyRoomQnaResponse::from)
-                    .toList();
+                    .toList() : null;
         }
 
         return GetStudyRoomQnaResponse.builder()
