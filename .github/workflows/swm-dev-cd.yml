@@ -52,10 +52,10 @@ jobs:
           password: ${{ secrets.BREAKTIME_REGISTRY_PASSWORD }}
 
       - name: Docker Image Build
-        run: docker build -t registry.breakti.me/study-with-me:1.0 .
+        run: docker build -t registry.breakti.me/study-with-me-dev:1.0 .
 
       - name: Docker Image Push
-        run: docker push registry.breakti.me/study-with-me:1.0
+        run: docker push registry.breakti.me/study-with-me-dev:1.0
 
       - name: SWM 서버 접속
         uses: appleboy/ssh-action@master
@@ -66,7 +66,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd study_with_me/scripts
-            ./deploy.sh
+            ./deploy-dev.sh
 
       - name: Notify Discord on Success
         if: success()
