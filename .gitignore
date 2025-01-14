@@ -25,6 +25,11 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+application-dev.yml
+application-local.yml
+application-prod.yml
+application-test.yml
+src/main/generated
 
 ### NetBeans ###
 /nbproject/private/
@@ -35,3 +40,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Docker Data ###
+docker/data/**
+docker/postgres_data/**

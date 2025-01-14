@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
 }
 
 group = 'com.jj'
@@ -27,15 +28,106 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Flyway
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
+
+    // redisson
+    implementation 'org.redisson:redisson-spring-boot-starter:3.39.0'
+
+    // spring boot starter cache
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // s3
+    implementation platform('software.amazon.awssdk:bom:2.29.23')
+    implementation 'software.amazon.awssdk:s3'
+
+    // ChromeDriver Manager
+    implementation "io.github.bonigarcia:webdrivermanager:5.9.2"
+
+    // Selenium
+    implementation "org.seleniumhq.selenium:selenium-java:4.26.0"
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+    // Mail
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Security & JWT
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // DB
+    runtimeOnly 'org.postgresql:postgresql'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // TestContainers
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers:3.4.0'
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
+    testImplementation 'org.testcontainers:postgresql:1.20.4'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2' // Jackson 버전에 맞게 수정
+
+    //QueryDSL
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+processResources.dependsOn('copySecret')
+processTestResources.dependsOn('copyTestSecret')
+
+tasks.register('copySecret', Copy) {
+    from './swm-backend-secret/local'
+    include "*.yml"  // 복사할 파일들
+    into 'src/main/resources'  // 복사 위치
+
+    from './swm-backend-secret/dev'
+    include "*.yml"  // 복사할 파일들
+    into 'src/main/resources'  // 복사 위치
+
+    from './swm-backend-secret/prod'
+    include "*.yml"  // 복사할 파일들
+    into 'src/main/resources'  // 복사 위치
+}
+
+tasks.register('copyTestSecret', Copy) {
+    from './swm-backend-secret/test'
+    include "*.yml"  // 복사할 파일들
+    into 'src/test/resources'  // 복사 위치
+}
+
+clean {
+    delete file('src/main/generated')
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        csv.required = false
+        html.required = true
+    }
+}
+jacoco {
+    toolVersion = "0.8.12"
 }
