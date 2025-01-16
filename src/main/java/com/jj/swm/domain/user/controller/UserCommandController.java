@@ -7,6 +7,7 @@ import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.enums.EmailSendType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -92,6 +93,26 @@ public class UserCommandController {
     public ApiResponse<Void> validateBusinessStatus(
             @Valid @RequestBody UpgradeRoomAdminRequest request, Principal principal) {
         userCommandService.validateBusinessStatus(request, UUID.fromString(principal.getName()));
+
+        return ApiResponse.ok(null);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/v1/user/business/verification/requests/approval")
+    public ApiResponse<Void> updateInspectionStatusApproval(
+        @Valid @RequestBody UpdateInspectionStatusRequest request
+    ) {
+        userCommandService.updateInspectionStatusApproval(request.getBusinessVerificationRequestIds());
+
+        return ApiResponse.ok(null);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/v1/user/business/verification/requests/rejection")
+    public ApiResponse<Void> updateInspectionStatusRejection(
+            @Valid @RequestBody UpdateInspectionStatusRequest request
+    ) {
+        userCommandService.updateInspectionStatusRejection(request.getBusinessVerificationRequestIds());
 
         return ApiResponse.ok(null);
     }

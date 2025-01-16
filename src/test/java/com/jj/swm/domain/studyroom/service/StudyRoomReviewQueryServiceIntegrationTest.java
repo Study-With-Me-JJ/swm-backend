@@ -15,7 +15,6 @@ import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.fixture.UserFixture;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.dto.PageResponse;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class StudyRoomReviewQueryServiceIntegrationTest extends IntegrationContainerSupporter {
 
@@ -39,9 +37,6 @@ public class StudyRoomReviewQueryServiceIntegrationTest extends IntegrationConta
     @Autowired private StudyRoomRepository studyRoomRepository;
     @Autowired private UserRepository userRepository;
     @Autowired private StudyRoomReviewImageRepository reviewImageRepository;
-
-    //EntityManager
-    @Autowired private EntityManager entityManager;
 
     private StudyRoom studyRoom;
 
@@ -87,9 +82,6 @@ public class StudyRoomReviewQueryServiceIntegrationTest extends IntegrationConta
         );
 
         reviewReplyRepository.save(reply);
-
-        entityManager.flush();
-        entityManager.clear();
     }
 
     @Test
@@ -110,7 +102,8 @@ public class StudyRoomReviewQueryServiceIntegrationTest extends IntegrationConta
     @DisplayName("스터디 룸 이용후기 이미지만 있는 목록 조회에 성공한다.")
     public void studyRoomReview_getStudyRoomReviews_thenReturnOnlyImageReviews_Success() {
         // when
-        PageResponse<GetStudyRoomReviewResponse> response = queryService.getStudyRoomReviews(1L, true, 0);
+        PageResponse<GetStudyRoomReviewResponse> response
+                = queryService.getStudyRoomReviews(1L, true, 0);
 
         // then
         assertThat(response.getData().size()).isEqualTo(1); // (noneImageReview, imageReview))

@@ -1,21 +1,21 @@
 package com.jj.swm;
 
 import com.jj.swm.config.TestConfig;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest
-@Transactional
 @ActiveProfiles("test")
 @Testcontainers
 @Import(TestConfig.class)
@@ -36,9 +36,16 @@ public abstract class IntegrationContainerSupporter {
             .withEnv("POSTGRES_PASSWORD", "test")
             .withReuse(true);
 
+    @Autowired private CleanUp cleanUp;
+
     @BeforeAll
     public static void beforeAll(){
         POSTGRES_CONTAINER.start();
+    }
+
+    @AfterEach
+    void tearDown() {
+        cleanUp.all();
     }
 
     static {

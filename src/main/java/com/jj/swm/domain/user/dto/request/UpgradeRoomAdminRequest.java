@@ -20,7 +20,7 @@ public class UpgradeRoomAdminRequest {
     private String businessNumber;
 
     @NotBlank
-    private String businessName;
+    private String businessOwnerName;
 
     @NotBlank
     @Pattern(
@@ -28,4 +28,7 @@ public class UpgradeRoomAdminRequest {
             message = "사업자 등록 날짜는 8자리 숫자로만 입력해야 함."
     )
     private String businessRegistrationDate;
+
+    @NotBlank
+    private String businessName;
 }

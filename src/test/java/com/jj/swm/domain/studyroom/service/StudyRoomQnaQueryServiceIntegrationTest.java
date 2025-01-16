@@ -12,7 +12,6 @@ import com.jj.swm.domain.user.fixture.UserFixture;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.PageSize;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,9 +32,6 @@ public class StudyRoomQnaQueryServiceIntegrationTest extends IntegrationContaine
     // Repository Bean For Test
     @Autowired private StudyRoomRepository studyRoomRepository;
     @Autowired private UserRepository userRepository;
-
-    //EntityManager
-    @Autowired private EntityManager entityManager;
 
     private User roomAdmin;
     private StudyRoom studyRoom;
@@ -99,9 +95,6 @@ public class StudyRoomQnaQueryServiceIntegrationTest extends IntegrationContaine
         qnaChild.addParent(qna);
 
         qnaRepository.save(qnaChild);
-
-        entityManager.flush();
-        entityManager.clear();
 
         //when
         PageResponse<GetStudyRoomQnaResponse> response
