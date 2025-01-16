@@ -13,19 +13,15 @@ import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.exception.GlobalException;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:cleanup/studyroom.sql")
 public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSupporter {
 
     // Service Bean
@@ -59,7 +55,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
         for(int i = 5; i >= 1; i--){
             StudyRoom studyRoom = StudyRoomFixture.createStudyRoom(roomAdmin);
-            studyRoomRepository.save(studyRoom);
+            studyRoom = studyRoomRepository.save(studyRoom);
 
             StudyRoomOptionInfo optionInfo = StudyRoomOptionInfoFixture.createOptionInfo(studyRoom);
             optionInfoRepository.save(optionInfo);
@@ -84,6 +80,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 룸 페이지네이션 평점 순 조회에 성공한다.")
+    @Transactional
     void studyRoom_getStudyRooms_orderByStars_Success(){
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
@@ -103,6 +100,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 룸 페이지네이션 좋아요 순 조회에 성공한다.")
+    @Transactional
     void studyRoom_getStudyRooms_orderByLikes_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
@@ -123,6 +121,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 룸 페이지네이션 리뷰 순 조회에 성공한다.")
+    @Transactional
     void studyRoom_getStudyRooms_orderByReviews_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
@@ -143,6 +142,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 룸 페이지네이션 가격 순 정렬에 성공한다.")
+    @Transactional
     void studyRoom_getStudyRooms_orderByPrice_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
@@ -163,6 +163,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("유저 ID와 함께 조회 요청 시 북마크 정보도 반환한다.")
+    @Transactional
     void studyRoom_getStudyRoomsWithUserId_thenReturnBookmarkInfo_Success() {
         //given
         User user = users.getFirst();
@@ -187,6 +188,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("조건에 맞는 스터디 룸이 없을 때 빈값 반환에 성공한다.")
+    @Transactional
     void studyRoom_getStudyRoom_whenNotCorrect_emptyReturn_Success(){
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
@@ -201,6 +203,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 룸 상세조회에 성공한다.")
+    @Transactional
     void studyRoom_getStudyRoomDetail_Success() {
         //when
         GetStudyRoomDetailResponse response
@@ -220,6 +223,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("유저 ID와 함께 조회 요청 시 좋아요 정보도 반환한다.")
+    @Transactional
     void studyRoom_getStudyRoomsWithUserId_thenReturnLikeInfo_Success() {
         //given
         User user = users.getFirst();

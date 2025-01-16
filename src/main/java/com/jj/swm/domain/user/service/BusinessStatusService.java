@@ -4,6 +4,7 @@ import com.jj.swm.domain.user.dto.request.UpgradeRoomAdminRequest;
 import com.jj.swm.domain.user.dto.response.BusinessCheckResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -16,24 +17,21 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class BusinessStatusService {
 
     @Value("${business.check.api.url}")
-    public String businessCheckAPIUrl;
+    private String businessCheckAPIUrl;
 
     @Value("${business.check.api.key}")
-    public String businessCheckAPIKey;
+    private String businessCheckAPIKey;
 
     private final RestClient restClient;
-
-    public BusinessStatusService() {
-        this.restClient = RestClient.builder().build();
-    }
 
     public boolean validateBusinessStatus(UpgradeRoomAdminRequest request) {
         Map<String, Object> data = new HashMap<>();
         data.put("b_no", request.getBusinessNumber());
-        data.put("p_nm", request.getBusinessName());
+        data.put("p_nm", request.getBusinessOwnerName());
         data.put("start_dt", request.getBusinessRegistrationDate());
 
         Map<String, Object> requestBody = new HashMap<>();

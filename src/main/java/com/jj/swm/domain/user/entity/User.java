@@ -65,10 +65,6 @@ public class User extends BaseTimeEntity {
                 .build();
     }
 
-    public void modifyRoleRoomAdmin() {
-        this.userRole = RoleType.ROOM_ADMIN;
-    }
-
     public void modify(UpdateUserRequest request) {
         this.nickname = request.getNickname();
         this.name = request.getName();

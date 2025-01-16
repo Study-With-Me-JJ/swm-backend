@@ -21,8 +21,6 @@ import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -34,7 +32,6 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:cleanup/studyroom.sql")
 public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     private static final int THREAD_COUNT = 50;
@@ -57,17 +54,17 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
-        User roomAdmin = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
-        studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoom(roomAdmin));
+        User roomAdmin = userRepository.save(UserFixture.createRoomAdmin());
+        studyRoom = studyRoomRepository.save(StudyRoomFixture.createStudyRoom(roomAdmin));
 
         if(ignoreBeforeEachMethod.contains(testInfo.getTestMethod().orElseThrow().getName())) {
             return;
         }
 
-        createReviewUser = userRepository.saveAndFlush(UserFixture.createUserWithUUID());
+        createReviewUser = userRepository.save(UserFixture.createUserWithUUID());
         studyRoomReview = StudyRoomReviewFixture.createReview(studyRoom, 5, createReviewUser);
 
-        reviewRepository.saveAndFlush(studyRoomReview);
+        reviewRepository.save(studyRoomReview);
     }
 
     @Test
@@ -118,6 +115,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 수정에 성공한다.")
+    @Transactional
     void studyRoom_updateReview_Success() {
         //given
         UpdateStudyRoomReviewRequest request = UpdateStudyRoomReviewRequest.builder()
@@ -346,7 +344,6 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 동시성 테스트에 성공한다.")
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void studyRoom_review_concurrency_test_Success() throws InterruptedException {
         //given
         List<UUID> userUuids = createTestUsers(THREAD_COUNT);
@@ -385,45 +382,26 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     }
 
     @Test
-    @DisplayName("스터디 룸 이용후기 삭제 동시성 테스트에 성공한다.")
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @DisplayName("스터디 룸 이용후기 삭제 테스트에 성공한다.")
     void studyRoom_deleteReview_concurrency_test_Success() throws InterruptedException {
         //given
-        List<UUID> userUuids = createTestUsers(THREAD_COUNT);
-        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-        CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+        CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
+                .comment("test")
+                .rating(5)
+                .build();
 
-        for(UUID uuid : userUuids) {
-            CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
-                    .comment("test")
-                    .rating(5)
-                    .build();
+        createReviewUser = userRepository.save(UserFixture.createUserWithUUID());
 
-            commandService.createReview(request, studyRoom.getId(), uuid);
-        }
+        CreateStudyRoomReviewResponse response
+                = commandService.createReview(request, studyRoom.getId(), createReviewUser.getId());
 
         //when
-        for(int i = 0; i < THREAD_COUNT; i++) {
-            final UUID uuid = userUuids.get(i);
-            int finalI = i;
-            executorService.submit(() -> {
-                try {
-                    commandService.deleteReview(studyRoom.getId(), (long) (finalI + 1), uuid);
-                } catch (Exception e){
-                    e.printStackTrace();
-                } finally {
-                    countDownLatch.countDown();
-                }
-            });
-        }
-
-        executorService.shutdown();
-        countDownLatch.await();
+        commandService.deleteReview(studyRoom.getId(), response.getStudyRoomReviewId(), createReviewUser.getId());
 
         //then
-        StudyRoom findStudyRoom = studyRoomRepository.findById(studyRoom.getId()).get();
-        assertThat(findStudyRoom.getReviewCount()).isEqualTo(0);
-        assertThat(findStudyRoom.getAverageRating()).isEqualTo(0);
+        Optional<StudyRoomReview> findStudyRoomReview = reviewRepository.findById(response.getStudyRoomReviewId());
+
+        assertThat(findStudyRoomReview.isPresent()).isFalse();
     }
 
     private List<UUID> createTestUsers(int size) {

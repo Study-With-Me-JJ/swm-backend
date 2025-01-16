@@ -12,12 +12,8 @@ import com.jj.swm.domain.user.fixture.UserFixture;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.exception.GlobalException;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -25,9 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:cleanup/studyroom.sql")
 public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     private static final int THREAD_COUNT = 100;
@@ -43,9 +37,6 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @Autowired private StudyRoomReserveTypeRepository reserveTypeRepository;
     @Autowired private StudyRoomLikeRepository likeRepository;
     @Autowired private StudyRoomBookmarkRepository bookmarkRepository;
-
-    // EntityManager Bean
-    @Autowired private EntityManager entityManager;
 
     private StudyRoom studyRoom;
     private User roomAdmin;
@@ -221,8 +212,6 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     void studyRoom_delete_Success() {
         //when
         commandService.delete(studyRoom.getId(), roomAdmin.getId());
-        entityManager.flush();
-        entityManager.clear();
 
         //then
         Optional<StudyRoom> findStudyRoom = studyRoomRepository.findById(studyRoom.getId());
@@ -232,7 +221,6 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 좋아요 동시성 테스트에 성공한다.")
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void studyRoom_like_concurrency_test_Success() throws InterruptedException {
         //given
         List<UUID> userUuids = createTestUsers();
@@ -266,7 +254,6 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 좋아요 취소 동시성 테스트에 성공한다.")
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void studyRoom_dislike_concurrency_test_Success() throws InterruptedException {
         //given
         List<UUID> userUuids = createTestUsers();

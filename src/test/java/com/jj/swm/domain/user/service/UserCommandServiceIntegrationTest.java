@@ -1,11 +1,14 @@
 package com.jj.swm.domain.user.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
+import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
 import com.jj.swm.domain.user.dto.request.*;
-import com.jj.swm.domain.user.entity.RoleType;
+import com.jj.swm.domain.user.entity.BusinessVerificationRequest;
+import com.jj.swm.domain.user.entity.InspectionStatus;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.entity.UserCredential;
 import com.jj.swm.domain.user.fixture.UserFixture;
+import com.jj.swm.domain.user.repository.BusinessVerificationRequestRepository;
 import com.jj.swm.domain.user.repository.UserCredentialRepository;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.EmailSendType;
@@ -15,6 +18,7 @@ import com.jj.swm.global.common.service.EmailService;
 import com.jj.swm.global.common.service.RedisService;
 import com.jj.swm.global.common.util.RandomUtils;
 import com.jj.swm.global.exception.GlobalException;
+import com.jj.swm.global.common.service.DiscordNotificationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,10 +47,12 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     // Repository Bean
     @Autowired private UserRepository userRepository;
     @Autowired private UserCredentialRepository userCredentialRepository;
+    @Autowired private BusinessVerificationRequestRepository businessVerificationRequestRepository;
 
     // Mock Bean
     @MockitoBean private EmailService emailService;
     @MockitoBean private BusinessStatusService businessStatusService;
+    @MockitoBean private DiscordNotificationService discordNotificationService;
 
     @Autowired private PasswordEncoder passwordEncoder;
 
@@ -67,6 +73,8 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         String value = redisService.getValue(key);
 
         assertThat(value).isNotBlank();
+        verify(emailService, times(1))
+                .sendAuthCodeEmail(eq(loginId), any(String.class), eq(type));
 
         redisService.deleteValue(key);
     }
@@ -88,6 +96,8 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         String value = redisService.getValue(key);
 
         assertThat(value).isNotBlank();
+        verify(emailService, times(1))
+                .sendAuthCodeEmail(eq(loginId), any(String.class), eq(type));
 
         redisService.deleteValue(key);
     }
@@ -109,6 +119,8 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         String value = redisService.getValue(key);
 
         assertThat(value).isBlank();
+        verify(emailService, times(1))
+                .sendAuthCodeEmail(eq(loginId), any(String.class), eq(type));
 
         redisService.deleteValue(key);
     }
@@ -514,10 +526,12 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     }
 
     @Test
-    @DisplayName("유저 사업자 등록 상태조회에 성공한다.")
+    @DisplayName("유저 사업자 등록 상태조회 및 검수 요청에 성공한다.")
     void user_validateBusinessStatus_Success(){
         //given
         given(businessStatusService.validateBusinessStatus(any(UpgradeRoomAdminRequest.class))).willReturn(true);
+        given(discordNotificationService.sendBusinessVerificationNotification(any(BusinessVerificationRequestEvent.class)))
+                .willReturn(CompletableFuture.completedFuture(true));
 
         User user = UserFixture.createUserWithUUID();
         userRepository.save(user);
@@ -526,14 +540,43 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
                 .businessName("test")
                 .businessNumber("0123456789")
                 .businessRegistrationDate("20250101")
+                .businessOwnerName("owner")
                 .build();
 
         //when
         commandService.validateBusinessStatus(request, user.getId());
 
         //then
-        User findUser = userRepository.findById(user.getId()).get();
-        assertThat(findUser.getUserRole()).isEqualTo(RoleType.ROOM_ADMIN);
+        BusinessVerificationRequest findBusinessVerificationRequest
+                = businessVerificationRequestRepository.findById(1L).get();
+
+        assertThat(findBusinessVerificationRequest).isNotNull();
+        assertThat(findBusinessVerificationRequest.getUser().getId()).isEqualTo(user.getId());
+        assertThat(findBusinessVerificationRequest.getBusinessNumber()).isEqualTo("0123456789");
+        verify(discordNotificationService, times(1))
+                .sendBusinessVerificationNotification(any(BusinessVerificationRequestEvent.class));
+    }
+
+    @Test
+    @DisplayName("이미 검수를 요청한 사업자 번호라면 요청에 실패한다.")
+    void user_validateBusinessStatus_whenAlreadyRequestBusinessNumber_thenFail(){
+        given(businessStatusService.validateBusinessStatus(any(UpgradeRoomAdminRequest.class))).willReturn(true);
+        User user = UserFixture.createUserWithUUID();
+        userRepository.save(user);
+
+        UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
+                .businessName("test")
+                .businessNumber("0123456789")
+                .businessRegistrationDate("20250101")
+                .businessOwnerName("owner")
+                .build();
+
+        businessVerificationRequestRepository.save(BusinessVerificationRequest.of(user, request));
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.validateBusinessStatus(request, user.getId())
+        );
     }
 
     @Test
@@ -575,6 +618,125 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         //when & then
         Assertions.assertThrows(GlobalException.class,
                 () -> commandService.validateBusinessStatus(request, UUID.randomUUID())
+        );
+    }
+
+    @Test
+    @DisplayName("사업자 검수 요청 승인에 성공한다.")
+    void user_businessVerificationApprove_Success(){
+        //given
+        User user = UserFixture.createUserWithUUID();
+        userRepository.save(user);
+
+        BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.builder()
+                .user(user)
+                .userName(user.getName())
+                .userNickname(user.getNickname())
+                .userRole(user.getUserRole())
+                .businessName("test")
+                .businessNumber("0123456789")
+                .businessRegistrationDate("20250101")
+                .businessOwnerName("owner")
+                .inspectionStatus(InspectionStatus.PENDING)
+                .build();
+
+        businessVerificationRequest = businessVerificationRequestRepository.save(businessVerificationRequest);
+
+        //when
+        commandService.updateInspectionStatusApproval(List.of(businessVerificationRequest.getId()));
+
+        //then
+        BusinessVerificationRequest findBusinessVerificationRequest
+                = businessVerificationRequestRepository.findById(businessVerificationRequest.getId()).get();
+
+        assertThat(findBusinessVerificationRequest).isNotNull();
+        assertThat(findBusinessVerificationRequest.getInspectionStatus()).isEqualTo(InspectionStatus.APPROVED);
+    }
+
+    @Test
+    @DisplayName("사업자 검수 요청 승인 작업에서 잘못된 ID값이 있다면 실패한다.")
+    void user_businessVerificationApprove_whenInValidId_thenFail(){
+        //given
+        User user = UserFixture.createUserWithUUID();
+        userRepository.save(user);
+
+        BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.builder()
+                .user(user)
+                .userName(user.getName())
+                .userNickname(user.getNickname())
+                .userRole(user.getUserRole())
+                .businessName("test")
+                .businessNumber("0123456789")
+                .businessRegistrationDate("20250101")
+                .businessOwnerName("owner")
+                .inspectionStatus(InspectionStatus.PENDING)
+                .build();
+
+        businessVerificationRequestRepository.save(businessVerificationRequest);
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.updateInspectionStatusApproval(List.of( 100L))
+        );
+    }
+
+    @Test
+    @DisplayName("사업자 검수 요청 거부에 성공한다.")
+    void user_businessVerificationRejection_Success(){
+        //given
+        User user = UserFixture.createUserWithUUID();
+
+        userRepository.save(user);
+
+        BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.builder()
+                .user(user)
+                .userName(user.getName())
+                .userNickname(user.getNickname())
+                .userRole(user.getUserRole())
+                .businessName("test")
+                .businessNumber("0123456789")
+                .businessRegistrationDate("20250101")
+                .businessOwnerName("owner")
+                .inspectionStatus(InspectionStatus.PENDING)
+                .build();
+
+        businessVerificationRequest = businessVerificationRequestRepository.save(businessVerificationRequest);
+
+        //when
+        commandService.updateInspectionStatusRejection(List.of(businessVerificationRequest.getId()));
+
+        //then
+        BusinessVerificationRequest findBusinessVerificationRequest
+                = businessVerificationRequestRepository.findById(businessVerificationRequest.getId()).get();
+
+        assertThat(findBusinessVerificationRequest).isNotNull();
+        assertThat(findBusinessVerificationRequest.getInspectionStatus()).isEqualTo(InspectionStatus.REJECTED);
+    }
+
+    @Test
+    @DisplayName("사업자 검수 요청 거부 작업에서 잘못된 ID값이 있다면 실패한다.")
+    void user_businessVerificationRejection_whenInValidId_thenFail(){
+        //given
+        User user = UserFixture.createUserWithUUID();
+        userRepository.save(user);
+
+        BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.builder()
+                .user(user)
+                .userName(user.getName())
+                .userNickname(user.getNickname())
+                .userRole(user.getUserRole())
+                .businessName("test")
+                .businessNumber("0123456789")
+                .businessRegistrationDate("20250101")
+                .businessOwnerName("owner")
+                .inspectionStatus(InspectionStatus.PENDING)
+                .build();
+
+        businessVerificationRequestRepository.save(businessVerificationRequest);
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.updateInspectionStatusRejection(List.of( 100L))
         );
     }
 }
