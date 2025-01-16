@@ -1,8 +1,11 @@
 package com.jj.swm.domain.user.service;
 
+import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
 import com.jj.swm.domain.user.dto.request.*;
+import com.jj.swm.domain.user.entity.BusinessVerificationRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.entity.UserCredential;
+import com.jj.swm.domain.user.repository.BusinessVerificationRequestRepository;
 import com.jj.swm.domain.user.repository.UserCredentialRepository;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.EmailSendType;
@@ -12,13 +15,16 @@ import com.jj.swm.global.common.enums.RedisPrefix;
 import com.jj.swm.global.common.service.EmailService;
 import com.jj.swm.global.common.service.RedisService;
 import com.jj.swm.global.common.util.RandomUtils;
+import com.jj.swm.global.event.Events;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,6 +41,7 @@ public class UserCommandService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserCredentialRepository userCredentialRepository;
+    private final BusinessVerificationRequestRepository businessVerificationRequestRepository;
 
     public void sendAuthCode(String loginId, EmailSendType type) {
         String authCode = RandomUtils.generateRandomCode();
@@ -143,7 +150,38 @@ public class UserCommandService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "User Not Found"));
 
-            user.modifyRoleRoomAdmin();
+            if(businessVerificationRequestRepository
+                    .existsByBusinessNumber(request.getBusinessNumber())
+            ) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "해당 사업자 번호는 요청되어 있습니다.");
+            }
+
+            BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.of(user, request);
+            businessVerificationRequestRepository.save(businessVerificationRequest);
+
+            Events.send(BusinessVerificationRequestEvent.from(businessVerificationRequest));
+        }
+    }
+
+    @Transactional
+    public void updateInspectionStatusApproval(List<Long> businessVerificationRequestIds) {
+        if(businessVerificationRequestRepository.countByIdIn(businessVerificationRequestIds)
+                == businessVerificationRequestIds.size()
+        ) {
+            businessVerificationRequestRepository.updateInspectionStatusApproval(businessVerificationRequestIds);
+        } else {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Invalid Match Id");
+        }
+    }
+
+    @Transactional
+    public void updateInspectionStatusRejection(List<Long> businessVerificationRequestIds) {
+        if(businessVerificationRequestRepository.countByIdIn(businessVerificationRequestIds)
+                == businessVerificationRequestIds.size()
+        ) {
+            businessVerificationRequestRepository.updateInspectionStatusRejection(businessVerificationRequestIds);
+        } else {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Invalid Match Id");
         }
     }
 
