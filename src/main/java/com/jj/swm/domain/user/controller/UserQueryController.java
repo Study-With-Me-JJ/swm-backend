@@ -1,15 +1,21 @@
 package com.jj.swm.domain.user.controller;
 
+import com.jj.swm.domain.user.dto.response.GetBusinessVerificationRequestResponse;
+import com.jj.swm.domain.user.entity.InspectionStatus;
 import com.jj.swm.domain.user.service.UserQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
+import com.jj.swm.global.common.dto.PageResponse;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +34,26 @@ public class UserQueryController {
     @GetMapping("/v1/user/nickname/validation")
     public ApiResponse<Boolean> validateUserNickname(@RequestParam("nickname") String nickname) {
         boolean response = userQueryService.validateNickname(nickname);
+
+        return ApiResponse.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/v1/user/business/verification/requests")
+    public ApiResponse<PageResponse<GetBusinessVerificationRequestResponse>> getBusinessVerificationRequests(
+            @RequestParam(
+                    value = "pageNo",
+                    required = false,
+                    defaultValue = "0"
+            ) int pageNo,
+            @RequestParam(
+                    value = "status",
+                    required = false,
+                    defaultValue = "PENDING, APPROVED, REJECTED"
+            ) List<InspectionStatus> status
+    ) {
+        PageResponse<GetBusinessVerificationRequestResponse> response
+                = userQueryService.getBusinessVerificationRequests(status, pageNo);
 
         return ApiResponse.ok(response);
     }
