@@ -29,7 +29,7 @@ public class TokenRedisService {
         String refreshToken = stringRedisTemplate.opsForValue().get(userId);
 
         if(refreshToken == null)
-            throw new TokenException(ErrorCode.UNAUTHORIZED_USER, "Unauthorized User");
+            throw new TokenException(ErrorCode.UNAUTHORIZED_USER, "Not Valid RefreshToken");
 
         return refreshToken;
     }
