@@ -1,5 +1,6 @@
 package com.jj.swm.global.security.jwt;
 
+import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.auth.TokenException;
@@ -34,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        String accessToken = jwtProvider.resolveToken(request.getHeader(AUTHORIZATION));
+        String accessToken = jwtProvider.resolveAccessToken(request.getHeader(AUTHORIZATION));
 
         if(StringUtils.hasText(accessToken)){
             // accessToken 검증
