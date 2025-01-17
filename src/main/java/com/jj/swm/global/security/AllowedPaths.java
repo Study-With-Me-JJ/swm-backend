@@ -3,6 +3,8 @@ package com.jj.swm.global.security;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+
 @Getter
 @RequiredArgsConstructor
 public enum AllowedPaths {
@@ -13,20 +15,12 @@ public enum AllowedPaths {
     USER("/api/v1/user/**"),
     SWAGGER_API_DOCS("/v3/api-docs/**"),
     SWAGGER_INDEX("/swagger-ui/**"),
+    EXTERNAL_API("/api/v1/external/**"),
     FAVICON("/favicon.ico");
 
     private final String path;
 
     public static String[] getAllowedPaths() {
-        return new String[] {
-            LOGIN.path,
-            AUTH_LOGIN.path,
-            REISSUE.path,
-            HEALTH_CHECK.path,
-            USER.path,
-            FAVICON.path,
-            SWAGGER_INDEX.path,
-            SWAGGER_API_DOCS.path
-        };
+        return Arrays.stream(AllowedPaths.values()).map(AllowedPaths::getPath).toArray(String[]::new);
     }
 }
