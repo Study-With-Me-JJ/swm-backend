@@ -1,4 +1,4 @@
-name: SWM CI
+name: SWM CI DEV
 
 on:
   workflow_dispatch:
