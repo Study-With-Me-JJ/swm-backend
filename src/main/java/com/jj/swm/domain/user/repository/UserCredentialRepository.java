@@ -10,6 +10,7 @@ public interface UserCredentialRepository extends JpaRepository<UserCredential, 
 
     boolean existsByLoginId(String loginId);
 
+    @Query("select uc from UserCredential uc join fetch uc.user u where uc.loginId = ?1")
     Optional<UserCredential> findByLoginId(String loginId);
 
     @Query("select uc from UserCredential uc join fetch uc.user u where uc.value = ?1")
