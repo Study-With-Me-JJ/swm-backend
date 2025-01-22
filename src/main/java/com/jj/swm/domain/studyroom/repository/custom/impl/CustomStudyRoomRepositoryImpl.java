@@ -29,6 +29,7 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
                         studyRoomTitleContains(condition.getTitle()),
                         studyRoomHeadcountGoe(condition.getHeadCount()),
                         studyRoomPriceBetween(condition.getMinPricePerHour(), condition.getMaxPricePerHour()),
+                        studyRoomLocalityExists(condition.getLocality()),
                         studyRoomOptionsContains(condition.getOptions()),
                         createSortPredicate(condition)
                 )
@@ -47,6 +48,10 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
 
     private BooleanBuilder studyRoomPriceBetween(int minPricePerHour, int maxPricePerHour) {
         return this.nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.between(minPricePerHour, maxPricePerHour));
+    }
+
+    private BooleanBuilder studyRoomLocalityExists(String locality) {
+        return this.nullSafeBuilder(() -> studyRoom.address.locality.eq(locality));
     }
 
     private BooleanBuilder studyRoomOptionsContains(List<StudyRoomOption> options) {
