@@ -1,4 +1,4 @@
-name: SWM CD
+name: SWM CD PROD
 
 on:
   workflow_dispatch:
