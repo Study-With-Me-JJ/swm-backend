@@ -13,6 +13,8 @@ public class GetStudyRoomCondition {
 
     private String title;
 
+    private String locality;
+
     private int headCount;
 
     private int minPricePerHour = 0;
@@ -28,7 +30,5 @@ public class GetStudyRoomCondition {
     private Integer lastSortValue;
 
     private Double lastAverageRatingValue = 5.0;
-
-    private int page;
 }
 

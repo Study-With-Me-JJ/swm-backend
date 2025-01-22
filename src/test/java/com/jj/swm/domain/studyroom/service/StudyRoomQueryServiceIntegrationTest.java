@@ -162,6 +162,22 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     }
 
     @Test
+    @DisplayName("스터디 룸 조회시 관련 locality가 없다면 빈값 조회에 성공한다.")
+    @Transactional
+    void studyRoom_getStudyRooms_whenWithoutLocality_Success() {
+        //given
+        GetStudyRoomCondition condition = new GetStudyRoomCondition();
+        condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
+        condition.setLocality("잘못된 locality");
+
+        //when
+        PageResponse<GetStudyRoomResponse> response = queryService.getStudyRooms(condition, null);
+
+        //then
+        assertThat(response.getData()).isEmpty();
+    }
+
+    @Test
     @DisplayName("유저 ID와 함께 조회 요청 시 북마크 정보도 반환한다.")
     @Transactional
     void studyRoom_getStudyRoomsWithUserId_thenReturnBookmarkInfo_Success() {
@@ -187,7 +203,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     }
 
     @Test
-    @DisplayName("조건에 맞는 스터디 룸이 없을 때 빈값 반환에 성공한다.")
+    @DisplayName("스터디 룸이 조회시 관련 옵션이 없을 때 빈값 반환에 성공한다.")
     @Transactional
     void studyRoom_getStudyRoom_whenNotCorrect_emptyReturn_Success(){
         //given

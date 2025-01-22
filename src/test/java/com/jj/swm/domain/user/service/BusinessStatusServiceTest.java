@@ -27,6 +27,7 @@ class BusinessStatusServiceTest {
 
         ReflectionTestUtils.setField(businessStatusService, "businessCheckAPIUrl", "https://api.odcloud.kr/api");
         ReflectionTestUtils.setField(businessStatusService, "businessCheckAPIKey", "test");
+        ReflectionTestUtils.setField(businessStatusService, "businessCheckUri", "https://api.odcloud.kr/api?serviceKey=test");
     }
 
     @Test

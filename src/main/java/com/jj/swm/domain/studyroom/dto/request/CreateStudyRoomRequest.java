@@ -5,6 +5,7 @@ import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Point;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -41,6 +42,7 @@ public class CreateStudyRoomRequest {
     private LocalTime closingTime;
 
     @NotNull
+    @Valid
     private Address address;
 
     private Point point;

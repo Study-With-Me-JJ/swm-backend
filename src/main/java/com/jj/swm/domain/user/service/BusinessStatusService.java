@@ -4,6 +4,7 @@ import com.jj.swm.domain.user.dto.request.UpgradeRoomAdminRequest;
 import com.jj.swm.domain.user.dto.response.BusinessCheckResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,14 @@ public class BusinessStatusService {
     @Value("${business.check.api.key}")
     private String businessCheckAPIKey;
 
+    private String businessCheckUri;
+
     private final RestClient restClient;
+
+    @PostConstruct
+    public void init() {
+        businessCheckUri = businessCheckAPIUrl + "?serviceKey=" + businessCheckAPIKey;
+    }
 
     public boolean validateBusinessStatus(UpgradeRoomAdminRequest request) {
         Map<String, Object> data = new HashMap<>();
@@ -39,7 +47,7 @@ public class BusinessStatusService {
 
         try {
             BusinessCheckResponse response = restClient.post()
-                    .uri(businessCheckAPIUrl + "?serviceKey=" + businessCheckAPIKey)
+                    .uri(businessCheckUri)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(requestBody)
                     .retrieve()
