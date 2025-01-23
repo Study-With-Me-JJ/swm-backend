@@ -19,14 +19,8 @@ public interface BusinessVerificationRequestRepository extends JpaRepository<Bus
     Page<BusinessVerificationRequest> findPagedVerificationRequestWithStatus(List<InspectionStatus> status, Pageable pageable);
 
     @Modifying
-    @Query("update BusinessVerificationRequest bvr set bvr.inspectionStatus = 'APPROVED' where bvr.id in ?1")
-    void updateInspectionStatusApproval(List<Long> businessVerificationRequestIds);
-
-    @Modifying
-    @Query("update BusinessVerificationRequest bvr set bvr.inspectionStatus = 'REJECTED' where bvr.id in ?1")
-    void updateInspectionStatusRejection(List<Long> businessVerificationRequestIds);
-
-    long countByIdIn(List<Long> ids);
+    @Query("update BusinessVerificationRequest bvr set bvr.inspectionStatus = ?2 where bvr.id in ?1")
+    void updateInspectionStatus(List<Long> businessVerificationRequestIds, InspectionStatus status);
 
     @Modifying
     @Query("delete from BusinessVerificationRequest bvr where bvr.user.id = ?1")
