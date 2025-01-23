@@ -58,6 +58,7 @@ public class DiscordNotificationService {
                         { "name": "유저 성함", "value": "%s", "inline": true },
                         { "name": "유저 권한", "value": "%s", "inline": true },
                         { "name": "유저 닉네임", "value": "%s", "inline": true },
+                        { "name": "유저 이메일", "value": "%s", "inline": true },
                         { "name": "사업자 번호", "value": "%s", "inline": true },
                         { "name": "사업자 소유자", "value": "%s", "inline": true },
                         { "name": "사업자 등록일자", "value": "%s", "inline": true },
@@ -71,10 +72,12 @@ public class DiscordNotificationService {
                 event.getUserName(),
                 event.getUserRole().name(),
                 event.getUserNickname(),
+                event.getUserEmail(),
                 event.getBusinessNumber(),
                 event.getBusinessOwnerName(),
                 event.getBusinessRegistrationDate(),
-                event.getBusinessName()
+                event.getBusinessName(),
+                event.getUserEmail()
         );
     }
 }
