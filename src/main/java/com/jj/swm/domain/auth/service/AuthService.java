@@ -10,7 +10,6 @@ import com.jj.swm.global.security.jwt.JwtProvider;
 import com.jj.swm.global.security.jwt.TokenRedisService;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
