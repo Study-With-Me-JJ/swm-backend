@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +18,9 @@ import java.util.UUID;
 public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long>, CustomStudyRoomRepository {
 
     boolean existsByIdAndUserId(Long studyRoomId, UUID userId);
+
+    @Query("select s.id from StudyRoom s where s.user.id = ?1")
+    List<Long> findStudyRoomIdsByUserId(UUID userId);
 
     @Query("select s from StudyRoom s join fetch s.user " +
             "where s.id = :studyRoomId and s.user.id = :userId")

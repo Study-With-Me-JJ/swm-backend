@@ -1,5 +1,7 @@
 package com.jj.swm.domain.user.service;
 
+import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
+import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
 import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
 import com.jj.swm.domain.user.dto.request.*;
 import com.jj.swm.domain.user.entity.BusinessVerificationRequest;
@@ -18,8 +20,6 @@ import com.jj.swm.global.common.util.RandomUtils;
 import com.jj.swm.global.event.Events;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,11 +37,14 @@ public class UserCommandService {
     private final RedisService redisService;
     private final EmailService emailService;
     private final BusinessStatusService businessStatusService;
+    private final StudyRoomCommandService studyRoomCommandService;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
     private final UserCredentialRepository userCredentialRepository;
     private final BusinessVerificationRequestRepository businessVerificationRequestRepository;
+    private final StudyRoomRepository studyRoomRepository;
 
     public void sendAuthCode(String loginId, EmailSendType type) {
         String authCode = RandomUtils.generateRandomCode();
@@ -111,6 +114,22 @@ public class UserCommandService {
         } else{
             throw new GlobalException(ErrorCode.NOT_VALID, "duplicated nickname");
         }
+    }
+
+    @Transactional
+    public void delete(UUID userId) {
+        // TODO: Study 로직 추가 및 StudyRoom 삭제 최적화
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
+
+        userCredentialRepository.deleteAllByUserId(user.getId());
+        businessVerificationRequestRepository.deleteAllByUserId(user.getId());
+
+        List<Long> studyRoomIds = studyRoomRepository.findStudyRoomIdsByUserId(user.getId());
+
+        studyRoomIds.forEach(studyRoomId -> studyRoomCommandService.delete(studyRoomId, user.getId()));
+
+        userRepository.delete(user);
     }
 
     @Transactional
