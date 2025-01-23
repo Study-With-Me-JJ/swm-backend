@@ -1,6 +1,9 @@
 package com.jj.swm;
 
 import com.jj.swm.config.TestConfig;
+import com.jj.swm.domain.user.service.BusinessStatusService;
+import com.jj.swm.global.common.service.DiscordNotificationService;
+import com.jj.swm.global.common.service.EmailService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -37,6 +41,11 @@ public abstract class IntegrationContainerSupporter {
             .withReuse(true);
 
     @Autowired private CleanUp cleanUp;
+
+    // Mock Bean
+    @MockitoBean protected EmailService emailService;
+    @MockitoBean protected BusinessStatusService businessStatusService;
+    @MockitoBean protected DiscordNotificationService discordNotificationService;
 
     @BeforeAll
     public static void beforeAll(){
