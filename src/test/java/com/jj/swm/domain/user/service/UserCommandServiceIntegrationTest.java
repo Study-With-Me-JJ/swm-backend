@@ -1,12 +1,10 @@
 package com.jj.swm.domain.user.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
+import com.jj.swm.domain.user.dto.event.BusinessInspectionUpdateEvent;
 import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
 import com.jj.swm.domain.user.dto.request.*;
-import com.jj.swm.domain.user.entity.BusinessVerificationRequest;
-import com.jj.swm.domain.user.entity.InspectionStatus;
-import com.jj.swm.domain.user.entity.User;
-import com.jj.swm.domain.user.entity.UserCredential;
+import com.jj.swm.domain.user.entity.*;
 import com.jj.swm.domain.user.fixture.UserFixture;
 import com.jj.swm.domain.user.repository.BusinessVerificationRequestRepository;
 import com.jj.swm.domain.user.repository.UserCredentialRepository;
@@ -14,18 +12,16 @@ import com.jj.swm.domain.user.repository.UserRepository;
 import com.jj.swm.global.common.enums.EmailSendType;
 import com.jj.swm.global.common.enums.ExpirationTime;
 import com.jj.swm.global.common.enums.RedisPrefix;
-import com.jj.swm.global.common.service.EmailService;
 import com.jj.swm.global.common.service.RedisService;
 import com.jj.swm.global.common.util.RandomUtils;
 import com.jj.swm.global.exception.GlobalException;
-import com.jj.swm.global.common.service.DiscordNotificationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -48,11 +44,6 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @Autowired private UserRepository userRepository;
     @Autowired private UserCredentialRepository userCredentialRepository;
     @Autowired private BusinessVerificationRequestRepository businessVerificationRequestRepository;
-
-    // Mock Bean
-    @MockitoBean private EmailService emailService;
-    @MockitoBean private BusinessStatusService businessStatusService;
-    @MockitoBean private DiscordNotificationService discordNotificationService;
 
     @Autowired private PasswordEncoder passwordEncoder;
 
@@ -536,6 +527,14 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         User user = UserFixture.createUserWithUUID();
         userRepository.save(user);
 
+        UserCredential userCredential = UserCredential.builder()
+                .user(user)
+                .loginId("test@gmail.com")
+                .value("test")
+                .build();
+
+        userCredentialRepository.save(userCredential);
+
         UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
                 .businessName("test")
                 .businessNumber("0123456789")
@@ -561,7 +560,20 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("이미 검수를 요청한 사업자 번호라면 요청에 실패한다.")
     void user_validateBusinessStatus_whenAlreadyRequestBusinessNumber_thenFail(){
         given(businessStatusService.validateBusinessStatus(any(UpgradeRoomAdminRequest.class))).willReturn(true);
-        User user = UserFixture.createUserWithUUID();
+        User user = User.builder()
+                .id(UUID.randomUUID())
+                .nickname(UUID.randomUUID().toString())
+                .name("test")
+                .profileImageUrl("http://test.png")
+                .userRole(RoleType.USER)
+                .studyRooms(new ArrayList<>())
+                .userCredentials(List.of(UserCredential.builder()
+                        .loginId("test@gmail.com")
+                        .value("test")
+                        .build())
+                )
+                .build();
+
         userRepository.save(user);
 
         UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
@@ -625,6 +637,9 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("사업자 검수 요청 승인에 성공한다.")
     void user_businessVerificationApprove_Success(){
         //given
+        given(emailService.sendBusinessVerificationEmail(any(BusinessInspectionUpdateEvent.class)))
+                .willReturn(CompletableFuture.completedFuture(true));
+
         User user = UserFixture.createUserWithUUID();
         userRepository.save(user);
 
@@ -633,6 +648,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
                 .userName(user.getName())
                 .userNickname(user.getNickname())
                 .userRole(user.getUserRole())
+                .userEmail("test@gmail.com")
                 .businessName("test")
                 .businessNumber("0123456789")
                 .businessRegistrationDate("20250101")
@@ -643,7 +659,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         businessVerificationRequest = businessVerificationRequestRepository.save(businessVerificationRequest);
 
         //when
-        commandService.updateInspectionStatusApproval(List.of(businessVerificationRequest.getId()));
+        commandService.updateInspectionStatus(List.of(businessVerificationRequest.getId()), InspectionStatus.APPROVED);
 
         //then
         BusinessVerificationRequest findBusinessVerificationRequest
@@ -651,6 +667,9 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
 
         assertThat(findBusinessVerificationRequest).isNotNull();
         assertThat(findBusinessVerificationRequest.getInspectionStatus()).isEqualTo(InspectionStatus.APPROVED);
+
+        verify(emailService, times(1))
+                .sendBusinessVerificationEmail(any(BusinessInspectionUpdateEvent.class));
     }
 
     @Test
@@ -670,13 +689,14 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
                 .businessRegistrationDate("20250101")
                 .businessOwnerName("owner")
                 .inspectionStatus(InspectionStatus.PENDING)
+                .userEmail("test@gmail.com")
                 .build();
 
         businessVerificationRequestRepository.save(businessVerificationRequest);
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
-                () -> commandService.updateInspectionStatusApproval(List.of( 100L))
+                () -> commandService.updateInspectionStatus(List.of( 100L), InspectionStatus.APPROVED)
         );
     }
 
@@ -684,6 +704,9 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("사업자 검수 요청 거부에 성공한다.")
     void user_businessVerificationRejection_Success(){
         //given
+        given(emailService.sendBusinessVerificationEmail(any(BusinessInspectionUpdateEvent.class)))
+                .willReturn(CompletableFuture.completedFuture(true));
+
         User user = UserFixture.createUserWithUUID();
 
         userRepository.save(user);
@@ -693,6 +716,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
                 .userName(user.getName())
                 .userNickname(user.getNickname())
                 .userRole(user.getUserRole())
+                .userEmail("test@gmail.com")
                 .businessName("test")
                 .businessNumber("0123456789")
                 .businessRegistrationDate("20250101")
@@ -703,7 +727,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         businessVerificationRequest = businessVerificationRequestRepository.save(businessVerificationRequest);
 
         //when
-        commandService.updateInspectionStatusRejection(List.of(businessVerificationRequest.getId()));
+        commandService.updateInspectionStatus(List.of(businessVerificationRequest.getId()), InspectionStatus.REJECTED);
 
         //then
         BusinessVerificationRequest findBusinessVerificationRequest
@@ -711,6 +735,9 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
 
         assertThat(findBusinessVerificationRequest).isNotNull();
         assertThat(findBusinessVerificationRequest.getInspectionStatus()).isEqualTo(InspectionStatus.REJECTED);
+
+        verify(emailService, times(1))
+                .sendBusinessVerificationEmail(any(BusinessInspectionUpdateEvent.class));
     }
 
     @Test
@@ -725,6 +752,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
                 .userName(user.getName())
                 .userNickname(user.getNickname())
                 .userRole(user.getUserRole())
+                .userEmail("test@gmail.com")
                 .businessName("test")
                 .businessNumber("0123456789")
                 .businessRegistrationDate("20250101")
@@ -736,7 +764,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
-                () -> commandService.updateInspectionStatusRejection(List.of( 100L))
+                () -> commandService.updateInspectionStatus(List.of( 100L), InspectionStatus.REJECTED)
         );
     }
 }

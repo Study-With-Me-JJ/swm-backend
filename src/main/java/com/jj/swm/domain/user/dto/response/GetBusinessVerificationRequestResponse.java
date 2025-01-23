@@ -12,6 +12,7 @@ import java.util.UUID;
 @Builder
 public class GetBusinessVerificationRequestResponse {
 
+    private Long id;
     private UUID userId;
     private String userName;
     private RoleType userRole;
@@ -24,6 +25,7 @@ public class GetBusinessVerificationRequestResponse {
 
     public static GetBusinessVerificationRequestResponse from(BusinessVerificationRequest request) {
         return GetBusinessVerificationRequestResponse.builder()
+                .id(request.getId())
                 .userId(request.getUser().getId())
                 .userName(request.getUserName())
                 .userRole(request.getUserRole())

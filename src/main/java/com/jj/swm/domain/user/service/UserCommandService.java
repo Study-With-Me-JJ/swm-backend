@@ -2,9 +2,11 @@ package com.jj.swm.domain.user.service;
 
 import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
 import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
+import com.jj.swm.domain.user.dto.event.BusinessInspectionUpdateEvent;
 import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
 import com.jj.swm.domain.user.dto.request.*;
 import com.jj.swm.domain.user.entity.BusinessVerificationRequest;
+import com.jj.swm.domain.user.entity.InspectionStatus;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.entity.UserCredential;
 import com.jj.swm.domain.user.repository.BusinessVerificationRequestRepository;
@@ -183,22 +185,14 @@ public class UserCommandService {
     }
 
     @Transactional
-    public void updateInspectionStatusApproval(List<Long> businessVerificationRequestIds) {
-        if(businessVerificationRequestRepository.countByIdIn(businessVerificationRequestIds)
-                == businessVerificationRequestIds.size()
-        ) {
-            businessVerificationRequestRepository.updateInspectionStatusApproval(businessVerificationRequestIds);
-        } else {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Invalid Match Id");
-        }
-    }
+    public void updateInspectionStatus(List<Long> businessVerificationRequestIds, InspectionStatus status) {
+        List<BusinessVerificationRequest> businessVerificationRequests
+                = businessVerificationRequestRepository.findAllById(businessVerificationRequestIds);
 
-    @Transactional
-    public void updateInspectionStatusRejection(List<Long> businessVerificationRequestIds) {
-        if(businessVerificationRequestRepository.countByIdIn(businessVerificationRequestIds)
-                == businessVerificationRequestIds.size()
+        if(businessVerificationRequests.size() == businessVerificationRequestIds.size()
         ) {
-            businessVerificationRequestRepository.updateInspectionStatusRejection(businessVerificationRequestIds);
+            businessVerificationRequestRepository.updateInspectionStatus(businessVerificationRequestIds, status);
+            businessVerificationRequests.forEach(bvr -> Events.send(BusinessInspectionUpdateEvent.of(bvr, status)));
         } else {
             throw new GlobalException(ErrorCode.NOT_VALID, "Invalid Match Id");
         }

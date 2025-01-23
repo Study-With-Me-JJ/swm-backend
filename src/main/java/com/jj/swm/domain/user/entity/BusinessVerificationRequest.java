@@ -38,6 +38,9 @@ public class BusinessVerificationRequest extends BaseTimeEntity {
     @Column(name = "user_nickname", nullable = false, length = 50)
     private String userNickname;
 
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
+
     @Column(name = "business_number", unique = true, nullable = false, length = 10)
     private String businessNumber;
 
@@ -61,6 +64,11 @@ public class BusinessVerificationRequest extends BaseTimeEntity {
                 .userName(user.getName())
                 .userRole(user.getUserRole())
                 .userNickname(user.getNickname())
+                .userEmail(
+                        user.getUserCredentials()
+                        .getFirst()
+                        .getLoginId()
+                )
                 .businessNumber(request.getBusinessNumber())
                 .businessOwnerName(request.getBusinessOwnerName())
                 .businessRegistrationDate(request.getBusinessRegistrationDate())

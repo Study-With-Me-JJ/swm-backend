@@ -7,7 +7,6 @@ import lombok.*;
 import java.util.UUID;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,6 +16,7 @@ public class BusinessVerificationRequestEvent {
     private String userName;
     private RoleType userRole;
     private String userNickname;
+    private String userEmail;
     private String businessNumber;
     private String businessOwnerName;
     private String businessRegistrationDate;
@@ -28,6 +28,7 @@ public class BusinessVerificationRequestEvent {
                 .userName(request.getUserName())
                 .userRole(request.getUserRole())
                 .userNickname(request.getUserNickname())
+                .userEmail(request.getUserEmail())
                 .businessNumber(request.getBusinessNumber())
                 .businessOwnerName(request.getBusinessOwnerName())
                 .businessRegistrationDate(request.getBusinessRegistrationDate())
