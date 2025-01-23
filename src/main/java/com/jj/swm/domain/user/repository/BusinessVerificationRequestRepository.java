@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface BusinessVerificationRequestRepository extends JpaRepository<BusinessVerificationRequest, Long> {
 
@@ -26,4 +27,8 @@ public interface BusinessVerificationRequestRepository extends JpaRepository<Bus
     void updateInspectionStatusRejection(List<Long> businessVerificationRequestIds);
 
     long countByIdIn(List<Long> ids);
+
+    @Modifying
+    @Query("delete from BusinessVerificationRequest bvr where bvr.user.id = ?1")
+    void deleteAllByUserId(UUID userId);
 }
