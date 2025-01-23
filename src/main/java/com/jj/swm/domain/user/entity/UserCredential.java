@@ -1,10 +1,13 @@
 package com.jj.swm.domain.user.entity;
 
 import com.jj.swm.domain.user.dto.request.CreateUserRequest;
+import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -12,7 +15,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 @Table(name = "user_credential")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserCredential {
+public class UserCredential extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +31,9 @@ public class UserCredential {
 
     @Column(name = "login_id", unique = true)
     private String loginId;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

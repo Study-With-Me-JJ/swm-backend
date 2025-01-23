@@ -71,6 +71,13 @@ public class UserCommandController {
         return ApiResponse.ok(null);
     }
 
+    @DeleteMapping("/v1/user")
+    public ApiResponse<Void> delete(Principal principal){
+        userCommandService.delete(UUID.fromString(principal.getName()));
+
+        return ApiResponse.ok(null);
+    }
+
 
     @PatchMapping("/v1/user/password")
     public ApiResponse<Void> updatePassword(
