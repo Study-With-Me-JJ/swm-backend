@@ -525,11 +525,12 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
                 .willReturn(CompletableFuture.completedFuture(true));
 
         User user = UserFixture.createUserWithUUID();
+
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
-                .user(user)
                 .loginId("test@gmail.com")
+                .user(user)
                 .value("test")
                 .build();
 
@@ -567,11 +568,6 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
                 .profileImageUrl("http://test.png")
                 .userRole(RoleType.USER)
                 .studyRooms(new ArrayList<>())
-                .userCredentials(List.of(UserCredential.builder()
-                        .loginId("test@gmail.com")
-                        .value("test")
-                        .build())
-                )
                 .build();
 
         userRepository.save(user);
@@ -583,7 +579,11 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
                 .businessOwnerName("owner")
                 .build();
 
-        businessVerificationRequestRepository.save(BusinessVerificationRequest.of(user, request));
+        businessVerificationRequestRepository.save(BusinessVerificationRequest.of(
+                user,
+                "test@gmail.com",
+                request)
+        );
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
