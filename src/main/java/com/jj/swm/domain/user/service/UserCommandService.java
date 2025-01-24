@@ -21,10 +21,10 @@ import com.jj.swm.global.common.service.RedisService;
 import com.jj.swm.global.common.util.RandomUtils;
 import com.jj.swm.global.event.Events;
 import com.jj.swm.global.exception.GlobalException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -169,7 +169,7 @@ public class UserCommandService {
             throw new GlobalException(ErrorCode.NOT_VALID, "국세청에 등록되지 않은 사업자등록번호입니다.");
         } else {
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "User Not Found"));
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "User Not Found"));
 
             if(businessVerificationRequestRepository
                     .existsByBusinessNumber(request.getBusinessNumber())
@@ -177,7 +177,12 @@ public class UserCommandService {
                 throw new GlobalException(ErrorCode.NOT_VALID, "해당 사업자 번호는 요청되어 있습니다.");
             }
 
-            BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.of(user, request);
+            UserCredential userCredential = userCredentialRepository.findRecentByUserId(user.getId())
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "User Credential Not Found"));
+
+            BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.of(
+                    user, userCredential.getLoginId(), request);
+
             businessVerificationRequestRepository.save(businessVerificationRequest);
 
             Events.send(BusinessVerificationRequestEvent.from(businessVerificationRequest));

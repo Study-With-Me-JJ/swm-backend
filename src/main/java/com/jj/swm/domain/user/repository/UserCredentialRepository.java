@@ -24,4 +24,11 @@ public interface UserCredentialRepository extends JpaRepository<UserCredential, 
     @Modifying
     @Query("update UserCredential uc set uc.deletedAt = CURRENT_TIMESTAMP where uc.user.id = ?1")
     void deleteAllByUserId(UUID userId);
+
+    @Query(value = """
+            SELECT * FROM user_credential uc 
+            WHERE uc.user_id = ?1 
+            ORDER BY uc.created_at DESC LIMIT 1
+    """, nativeQuery = true)
+    Optional<UserCredential> findRecentByUserId(UUID userId);
 }

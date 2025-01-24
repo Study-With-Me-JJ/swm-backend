@@ -58,17 +58,13 @@ public class BusinessVerificationRequest extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private InspectionStatus inspectionStatus;
 
-    public static BusinessVerificationRequest of(User user, UpgradeRoomAdminRequest request) {
+    public static BusinessVerificationRequest of(User user, String userEmail, UpgradeRoomAdminRequest request) {
         return BusinessVerificationRequest.builder()
                 .user(user)
                 .userName(user.getName())
                 .userRole(user.getUserRole())
                 .userNickname(user.getNickname())
-                .userEmail(
-                        user.getUserCredentials()
-                        .getFirst()
-                        .getLoginId()
-                )
+                .userEmail(userEmail)
                 .businessNumber(request.getBusinessNumber())
                 .businessOwnerName(request.getBusinessOwnerName())
                 .businessRegistrationDate(request.getBusinessRegistrationDate())

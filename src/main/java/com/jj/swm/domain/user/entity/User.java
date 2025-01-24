@@ -51,9 +51,6 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<StudyRoom> studyRooms = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    private List<UserCredential> userCredentials = new ArrayList<>();
-
     public void addStudyRoom(StudyRoom studyRoom) {
         studyRooms.add(studyRoom);
     }
