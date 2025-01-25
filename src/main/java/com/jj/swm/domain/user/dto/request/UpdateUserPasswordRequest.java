@@ -14,6 +14,8 @@ public class UpdateUserPasswordRequest {
     @NotBlank
     private String loginId;
 
+    private String oldPassword;
+
     @NotBlank
-    private String password;
+    private String newPassword;
 }

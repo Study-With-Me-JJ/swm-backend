@@ -21,10 +21,12 @@ import com.jj.swm.global.common.service.RedisService;
 import com.jj.swm.global.common.util.RandomUtils;
 import com.jj.swm.global.event.Events;
 import com.jj.swm.global.exception.GlobalException;
+import com.jj.swm.global.security.jwt.TokenRedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +42,7 @@ public class UserCommandService {
     private final EmailService emailService;
     private final BusinessStatusService businessStatusService;
     private final StudyRoomCommandService studyRoomCommandService;
+    private final TokenRedisService tokenRedisService;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -146,12 +149,21 @@ public class UserCommandService {
             if (!AUTH_CODE_VERIFIED.equals(storedAuthCode)) {
                 throw new GlobalException(ErrorCode.FORBIDDEN, "Unverified Auth Code");
             }
+        } else {
+            if (!StringUtils.hasText(request.getOldPassword())) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Empty Old Password");
+            }
+
+            if (!passwordEncoder.matches(request.getOldPassword(), userCredential.getValue())) {
+                throw new GlobalException(ErrorCode.FORBIDDEN, "Password mismatch");
+            }
         }
 
-        String encryptedPassword = passwordEncoder.encode(request.getPassword());
+        String encryptedPassword = passwordEncoder.encode(request.getNewPassword());
 
         userCredential.modifyPassword(encryptedPassword);
 
+        tokenRedisService.deleteByUserId(userCredential.getLoginId());
         // 로그인한 유저인 경우 프론트에게 로그아웃 요청
     }
 
