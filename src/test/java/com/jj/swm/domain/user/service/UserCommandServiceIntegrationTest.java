@@ -390,14 +390,15 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         UserCredential userCredential = UserCredential.builder()
                 .loginId("test@gmail.com")
                 .user(user)
-                .value("test")
+                .value(passwordEncoder.encode("oldPassword"))
                 .build();
 
         userCredentialRepository.save(userCredential);
 
         UpdateUserPasswordRequest request = UpdateUserPasswordRequest.builder()
                 .loginId("test@gmail.com")
-                .password("update_password")
+                .oldPassword("oldPassword")
+                .newPassword("newPassword")
                 .build();
 
         //when
@@ -406,7 +407,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         //then
         UserCredential findUserCredential = userCredentialRepository.findByLoginId("test@gmail.com").get();
 
-        assertThat(passwordEncoder.matches(request.getPassword(), findUserCredential.getValue()))
+        assertThat(passwordEncoder.matches(request.getNewPassword(), findUserCredential.getValue()))
                 .isTrue();
     }
 
@@ -420,14 +421,14 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         UserCredential userCredential = UserCredential.builder()
                 .loginId("test@gmail.com")
                 .user(user)
-                .value("test")
+                .value(passwordEncoder.encode("oldPassword"))
                 .build();
 
         userCredentialRepository.save(userCredential);
 
         UpdateUserPasswordRequest request = UpdateUserPasswordRequest.builder()
                 .loginId("test@gmail.com")
-                .password("update_password")
+                .newPassword("newPassword")
                 .build();
 
         redisService.setValueWithExpiration(
@@ -442,7 +443,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         //then
         UserCredential findUserCredential = userCredentialRepository.findByLoginId("test@gmail.com").get();
 
-        assertThat(passwordEncoder.matches(request.getPassword(), findUserCredential.getValue()))
+        assertThat(passwordEncoder.matches(request.getNewPassword(), findUserCredential.getValue()))
                 .isTrue();
     }
 
@@ -456,14 +457,14 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         UserCredential userCredential = UserCredential.builder()
                 .loginId("test@gmail.com")
                 .user(user)
-                .value("test")
+                .value(passwordEncoder.encode("oldPassword"))
                 .build();
 
         userCredentialRepository.save(userCredential);
 
         UpdateUserPasswordRequest request = UpdateUserPasswordRequest.builder()
                 .loginId("test@gmail.com")
-                .password("update_password")
+                .newPassword("newPassword")
                 .build();
 
         //when & then
@@ -472,7 +473,58 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         );
     }
 
+    @Test
+    @DisplayName("원본 패스워드가 맞지 않으면 비밀번호 변경에 실패한다.")
+    void user_updateUserPassword_whenWrongPassword_thenFail(){
+        //given
+        User user = UserFixture.createUserWithUUID();
+        userRepository.save(user);
 
+        UserCredential userCredential = UserCredential.builder()
+                .loginId("test@gmail.com")
+                .user(user)
+                .value(passwordEncoder.encode("oldPassword"))
+                .build();
+
+        userCredentialRepository.save(userCredential);
+
+        UpdateUserPasswordRequest request = UpdateUserPasswordRequest.builder()
+                .loginId("test@gmail.com")
+                .oldPassword("wrongPassword")
+                .newPassword("newPassword")
+                .build();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.updateUserPassword(request, user.getId())
+        );
+    }
+
+    @Test
+    @DisplayName("원본 패스워드가 비어있는 비밀번호 변경에 실패한다.")
+    void user_updateUserPassword_whenEmptyPassword_thenFail() {
+        //given
+        User user = UserFixture.createUserWithUUID();
+        userRepository.save(user);
+
+        UserCredential userCredential = UserCredential.builder()
+                .loginId("test@gmail.com")
+                .user(user)
+                .value(passwordEncoder.encode("oldPassword"))
+                .build();
+
+        userCredentialRepository.save(userCredential);
+
+        UpdateUserPasswordRequest request = UpdateUserPasswordRequest.builder()
+                .loginId("test@gmail.com")
+                .newPassword("newPassword")
+                .build();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.updateUserPassword(request, user.getId())
+        );
+    }
 
     @Test
     @DisplayName("유저 아이디 찾기에 성공한다.")
