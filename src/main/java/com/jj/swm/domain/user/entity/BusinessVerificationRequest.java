@@ -38,6 +38,9 @@ public class BusinessVerificationRequest extends BaseTimeEntity {
     @Column(name = "user_nickname", nullable = false, length = 50)
     private String userNickname;
 
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
+
     @Column(name = "business_number", unique = true, nullable = false, length = 10)
     private String businessNumber;
 
@@ -55,12 +58,13 @@ public class BusinessVerificationRequest extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private InspectionStatus inspectionStatus;
 
-    public static BusinessVerificationRequest of(User user, UpgradeRoomAdminRequest request) {
+    public static BusinessVerificationRequest of(User user, String userEmail, UpgradeRoomAdminRequest request) {
         return BusinessVerificationRequest.builder()
                 .user(user)
                 .userName(user.getName())
                 .userRole(user.getUserRole())
                 .userNickname(user.getNickname())
+                .userEmail(userEmail)
                 .businessNumber(request.getBusinessNumber())
                 .businessOwnerName(request.getBusinessOwnerName())
                 .businessRegistrationDate(request.getBusinessRegistrationDate())

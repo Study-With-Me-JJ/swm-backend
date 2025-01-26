@@ -2,6 +2,7 @@ package com.jj.swm.domain.user.controller;
 
 import com.jj.swm.domain.user.dto.request.CreateUserRequest;
 import com.jj.swm.domain.user.dto.request.*;
+import com.jj.swm.domain.user.entity.InspectionStatus;
 import com.jj.swm.domain.user.service.UserCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.enums.EmailSendType;
@@ -71,6 +72,13 @@ public class UserCommandController {
         return ApiResponse.ok(null);
     }
 
+    @DeleteMapping("/v1/user")
+    public ApiResponse<Void> delete(Principal principal){
+        userCommandService.delete(UUID.fromString(principal.getName()));
+
+        return ApiResponse.ok(null);
+    }
+
 
     @PatchMapping("/v1/user/password")
     public ApiResponse<Void> updatePassword(
@@ -102,7 +110,7 @@ public class UserCommandController {
     public ApiResponse<Void> updateInspectionStatusApproval(
         @Valid @RequestBody UpdateInspectionStatusRequest request
     ) {
-        userCommandService.updateInspectionStatusApproval(request.getBusinessVerificationRequestIds());
+        userCommandService.updateInspectionStatus(request.getBusinessVerificationRequestIds(), InspectionStatus.APPROVED);
 
         return ApiResponse.ok(null);
     }
@@ -112,7 +120,7 @@ public class UserCommandController {
     public ApiResponse<Void> updateInspectionStatusRejection(
             @Valid @RequestBody UpdateInspectionStatusRequest request
     ) {
-        userCommandService.updateInspectionStatusRejection(request.getBusinessVerificationRequestIds());
+        userCommandService.updateInspectionStatus(request.getBusinessVerificationRequestIds(), InspectionStatus.REJECTED);
 
         return ApiResponse.ok(null);
     }

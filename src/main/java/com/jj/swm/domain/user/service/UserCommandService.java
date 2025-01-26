@@ -1,8 +1,12 @@
 package com.jj.swm.domain.user.service;
 
+import com.jj.swm.domain.studyroom.repository.StudyRoomRepository;
+import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
+import com.jj.swm.domain.user.dto.event.BusinessInspectionUpdateEvent;
 import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
 import com.jj.swm.domain.user.dto.request.*;
 import com.jj.swm.domain.user.entity.BusinessVerificationRequest;
+import com.jj.swm.domain.user.entity.InspectionStatus;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.domain.user.entity.UserCredential;
 import com.jj.swm.domain.user.repository.BusinessVerificationRequestRepository;
@@ -17,12 +21,12 @@ import com.jj.swm.global.common.service.RedisService;
 import com.jj.swm.global.common.util.RandomUtils;
 import com.jj.swm.global.event.Events;
 import com.jj.swm.global.exception.GlobalException;
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
+import com.jj.swm.global.security.jwt.TokenRedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,11 +41,15 @@ public class UserCommandService {
     private final RedisService redisService;
     private final EmailService emailService;
     private final BusinessStatusService businessStatusService;
+    private final StudyRoomCommandService studyRoomCommandService;
+    private final TokenRedisService tokenRedisService;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
     private final UserCredentialRepository userCredentialRepository;
     private final BusinessVerificationRequestRepository businessVerificationRequestRepository;
+    private final StudyRoomRepository studyRoomRepository;
 
     public void sendAuthCode(String loginId, EmailSendType type) {
         String authCode = RandomUtils.generateRandomCode();
@@ -114,6 +122,22 @@ public class UserCommandService {
     }
 
     @Transactional
+    public void delete(UUID userId) {
+        // TODO: Study 로직 추가 및 StudyRoom 삭제 최적화
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
+
+        userCredentialRepository.deleteAllByUserId(user.getId());
+        businessVerificationRequestRepository.deleteAllByUserId(user.getId());
+
+        List<Long> studyRoomIds = studyRoomRepository.findStudyRoomIdsByUserId(user.getId());
+
+        studyRoomIds.forEach(studyRoomId -> studyRoomCommandService.delete(studyRoomId, user.getId()));
+
+        userRepository.delete(user);
+    }
+
+    @Transactional
     public void updateUserPassword(UpdateUserPasswordRequest request, UUID userId) {
         UserCredential userCredential = userCredentialRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
@@ -125,12 +149,21 @@ public class UserCommandService {
             if (!AUTH_CODE_VERIFIED.equals(storedAuthCode)) {
                 throw new GlobalException(ErrorCode.FORBIDDEN, "Unverified Auth Code");
             }
+        } else {
+            if (!StringUtils.hasText(request.getOldPassword())) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Empty Old Password");
+            }
+
+            if (!passwordEncoder.matches(request.getOldPassword(), userCredential.getValue())) {
+                throw new GlobalException(ErrorCode.FORBIDDEN, "Password mismatch");
+            }
         }
 
-        String encryptedPassword = passwordEncoder.encode(request.getPassword());
+        String encryptedPassword = passwordEncoder.encode(request.getNewPassword());
 
         userCredential.modifyPassword(encryptedPassword);
 
+        tokenRedisService.deleteByUserId(userCredential.getLoginId());
         // 로그인한 유저인 경우 프론트에게 로그아웃 요청
     }
 
@@ -148,7 +181,7 @@ public class UserCommandService {
             throw new GlobalException(ErrorCode.NOT_VALID, "국세청에 등록되지 않은 사업자등록번호입니다.");
         } else {
             User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "User Not Found"));
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "User Not Found"));
 
             if(businessVerificationRequestRepository
                     .existsByBusinessNumber(request.getBusinessNumber())
@@ -156,7 +189,12 @@ public class UserCommandService {
                 throw new GlobalException(ErrorCode.NOT_VALID, "해당 사업자 번호는 요청되어 있습니다.");
             }
 
-            BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.of(user, request);
+            UserCredential userCredential = userCredentialRepository.findRecentByUserId(user.getId())
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "User Credential Not Found"));
+
+            BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.of(
+                    user, userCredential.getLoginId(), request);
+
             businessVerificationRequestRepository.save(businessVerificationRequest);
 
             Events.send(BusinessVerificationRequestEvent.from(businessVerificationRequest));
@@ -164,22 +202,14 @@ public class UserCommandService {
     }
 
     @Transactional
-    public void updateInspectionStatusApproval(List<Long> businessVerificationRequestIds) {
-        if(businessVerificationRequestRepository.countByIdIn(businessVerificationRequestIds)
-                == businessVerificationRequestIds.size()
-        ) {
-            businessVerificationRequestRepository.updateInspectionStatusApproval(businessVerificationRequestIds);
-        } else {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Invalid Match Id");
-        }
-    }
+    public void updateInspectionStatus(List<Long> businessVerificationRequestIds, InspectionStatus status) {
+        List<BusinessVerificationRequest> businessVerificationRequests
+                = businessVerificationRequestRepository.findAllById(businessVerificationRequestIds);
 
-    @Transactional
-    public void updateInspectionStatusRejection(List<Long> businessVerificationRequestIds) {
-        if(businessVerificationRequestRepository.countByIdIn(businessVerificationRequestIds)
-                == businessVerificationRequestIds.size()
+        if(businessVerificationRequests.size() == businessVerificationRequestIds.size()
         ) {
-            businessVerificationRequestRepository.updateInspectionStatusRejection(businessVerificationRequestIds);
+            businessVerificationRequestRepository.updateInspectionStatus(businessVerificationRequestIds, status);
+            businessVerificationRequests.forEach(bvr -> Events.send(BusinessInspectionUpdateEvent.of(bvr, status)));
         } else {
             throw new GlobalException(ErrorCode.NOT_VALID, "Invalid Match Id");
         }

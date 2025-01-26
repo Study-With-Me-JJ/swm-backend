@@ -2,11 +2,15 @@ package com.jj.swm.domain.external.study.dto.response;
 
 
 import com.jj.swm.domain.external.study.entity.ExternalStudy;
+import com.jj.swm.domain.external.study.enums.Role;
+import com.jj.swm.domain.external.study.enums.Technology;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 
 @Builder
 @Getter
@@ -20,10 +24,10 @@ public class ExternalStudyDto {
     private String link;
 
     @Schema(nullable = true)
-    private String technologies;
+    private List<Technology> technologies;
 
     @Schema(nullable = true)
-    private String roles;
+    private List<Role> roles;
 
     @Schema(nullable = true)
     private LocalDate deadlineDate;
@@ -33,8 +37,8 @@ public class ExternalStudyDto {
                 .id(externalStudy.getId())
                 .title(externalStudy.getTitle())
                 .link(externalStudy.getLink())
-                .technologies(externalStudy.getTechnologies())
-                .roles(externalStudy.getRoles())
+                .technologies(Arrays.stream(externalStudy.getTechnologies().split(",")).map(Technology::valueOf).toList())
+                .roles(Arrays.stream(externalStudy.getRoles().split(",")).map(Role::valueOf).toList())
                 .deadlineDate(externalStudy.getDeadlineDate())
                 .build();
     }

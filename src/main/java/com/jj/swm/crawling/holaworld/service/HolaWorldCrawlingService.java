@@ -1,6 +1,8 @@
 package com.jj.swm.crawling.holaworld.service;
 
 import com.jj.swm.domain.external.study.entity.ExternalStudy;
+import com.jj.swm.domain.external.study.enums.Role;
+import com.jj.swm.domain.external.study.enums.Technology;
 import com.jj.swm.domain.external.study.repository.ExternalStudyRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -86,13 +89,15 @@ public class HolaWorldCrawlingService implements DisposableBean {
 
                     // 역할(role) 정보
                     List<WebElement> positionElements = element.findElements(By.className("studyItem_position__2sRRD"));
-                    String roles = String.join(", ", positionElements.stream().map(WebElement::getText).toArray(String[]::new));
+                    String roles = String.join(",", positionElements.stream().map(WebElement::getText).map(Role::of).map(Role::toString).toArray(String[]::new));
 
                     // 기술 스택(technologies) 정보
                     List<WebElement> technologyElements = element.findElement(By.className("studyItem_content__1mJ9M"))
                             .findElements(By.className("studyItem_language__20yqw"));
-                    String technologies = String.join(", ", technologyElements.stream()
-                            .map(e -> e.findElement(By.tagName("img")).getAttribute("title"))
+                    String technologies = String.join(",", technologyElements.stream()
+                            .map(e -> e.findElement(By.tagName("img")).getAttribute("title")).filter(Objects::nonNull)
+                            .map(Technology::of)
+                            .map(Technology::toString)
                             .toArray(String[]::new));
 
                     String deadlineDateString = element.findElement(By.cssSelector(".studyItem_schedule__3oAnA p:nth-child(2)")).getText();
