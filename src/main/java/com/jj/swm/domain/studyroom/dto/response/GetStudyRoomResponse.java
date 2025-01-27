@@ -14,6 +14,8 @@ public class GetStudyRoomResponse {
     private String title;
     private String thumbnail;
     private String locality;
+    private String address;
+    private String phoneNumber;
     private int likeCount;
     private int reviewCount;
     private int entireMinPricePerHour;
@@ -28,6 +30,8 @@ public class GetStudyRoomResponse {
                 .title(studyRoom.getTitle())
                 .thumbnail(studyRoom.getThumbnail())
                 .locality(studyRoom.getAddress().getLocality())
+                .address(studyRoom.getAddress().getAddress())
+                .phoneNumber(studyRoom.getPhoneNumber())
                 .likeCount(studyRoom.getLikeCount())
                 .reviewCount(studyRoom.getReviewCount())
                 .starAvg(studyRoom.getAverageRating())
