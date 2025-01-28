@@ -55,13 +55,17 @@ public class CreateStudyRoomRequest {
     @NotBlank
     private String phoneNumber;
 
+    @Size(max = 10)
     private List<String> tags;
 
+    @Size(max = 7)
     private List<DayOfWeek> dayOffs;
 
+    @Size(max = 20)
     @NotEmpty
     private List<String> imageUrls;
 
+    @Size(max = 3)
     @NotEmpty
     private List<StudyRoomType> types;
 
