@@ -20,4 +20,6 @@ public interface StudyRoomTypeInfoRepository extends JpaRepository<StudyRoomType
     @Modifying
     @Query("delete from StudyRoomTypeInfo s where s.studyRoom.id = ?1")
     void deleteAllByStudyRoomId(Long studyRoomId);
+
+    long countByStudyRoomId(Long studyRoomId);
 }

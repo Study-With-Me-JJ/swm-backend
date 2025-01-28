@@ -16,6 +16,8 @@ public interface StudyRoomTagRepository extends JpaRepository<StudyRoomTag, Long
     int countStudyRoomTagByIdInAndStudyRoom(List<Long> tagIds, StudyRoom studyRoom);
 
     @Modifying
-    @Query("update StudyRoomTag s set s.deletedAt = CURRENT_TIMESTAMP where s.studyRoom.id = ?1")
+    @Query("delete from StudyRoomTag s where s.studyRoom.id = ?1")
     void deleteAllByStudyRoomId(Long studyRoomId);
+
+    long countByStudyRoomId(Long studyRoomId);
 }

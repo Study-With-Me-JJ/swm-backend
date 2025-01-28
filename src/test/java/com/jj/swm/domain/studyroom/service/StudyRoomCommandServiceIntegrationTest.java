@@ -117,6 +117,18 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     }
 
     @Test
+    @DisplayName("스터디 룸 수정시 태그 제한 개수를 초과했을 경우 실패한다.")
+    void studyRoom_update_whenExceedTagLimit_thenFail() {
+        //given
+        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTagLimitFail();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.update(request, studyRoom.getId(), roomAdmin.getId())
+        );
+    }
+
+    @Test
     @DisplayName("스터디 룸 수정시 잘못된 이미지 ID값을 전달했을 경우 실패한다.")
     void studyRoom_update_whenNotValidImageId_thenFail() {
         //given
@@ -129,10 +141,34 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     }
 
     @Test
+    @DisplayName("스터디 룸 수정시 이미지 제한 개수를 초과했을 경우 실패한다.")
+    void studyRoom_update_whenExceedImageTagLimit_thenFail() {
+        //given
+        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForImageLimitFail();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.update(request, studyRoom.getId(), roomAdmin.getId())
+        );
+    }
+
+    @Test
     @DisplayName("스터디 룸 수정시 잘못된 휴무일 ID값을 전달했을 경우 실패한다.")
     void studyRoom_update_whenNotValidDayOffId_thenFail() {
         //given
         UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForDayOffFail();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.update(request, studyRoom.getId(), roomAdmin.getId())
+        );
+    }
+
+    @Test
+    @DisplayName("스터디 룸 수정시 휴무일 제한 개수를 초과했을 경우 실패한다.")
+    void studyRoom_update_whenExceedDayOffLimit_thenFail() {
+        //given
+        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForDayOffLimitFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -187,6 +223,18 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     void studyRoom_updateSettings_whenNotValidTypeInfoId_thenFail() {
         //given
         UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomSettingRequestForTypeInfoFail();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.updateSettings(request, studyRoom.getId(), roomAdmin.getId())
+        );
+    }
+
+    @Test
+    @DisplayName("스터디 룸 수정시 휴무일 제한 개수를 초과했을 경우 실패한다.")
+    void studyRoom_update_whenExceedTypeLimit_thenFail() {
+        //given
+        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTypeLimitFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
