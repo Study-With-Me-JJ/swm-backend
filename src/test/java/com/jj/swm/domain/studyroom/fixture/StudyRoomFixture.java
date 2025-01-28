@@ -14,6 +14,7 @@ import com.jj.swm.domain.user.entity.User;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -290,6 +291,115 @@ public class StudyRoomFixture {
         return UpdateStudyRoomSettingRequest.builder()
                 .reservationTypeModification(ModifyStudyRoomReservationTypeRequest.builder()
                         .reservationTypeIdsToRemove(List.of(100L))
+                        .build()
+                )
+                .build();
+    }
+
+    public static UpdateStudyRoomRequest createUpdateStudyRoomRequestForTagLimitFail() {
+        return UpdateStudyRoomRequest.builder()
+                .title("update_test")
+                .introduce("update_test")
+                .notice("update_test")
+                .guideline("update_test")
+                .openingTime(LocalTime.MIN)
+                .closingTime(LocalTime.MAX)
+                .address(Address.builder()
+                        .address("서울 동작구")
+                        .detailAddress("서울 동작구 23번길")
+                        .region("서울")
+                        .locality("동작구")
+                        .build())
+                .point(Point.builder()
+                        .latitude(0.0)
+                        .longitude(0.0)
+                        .build())
+                .thumbnail("http://test.png")
+                .referenceUrl("http://test.com")
+                .phoneNumber("010-0000-0000")
+                .minReserveTime(2)
+                .entireMinHeadcount(1)
+                .entireMaxHeadcount(2)
+                .imageModification(null)
+                .dayOffModification(null)
+                .tagModification(ModifyStudyRoomTagRequest.builder()
+                        .tagsToAdd(List.of("tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10"))
+                        .build()
+                )
+                .build();
+    }
+
+    public static UpdateStudyRoomRequest createUpdateStudyRoomRequestForImageLimitFail() {
+        return UpdateStudyRoomRequest.builder()
+                .title("update_test")
+                .introduce("update_test")
+                .notice("update_test")
+                .guideline("update_test")
+                .openingTime(LocalTime.MIN)
+                .closingTime(LocalTime.MAX)
+                .address(Address.builder()
+                        .address("서울 동작구")
+                        .detailAddress("서울 동작구 23번길")
+                        .region("서울")
+                        .locality("동작구")
+                        .build())
+                .point(Point.builder()
+                        .latitude(0.0)
+                        .longitude(0.0)
+                        .build())
+                .thumbnail("http://test.png")
+                .referenceUrl("http://test.com")
+                .phoneNumber("010-0000-0000")
+                .minReserveTime(2)
+                .entireMinHeadcount(1)
+                .entireMaxHeadcount(2)
+                .imageModification(ModifyStudyRoomImageRequest.builder()
+                        .imagesToAdd(List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"))
+                        .build()
+                )
+                .dayOffModification(null)
+                .tagModification(null)
+                .build();
+    }
+
+    public static UpdateStudyRoomRequest createUpdateStudyRoomRequestForDayOffLimitFail() {
+        return UpdateStudyRoomRequest.builder()
+                .title("update_test")
+                .introduce("update_test")
+                .notice("update_test")
+                .guideline("update_test")
+                .openingTime(LocalTime.MIN)
+                .closingTime(LocalTime.MAX)
+                .address(Address.builder()
+                        .address("서울 동작구")
+                        .detailAddress("서울 동작구 23번길")
+                        .region("서울")
+                        .locality("동작구")
+                        .build())
+                .point(Point.builder()
+                        .latitude(0.0)
+                        .longitude(0.0)
+                        .build())
+                .thumbnail("http://test.png")
+                .referenceUrl("http://test.com")
+                .phoneNumber("010-0000-0000")
+                .minReserveTime(2)
+                .entireMinHeadcount(1)
+                .entireMaxHeadcount(2)
+                .imageModification(null)
+                .dayOffModification(ModifyStudyRoomDayOffRequest.builder()
+                        .dayOffsToAdd(Arrays.stream(DayOfWeek.values()).toList())
+                        .build()
+                )
+                .tagModification(null)
+                .build();
+    }
+
+    public static UpdateStudyRoomSettingRequest createUpdateStudyRoomRequestForTypeLimitFail() {
+        return UpdateStudyRoomSettingRequest.builder()
+                .typeInfoModification(ModifyStudyRoomTypeInfoRequest.builder()
+                        .typesToAdd(Arrays.stream(StudyRoomType.values()).toList())
                         .build()
                 )
                 .build();
