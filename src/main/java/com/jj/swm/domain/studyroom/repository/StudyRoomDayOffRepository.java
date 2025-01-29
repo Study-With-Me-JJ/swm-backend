@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.DayOfWeek;
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -22,4 +24,6 @@ public interface StudyRoomDayOffRepository extends JpaRepository<StudyRoomDayOff
     void deleteAllByStudyRoomId(Long studyRoomId);
 
     long countByStudyRoomId(Long studyRoomId);
+
+    boolean existsByStudyRoomIdAndDayOfWeekIn(Long studyRoomId, List<DayOfWeek> dayOfWeeks);
 }

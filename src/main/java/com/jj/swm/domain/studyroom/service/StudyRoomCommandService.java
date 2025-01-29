@@ -204,7 +204,14 @@ public class StudyRoomCommandService {
                 if(size + request.getDayOffsToAdd().size() > 7)
                     throw new GlobalException(ErrorCode.NOT_VALID, "DayOff Limit Exceeded");
 
-                dayOffRepository.batchInsert(request.getDayOffsToAdd(), studyRoom);
+                List<DayOfWeek> dayOffsToAdd = request.getDayOffsToAdd();
+
+                boolean isAlreadyExists = dayOffRepository.existsByStudyRoomIdAndDayOfWeekIn(studyRoom.getId(), dayOffsToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated DayOff");
+
+                dayOffRepository.batchInsert(dayOffsToAdd, studyRoom);
             }
             if (request.getDayOffIdsToRemove() != null && !request.getDayOffIdsToRemove().isEmpty())
                 removeDayOffs(request.getDayOffIdsToRemove(), studyRoom);
@@ -223,8 +230,16 @@ public class StudyRoomCommandService {
 
     private void optionModifyLogic(ModifyStudyRoomOptionInfoRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty())
-                optionInfoRepository.batchInsert(request.getOptionsToAdd(), studyRoom);
+            if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty()) {
+                List<StudyRoomOption> optionsToAdd = request.getOptionsToAdd();
+
+                boolean isAlreadyExists = optionInfoRepository.existsByStudyRoomIdAndOptionIn(studyRoom.getId(), optionsToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated Option");
+
+                optionInfoRepository.batchInsert(optionsToAdd, studyRoom);
+            }
             if (request.getOptionsIdsToRemove() != null && !request.getOptionsIdsToRemove().isEmpty())
                 removeOptions(request.getOptionsIdsToRemove(), studyRoom);
         }
@@ -248,7 +263,14 @@ public class StudyRoomCommandService {
                 if(size + request.getTypesToAdd().size() > 3)
                     throw new GlobalException(ErrorCode.NOT_VALID, "Type Limit Exceeded");
 
-                typeInfoRepository.batchInsert(request.getTypesToAdd(), studyRoom);
+                List<StudyRoomType> typesToAdd = request.getTypesToAdd();
+
+                boolean isAlreadyExists = typeInfoRepository.existsByStudyRoomIdAndTypeIn(studyRoom.getId(), typesToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated StudyRoomType");
+
+                typeInfoRepository.batchInsert(typesToAdd, studyRoom);
             }
             if (request.getTypeIdsToRemove() != null && !request.getTypeIdsToRemove().isEmpty())
                 removeTypes(request.getTypeIdsToRemove(), studyRoom);

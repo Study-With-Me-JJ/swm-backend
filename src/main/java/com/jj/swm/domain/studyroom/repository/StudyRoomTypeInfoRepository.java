@@ -1,6 +1,7 @@
 package com.jj.swm.domain.studyroom.repository;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
+import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.entity.StudyRoomTypeInfo;
 import com.jj.swm.domain.studyroom.repository.jdbc.JdbcTypeInfoRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,6 @@ public interface StudyRoomTypeInfoRepository extends JpaRepository<StudyRoomType
     void deleteAllByStudyRoomId(Long studyRoomId);
 
     long countByStudyRoomId(Long studyRoomId);
+
+    boolean existsByStudyRoomIdAndTypeIn(Long studyRoomId, List<StudyRoomType> typesToAdd);
 }
