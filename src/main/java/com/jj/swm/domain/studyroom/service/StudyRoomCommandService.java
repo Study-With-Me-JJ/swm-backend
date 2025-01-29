@@ -148,8 +148,14 @@ public class StudyRoomCommandService {
 
     private void imageModifyLogic(ModifyStudyRoomImageRequest request, StudyRoom studyRoom) {
         if (request != null) {
-            if (request.getImagesToAdd() != null && !request.getImagesToAdd().isEmpty())
+            if (request.getImagesToAdd() != null && !request.getImagesToAdd().isEmpty()) {
+                long size = imageRepository.countByStudyRoomId(studyRoom.getId());
+
+                if(size + request.getImagesToAdd().size() > 20)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
+
                 imageRepository.batchInsert(request.getImagesToAdd(), studyRoom);
+            }
             if (request.getImageIdsToRemove() != null && !request.getImageIdsToRemove().isEmpty())
                 removeImages(request.getImageIdsToRemove(), studyRoom);
         }
@@ -167,8 +173,14 @@ public class StudyRoomCommandService {
 
     private void tagModifyLogic(ModifyStudyRoomTagRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getTagsToAdd() != null && !request.getTagsToAdd().isEmpty())
+            if (request.getTagsToAdd() != null && !request.getTagsToAdd().isEmpty()) {
+                long size = tagRepository.countByStudyRoomId(studyRoom.getId());
+
+                if(size + request.getTagsToAdd().size() > 10)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Exceeded");
+
                 tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
+            }
             if (request.getTagIdsToRemove() != null && !request.getTagIdsToRemove().isEmpty())
                 removeTags(request.getTagIdsToRemove(), studyRoom);
         }
@@ -186,8 +198,21 @@ public class StudyRoomCommandService {
 
     private void dayOffModifyLogic(ModifyStudyRoomDayOffRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getDayOffsToAdd() != null && !request.getDayOffsToAdd().isEmpty())
-                dayOffRepository.batchInsert(request.getDayOffsToAdd(), studyRoom);
+            if (request.getDayOffsToAdd() != null && !request.getDayOffsToAdd().isEmpty()) {
+                long size = dayOffRepository.countByStudyRoomId(studyRoom.getId());
+
+                if(size + request.getDayOffsToAdd().size() > 7)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "DayOff Limit Exceeded");
+
+                List<DayOfWeek> dayOffsToAdd = request.getDayOffsToAdd();
+
+                boolean isAlreadyExists = dayOffRepository.existsByStudyRoomIdAndDayOfWeekIn(studyRoom.getId(), dayOffsToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated DayOff");
+
+                dayOffRepository.batchInsert(dayOffsToAdd, studyRoom);
+            }
             if (request.getDayOffIdsToRemove() != null && !request.getDayOffIdsToRemove().isEmpty())
                 removeDayOffs(request.getDayOffIdsToRemove(), studyRoom);
         }
@@ -205,8 +230,16 @@ public class StudyRoomCommandService {
 
     private void optionModifyLogic(ModifyStudyRoomOptionInfoRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty())
-                optionInfoRepository.batchInsert(request.getOptionsToAdd(), studyRoom);
+            if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty()) {
+                List<StudyRoomOption> optionsToAdd = request.getOptionsToAdd();
+
+                boolean isAlreadyExists = optionInfoRepository.existsByStudyRoomIdAndOptionIn(studyRoom.getId(), optionsToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated Option");
+
+                optionInfoRepository.batchInsert(optionsToAdd, studyRoom);
+            }
             if (request.getOptionsIdsToRemove() != null && !request.getOptionsIdsToRemove().isEmpty())
                 removeOptions(request.getOptionsIdsToRemove(), studyRoom);
         }
@@ -224,8 +257,21 @@ public class StudyRoomCommandService {
 
     private void typeModifyLogic(ModifyStudyRoomTypeInfoRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getTypesToAdd() != null && !request.getTypesToAdd().isEmpty())
-                typeInfoRepository.batchInsert(request.getTypesToAdd(), studyRoom);
+            if (request.getTypesToAdd() != null && !request.getTypesToAdd().isEmpty()) {
+                long size = typeInfoRepository.countByStudyRoomId(studyRoom.getId());
+
+                if(size + request.getTypesToAdd().size() > 3)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Type Limit Exceeded");
+
+                List<StudyRoomType> typesToAdd = request.getTypesToAdd();
+
+                boolean isAlreadyExists = typeInfoRepository.existsByStudyRoomIdAndTypeIn(studyRoom.getId(), typesToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated StudyRoomType");
+
+                typeInfoRepository.batchInsert(typesToAdd, studyRoom);
+            }
             if (request.getTypeIdsToRemove() != null && !request.getTypeIdsToRemove().isEmpty())
                 removeTypes(request.getTypeIdsToRemove(), studyRoom);
         }
