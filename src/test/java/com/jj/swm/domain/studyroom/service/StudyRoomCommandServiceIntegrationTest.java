@@ -37,6 +37,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @Autowired private StudyRoomReserveTypeRepository reserveTypeRepository;
     @Autowired private StudyRoomLikeRepository likeRepository;
     @Autowired private StudyRoomBookmarkRepository bookmarkRepository;
+    @Autowired private StudyRoomDayOffRepository dayOffRepository;
 
     private StudyRoom studyRoom;
     private User roomAdmin;
@@ -177,6 +178,18 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     }
 
     @Test
+    @DisplayName("스터디 룸 수정시 중복된 휴무일을 추가했을 경우 실패한다.")
+    void studyRoom_update_whenDuplicatedDayOff_thenFail(){
+        //given
+        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForDayOffDuplicatedFail();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.update(request, studyRoom.getId(), roomAdmin.getId())
+        );
+    }
+
+    @Test
     @DisplayName("스터디 룸 설정 수정에 성공한다.")
     void studyRoom_updateSettings_Success() {
         //given
@@ -219,6 +232,18 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     }
 
     @Test
+    @DisplayName("스터디 룸 수정시 중복된 옵션을 추가했을 경우 실패한다.")
+    void studyRoom_update_whenDuplicatedOption_thenFail(){
+        //given
+        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForOptionDuplicatedFail();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.updateSettings(request, studyRoom.getId(), roomAdmin.getId())
+        );
+    }
+
+    @Test
     @DisplayName("스터디 룸 수정시 잘못된 타입 정보 ID값을 전달했을 경우 실패한다.")
     void studyRoom_updateSettings_whenNotValidTypeInfoId_thenFail() {
         //given
@@ -231,10 +256,22 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     }
 
     @Test
-    @DisplayName("스터디 룸 수정시 휴무일 제한 개수를 초과했을 경우 실패한다.")
+    @DisplayName("스터디 룸 수정시 스터디 룸 타입 제한 개수를 초과했을 경우 실패한다.")
     void studyRoom_update_whenExceedTypeLimit_thenFail() {
         //given
         UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTypeLimitFail();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.updateSettings(request, studyRoom.getId(), roomAdmin.getId())
+        );
+    }
+
+    @Test
+    @DisplayName("스터디 룸 수정시 중복된 스터디 룸 타입을 추가했을 경우 실패한다.")
+    void studyRoom_update_whenDuplicatedType_thenFail(){
+        //given
+        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTypeDuplicatedFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,

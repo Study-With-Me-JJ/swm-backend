@@ -404,4 +404,55 @@ public class StudyRoomFixture {
                 )
                 .build();
     }
+
+    public static UpdateStudyRoomRequest createUpdateStudyRoomRequestForDayOffDuplicatedFail() {
+        return UpdateStudyRoomRequest.builder()
+                .title("update_test")
+                .introduce("update_test")
+                .notice("update_test")
+                .guideline("update_test")
+                .openingTime(LocalTime.MIN)
+                .closingTime(LocalTime.MAX)
+                .address(Address.builder()
+                        .address("서울 동작구")
+                        .detailAddress("서울 동작구 23번길")
+                        .region("서울")
+                        .locality("동작구")
+                        .build())
+                .point(Point.builder()
+                        .latitude(0.0)
+                        .longitude(0.0)
+                        .build())
+                .thumbnail("http://test.png")
+                .referenceUrl("http://test.com")
+                .phoneNumber("010-0000-0000")
+                .minReserveTime(2)
+                .entireMinHeadcount(1)
+                .entireMaxHeadcount(2)
+                .imageModification(null)
+                .dayOffModification(ModifyStudyRoomDayOffRequest.builder()
+                        .dayOffsToAdd(List.of(DayOfWeek.MONDAY))
+                        .build()
+                )
+                .tagModification(null)
+                .build();
+    }
+
+    public static UpdateStudyRoomSettingRequest createUpdateStudyRoomRequestForTypeDuplicatedFail() {
+        return UpdateStudyRoomSettingRequest.builder()
+                .typeInfoModification(ModifyStudyRoomTypeInfoRequest.builder()
+                        .typesToAdd(List.of(StudyRoomType.STUDY))
+                        .build()
+                )
+                .build();
+    }
+
+    public static UpdateStudyRoomSettingRequest createUpdateStudyRoomRequestForOptionDuplicatedFail() {
+        return UpdateStudyRoomSettingRequest.builder()
+                .optionInfoModification(ModifyStudyRoomOptionInfoRequest.builder()
+                        .optionsToAdd(List.of(StudyRoomOption.MIKE))
+                        .build()
+                )
+                .build();
+    }
 }
