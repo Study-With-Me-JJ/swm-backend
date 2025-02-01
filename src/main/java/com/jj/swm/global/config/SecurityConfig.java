@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -42,6 +43,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oauth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final OAuth2AuthorizedClientService authorizedClientService;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -70,9 +72,11 @@ public class SecurityConfig {
                         sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(corsConfigurer ->
                         corsConfigurer.configurationSource(corsConfigurationSource()))
-                .oauth2Login(oauth ->
-                        oauth.userInfoEndpoint(c -> c.userService(oauth2UserService))
-                                .successHandler(oAuth2SuccessHandler)
+                .oauth2Login(oauth -> {
+                            oauth.authorizedClientService(authorizedClientService);
+                            oauth.userInfoEndpoint(c -> c.userService(oauth2UserService))
+                                    .successHandler(oAuth2SuccessHandler);
+                        }
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtExceptionFilter(objectMapper()), JwtAuthenticationFilter.class)
