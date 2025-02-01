@@ -3,7 +3,7 @@ package com.jj.swm.domain.studyroom.entity;
 import com.jj.swm.domain.studyroom.dto.request.CreateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.dto.request.UpdateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
-import com.jj.swm.domain.studyroom.entity.embeddable.Point;
+import com.jj.swm.domain.studyroom.entity.embeddable.Coordinates;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -58,7 +58,7 @@ public class StudyRoom extends BaseTimeEntity {
     private Address address;
 
     @Embedded
-    private Point point;
+    private Coordinates coordinates;
 
     @Column(name = "reference_url", length = 300)
     private String referenceUrl;
@@ -113,7 +113,7 @@ public class StudyRoom extends BaseTimeEntity {
                 .openingTime(request.getOpeningTime())
                 .closingTime(request.getClosingTime())
                 .address(request.getAddress())
-                .point(request.getPoint())
+                .coordinates(request.getCoordinates())
                 .thumbnail(request.getThumbnail())
                 .referenceUrl(request.getReferenceUrl())
                 .phoneNumber(request.getPhoneNumber())
@@ -140,7 +140,7 @@ public class StudyRoom extends BaseTimeEntity {
         this.openingTime = request.getOpeningTime();
         this.closingTime = request.getClosingTime();
         this.address = request.getAddress();
-        this.point = request.getPoint();
+        this.coordinates = request.getCoordinates();
         this.thumbnail = request.getThumbnail();
         this.referenceUrl = request.getReferenceUrl();
         this.phoneNumber = request.getPhoneNumber();

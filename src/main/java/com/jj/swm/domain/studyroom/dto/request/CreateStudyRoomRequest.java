@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
-import com.jj.swm.domain.studyroom.entity.embeddable.Point;
+import com.jj.swm.domain.studyroom.entity.embeddable.Coordinates;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -45,7 +45,7 @@ public class CreateStudyRoomRequest {
     @Valid
     private Address address;
 
-    private Point point;
+    private Coordinates coordinates;
 
     @NotBlank
     private String thumbnail;

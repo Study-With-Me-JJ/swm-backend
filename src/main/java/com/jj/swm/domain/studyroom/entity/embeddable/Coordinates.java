@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Embeddable
-public class Point {
+public class Coordinates {
 
     @Column(name = "latitude")
     private Double latitude;
