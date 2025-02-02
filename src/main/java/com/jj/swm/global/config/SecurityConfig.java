@@ -25,7 +25,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -59,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/user").authenticated()
                         .requestMatchers(AllowedPaths.getAllowedPaths()).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/studyroom/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/study/**", "/api/v1/comment/**").permitAll()
                         .anyRequest().authenticated()
 
                 )
