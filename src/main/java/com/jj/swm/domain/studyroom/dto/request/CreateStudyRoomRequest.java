@@ -41,10 +41,12 @@ public class CreateStudyRoomRequest {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime closingTime;
 
-    @NotNull
     @Valid
+    @NotNull
     private Address address;
 
+    @Valid
+    @NotNull
     private Coordinates coordinates;
 
     @NotBlank
