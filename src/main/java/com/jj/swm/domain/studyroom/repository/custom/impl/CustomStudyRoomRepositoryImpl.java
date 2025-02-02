@@ -9,11 +9,14 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.jj.swm.domain.studyroom.entity.QStudyRoom.studyRoom;
 
@@ -21,6 +24,7 @@ import static com.jj.swm.domain.studyroom.entity.QStudyRoom.studyRoom;
 public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+    private static final double earthRadiusKm = 6371.0;
 
     @Override
     public List<StudyRoom> findAllWithPaginationAndCondition(int pageSize, GetStudyRoomCondition condition) {
@@ -33,7 +37,7 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
                         studyRoomOptionsContains(condition.getOptions()),
                         createSortPredicate(condition)
                 )
-                .orderBy(createOrderSpecifier(condition.getSortCriteria()))
+                .orderBy(createOrderSpecifier(condition))
                 .limit(pageSize)
                 .fetch();
     }
@@ -75,11 +79,46 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
                     .or(studyRoom.reviewCount.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
             case PRICE -> this.nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.gt(lastSortValue)
                     .or(studyRoom.entireMinPricePerHour.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
-            default -> this.nullSafeBuilder(() -> studyRoom.id.lt(lastStudyRoomId));
+            case DISTANCE -> {
+                NumberExpression<Double> distanceExpression = calculateDistance(
+                        condition.getUserLatitude(), condition.getUserLongitude()
+                );
+
+                if(distanceExpression == null) yield null;
+
+                Double lastLatitudeValue = condition.getLastLatitudeValue();
+                Double lastLongitudeValue = condition.getLastLongitudeValue();
+
+                BooleanBuilder builder = new BooleanBuilder();
+                if (lastLatitudeValue != null && lastLongitudeValue != null) {
+                    NumberExpression<Double> lastDistanceExpression
+                            = getLastDistanceExpression(condition, lastLatitudeValue, lastLongitudeValue);
+
+                    builder.and(distanceExpression.gt(lastDistanceExpression)
+                            .or(distanceExpression.eq(lastDistanceExpression).and(studyRoom.id.lt(lastStudyRoomId))));
+                }
+
+                yield builder;
+            }
         };
     }
 
-    private OrderSpecifier<?>[] createOrderSpecifier(SortCriteria sortCriteria) {
+    private OrderSpecifier<?>[] createOrderSpecifier(GetStudyRoomCondition condition) {
+        SortCriteria sortCriteria = condition.getSortCriteria();
+
+        Double userLatitude = condition.getUserLatitude();
+        Double userLongitude = condition.getUserLongitude();
+
+        if (sortCriteria == SortCriteria.DISTANCE && userLatitude != null && userLongitude != null) {
+            NumberExpression<Double> distanceExpression
+                    = calculateDistance(userLatitude, userLongitude);
+
+            return new OrderSpecifier<?>[]{
+                    new OrderSpecifier<>(Order.ASC, distanceExpression),
+                    new OrderSpecifier<>(Order.DESC, studyRoom.id)
+            };
+        }
+
         return switch (sortCriteria) {
             case STARS -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.DESC, studyRoom.averageRating),
@@ -97,6 +136,9 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
                     new OrderSpecifier<>(Order.ASC, studyRoom.entireMinPricePerHour),
                     new OrderSpecifier<>(Order.DESC, studyRoom.id),
             };
+            default -> new OrderSpecifier<?>[]{
+                    new OrderSpecifier<>(Order.DESC, studyRoom.id)
+            };
         };
     }
 
@@ -106,5 +148,34 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
         } catch (IllegalArgumentException | NullPointerException e) {
             return null;
         }
+    }
+
+    private NumberExpression<Double> calculateDistance(Double latitude, Double longitude) {
+        if (latitude == null && longitude == null)
+            return null;
+
+        return Expressions.numberTemplate(Double.class,
+                "({0} * acos(" +
+                        "cos(radians({1})) * cos(radians({2})) * " +
+                        "cos(radians({3}) - radians({4})) + " +
+                        "sin(radians({1})) * sin(radians({2}))" +
+                        "))",
+                earthRadiusKm,
+                latitude, studyRoom.coordinates.latitude,
+                longitude, studyRoom.coordinates.longitude
+        );
+    }
+
+    private NumberExpression<Double> getLastDistanceExpression(GetStudyRoomCondition condition, Double lastLatitudeValue, Double lastLongitudeValue) {
+        return Expressions.numberTemplate(Double.class,
+                "({0} * acos(" +
+                        "cos(radians({1})) * cos(radians({2})) * " +
+                        "cos(radians({3}) - radians({4})) + " +
+                        "sin(radians({1})) * sin(radians({2}))" +
+                        "))",
+                earthRadiusKm,
+                condition.getUserLatitude(), lastLatitudeValue,
+                condition.getUserLongitude(), lastLongitudeValue
+        );
     }
 }

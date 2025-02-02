@@ -1,6 +1,7 @@
 package com.jj.swm.domain.studyroom.dto.response;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
+import com.jj.swm.domain.studyroom.entity.embeddable.Coordinates;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,6 +22,7 @@ public class GetStudyRoomResponse {
     private int entireMinPricePerHour;
     private int entireMaxHeadcount;
     private double starAvg;
+    private Coordinates coordinates;
     private Long studyBookmarkId;
     private List<GetStudyRoomTagResponse> tags;
 
@@ -37,6 +39,7 @@ public class GetStudyRoomResponse {
                 .starAvg(studyRoom.getAverageRating())
                 .entireMinPricePerHour(studyRoom.getEntireMinPricePerHour())
                 .entireMaxHeadcount(studyRoom.getEntireMaxHeadcount())
+                .coordinates(studyRoom.getCoordinates())
                 .studyBookmarkId(studyBookmarkId)
                 .tags(studyRoom.getTags() != null ?
                         studyRoom.getTags().stream().map(GetStudyRoomTagResponse::from).toList()

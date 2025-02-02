@@ -4,5 +4,6 @@ public enum SortCriteria{
     STARS,
     LIKE,
     REVIEW,
-    PRICE
+    PRICE,
+    DISTANCE
 }

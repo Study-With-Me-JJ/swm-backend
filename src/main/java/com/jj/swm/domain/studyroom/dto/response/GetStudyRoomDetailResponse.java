@@ -2,7 +2,7 @@ package com.jj.swm.domain.studyroom.dto.response;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
-import com.jj.swm.domain.studyroom.entity.embeddable.Point;
+import com.jj.swm.domain.studyroom.entity.embeddable.Coordinates;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -23,7 +23,7 @@ public class GetStudyRoomDetailResponse {
     private LocalTime openingTime;
     private LocalTime closingTime;
     private Address address;
-    private Point point;
+    private Coordinates coordinates;
     private String referenceUrl;
     private String phoneNumber;
     private Integer minReserveTime;
@@ -60,7 +60,7 @@ public class GetStudyRoomDetailResponse {
                 .openingTime(studyRoom.getOpeningTime())
                 .closingTime(studyRoom.getClosingTime())
                 .address(studyRoom.getAddress())
-                .point(studyRoom.getPoint())
+                .coordinates(studyRoom.getCoordinates())
                 .referenceUrl(studyRoom.getReferenceUrl())
                 .phoneNumber(studyRoom.getPhoneNumber())
                 .minReserveTime(studyRoom.getMinReserveTime())
