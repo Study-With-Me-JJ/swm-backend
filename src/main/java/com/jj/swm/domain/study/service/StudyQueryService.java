@@ -9,9 +9,9 @@ import com.jj.swm.domain.study.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.repository.*;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.common.enums.PageSize;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -35,26 +35,20 @@ public class StudyQueryService {
     private final StudyBookmarkRepository studyBookmarkRepository;
     private final RecruitmentPositionRepository recruitmentPositionRepository;
 
-    @Value("${study.page.size}")
-    private int studyPageSize;
-
-    @Value("${study.comment.page.size}")
-    private int commentPageSize;
-
     @Transactional(readOnly = true)
     public PageResponse<StudyInquiryResponse> getList(
             UUID userId,
             StudyInquiryCondition inquiryCondition
     ) {
-        List<Study> studies = studyRepository.findPagedWithUserAndTags(studyPageSize + 1, inquiryCondition);
+        List<Study> studies = studyRepository.findPagedWithUserAndTags(PageSize.Study + 1, inquiryCondition);
 
         if (studies.isEmpty()) {
             throw new GlobalException(ErrorCode.NOT_FOUND, "studies not found");
         }
 
-        boolean hasNext = studies.size() > studyPageSize;
+        boolean hasNext = studies.size() > PageSize.Study;
 
-        List<Study> pagedStudies = hasNext ? studies.subList(0, studyPageSize) : studies;
+        List<Study> pagedStudies = hasNext ? studies.subList(0, PageSize.Study) : studies;
 
         List<Long> studyIds = pagedStudies.stream()
                 .map(Study::getId)
@@ -100,7 +94,11 @@ public class StudyQueryService {
                 .map(RecruitPositionInquiryResponse::from)
                 .toList();
 
-        Pageable pageable = PageRequest.of(0, commentPageSize, Sort.by("id").descending());
+        Pageable pageable = PageRequest.of(
+                0,
+                PageSize.StudyComment,
+                Sort.by("id").descending()
+        );
         PageResponse<CommentInquiryResponse> commentPageResponse =
                 commentQueryService.getCommentPageResponse(studyId, pageable);
 

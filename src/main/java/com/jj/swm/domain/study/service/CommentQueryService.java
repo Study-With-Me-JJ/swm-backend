@@ -7,9 +7,9 @@ import com.jj.swm.domain.study.entity.StudyComment;
 import com.jj.swm.domain.study.repository.CommentRepository;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.common.enums.PageSize;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,19 +25,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentQueryService {
 
-    @Value("${study.comment.page.size}")
-    private int commentPageSize;
-
-    @Value("${study.reply.page.size}")
-    private int replyPageSize;
-
     private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<CommentInquiryResponse> getList(Long studyId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
-                commentPageSize,
+                PageSize.StudyComment,
                 Sort.by("id").descending()
         );
 
@@ -47,7 +41,7 @@ public class CommentQueryService {
     @Transactional(readOnly = true)
     public PageResponse<ReplyInquiryResponse> getReplyList(Long parentId, Long lastReplyId) {
         List<StudyComment> replies = commentRepository.findPagedWithUserByParentId(
-                replyPageSize + 1,
+                PageSize.StudyReply + 1,
                 parentId,
                 lastReplyId
         );
@@ -56,9 +50,9 @@ public class CommentQueryService {
             throw new GlobalException(ErrorCode.NOT_FOUND, "replies not found");
         }
 
-        boolean hasNext = replies.size() > replyPageSize;
+        boolean hasNext = replies.size() > PageSize.StudyReply;
 
-        List<StudyComment> pagedReplies = hasNext ? replies.subList(0, replyPageSize) : replies;
+        List<StudyComment> pagedReplies = hasNext ? replies.subList(0, PageSize.StudyReply) : replies;
 
         List<ReplyInquiryResponse> replyInquiryResponses = pagedReplies.stream()
                 .map(ReplyInquiryResponse::from)
