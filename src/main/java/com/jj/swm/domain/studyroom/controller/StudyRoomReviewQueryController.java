@@ -1,13 +1,14 @@
 package com.jj.swm.domain.studyroom.controller;
 
-import com.jj.swm.domain.studyroom.dto.response.GetStudyRoomResponse;
 import com.jj.swm.domain.studyroom.dto.response.GetStudyRoomReviewResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomReviewQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "StudyRoomReview", description = "<b>[스터디 룸 이용후기]</b> API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
