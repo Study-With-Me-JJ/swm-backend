@@ -26,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class AuthServiceTest extends IntegrationContainerSupporter {
 
@@ -48,7 +47,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
     @DisplayName("유저 로그인에 성공한다.")
     void login_Success() {
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -92,7 +91,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
     @DisplayName("비밀번호가 매치되지 않는다면 로그인에 실패한다.")
     void login_whenNotMatchPassword_thenFail() {
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -118,7 +117,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
     @DisplayName("유저 로그아웃에 성공한다.")
     void logout_Success() {
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user.getId(),
@@ -145,7 +144,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
     @DisplayName("유저 리이슈에 성공한다.")
     void reissue_Success() {
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user.getId(),

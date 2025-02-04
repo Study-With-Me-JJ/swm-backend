@@ -47,8 +47,8 @@ public class StudyRoomReviewQueryServiceIntegrationTest extends IntegrationConta
 
         studyRoom = studyRoomRepository.save(StudyRoomFixture.createStudyRoom(roomAdmin));
 
-        User reviewUser1 = UserFixture.createUserWithUUID();
-        User reviewUser2 = UserFixture.createUserWithUUID();
+        User reviewUser1 = UserFixture.createUser();
+        User reviewUser2 = UserFixture.createUser();
 
         userRepository.saveAll(List.of(reviewUser1, reviewUser2));
 
