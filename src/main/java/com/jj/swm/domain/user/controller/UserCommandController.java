@@ -6,6 +6,7 @@ import com.jj.swm.domain.user.entity.InspectionStatus;
 import com.jj.swm.domain.user.service.UserCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.enums.EmailSendType;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.UUID;
 
+@Tag(name = "User", description = "<b>[유저]</b> API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
