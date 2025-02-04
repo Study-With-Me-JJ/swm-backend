@@ -5,6 +5,7 @@ import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.entity.embeddable.Coordinates;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -34,10 +35,12 @@ public class CreateStudyRoomRequest {
     private String guideline;
 
     @NotNull
+    @Schema(example = "09:00")
     @JsonFormat(pattern = "HH:mm")
     private LocalTime openingTime;
 
     @NotNull
+    @Schema(example = "24:00")
     @JsonFormat(pattern = "HH:mm")
     private LocalTime closingTime;
 
