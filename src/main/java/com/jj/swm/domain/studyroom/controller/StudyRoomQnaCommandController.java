@@ -5,6 +5,7 @@ import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomQnaCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.UUID;
 
+@Tag(name = "StudyRoomQna", description = "<b>[스터디 룸 Qna]</b> API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
