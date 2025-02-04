@@ -37,7 +37,6 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @Autowired private StudyRoomReserveTypeRepository reserveTypeRepository;
     @Autowired private StudyRoomLikeRepository likeRepository;
     @Autowired private StudyRoomBookmarkRepository bookmarkRepository;
-    @Autowired private StudyRoomDayOffRepository dayOffRepository;
 
     private StudyRoom studyRoom;
     private User roomAdmin;
