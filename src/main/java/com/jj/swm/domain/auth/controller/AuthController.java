@@ -5,16 +5,17 @@ import com.jj.swm.domain.auth.dto.response.Token;
 import com.jj.swm.domain.auth.service.AuthService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.security.jwt.JwtProvider;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
+@Tag(name = "Auth", description = "<b>[인증]</b> API")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
