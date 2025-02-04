@@ -5,6 +5,7 @@ import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.dto.response.UpdateStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomQnaCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,13 @@ public class StudyRoomQnaCommandController {
 
     private final StudyRoomQnaCommandService commandService;
 
+    @Operation(
+            summary = "스터디 룸 QnA 생성",
+            description = "스터디 룸 QnA를 생성합니다. QnA의 대댓글도 같은 API를 사용합니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "201", description = "성공"
+    )
     @PostMapping({"/v1/studyroom/{studyRoomId}/qna", "/v1/studyroom/{studyRoomId}/qna/{parentId}"})
     public ApiResponse<CreateStudyRoomQnaResponse> createQna(
             @Valid @RequestBody UpsertStudyRoomQnaRequest request,
@@ -38,6 +46,13 @@ public class StudyRoomQnaCommandController {
         return ApiResponse.created(response);
     }
 
+    @Operation(
+            summary = "스터디 룸 QnA 수정",
+            description = "스터디 룸 QnA를 수정합니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200", description = "성공"
+    )
     @PatchMapping("/v1/studyroom/qna/{studyRoomQnaId}")
     public ApiResponse<UpdateStudyRoomQnaResponse> updateQna(
             @Valid @RequestBody UpsertStudyRoomQnaRequest request,
@@ -53,6 +68,13 @@ public class StudyRoomQnaCommandController {
         return ApiResponse.ok(response);
     }
 
+    @Operation(
+            summary = "스터디 룸 QnA 삭제",
+            description = "스터디 룸 QnA를 삭제합니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200", description = "성공"
+    )
     @DeleteMapping("/v1/studyroom/qna/{studyRoomQnaId}")
     public ApiResponse<Void> deleteQna(
             @PathVariable("studyRoomQnaId") Long studyRoomQnaId, Principal principal
