@@ -7,6 +7,7 @@ import com.jj.swm.domain.studyroom.dto.response.GetStudyRoomResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 import java.util.UUID;
 
+@Tag(name = "StudyRoom", description = "<b>[스터디 룸]</b> API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")

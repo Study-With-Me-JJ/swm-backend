@@ -7,6 +7,7 @@ import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomBookmarkResponse;
 import com.jj.swm.domain.studyroom.dto.response.CreateStudyRoomLikeResponse;
 import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.UUID;
 
+@Tag(name = "StudyRoom", description = "<b>[스터디 룸]</b> API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
