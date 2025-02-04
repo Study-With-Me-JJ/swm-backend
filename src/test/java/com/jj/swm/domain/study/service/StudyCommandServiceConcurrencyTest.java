@@ -70,7 +70,7 @@
 //
 //        List<UUID> userIds = new ArrayList<>();
 //        for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-//            User user = userRepository.save(UserFixture.createUserWithUUID());
+//            User user = userRepository.save(UserFixture.createUser());
 //            userIds.add(user.getId());
 //        }
 //
@@ -105,7 +105,7 @@
 //
 //        List<User> users = new ArrayList<>();
 //        for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-//            User user = userRepository.save(UserFixture.createUserWithUUID());
+//            User user = userRepository.save(UserFixture.createUser());
 //            users.add(user);
 //        }
 //
