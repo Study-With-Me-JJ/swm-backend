@@ -25,9 +25,17 @@ public class GetStudyRoomCondition {
 
     private SortCriteria sortCriteria = SortCriteria.STARS;
 
+    private Double userLatitude;
+
+    private Double userLongitude;
+
     private Long lastStudyRoomId;
 
     private Integer lastSortValue;
+
+    private Double lastLatitudeValue;
+
+    private Double lastLongitudeValue;
 
     private Double lastAverageRatingValue = 5.0;
 }

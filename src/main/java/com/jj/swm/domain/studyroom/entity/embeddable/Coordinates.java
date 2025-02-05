@@ -2,6 +2,7 @@ package com.jj.swm.domain.studyroom.entity.embeddable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -9,11 +10,13 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Embeddable
-public class Point {
+public class Coordinates {
 
+    @NotNull
     @Column(name = "latitude")
     private Double latitude;
 
+    @NotNull
     @Column(name = "longitude")
     private Double longitude;
 }

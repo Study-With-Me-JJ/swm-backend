@@ -5,7 +5,7 @@ import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomDayOffReque
 import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomImageRequest;
 import com.jj.swm.domain.studyroom.dto.request.update.ModifyStudyRoomTagRequest;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
-import com.jj.swm.domain.studyroom.entity.embeddable.Point;
+import com.jj.swm.domain.studyroom.entity.embeddable.Coordinates;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -42,7 +42,7 @@ public class UpdateStudyRoomRequest {
     @NotNull
     private Address address;
 
-    private Point point;
+    private Coordinates coordinates;
 
     @NotBlank
     private String thumbnail;

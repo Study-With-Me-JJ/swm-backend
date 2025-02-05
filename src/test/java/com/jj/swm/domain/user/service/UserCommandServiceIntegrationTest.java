@@ -266,7 +266,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("중복된 닉네임을 가진 유저 생성에 실패한다.")
     void user_create_whenDuplicatedNickname_thenFail(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         String loginId = "test@gmail.com";
@@ -289,7 +289,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("중복된 아이디를 가진 유저 생성에 실패한다.")
     void user_create_whenDuplicatedLoginId_thenFail(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -318,7 +318,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("유저 정보 업데이트에 성공한다.")
     void user_update_Success(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UpdateUserRequest request = UpdateUserRequest.builder()
@@ -343,7 +343,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("유효하지 않은 유저ID 접근시 업데이트에 실패한다.")
     void user_update_whenNotValidUser_thenFail(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UpdateUserRequest request = UpdateUserRequest.builder()
@@ -362,10 +362,10 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("이미 존재하는 닉네임 업데이트시 실패한다.")
     void user_update_whenAlreadyExistsNickname_thenFail(){
         //given
-        User userOne = UserFixture.createUserWithUUID();
+        User userOne = UserFixture.createUser();
         userRepository.save(userOne);
 
-        User userTwo = UserFixture.createUserWithUUID();
+        User userTwo = UserFixture.createUser();
         userRepository.save(userTwo);
 
         UpdateUserRequest request = UpdateUserRequest.builder()
@@ -384,7 +384,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("로그인을 한 유저의 패스워드 변경에 성공한다.")
     void user_updateUserPasswordWhenLogin_Success(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -415,7 +415,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("로그인을 하지 않은 유저의 패스워드 변경에 성공한다.")
     void user_updateUserPasswordWhenWithoutLogin_Success(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -451,7 +451,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("인증코드가 검증되지 않은 비로그인 유저의 패스워드 변경에 실패한다.")
     void user_updateUserPasswordWhenWithoutLogin_whenUnverifiedUser_thenFail(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -477,7 +477,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("원본 패스워드가 맞지 않으면 비밀번호 변경에 실패한다.")
     void user_updateUserPassword_whenWrongPassword_thenFail(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -504,7 +504,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("원본 패스워드가 비어있는 비밀번호 변경에 실패한다.")
     void user_updateUserPassword_whenEmptyPassword_thenFail() {
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -530,7 +530,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("유저 아이디 찾기에 성공한다.")
     void user_retrieveLoginId_Success(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         UserCredential userCredential = UserCredential.builder()
                 .loginId("test@gmail.com")
                 .user(user)
@@ -576,7 +576,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         given(discordNotificationService.sendBusinessVerificationNotification(any(BusinessVerificationRequestEvent.class)))
                 .willReturn(CompletableFuture.completedFuture(true));
 
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
 
         userRepository.save(user);
 
@@ -649,7 +649,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         //given
         given(businessStatusService.validateBusinessStatus(any(UpgradeRoomAdminRequest.class))).willReturn(false);
 
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
@@ -670,7 +670,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         //given
         given(businessStatusService.validateBusinessStatus(any(UpgradeRoomAdminRequest.class))).willReturn(true);
 
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
@@ -692,7 +692,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         given(emailService.sendBusinessVerificationEmail(any(BusinessInspectionUpdateEvent.class)))
                 .willReturn(CompletableFuture.completedFuture(true));
 
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.builder()
@@ -728,7 +728,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("사업자 검수 요청 승인 작업에서 잘못된 ID값이 있다면 실패한다.")
     void user_businessVerificationApprove_whenInValidId_thenFail(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.builder()
@@ -759,7 +759,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
         given(emailService.sendBusinessVerificationEmail(any(BusinessInspectionUpdateEvent.class)))
                 .willReturn(CompletableFuture.completedFuture(true));
 
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
 
         userRepository.save(user);
 
@@ -796,7 +796,7 @@ public class UserCommandServiceIntegrationTest extends IntegrationContainerSuppo
     @DisplayName("사업자 검수 요청 거부 작업에서 잘못된 ID값이 있다면 실패한다.")
     void user_businessVerificationRejection_whenInValidId_thenFail(){
         //given
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         userRepository.save(user);
 
         BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.builder()

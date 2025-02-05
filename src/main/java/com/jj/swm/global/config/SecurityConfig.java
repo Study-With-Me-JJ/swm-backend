@@ -56,6 +56,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/user").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/user").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user").authenticated()
                         .requestMatchers(AllowedPaths.getAllowedPaths()).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/studyroom/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/study/**", "/api/v1/comment/**").permitAll()

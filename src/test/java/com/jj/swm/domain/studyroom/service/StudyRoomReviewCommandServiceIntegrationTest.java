@@ -61,7 +61,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
             return;
         }
 
-        createReviewUser = userRepository.save(UserFixture.createUserWithUUID());
+        createReviewUser = userRepository.save(UserFixture.createUser());
         studyRoomReview = StudyRoomReviewFixture.createReview(studyRoom, 5, createReviewUser);
 
         reviewRepository.save(studyRoomReview);
@@ -390,7 +390,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
                 .rating(5)
                 .build();
 
-        createReviewUser = userRepository.save(UserFixture.createUserWithUUID());
+        createReviewUser = userRepository.save(UserFixture.createUser());
 
         CreateStudyRoomReviewResponse response
                 = commandService.createReview(request, studyRoom.getId(), createReviewUser.getId());

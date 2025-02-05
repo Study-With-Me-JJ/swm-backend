@@ -45,7 +45,7 @@ class StudyRoomQnaCommandServiceIntegrationTest extends IntegrationContainerSupp
         User user = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
         studyRoom = studyRoomRepository.saveAndFlush(StudyRoomFixture.createStudyRoom(user));
 
-        qnaUser = userRepository.saveAndFlush(UserFixture.createUserWithUUID());
+        qnaUser = userRepository.saveAndFlush(UserFixture.createUser());
         studyRoomQna = qnaRepository.saveAndFlush(StudyRoomQnaFixture.createStudyRoomQna(studyRoom, qnaUser));
     }
 
@@ -57,7 +57,7 @@ class StudyRoomQnaCommandServiceIntegrationTest extends IntegrationContainerSupp
                 .comment("test")
                 .build();
 
-        User user = UserFixture.createUserWithUUID();
+        User user = UserFixture.createUser();
         user = userRepository.saveAndFlush(user);
 
         //when

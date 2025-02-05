@@ -162,6 +162,34 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     }
 
     @Test
+    @DisplayName("스터디 룸 페이지네이션 거리 순 정렬에 성공한다.")
+    @Transactional
+    void studyRoom_getStudyRooms_orderByDistance_Success(){
+        //given
+        GetStudyRoomCondition condition = new GetStudyRoomCondition();
+        condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
+        condition.setSortCriteria(SortCriteria.DISTANCE);
+        condition.setUserLatitude(1.0);
+        condition.setUserLongitude(1.0);
+
+        //when
+        PageResponse<GetStudyRoomResponse> response = queryService.getStudyRooms(condition, null);
+
+        //then
+        for(int i = 0; i < 4; i++){
+            GetStudyRoomResponse currStudyRoom = response.getData().get(i);
+            GetStudyRoomResponse nextStudyRoom = response.getData().get(i + 1);
+
+            assertThat(currStudyRoom.getCoordinates().getLatitude())
+                    .isLessThanOrEqualTo(nextStudyRoom.getCoordinates().getLatitude());
+
+            assertThat(currStudyRoom.getCoordinates().getLongitude())
+                    .isLessThanOrEqualTo(nextStudyRoom.getCoordinates().getLongitude());
+        }
+    }
+
+
+    @Test
     @DisplayName("스터디 룸 조회시 관련 locality가 없다면 빈값 조회에 성공한다.")
     @Transactional
     void studyRoom_getStudyRooms_whenWithoutLocality_Success() {

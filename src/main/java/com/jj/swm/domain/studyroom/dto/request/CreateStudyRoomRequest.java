@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.entity.embeddable.Address;
-import com.jj.swm.domain.studyroom.entity.embeddable.Point;
+import com.jj.swm.domain.studyroom.entity.embeddable.Coordinates;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -41,11 +41,13 @@ public class CreateStudyRoomRequest {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime closingTime;
 
-    @NotNull
     @Valid
+    @NotNull
     private Address address;
 
-    private Point point;
+    @Valid
+    @NotNull
+    private Coordinates coordinates;
 
     @NotBlank
     private String thumbnail;
