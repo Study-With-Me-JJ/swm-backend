@@ -31,7 +31,7 @@ public class HolaWorldCrawlingService implements DisposableBean {
     private ChromeDriver driver;
 
     private static final String BASE_URL = "https://holaworld.io/";
-    private static final int MAX_PAGES = 10; // 최대 페이지 개수 설정
+    private static final int MAX_PAGES = 15; // 최대 페이지 개수 설정
 
     public HolaWorldCrawlingService(ExternalStudyRepository externalStudyRepository) {
         this.externalStudyRepository = externalStudyRepository;
@@ -76,11 +76,11 @@ public class HolaWorldCrawlingService implements DisposableBean {
     }
 
     private void extractStudiesFromPage(WebDriver driver) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
         try {
             // 학습 데이터 요소를 찾음
-            List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//*[@id=\"root\"]/main/ul/a")));
+            List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//*[@id=\"root\"]/main/div[3]/ul/a")));
             List<ExternalStudy> externalStudies = new ArrayList<>();
             for (WebElement element : elements) {
                 try {
@@ -88,19 +88,19 @@ public class HolaWorldCrawlingService implements DisposableBean {
                     String title = element.findElement(By.tagName("h1")).getText();
 
                     // 역할(role) 정보
-                    List<WebElement> positionElements = element.findElements(By.className("studyItem_position__2sRRD"));
+                    List<WebElement> positionElements = element.findElements(By.className("_position_1js2b_1"));
                     String roles = String.join(",", positionElements.stream().map(WebElement::getText).map(Role::of).map(Role::toString).toArray(String[]::new));
 
                     // 기술 스택(technologies) 정보
-                    List<WebElement> technologyElements = element.findElement(By.className("studyItem_content__1mJ9M"))
-                            .findElements(By.className("studyItem_language__20yqw"));
+                    List<WebElement> technologyElements = element.findElement(By.className("_content_ioits_53"))
+                            .findElements(By.className("_language_ioits_61"));
                     String technologies = String.join(",", technologyElements.stream()
                             .map(e -> e.findElement(By.tagName("img")).getAttribute("title")).filter(Objects::nonNull)
                             .map(Technology::of)
                             .map(Technology::toString)
                             .toArray(String[]::new));
 
-                    String deadlineDateString = element.findElement(By.cssSelector(".studyItem_schedule__3oAnA p:nth-child(2)")).getText();
+                    String deadlineDateString = element.findElement(By.cssSelector("._schedule_ioits_26 p:nth-child(2)")).getText();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
                     LocalDate deadlineDate = LocalDate.parse(deadlineDateString, formatter);
                     // 학습 고유 ID 추출
@@ -126,7 +126,7 @@ public class HolaWorldCrawlingService implements DisposableBean {
 
     private boolean goToNextPage(WebDriver driver) {
         try {
-            WebElement nextPageButton = driver.findElement(By.xpath("//*[@id=\"root\"]/main/div[2]/nav/ul/li[10]/button"));
+            WebElement nextPageButton = driver.findElements(By.className("_navButton_6m889_33")).get(2);
             if (nextPageButton.isEnabled()) {
                 nextPageButton.click();
                 return true;
