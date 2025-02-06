@@ -171,7 +171,7 @@ public class UserCommandController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공"
     )
-    @PatchMapping("/v1/business/user/validation")
+    @PostMapping("/v1/business/user/validation")
     public ApiResponse<Void> validateBusinessStatus(
             @Valid @RequestBody UpgradeRoomAdminRequest request, Principal principal) {
         userCommandService.validateBusinessStatus(request, UUID.fromString(principal.getName()));
