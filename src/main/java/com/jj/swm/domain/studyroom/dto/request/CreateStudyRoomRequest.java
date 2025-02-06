@@ -80,22 +80,26 @@ public class CreateStudyRoomRequest {
     @NotEmpty
     private List<CreateStudyRoomReservationTypeRequest> reservationTypes;
 
-    @Min(1)
     @NotNull
+    @Positive
     private Integer minReserveTime;
 
-    @Min(1)
+    @Max(50)
     @NotNull
+    @Positive
     private Integer entireMinHeadcount;
 
-    @Min(2)
+    @Max(50)
     @NotNull
+    @Positive
     private Integer entireMaxHeadcount;
 
+    @Max(300000)
     @NotNull
     @Positive
     private Integer entireMinPricePerHour;
 
+    @Max(300000)
     @NotNull
     @Positive
     private Integer entireMaxPricePerHour;

@@ -3,7 +3,6 @@ package com.jj.swm.domain.studyroom.dto;
 import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,12 +21,18 @@ public class GetStudyRoomCondition {
     private String locality;
 
     @Schema(description = "최대 수용 인원", example = "10")
+    @Max(50)
+    @Positive
     private int headCount;
 
     @Schema(description = "최소 시간당 가격 (기본값: 0)", example = "5000")
+    @Max(300000)
+    @Positive
     private int minPricePerHour = 0;
 
     @Schema(description = "최대 시간당 가격 (기본값: 300,000)", example = "20000")
+    @Max(300000)
+    @Positive
     private int maxPricePerHour = 300000;
 
     @Schema(description = "필터링할 옵션 목록", example = "[\"WIFI\", \"PARKING\"]")
