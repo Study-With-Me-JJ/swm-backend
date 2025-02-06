@@ -2,6 +2,9 @@ package com.jj.swm.domain.studyroom.dto;
 
 import com.jj.swm.domain.studyroom.entity.StudyRoomOption;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
