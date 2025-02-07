@@ -21,8 +21,6 @@ public class StudyInquiryResponse {
 
     private StudyCategory category;
 
-    private String thumbnail;
-
     private int likeCount;
 
     private int commentCount;
@@ -47,7 +45,6 @@ public class StudyInquiryResponse {
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
-                .thumbnail(study.getThumbnail())
                 .likeCount(study.getLikeCount())
                 .commentCount(study.getCommentCount())
                 .status(study.getStatus())
