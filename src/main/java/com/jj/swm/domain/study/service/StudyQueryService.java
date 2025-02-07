@@ -71,7 +71,7 @@ public class StudyQueryService {
 
     @Transactional
     public StudyDetailsResponse get(UUID userId, Long studyId) {
-        Study study = studyRepository.findByIdWithPessimisticLock(studyId)
+        Study study = studyRepository.findByIdWithUserUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
         boolean likeStatus = false;
@@ -104,8 +104,7 @@ public class StudyQueryService {
 
         return StudyDetailsResponse.of(
                 likeStatus,
-                study.getViewCount(),
-                study.getOpenChatUrl(),
+                study,
                 imageInquiryResponses,
                 recruitPositionInquiryResponses,
                 commentPageResponse

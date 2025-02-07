@@ -1,14 +1,22 @@
 package com.jj.swm.domain.study.dto.response;
 
+import com.jj.swm.domain.study.entity.Study;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
 public class StudyDetailsResponse {
+
+    private UUID userId;
+
+    private String nickname;
+
+    private String profileImageUrl;
 
     private boolean likeStatus;
 
@@ -24,15 +32,18 @@ public class StudyDetailsResponse {
 
     public static StudyDetailsResponse of(
             boolean likeStatus,
-            int viewCount,
-            String openChatUrl,
+            Study study,
             List<StudyImageInquiryResponse> imageInquiryResponses,
             List<RecruitPositionInquiryResponse> recruitPositionInquiryResponses,
-            PageResponse<CommentInquiryResponse> commentPageResponse) {
+            PageResponse<CommentInquiryResponse> commentPageResponse
+    ) {
         return StudyDetailsResponse.builder()
+                .userId(study.getUser().getId())
+                .nickname(study.getUser().getNickname())
+                .profileImageUrl(study.getUser().getProfileImageUrl())
                 .likeStatus(likeStatus)
-                .viewCount(viewCount)
-                .openChatUrl(openChatUrl)
+                .viewCount(study.getViewCount())
+                .openChatUrl(study.getOpenChatUrl())
                 .imageInquiryResponses(imageInquiryResponses)
                 .recruitPositionInquiryResponses(recruitPositionInquiryResponses)
                 .commentPageResponse(commentPageResponse)
