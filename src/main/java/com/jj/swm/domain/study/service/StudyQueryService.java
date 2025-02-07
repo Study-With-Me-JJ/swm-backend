@@ -40,7 +40,7 @@ public class StudyQueryService {
             UUID userId,
             StudyInquiryCondition inquiryCondition
     ) {
-        List<Study> studies = studyRepository.findPagedWithUserAndTags(PageSize.Study + 1, inquiryCondition);
+        List<Study> studies = studyRepository.findPagedWithTags(PageSize.Study + 1, inquiryCondition);
 
         if (studies.isEmpty()) {
             return PageResponse.of(List.of(), false);
