@@ -26,15 +26,12 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     @Override
     public List<Study> findPagedWithTags(int pageSize, StudyInquiryCondition inquiryCondition) {
         return jpaQueryFactory.selectFrom(study)
-                .leftJoin(study.studyTags)
-                .fetchJoin()
                 .where(
                         studyCategoryEq(inquiryCondition.getCategory()),
                         studyStatusEq(inquiryCondition.getStatus()),
                         createSortPredicate(inquiryCondition)
                 )
                 .orderBy(createOrderSpecifier(inquiryCondition.getSortCriteria()))
-                .distinct()
                 .limit(pageSize)
                 .fetch();
     }
