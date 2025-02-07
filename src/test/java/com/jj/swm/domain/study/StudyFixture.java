@@ -18,7 +18,6 @@ public class StudyFixture {
                 .commentCount(0)
                 .status(StudyStatus.ACTIVE)
                 .viewCount(0)
-                .thumbnail("test_thumbnail")
                 .user(user)
                 .build();
     }

@@ -91,7 +91,7 @@ public class CommentCommandService {
     }
 
     private Study getStudyPessimisticLock(Long studyId) {
-        return studyRepository.findByIdWithPessimisticLock(studyId)
+        return studyRepository.findByIdWithUserUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 

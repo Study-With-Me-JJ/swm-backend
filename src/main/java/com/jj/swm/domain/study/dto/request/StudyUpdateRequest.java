@@ -23,8 +23,6 @@ public class StudyUpdateRequest {
     @NotNull
     private StudyCategory category;
 
-    private String thumbnail;
-
     private StudyTagModifyRequest tagModifyRequest;
 
     private StudyImageModifyRequest imageModifyRequest;
