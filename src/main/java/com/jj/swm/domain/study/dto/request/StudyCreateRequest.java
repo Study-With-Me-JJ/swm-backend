@@ -27,8 +27,6 @@ public class StudyCreateRequest {
     @NotNull
     private StudyCategory category;
 
-    private String thumbnail;
-
     @Size(max = 100)
     private List<String> tags;
 

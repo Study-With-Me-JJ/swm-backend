@@ -61,9 +61,6 @@ public class Study extends BaseTimeEntity {
     @Column(name = "view_count", nullable = false)
     private int viewCount;
 
-    @Column(name = "thumbnail", length = 300)
-    private String thumbnail;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -81,7 +78,6 @@ public class Study extends BaseTimeEntity {
                 .commentCount(0)
                 .status(StudyStatus.ACTIVE)
                 .viewCount(0)
-                .thumbnail(createRequest.getThumbnail())
                 .user(user)
                 .build();
     }
@@ -90,7 +86,6 @@ public class Study extends BaseTimeEntity {
         this.title = updateRequest.getTitle();
         this.content = updateRequest.getContent();
         this.category = updateRequest.getCategory();
-        this.thumbnail = updateRequest.getThumbnail();
         this.openChatUrl = updateRequest.getOpenChatUrl();
     }
 
