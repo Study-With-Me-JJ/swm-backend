@@ -2,6 +2,8 @@ package com.jj.swm.domain.user.service;
 
 import com.jj.swm.domain.study.dto.response.StudyInquiryResponse;
 import com.jj.swm.domain.study.entity.Study;
+import com.jj.swm.domain.study.entity.StudyBookmark;
+import com.jj.swm.domain.study.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.repository.StudyLikeRepository;
 import com.jj.swm.domain.study.service.StudyQueryService;
 import com.jj.swm.domain.user.dto.response.GetBusinessVerificationRequestResponse;
@@ -35,8 +37,9 @@ public class UserQueryService {
     private final UserRepository userRepository;
     private final UserCredentialRepository userCredentialRepository;
     private final BusinessVerificationRequestRepository businessVerificationRequestRepository;
-    private final StudyLikeRepository studyLikeRepository;
     private final StudyQueryService studyQueryService;
+    private final StudyLikeRepository studyLikeRepository;
+    private final StudyBookmarkRepository studyBookmarkRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<GetBusinessVerificationRequestResponse> getBusinessVerificationRequests(
@@ -87,5 +90,18 @@ public class UserQueryService {
                 pagedStudies,
                 (study) -> StudyInquiryResponse.of(study, bookmarkIdByStudyId.getOrDefault(study.getId(), null))
         );
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<StudyInquiryResponse> getBookmarkedStudies(UUID userId, int pageNo) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.Study,
+                Sort.by("id").descending()
+        );
+
+        Page<StudyBookmark> pagedStudyBookmarks = studyBookmarkRepository.findAllByUserIdWithStudy(userId, pageable);
+
+        return PageResponse.of(pagedStudyBookmarks, StudyInquiryResponse::of);
     }
 }

@@ -121,4 +121,15 @@ public class UserQueryController {
 
         return ApiResponse.ok(pageResponse);
     }
+
+    @GetMapping("/v1/user/bookmarked-studies")
+    public ApiResponse<PageResponse<StudyInquiryResponse>> getUserBookmarkedStudies(
+            Principal principal, @RequestParam(value = "pageNo") int pageNo
+    ) {
+        PageResponse<StudyInquiryResponse> pageResponse = userQueryService.getBookmarkedStudies(
+                UUID.fromString(principal.getName()), pageNo
+        );
+
+        return ApiResponse.ok(pageResponse);
+    }
 }

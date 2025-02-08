@@ -1,6 +1,8 @@
 package com.jj.swm.domain.study.repository;
 
 import com.jj.swm.domain.study.entity.StudyBookmark;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +21,7 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
     @Modifying
     @Query("delete from StudyBookmark b where b.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
+
+    @Query("select b from StudyBookmark b join fetch b.study where b.user.id = ?1")
+    Page<StudyBookmark> findAllByUserIdWithStudy(UUID userId, Pageable pageable);
 }
