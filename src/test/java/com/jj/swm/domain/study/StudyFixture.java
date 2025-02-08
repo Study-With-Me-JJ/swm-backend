@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study;
 
-import com.jj.swm.domain.study.entity.Study;
-import com.jj.swm.domain.study.entity.StudyCategory;
-import com.jj.swm.domain.study.entity.StudyStatus;
+import com.jj.swm.domain.study.entity.core.Study;
+import com.jj.swm.domain.study.entity.core.StudyCategory;
+import com.jj.swm.domain.study.entity.core.StudyStatus;
 import com.jj.swm.domain.user.entity.User;
 
 public class StudyFixture {

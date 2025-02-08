@@ -1,11 +1,11 @@
 package com.jj.swm.domain.user.service;
 
-import com.jj.swm.domain.study.dto.response.StudyInquiryResponse;
-import com.jj.swm.domain.study.entity.Study;
-import com.jj.swm.domain.study.entity.StudyBookmark;
-import com.jj.swm.domain.study.repository.StudyBookmarkRepository;
-import com.jj.swm.domain.study.repository.StudyLikeRepository;
-import com.jj.swm.domain.study.service.StudyQueryService;
+import com.jj.swm.domain.study.dto.core.response.StudyInquiryResponse;
+import com.jj.swm.domain.study.entity.core.Study;
+import com.jj.swm.domain.study.entity.core.StudyBookmark;
+import com.jj.swm.domain.study.repository.core.StudyBookmarkRepository;
+import com.jj.swm.domain.study.repository.core.StudyLikeRepository;
+import com.jj.swm.domain.study.service.core.StudyQueryService;
 import com.jj.swm.domain.user.dto.response.GetBusinessVerificationRequestResponse;
 import com.jj.swm.domain.user.dto.response.GetUserInfoResponse;
 import com.jj.swm.domain.user.entity.BusinessVerificationRequest;
