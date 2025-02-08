@@ -1,5 +1,11 @@
 package com.jj.swm.domain.user.service;
 
+import com.jj.swm.domain.study.dto.response.StudyInquiryResponse;
+import com.jj.swm.domain.study.entity.Study;
+import com.jj.swm.domain.study.entity.StudyBookmark;
+import com.jj.swm.domain.study.repository.StudyBookmarkRepository;
+import com.jj.swm.domain.study.repository.StudyLikeRepository;
+import com.jj.swm.domain.study.service.StudyQueryService;
 import com.jj.swm.domain.user.dto.response.GetBusinessVerificationRequestResponse;
 import com.jj.swm.domain.user.dto.response.GetUserInfoResponse;
 import com.jj.swm.domain.user.entity.BusinessVerificationRequest;
@@ -21,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -30,6 +37,9 @@ public class UserQueryService {
     private final UserRepository userRepository;
     private final UserCredentialRepository userCredentialRepository;
     private final BusinessVerificationRequestRepository businessVerificationRequestRepository;
+    private final StudyQueryService studyQueryService;
+    private final StudyLikeRepository studyLikeRepository;
+    private final StudyBookmarkRepository studyBookmarkRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<GetBusinessVerificationRequestResponse> getBusinessVerificationRequests(
@@ -63,4 +73,35 @@ public class UserQueryService {
         return userRepository.existsByNickname(nickname);
     }
 
+
+    @Transactional(readOnly = true)
+    public PageResponse<StudyInquiryResponse> getLikedStudies(UUID userId, int pageNo) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.Study,
+                Sort.by("id").descending()
+        );
+
+        Page<Study> pagedStudies = studyLikeRepository.findStudiesByUserId(userId, pageable);
+
+        Map<Long, Long> bookmarkIdByStudyId = studyQueryService.getBookmarkMapping(userId, pagedStudies.getContent());
+
+        return PageResponse.of(
+                pagedStudies,
+                (study) -> StudyInquiryResponse.of(study, bookmarkIdByStudyId.getOrDefault(study.getId(), null))
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<StudyInquiryResponse> getBookmarkedStudies(UUID userId, int pageNo) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.Study,
+                Sort.by("id").descending()
+        );
+
+        Page<StudyBookmark> pagedStudyBookmarks = studyBookmarkRepository.findAllByUserIdWithStudy(userId, pageable);
+
+        return PageResponse.of(pagedStudyBookmarks, StudyInquiryResponse::of);
+    }
 }

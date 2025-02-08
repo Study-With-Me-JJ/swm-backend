@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.dto.response;
 
 import com.jj.swm.domain.study.entity.Study;
+import com.jj.swm.domain.study.entity.StudyBookmark;
 import com.jj.swm.domain.study.entity.StudyCategory;
 import com.jj.swm.domain.study.entity.StudyStatus;
 import lombok.Builder;
@@ -44,6 +45,23 @@ public class StudyInquiryResponse {
                 .viewCount(study.getViewCount())
                 .studyBookmarkId(studyBookmarkId)
                 .tagInquiryListResponse(study.getStudyTags().stream()
+                        .map(StudyTagInquiryResponse::from)
+                        .toList())
+                .build();
+    }
+
+    public static StudyInquiryResponse of(StudyBookmark studyBookmark) {
+        return StudyInquiryResponse.builder()
+                .studyId(studyBookmark.getStudy().getId())
+                .title(studyBookmark.getStudy().getTitle())
+                .content(studyBookmark.getStudy().getContent())
+                .category(studyBookmark.getStudy().getCategory())
+                .likeCount(studyBookmark.getStudy().getLikeCount())
+                .commentCount(studyBookmark.getStudy().getCommentCount())
+                .status(studyBookmark.getStudy().getStatus())
+                .viewCount(studyBookmark.getStudy().getViewCount())
+                .studyBookmarkId(studyBookmark.getId())
+                .tagInquiryListResponse(studyBookmark.getStudy().getStudyTags().stream()
                         .map(StudyTagInquiryResponse::from)
                         .toList())
                 .build();
