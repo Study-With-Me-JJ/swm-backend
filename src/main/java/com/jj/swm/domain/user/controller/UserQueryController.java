@@ -1,5 +1,6 @@
 package com.jj.swm.domain.user.controller;
 
+import com.jj.swm.domain.study.dto.response.StudyInquiryResponse;
 import com.jj.swm.domain.user.dto.response.GetBusinessVerificationRequestResponse;
 import com.jj.swm.domain.user.dto.response.GetUserInfoResponse;
 import com.jj.swm.domain.user.entity.InspectionStatus;
@@ -12,10 +13,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -111,5 +109,16 @@ public class UserQueryController {
     @GetMapping("/health")
     public ApiResponse<String> healthCheck() {
         return ApiResponse.ok("OK");
+    }
+
+    @GetMapping("/v1/user/liked-studies")
+    public ApiResponse<PageResponse<StudyInquiryResponse>> getUserLikedStudies(
+            Principal principal, @RequestParam(value = "pageNo") int pageNo
+    ) {
+        PageResponse<StudyInquiryResponse> pageResponse = userQueryService.getLikedStudies(
+                UUID.fromString(principal.getName()), pageNo
+        );
+
+        return ApiResponse.ok(pageResponse);
     }
 }

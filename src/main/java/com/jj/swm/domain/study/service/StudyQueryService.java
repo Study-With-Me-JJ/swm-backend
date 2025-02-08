@@ -50,15 +50,7 @@ public class StudyQueryService {
 
         List<Study> pagedStudies = hasNext ? studies.subList(0, PageSize.Study) : studies;
 
-        List<Long> studyIds = pagedStudies.stream()
-                .map(Study::getId)
-                .toList();
-
-        Map<Long, Long> bookmarkIdByStudyId = userId != null
-                ? studyBookmarkRepository.findAllByUserIdAndStudyIds(userId, studyIds)
-                    .stream()
-                    .collect(Collectors.toMap(StudyBookmarkInfo::getId, StudyBookmarkInfo::getStudyId))
-                : Collections.emptyMap();
+        Map<Long, Long> bookmarkIdByStudyId = getBookmarkMapping(userId, pagedStudies);
 
         List<StudyInquiryResponse> inquiryResponses = pagedStudies.stream()
                 .map(study -> StudyInquiryResponse.of(
@@ -67,6 +59,18 @@ public class StudyQueryService {
                 .toList();
 
         return PageResponse.of(inquiryResponses, hasNext);
+    }
+
+    public Map<Long, Long> getBookmarkMapping(UUID userId, List<Study> studies) {
+        List<Long> studyIds = studies.stream()
+                .map(Study::getId)
+                .toList();
+
+        return userId != null
+                ? studyBookmarkRepository.findAllByUserIdAndStudyIds(userId, studyIds)
+                .stream()
+                .collect(Collectors.toMap(StudyBookmarkInfo::getStudyId, StudyBookmarkInfo::getId))
+                : Collections.emptyMap();
     }
 
     @Transactional
