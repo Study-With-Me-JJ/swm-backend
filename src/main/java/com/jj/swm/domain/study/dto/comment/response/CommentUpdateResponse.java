@@ -12,9 +12,9 @@ public class CommentUpdateResponse {
 
     private LocalDateTime updatedAt;
 
-    public static CommentUpdateResponse from(StudyComment studyComment) {
+    public static CommentUpdateResponse from(StudyComment comment) {
         return CommentUpdateResponse.builder()
-                .updatedAt(studyComment.getUpdatedAt())
+                .updatedAt(comment.getUpdatedAt())
                 .build();
     }
 }

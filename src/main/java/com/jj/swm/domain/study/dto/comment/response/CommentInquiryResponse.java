@@ -1,14 +1,14 @@
 package com.jj.swm.domain.study.dto.comment.response;
 
 import com.jj.swm.domain.study.entity.comment.StudyComment;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
-@Builder
+@SuperBuilder
 public class CommentInquiryResponse {
 
     private Long commentId;
@@ -25,9 +25,7 @@ public class CommentInquiryResponse {
 
     private LocalDateTime updatedAt;
 
-    private int replyCount;
-
-    public static CommentInquiryResponse of(StudyComment comment, int replyCount) {
+    public static CommentInquiryResponse from(StudyComment comment) {
         return CommentInquiryResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
@@ -36,7 +34,6 @@ public class CommentInquiryResponse {
                 .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
-                .replyCount(replyCount)
                 .build();
     }
 }

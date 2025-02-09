@@ -49,14 +49,14 @@ public class StudyComment extends BaseTimeEntity {
     private List<StudyComment> children = new ArrayList<>();
 
     public static StudyComment of(
-            Study study,
             User user,
-            CommentUpsertRequest commentUpsertRequest
+            Study study,
+            CommentUpsertRequest createRequest
     ) {
         return StudyComment.builder()
-                .content(commentUpsertRequest.getContent())
-                .study(study)
                 .user(user)
+                .study(study)
+                .content(createRequest.getContent())
                 .build();
     }
 
@@ -65,7 +65,7 @@ public class StudyComment extends BaseTimeEntity {
         this.parent = parent;
     }
 
-    public void modify(CommentUpsertRequest commentUpdateRequest) {
-        this.content = commentUpdateRequest.getContent();
+    public void modify(CommentUpsertRequest updateRequest) {
+        this.content = updateRequest.getContent();
     }
 }

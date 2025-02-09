@@ -3,8 +3,8 @@ package com.jj.swm.domain.study.service.comment;
 import com.jj.swm.domain.study.dto.comment.request.CommentUpsertRequest;
 import com.jj.swm.domain.study.dto.comment.response.CommentCreateResponse;
 import com.jj.swm.domain.study.dto.comment.response.CommentUpdateResponse;
-import com.jj.swm.domain.study.entity.core.Study;
 import com.jj.swm.domain.study.entity.comment.StudyComment;
+import com.jj.swm.domain.study.entity.core.Study;
 import com.jj.swm.domain.study.repository.comment.CommentRepository;
 import com.jj.swm.domain.study.repository.core.StudyRepository;
 import com.jj.swm.domain.user.entity.User;
@@ -34,30 +34,61 @@ public class CommentCommandService {
     ) {
         User user = userRepository.getReferenceById(userId);
 
-        Study study;
-        StudyComment parent = null;
-        if (parentId != null) {
-            study = studyRepository.findById(studyId)
-                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
-            parent = getParent(userId, parentId);
-        } else {
-            study = getStudyPessimisticLock(studyId);
-            study.incrementCommentCount();
-        }
-
-        StudyComment comment = StudyComment.of(
-                study,
-                user,
-                createRequest
+        StudyAndParentComment studyAndParentComment = loadStudyAndParentComment(
+                studyId,
+                parentId
         );
 
-        if (parent != null) {
-            comment.addParent(parent);
-        }
+        StudyComment comment = buildComment(
+                user,
+                studyAndParentComment,
+                createRequest
+        );
 
         commentRepository.save(comment);
 
         return CommentCreateResponse.from(comment);
+    }
+
+    private StudyAndParentComment loadStudyAndParentComment(
+            Long studyId,
+            Long parentId
+    ) {
+        Study study;
+        StudyComment parent = null;
+
+        if (parentId != null) {
+            study = studyRepository.findById(studyId)
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+
+            parent = commentRepository.findByIdWithParent(parentId)
+                    .map(comment -> comment.getParent() == null ? comment : comment.getParent())
+                    .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
+        } else {
+            study = loadStudyUsingPessimisticLock(studyId);
+            study.incrementCommentCount();
+        }
+
+        return new StudyAndParentComment(study, parent);
+    }
+
+    private StudyComment buildComment(
+            User user,
+            StudyAndParentComment studyAndParentComment,
+            CommentUpsertRequest createRequest
+    ) {
+        StudyComment comment = StudyComment.of(
+                user,
+                studyAndParentComment.study(),
+                createRequest
+        );
+
+        StudyComment parent = studyAndParentComment.parent();
+        if (parent != null) {
+            comment.addParent(parent);
+        }
+
+        return comment;
     }
 
     @Transactional
@@ -79,26 +110,26 @@ public class CommentCommandService {
             Long studyId,
             Long commentId
     ) {
-        StudyComment comment = commentRepository.findWithParentByIdAndUserId(commentId, userId)
+        StudyComment comment = commentRepository.findByIdAndUserIdWithParent(commentId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
 
-        if (comment.getParent() == null) {
-            Study study = getStudyPessimisticLock(studyId);
-            study.decrementCommentCount();
-        }
+        decrementCommentCountIfParent(studyId, comment);
 
         commentRepository.deleteAllByIdOrParentId(commentId);
     }
 
-    private Study getStudyPessimisticLock(Long studyId) {
-        return studyRepository.findByIdWithUserUsingPessimisticLock(studyId)
+    private void decrementCommentCountIfParent(Long studyId, StudyComment comment) {
+        if (comment.getParent() == null) {
+            Study study = loadStudyUsingPessimisticLock(studyId);
+            study.decrementCommentCount();
+        }
+    }
+
+    private Study loadStudyUsingPessimisticLock(Long studyId) {
+        return studyRepository.findByIdUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
-    private StudyComment getParent(UUID userId, Long parentId) {
-        StudyComment parent = commentRepository.findWithParentById(parentId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
-
-        return parent.getParent() == null ? parent : parent.getParent();
+    private record StudyAndParentComment(Study study, StudyComment parent) {
     }
 }

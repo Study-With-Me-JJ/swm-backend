@@ -2,13 +2,11 @@ package com.jj.swm.domain.study.service.comment;
 
 import com.jj.swm.domain.study.dto.comment.ReplyCountInfo;
 import com.jj.swm.domain.study.dto.comment.response.CommentInquiryResponse;
-import com.jj.swm.domain.study.dto.comment.response.ReplyInquiryResponse;
+import com.jj.swm.domain.study.dto.comment.response.ParentCommentInquiryResponse;
 import com.jj.swm.domain.study.entity.comment.StudyComment;
 import com.jj.swm.domain.study.repository.comment.CommentRepository;
 import com.jj.swm.global.common.dto.PageResponse;
-import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.common.enums.PageSize;
-import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,61 +26,54 @@ public class CommentQueryService {
     private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
-    public PageResponse<CommentInquiryResponse> getList(Long studyId, int pageNo) {
+    public PageResponse<ParentCommentInquiryResponse> getList(Long studyId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyComment,
                 Sort.by("id").descending()
         );
 
-        return getCommentPageResponse(studyId, pageable);
+        return loadCommentPageResponse(studyId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<ReplyInquiryResponse> getReplyList(Long parentId, Long lastReplyId) {
-        List<StudyComment> replies = commentRepository.findPagedWithUserByParentId(
+    public PageResponse<CommentInquiryResponse> getReplyList(Long parentId, Long lastReplyId) {
+        List<StudyComment> replies = commentRepository.findAllByParentIdWithUser(
                 PageSize.StudyReply + 1,
                 parentId,
                 lastReplyId
         );
 
         if (replies.isEmpty()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "replies not found");
+            return PageResponse.of(List.of(), false);
         }
 
         boolean hasNext = replies.size() > PageSize.StudyReply;
 
         List<StudyComment> pagedReplies = hasNext ? replies.subList(0, PageSize.StudyReply) : replies;
 
-        List<ReplyInquiryResponse> replyInquiryResponses = pagedReplies.stream()
-                .map(ReplyInquiryResponse::from)
+        List<CommentInquiryResponse> commentInquiryResponses = pagedReplies.stream()
+                .map(CommentInquiryResponse::from)
                 .toList();
 
-        return PageResponse.of(replyInquiryResponses, hasNext);
+        return PageResponse.of(commentInquiryResponses, hasNext);
     }
 
-    public PageResponse<CommentInquiryResponse> getCommentPageResponse(Long studyId, Pageable pageable) {
-        Page<StudyComment> pageComments = commentRepository.findCommentWithUserByStudyId(studyId, pageable);
+    public PageResponse<ParentCommentInquiryResponse> loadCommentPageResponse(Long studyId, Pageable pageable) {
+        Page<StudyComment> pagedComments = commentRepository.findAllByStudyIdWithUser(studyId, pageable);
 
-        List<Long> parentIds = pageComments.get()
+        List<Long> parentIds = pagedComments.get()
                 .map(StudyComment::getId)
                 .toList();
 
-        Map<Long, Integer> replyCountByParentId = commentRepository.countReplyByParentId(parentIds).stream()
+        Map<Long, Integer> replyCountByParentId = commentRepository.countRepliesByParentIds(parentIds).stream()
                 .collect(Collectors.toMap(ReplyCountInfo::getParentId, ReplyCountInfo::getReplyCount));
 
-        List<CommentInquiryResponse> commentInquiryResponses = pageComments.get()
-                .map(comment -> CommentInquiryResponse.of(
-                        comment, replyCountByParentId.getOrDefault(comment.getId(), 0))
-                )
-                .toList();
-
         return PageResponse.of(
-                pageComments.getNumberOfElements(),
-                pageComments.getTotalPages(),
-                pageComments.getTotalElements(),
-                pageComments.hasNext(),
-                commentInquiryResponses
+                pagedComments,
+                (comment) -> ParentCommentInquiryResponse.of(
+                        comment, replyCountByParentId.getOrDefault(comment.getId(), 0)
+                )
         );
     }
 }

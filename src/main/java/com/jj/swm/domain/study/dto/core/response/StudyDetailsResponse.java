@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.dto.core.response;
 
-import com.jj.swm.domain.study.dto.comment.response.CommentInquiryResponse;
+import com.jj.swm.domain.study.dto.comment.response.ParentCommentInquiryResponse;
 import com.jj.swm.domain.study.dto.recruitmentposition.response.RecruitPositionInquiryResponse;
 import com.jj.swm.domain.study.entity.core.Study;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -30,14 +30,14 @@ public class StudyDetailsResponse {
 
     private List<RecruitPositionInquiryResponse> recruitPositionInquiryResponses;
 
-    private PageResponse<CommentInquiryResponse> commentPageResponse;
+    private PageResponse<ParentCommentInquiryResponse> commentPageResponse;
 
     public static StudyDetailsResponse of(
             boolean likeStatus,
             Study study,
             List<StudyImageInquiryResponse> imageInquiryResponses,
             List<RecruitPositionInquiryResponse> recruitPositionInquiryResponses,
-            PageResponse<CommentInquiryResponse> commentPageResponse
+            PageResponse<ParentCommentInquiryResponse> commentPageResponse
     ) {
         return StudyDetailsResponse.builder()
                 .userId(study.getUser().getId())
