@@ -167,7 +167,7 @@ public class StudyCommandService {
     }
 
     private Study getStudyPessimisticLock(Long studyId) {
-        return studyRepository.findByIdWithUserUsingPessimisticLock(studyId)
+        return studyRepository.findByIdUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 

@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.service.core;
 
 import com.jj.swm.domain.study.dto.core.StudyBookmarkInfo;
 import com.jj.swm.domain.study.dto.core.StudyInquiryCondition;
-import com.jj.swm.domain.study.dto.comment.response.CommentInquiryResponse;
+import com.jj.swm.domain.study.dto.comment.response.ParentCommentInquiryResponse;
 import com.jj.swm.domain.study.dto.core.response.StudyDetailsResponse;
 import com.jj.swm.domain.study.dto.core.response.StudyImageInquiryResponse;
 import com.jj.swm.domain.study.dto.core.response.StudyInquiryResponse;
@@ -84,7 +84,7 @@ public class StudyQueryService {
 
     @Transactional
     public StudyDetailsResponse get(UUID userId, Long studyId) {
-        Study study = studyRepository.findByIdWithUserUsingPessimisticLock(studyId)
+        Study study = studyRepository.findByIdUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
         boolean likeStatus = false;
@@ -112,8 +112,8 @@ public class StudyQueryService {
                 PageSize.StudyComment,
                 Sort.by("id").descending()
         );
-        PageResponse<CommentInquiryResponse> commentPageResponse =
-                commentQueryService.getCommentPageResponse(studyId, pageable);
+        PageResponse<ParentCommentInquiryResponse> commentPageResponse =
+                commentQueryService.loadCommentPageResponse(studyId, pageable);
 
         return StudyDetailsResponse.of(
                 likeStatus,
