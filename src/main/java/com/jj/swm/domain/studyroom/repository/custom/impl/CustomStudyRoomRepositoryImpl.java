@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.jj.swm.domain.studyroom.entity.QStudyRoom.studyRoom;
 
@@ -71,14 +70,16 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
         Double lastAverageRating = condition.getLastAverageRatingValue();
 
         return switch (sortCriteria) {
-            case STARS -> this.nullSafeBuilder(() -> studyRoom.averageRating.lt(lastAverageRating)
+            case STAR -> this.nullSafeBuilder(() -> studyRoom.averageRating.lt(lastAverageRating)
                     .or(studyRoom.averageRating.eq(lastAverageRating).and(studyRoom.id.lt(lastStudyRoomId))));
             case LIKE -> this.nullSafeBuilder(() -> studyRoom.likeCount.lt(lastSortValue)
                     .or(studyRoom.likeCount.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
             case REVIEW -> this.nullSafeBuilder(() -> studyRoom.reviewCount.lt(lastSortValue)
                     .or(studyRoom.reviewCount.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
-            case PRICE -> this.nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.gt(lastSortValue)
+            case PRICE_ASC -> this.nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.gt(lastSortValue)
                     .or(studyRoom.entireMinPricePerHour.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
+            case PRICE_DESC -> this.nullSafeBuilder(() -> studyRoom.entireMaxPricePerHour.lt(lastSortValue)
+                    .or(studyRoom.entireMaxPricePerHour.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
             case DISTANCE -> {
                 NumberExpression<Double> distanceExpression = calculateDistance(
                         condition.getUserLatitude(), condition.getUserLongitude()
@@ -120,7 +121,7 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
         }
 
         return switch (sortCriteria) {
-            case STARS -> new OrderSpecifier<?>[]{
+            case STAR -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.DESC, studyRoom.averageRating),
                     new OrderSpecifier<>(Order.DESC, studyRoom.id),
             };
@@ -132,8 +133,12 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
                     new OrderSpecifier<>(Order.DESC, studyRoom.reviewCount),
                     new OrderSpecifier<>(Order.DESC, studyRoom.id),
             };
-            case PRICE -> new OrderSpecifier<?>[]{
+            case PRICE_ASC -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.ASC, studyRoom.entireMinPricePerHour),
+                    new OrderSpecifier<>(Order.DESC, studyRoom.id),
+            };
+            case PRICE_DESC -> new OrderSpecifier<?>[]{
+                    new OrderSpecifier<>(Order.DESC, studyRoom.entireMaxPricePerHour),
                     new OrderSpecifier<>(Order.DESC, studyRoom.id),
             };
             default -> new OrderSpecifier<?>[]{
