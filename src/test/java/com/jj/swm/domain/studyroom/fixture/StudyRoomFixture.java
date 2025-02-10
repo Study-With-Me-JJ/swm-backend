@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StudyRoomFixture {
 
     public static AtomicInteger count = new AtomicInteger(1);
+    public static AtomicInteger distanceCount = new AtomicInteger(1);
 
     public static StudyRoom createStudyRoom(User user) {
         return StudyRoom.builder()
@@ -38,8 +39,8 @@ public class StudyRoomFixture {
                         .locality("동작구")
                         .build())
                 .coordinates(Coordinates.builder()
-                        .latitude(count.doubleValue())
-                        .longitude(count.doubleValue())
+                        .latitude(calculateDistance())
+                        .longitude(distanceCount.doubleValue())
                         .build())
                 .thumbnail("http://test.png")
                 .referenceUrl("http://test.com")
@@ -48,7 +49,7 @@ public class StudyRoomFixture {
                 .entireMinHeadcount(1)
                 .entireMaxHeadcount(2)
                 .entireMinPricePerHour(count.getAndIncrement() * 1000)
-                .entireMaxPricePerHour(10000)
+                .entireMaxPricePerHour(count.getAndIncrement() * 10000)
                 .user(user)
                 .deletedAt(null)
                 .build();
@@ -454,5 +455,11 @@ public class StudyRoomFixture {
                         .build()
                 )
                 .build();
+    }
+
+    private static double calculateDistance() {
+        distanceCount.incrementAndGet();
+
+        return distanceCount.doubleValue();
     }
 }

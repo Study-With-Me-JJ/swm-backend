@@ -141,13 +141,13 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     }
 
     @Test
-    @DisplayName("스터디 룸 페이지네이션 가격 순 정렬에 성공한다.")
+    @DisplayName("스터디 룸 페이지네이션 가격 오름차순 정렬에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRooms_orderByPrice_Success() {
+    void studyRoom_getStudyRooms_orderByPriceAsc_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
-        condition.setSortCriteria(SortCriteria.PRICE);
+        condition.setSortCriteria(SortCriteria.PRICE_ASC);
 
         //when
         PageResponse<GetStudyRoomResponse> response = queryService.getStudyRooms(condition, null);
@@ -162,6 +162,28 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     }
 
     @Test
+    @DisplayName("스터디 룸 페이지네이션 가격 내림차순 정렬에 성공한다.")
+    @Transactional
+    void studyRoom_getStudyRooms_orderByPriceDesc_Success() {
+        //given
+        GetStudyRoomCondition condition = new GetStudyRoomCondition();
+        condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
+        condition.setSortCriteria(SortCriteria.PRICE_DESC);
+
+        //when
+        PageResponse<GetStudyRoomResponse> response = queryService.getStudyRooms(condition, null);
+
+        //then
+        for(int i = 0; i < 4; i++){
+            GetStudyRoomResponse currStudyRoom = response.getData().get(i);
+            GetStudyRoomResponse nextStudyRoom = response.getData().get(i + 1);
+
+            assertThat(currStudyRoom.getEntireMaxPricePerHour())
+                    .isGreaterThanOrEqualTo(nextStudyRoom.getEntireMaxPricePerHour());
+        }
+    }
+
+    @Test
     @DisplayName("스터디 룸 페이지네이션 거리 순 정렬에 성공한다.")
     @Transactional
     void studyRoom_getStudyRooms_orderByDistance_Success(){
@@ -169,8 +191,8 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
         condition.setSortCriteria(SortCriteria.DISTANCE);
-        condition.setUserLatitude(1.0);
-        condition.setUserLongitude(1.0);
+        condition.setUserLatitude(StudyRoomFixture.distanceCount.doubleValue());
+        condition.setUserLongitude(StudyRoomFixture.distanceCount.doubleValue());
 
         //when
         PageResponse<GetStudyRoomResponse> response = queryService.getStudyRooms(condition, null);
@@ -181,10 +203,10 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
             GetStudyRoomResponse nextStudyRoom = response.getData().get(i + 1);
 
             assertThat(currStudyRoom.getCoordinates().getLatitude())
-                    .isLessThanOrEqualTo(nextStudyRoom.getCoordinates().getLatitude());
+                    .isGreaterThanOrEqualTo(nextStudyRoom.getCoordinates().getLatitude());
 
             assertThat(currStudyRoom.getCoordinates().getLongitude())
-                    .isLessThanOrEqualTo(nextStudyRoom.getCoordinates().getLongitude());
+                    .isGreaterThanOrEqualTo(nextStudyRoom.getCoordinates().getLongitude());
         }
     }
 
