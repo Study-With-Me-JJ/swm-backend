@@ -38,8 +38,8 @@ public class GetStudyRoomCondition {
     @Schema(description = "필터링할 옵션 목록", example = "[\"WIFI\", \"PARKING\"]")
     private List<StudyRoomOption> options = new ArrayList<>();
 
-    @Schema(description = "정렬 기준 (예: STARS, LIKE, REVIEW, PRICE, DISTANCE)", example = "STARS")
-    private SortCriteria sortCriteria = SortCriteria.STARS;
+    @Schema(description = "정렬 기준 (예: STAR, LIKE, REVIEW, PRICE_ASC, PRICE_DESC, DISTANCE)", example = "STAR")
+    private SortCriteria sortCriteria = SortCriteria.STAR;
 
     @Schema(description = "사용자의 위도 (위치 기반 필터링에 사용)", example = "37.5665")
     private Double userLatitude;
@@ -50,7 +50,7 @@ public class GetStudyRoomCondition {
     @Schema(description = "페이징을 위한 마지막 조회된 스터디 룸 ID", example = "100")
     private Long lastStudyRoomId;
 
-    @Schema(description = "페이징을 위한 마지막 정렬 값", example = "4")
+    @Schema(description = "페이징을 위한 마지막 정렬 값(LIKE, REVIEW, PRICE_ASC, PRICE_DESC)", example = "4")
     private Integer lastSortValue;
 
     @Schema(description = "페이징을 위한 마지막 위도 값", example = "37.1234")
