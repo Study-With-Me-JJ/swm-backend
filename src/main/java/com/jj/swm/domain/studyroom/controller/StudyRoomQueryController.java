@@ -29,7 +29,10 @@ public class StudyRoomQueryController {
 
     @Operation(
             summary = "스터디 룸 목록 조회",
-            description = "사용자의 위치, 가격, 정렬 기준 등을 기반으로 스터디 룸을 필터링하여 Cursor 기반 페이지 조회합니다."
+            description = "사용자의 위치, 가격, 정렬 기준 등을 기반으로 스터디 룸을 필터링하여 Cursor 기반 페이지 조회합니다.<br><br>" +
+                    "<b>[정렬 별 활용 필드 - lastStudyRoomId 필수]</b><br> STAR: lastAverageRatingValue<br> " +
+                    "(LIKE, REVIEW, PRICE_ASC, PRICE_DESC): lastSortValue<br>" +
+                    "DISTANCE: lastLatitudeValue, lastLongitudeValue"
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공"

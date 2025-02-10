@@ -1,9 +1,10 @@
 package com.jj.swm.domain.studyroom.dto;
 
 public enum SortCriteria{
-    STARS,
+    STAR,
     LIKE,
     REVIEW,
-    PRICE,
+    PRICE_ASC,
+    PRICE_DESC,
     DISTANCE
 }
