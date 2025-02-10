@@ -20,6 +20,7 @@ public class GetStudyRoomResponse {
     private int likeCount;
     private int reviewCount;
     private int entireMinPricePerHour;
+    private int entireMaxPricePerHour;
     private int entireMaxHeadcount;
     private double starAvg;
     private Coordinates coordinates;
@@ -38,6 +39,7 @@ public class GetStudyRoomResponse {
                 .reviewCount(studyRoom.getReviewCount())
                 .starAvg(studyRoom.getAverageRating())
                 .entireMinPricePerHour(studyRoom.getEntireMinPricePerHour())
+                .entireMaxPricePerHour(studyRoom.getEntireMaxPricePerHour())
                 .entireMaxHeadcount(studyRoom.getEntireMaxHeadcount())
                 .coordinates(studyRoom.getCoordinates())
                 .studyBookmarkId(studyBookmarkId)
