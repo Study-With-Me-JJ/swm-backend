@@ -1,9 +1,9 @@
 package com.jj.swm.global.security.oauth;
 
-import com.jj.swm.domain.user.entity.Provider;
-import com.jj.swm.domain.user.entity.RoleType;
-import com.jj.swm.domain.user.entity.User;
-import com.jj.swm.domain.user.entity.UserCredential;
+import com.jj.swm.domain.user.core.entity.Provider;
+import com.jj.swm.domain.user.core.entity.RoleType;
+import com.jj.swm.domain.user.core.entity.User;
+import com.jj.swm.domain.user.core.entity.UserCredential;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.auth.AuthException;
 import lombok.Builder;

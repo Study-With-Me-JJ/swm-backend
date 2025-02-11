@@ -1,7 +1,7 @@
 package com.jj.swm.global.event.handler;
 
-import com.jj.swm.domain.user.dto.event.BusinessInspectionUpdateEvent;
-import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
+import com.jj.swm.domain.user.core.dto.event.BusinessInspectionUpdateEvent;
+import com.jj.swm.domain.user.core.dto.event.BusinessVerificationRequestEvent;
 import com.jj.swm.global.common.service.DiscordNotificationService;
 import com.jj.swm.global.common.service.EmailService;
 import lombok.RequiredArgsConstructor;

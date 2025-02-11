@@ -1,7 +1,6 @@
 package com.jj.swm.global.security.jwt;
 
-import com.jj.swm.domain.user.entity.User;
-import com.jj.swm.domain.user.repository.UserRepository;
+import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.auth.TokenException;
 import jakarta.servlet.FilterChain;
