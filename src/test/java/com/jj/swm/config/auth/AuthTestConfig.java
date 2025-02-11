@@ -1,6 +1,6 @@
 package com.jj.swm.config.auth;
 
-import com.jj.swm.domain.auth.service.AuthService;
+import com.jj.swm.domain.user.auth.service.AuthService;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;

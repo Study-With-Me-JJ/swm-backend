@@ -1,7 +1,7 @@
 package com.jj.swm;
 
 import com.jj.swm.config.TestConfig;
-import com.jj.swm.domain.user.service.BusinessStatusService;
+import com.jj.swm.domain.user.core.service.BusinessStatusService;
 import com.jj.swm.global.common.service.DiscordNotificationService;
 import com.jj.swm.global.common.service.EmailService;
 import org.junit.jupiter.api.AfterEach;
