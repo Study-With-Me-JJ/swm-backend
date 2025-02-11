@@ -16,4 +16,8 @@ public interface StudyRepository extends JpaRepository<Study, Long>, CustomStudy
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Study s where s.id = ?1")
     Optional<Study> findByIdUsingPessimisticLock(Long studyId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from Study s join fetch s.user where s.id = ?1")
+    Optional<Study> findByIdWithUserUsingPessimisticLock(Long studyId);
 }

@@ -34,7 +34,9 @@ public class StudyQueryController {
     }
 
     @GetMapping("/v1/study/{studyId}")
-    public ApiResponse<StudyDetailsResponse> getStudyDetails(Principal principal, @PathVariable("studyId") Long studyId) {
+    public ApiResponse<StudyDetailsResponse> getStudyDetails(
+            Principal principal, @PathVariable("studyId") Long studyId
+    ) {
         StudyDetailsResponse detailsResponse = studyQueryService.get(
                 principal != null ? UUID.fromString(principal.getName()) : null, studyId
         );
