@@ -15,6 +15,7 @@ public interface StudyRoomImageRepository extends JpaRepository<StudyRoomImage, 
 
     int countStudyRoomImageByIdInAndStudyRoom(List<Long> imageIds, StudyRoom studyRoom);
 
+    @Query("select s from StudyRoomImage s where s.studyRoom.id = ?1 order by s.sortOrder")
     List<StudyRoomImage> findAllByStudyRoomId(Long studyRoomId);
 
     @Modifying
