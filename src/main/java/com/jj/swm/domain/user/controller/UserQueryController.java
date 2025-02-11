@@ -1,6 +1,6 @@
 package com.jj.swm.domain.user.controller;
 
-import com.jj.swm.domain.study.dto.core.response.StudyInquiryResponse;
+import com.jj.swm.domain.study.core.dto.response.StudyInquiryResponse;
 import com.jj.swm.domain.user.dto.response.GetBusinessVerificationRequestResponse;
 import com.jj.swm.domain.user.dto.response.GetUserInfoResponse;
 import com.jj.swm.domain.user.entity.InspectionStatus;
