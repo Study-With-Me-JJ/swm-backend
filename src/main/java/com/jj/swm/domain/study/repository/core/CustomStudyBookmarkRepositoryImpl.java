@@ -18,7 +18,7 @@ public class CustomStudyBookmarkRepositoryImpl implements CustomStudyBookmarkRep
     private final JPAQueryFactory jpaQueryFactory;
 
     public List<StudyBookmarkInfo> findAllByUserIdAndStudyIds(UUID userId, List<Long> studyIds) {
-        return jpaQueryFactory.select(new QStudyBookmarkInfo(study.id, studyBookmark.id))
+        return jpaQueryFactory.select(new QStudyBookmarkInfo(studyBookmark.id, study.id))
                 .from(studyBookmark)
                 .join(studyBookmark.study, study)
                 .join(studyBookmark.user, user)

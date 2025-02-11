@@ -22,6 +22,6 @@ public interface StudyLikeRepository extends JpaRepository<StudyLike, Long> {
     @Query("delete from StudyLike l where l.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
 
-    @Query("select sl.study from StudyLike sl where sl.user.id = ?1")
+    @Query("select l.study from StudyLike l where l.user.id = ?1")
     Page<Study> findStudiesByUserId(UUID userId, Pageable pageable);
 }

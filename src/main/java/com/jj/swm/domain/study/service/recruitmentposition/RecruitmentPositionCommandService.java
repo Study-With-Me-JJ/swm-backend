@@ -1,11 +1,12 @@
 package com.jj.swm.domain.study.service.recruitmentposition;
 
-import com.jj.swm.domain.study.dto.recruitmentposition.request.RecruitPositionUpsertRequest;
+import com.jj.swm.domain.study.dto.recruitmentposition.request.RecruitPositionCreateRequest;
+import com.jj.swm.domain.study.dto.recruitmentposition.request.RecruitPositionUpdateRequest;
 import com.jj.swm.domain.study.dto.recruitmentposition.response.RecruitmentPositionCreateResponse;
 import com.jj.swm.domain.study.entity.core.Study;
 import com.jj.swm.domain.study.entity.recruitmentposition.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.repository.recruitmentposition.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.repository.core.StudyRepository;
+import com.jj.swm.domain.study.repository.recruitmentposition.RecruitmentPositionRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
@@ -25,7 +26,7 @@ public class RecruitmentPositionCommandService {
     public RecruitmentPositionCreateResponse create(
             UUID userId,
             Long studyId,
-            RecruitPositionUpsertRequest createRequest
+            RecruitPositionCreateRequest createRequest
     ) {
         Study study = studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
@@ -40,7 +41,7 @@ public class RecruitmentPositionCommandService {
     public void update(
             UUID userId,
             Long recruitPositionId,
-            RecruitPositionUpsertRequest updateRequest
+            RecruitPositionUpdateRequest updateRequest
     ) {
         StudyRecruitmentPosition recruitmentPosition =
                 recruitmentPositionRepository.findByIdAndStudyUserId(recruitPositionId, userId)

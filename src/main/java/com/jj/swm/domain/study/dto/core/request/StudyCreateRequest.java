@@ -1,7 +1,8 @@
 package com.jj.swm.domain.study.dto.core.request;
 
-import com.jj.swm.domain.study.dto.recruitmentposition.request.RecruitPositionUpsertRequest;
+import com.jj.swm.domain.study.dto.recruitmentposition.request.RecruitPositionCreateRequest;
 import com.jj.swm.domain.study.entity.core.StudyCategory;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -34,7 +35,8 @@ public class StudyCreateRequest {
     @Size(max = 100)
     private List<String> imageUrls;
 
+    @Valid
     @NotEmpty
     @Size(max = 100)
-    private List<RecruitPositionUpsertRequest> recruitPositionCreateRequests;
+    private List<RecruitPositionCreateRequest> recruitPositionCreateRequests;
 }

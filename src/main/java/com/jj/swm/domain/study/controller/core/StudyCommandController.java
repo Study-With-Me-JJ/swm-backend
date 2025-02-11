@@ -36,7 +36,8 @@ public class StudyCommandController {
         studyCommandService.update(
                 UUID.fromString(principal.getName()),
                 studyId,
-                updateRequest);
+                updateRequest
+        );
 
         return ApiResponse.ok(null);
     }

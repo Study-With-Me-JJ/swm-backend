@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.service.core;
 
+import com.jj.swm.domain.study.dto.comment.response.ParentCommentInquiryResponse;
 import com.jj.swm.domain.study.dto.core.StudyBookmarkInfo;
 import com.jj.swm.domain.study.dto.core.StudyInquiryCondition;
-import com.jj.swm.domain.study.dto.comment.response.ParentCommentInquiryResponse;
 import com.jj.swm.domain.study.dto.core.response.StudyDetailsResponse;
 import com.jj.swm.domain.study.dto.core.response.StudyImageInquiryResponse;
 import com.jj.swm.domain.study.dto.core.response.StudyInquiryResponse;
@@ -45,11 +45,8 @@ public class StudyQueryService {
     private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional(readOnly = true)
-    public PageResponse<StudyInquiryResponse> getList(
-            UUID userId,
-            StudyInquiryCondition inquiryCondition
-    ) {
-        List<Study> studies = studyRepository.findPagedWithTags(PageSize.Study + 1, inquiryCondition);
+    public PageResponse<StudyInquiryResponse> getList(UUID userId, StudyInquiryCondition inquiryCondition) {
+        List<Study> studies = studyRepository.findPagedStudiesByCondition(PageSize.Study + 1, inquiryCondition);
 
         if (studies.isEmpty()) {
             return PageResponse.of(List.of(), false);
@@ -61,11 +58,7 @@ public class StudyQueryService {
 
         Map<Long, Long> bookmarkIdByStudyId = getBookmarkMapping(userId, pagedStudies);
 
-        List<StudyInquiryResponse> inquiryResponses = pagedStudies.stream()
-                .map(study -> StudyInquiryResponse.of(
-                        study, bookmarkIdByStudyId.getOrDefault(study.getId(), null)
-                ))
-                .toList();
+        List<StudyInquiryResponse> inquiryResponses = loadStudyInquiryResponse(pagedStudies, bookmarkIdByStudyId);
 
         return PageResponse.of(inquiryResponses, hasNext);
     }
@@ -82,15 +75,22 @@ public class StudyQueryService {
                 : Collections.emptyMap();
     }
 
+    private List<StudyInquiryResponse> loadStudyInquiryResponse(
+            List<Study> pagedStudies, Map<Long, Long> bookmarkIdByStudyId
+    ) {
+        return pagedStudies.stream()
+                .map(study -> StudyInquiryResponse.of(
+                        study, bookmarkIdByStudyId.getOrDefault(study.getId(), null)
+                ))
+                .toList();
+    }
+
     @Transactional
     public StudyDetailsResponse get(UUID userId, Long studyId) {
-        Study study = studyRepository.findByIdUsingPessimisticLock(studyId)
+        Study study = studyRepository.findByIdWithUserUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
-        boolean likeStatus = false;
-        if (userId != null) {
-            likeStatus = studyLikeRepository.existsByUserIdAndStudyId(userId, studyId);
-        }
+        boolean likeStatus = isLike(userId, studyId);
 
         study.incrementViewCount();
 
@@ -100,8 +100,7 @@ public class StudyQueryService {
                 .map(StudyImageInquiryResponse::from)
                 .toList();
 
-        List<StudyRecruitmentPosition> recruitmentPositions =
-                recruitmentPositionRepository.findAllByStudyId(studyId);
+        List<StudyRecruitmentPosition> recruitmentPositions = recruitmentPositionRepository.findAllByStudyId(studyId);
 
         List<RecruitPositionInquiryResponse> recruitPositionInquiryResponses = recruitmentPositions.stream()
                 .map(RecruitPositionInquiryResponse::from)
@@ -122,5 +121,14 @@ public class StudyQueryService {
                 recruitPositionInquiryResponses,
                 commentPageResponse
         );
+    }
+
+    private boolean isLike(UUID userId, Long studyId) {
+        boolean likeStatus = false;
+
+        if (userId != null) {
+            likeStatus = studyLikeRepository.existsByUserIdAndStudyId(userId, studyId);
+        }
+        return likeStatus;
     }
 }

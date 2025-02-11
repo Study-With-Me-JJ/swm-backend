@@ -5,12 +5,13 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecruitPositionUpsertRequest {
+public class RecruitPositionCreateRequest {
 
     @NotBlank
     private String title;
@@ -19,9 +20,4 @@ public class RecruitPositionUpsertRequest {
     @Max(100)
     @NotNull
     private Integer headcount;
-
-    @Min(0)
-    @Max(100)
-    @NotNull
-    private Integer acceptedCount;
 }

@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.controller.recruitmentposition;
 
-import com.jj.swm.domain.study.dto.recruitmentposition.request.RecruitPositionUpsertRequest;
+import com.jj.swm.domain.study.dto.recruitmentposition.request.RecruitPositionCreateRequest;
+import com.jj.swm.domain.study.dto.recruitmentposition.request.RecruitPositionUpdateRequest;
 import com.jj.swm.domain.study.dto.recruitmentposition.response.RecruitmentPositionCreateResponse;
 import com.jj.swm.domain.study.service.recruitmentposition.RecruitmentPositionCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
@@ -22,7 +23,7 @@ public class RecruitmentPositionCommandController {
     public ApiResponse<RecruitmentPositionCreateResponse> createRecruitmentPosition(
             Principal principal,
             @PathVariable("studyId") Long studyId,
-            @Valid @RequestBody RecruitPositionUpsertRequest createRequest
+            @Valid @RequestBody RecruitPositionCreateRequest createRequest
     ) {
         RecruitmentPositionCreateResponse createResponse = recruitmentPositionCommandService.create(
                 UUID.fromString(principal.getName()),
@@ -37,7 +38,7 @@ public class RecruitmentPositionCommandController {
     public ApiResponse<Void> updateRecruitmentPosition(
             Principal principal,
             @PathVariable("recruitPositionId") Long recruitPositionId,
-            @Valid @RequestBody RecruitPositionUpsertRequest updateRequest
+            @Valid @RequestBody RecruitPositionUpdateRequest updateRequest
     ) {
         recruitmentPositionCommandService.update(
                 UUID.fromString(principal.getName()),
