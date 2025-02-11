@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.entity;
 
-import com.jj.swm.domain.user.entity.User;
+import com.jj.swm.domain.user.core.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

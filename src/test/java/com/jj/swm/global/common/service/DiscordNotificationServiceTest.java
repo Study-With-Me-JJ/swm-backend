@@ -1,7 +1,7 @@
 package com.jj.swm.global.common.service;
 
-import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
-import com.jj.swm.domain.user.entity.RoleType;
+import com.jj.swm.domain.user.core.dto.event.BusinessVerificationRequestEvent;
+import com.jj.swm.domain.user.core.entity.RoleType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
