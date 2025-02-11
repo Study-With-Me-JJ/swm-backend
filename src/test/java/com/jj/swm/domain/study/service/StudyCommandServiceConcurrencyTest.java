@@ -3,9 +3,9 @@
 //import com.jj.swm.IntegrationContainerSupporter;
 //import com.jj.swm.domain.study.StudyFixture;
 //import com.jj.swm.domain.study.StudyLikeFixture;
-//import com.jj.swm.domain.study.entity.core.Study;
-//import com.jj.swm.domain.study.repository.core.StudyLikeRepository;
-//import com.jj.swm.domain.study.repository.core.StudyRepository;
+//import com.jj.swm.domain.study.core.entity.Study;
+//import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
+//import com.jj.swm.domain.study.core.repository.StudyRepository;
 //import com.jj.swm.domain.user.UserFixture;
 //import com.jj.swm.domain.user.entity.User;
 //import com.jj.swm.domain.user.repository.UserRepository;
