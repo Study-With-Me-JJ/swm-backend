@@ -84,12 +84,11 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
         /**
          * .imageModification(ModifyStudyRoomImageRequest.builder()
-         *      .imageIdsToRemove(List.of(1L, 2L))
-         *      .imagesToAdd(List.of("http://test1.png", "http://test2.png"))
+         *      .imageIdsToUpdate(List.of("http://test1.png", "http://test2.png"))
          *      .build()
          * )
          */
-        assertThat(imageRepository.count()).isEqualTo(2); // 수정 - (2개 삭제하고 2개 추가)
+        assertThat(imageRepository.count()).isEqualTo(2); // 수정 - (기존 데이터를 삭제하고 2개 추가)
     }
 
     @Test
@@ -101,6 +100,18 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
         //when & then
         Assertions.assertThrows(GlobalException.class,
                 () -> commandService.update(request, studyRoom.getId(), UUID.randomUUID())
+        );
+    }
+
+    @Test
+    @DisplayName("스터디 룸 수정시 이미지 제한 개수를 초과했을 경우 실패한다.")
+    void studyRoom_update_whenExceedImageTagLimit_thenFail() {
+        //given
+        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForImageLimitFail();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.update(request, studyRoom.getId(), roomAdmin.getId())
         );
     }
 
@@ -121,30 +132,6 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     void studyRoom_update_whenExceedTagLimit_thenFail() {
         //given
         UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTagLimitFail();
-
-        //when & then
-        Assertions.assertThrows(GlobalException.class,
-                () -> commandService.update(request, studyRoom.getId(), roomAdmin.getId())
-        );
-    }
-
-    @Test
-    @DisplayName("스터디 룸 수정시 잘못된 이미지 ID값을 전달했을 경우 실패한다.")
-    void studyRoom_update_whenNotValidImageId_thenFail() {
-        //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForImageFail();
-
-        //when & then
-        Assertions.assertThrows(GlobalException.class,
-                () -> commandService.update(request, studyRoom.getId(), roomAdmin.getId())
-        );
-    }
-
-    @Test
-    @DisplayName("스터디 룸 수정시 이미지 제한 개수를 초과했을 경우 실패한다.")
-    void studyRoom_update_whenExceedImageTagLimit_thenFail() {
-        //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForImageLimitFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,

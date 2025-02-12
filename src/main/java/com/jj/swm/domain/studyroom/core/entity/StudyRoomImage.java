@@ -22,6 +22,9 @@ public class StudyRoomImage {
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
 
+    @Column(name = "sort_order", nullable = false)
+    private int sortOrder;
+
     public void modifyImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }

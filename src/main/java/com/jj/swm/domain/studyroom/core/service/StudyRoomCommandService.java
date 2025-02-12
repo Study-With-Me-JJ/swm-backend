@@ -156,26 +156,12 @@ public class StudyRoomCommandService {
 
     private void imageModifyLogic(ModifyStudyRoomImageRequest request, StudyRoom studyRoom) {
         if (request != null) {
-            if (request.getImagesToAdd() != null && !request.getImagesToAdd().isEmpty()) {
-                long size = imageRepository.countByStudyRoomId(studyRoom.getId());
+            if (request.getImagesToUpdate() != null) {
+                validateSizeLimitExceeded(request.getImagesToUpdate().size(), 20, "Image");
 
-                if(size + request.getImagesToAdd().size() > 20)
-                    throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
-
-                imageRepository.batchInsert(request.getImagesToAdd(), studyRoom);
+                imageRepository.deleteAllByStudyRoomId(studyRoom.getId());
+                imageRepository.batchInsert(request.getImagesToUpdate(), studyRoom);
             }
-            if (request.getImageIdsToRemove() != null && !request.getImageIdsToRemove().isEmpty())
-                removeImages(request.getImageIdsToRemove(), studyRoom);
-        }
-    }
-
-    private void removeImages(List<Long> imageIdsToRemove, StudyRoom studyRoom) {
-        int size = imageRepository.countStudyRoomImageByIdInAndStudyRoom(imageIdsToRemove, studyRoom);
-
-        if(size == imageIdsToRemove.size()){
-            imageRepository.deleteAllByIdInBatch(imageIdsToRemove);
-        } else{
-            throw new GlobalException(ErrorCode.NOT_VALID, "Some image not matching StudyRoom.");
         }
     }
 
@@ -183,9 +169,7 @@ public class StudyRoomCommandService {
         if(request != null){
             if (request.getTagsToAdd() != null && !request.getTagsToAdd().isEmpty()) {
                 long size = tagRepository.countByStudyRoomId(studyRoom.getId());
-
-                if(size + request.getTagsToAdd().size() > 10)
-                    throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Exceeded");
+                validateSizeLimitExceeded(size + request.getTagsToAdd().size(), 10, "Tag");
 
                 tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
             }
@@ -208,9 +192,7 @@ public class StudyRoomCommandService {
         if(request != null){
             if (request.getDayOffsToAdd() != null && !request.getDayOffsToAdd().isEmpty()) {
                 long size = dayOffRepository.countByStudyRoomId(studyRoom.getId());
-
-                if(size + request.getDayOffsToAdd().size() > 7)
-                    throw new GlobalException(ErrorCode.NOT_VALID, "DayOff Limit Exceeded");
+                validateSizeLimitExceeded(size + request.getDayOffsToAdd().size(), 7, "DayOff");
 
                 List<DayOfWeek> dayOffsToAdd = request.getDayOffsToAdd();
 
@@ -267,9 +249,7 @@ public class StudyRoomCommandService {
         if(request != null){
             if (request.getTypesToAdd() != null && !request.getTypesToAdd().isEmpty()) {
                 long size = typeInfoRepository.countByStudyRoomId(studyRoom.getId());
-
-                if(size + request.getTypesToAdd().size() > 3)
-                    throw new GlobalException(ErrorCode.NOT_VALID, "Type Limit Exceeded");
+                validateSizeLimitExceeded(size + request.getTypesToAdd().size(), 3, "Type");
 
                 List<StudyRoomType> typesToAdd = request.getTypesToAdd();
 
@@ -407,4 +387,7 @@ public class StudyRoomCommandService {
             throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
     }
 
+    private void validateSizeLimitExceeded(long size, long limit, String targetName) {
+        if(size > limit) throw new GlobalException(ErrorCode.NOT_VALID, targetName + " Limit Exceeded");
+    }
 }
