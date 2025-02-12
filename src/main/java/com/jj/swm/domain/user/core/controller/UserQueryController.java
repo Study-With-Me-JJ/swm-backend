@@ -1,6 +1,6 @@
 package com.jj.swm.domain.user.core.controller;
 
-import com.jj.swm.domain.study.dto.response.StudyInquiryResponse;
+import com.jj.swm.domain.study.core.dto.response.FindStudyResponse;
 import com.jj.swm.domain.user.core.dto.response.GetBusinessVerificationRequestResponse;
 import com.jj.swm.domain.user.core.dto.response.GetUserInfoResponse;
 import com.jj.swm.domain.user.core.entity.InspectionStatus;
@@ -13,7 +13,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.List;
@@ -112,10 +115,10 @@ public class UserQueryController {
     }
 
     @GetMapping("/v1/user/liked-studies")
-    public ApiResponse<PageResponse<StudyInquiryResponse>> getUserLikedStudies(
+    public ApiResponse<PageResponse<FindStudyResponse>> userLikedStudyList(
             Principal principal, @RequestParam(value = "pageNo") int pageNo
     ) {
-        PageResponse<StudyInquiryResponse> pageResponse = userQueryService.getLikedStudies(
+        PageResponse<FindStudyResponse> pageResponse = userQueryService.findLikedStudyList(
                 UUID.fromString(principal.getName()), pageNo
         );
 
@@ -123,10 +126,10 @@ public class UserQueryController {
     }
 
     @GetMapping("/v1/user/bookmarked-studies")
-    public ApiResponse<PageResponse<StudyInquiryResponse>> getUserBookmarkedStudies(
+    public ApiResponse<PageResponse<FindStudyResponse>> userBookmarkedStudyList(
             Principal principal, @RequestParam(value = "pageNo") int pageNo
     ) {
-        PageResponse<StudyInquiryResponse> pageResponse = userQueryService.getBookmarkedStudies(
+        PageResponse<FindStudyResponse> pageResponse = userQueryService.findBookmarkedStudyList(
                 UUID.fromString(principal.getName()), pageNo
         );
 

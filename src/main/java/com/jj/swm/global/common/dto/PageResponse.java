@@ -38,23 +38,6 @@ public class PageResponse<D> {
         );
     }
 
-    public static <D> PageResponse<D> of(
-            int numberOfElements,
-            int totalPages,
-            long totalElements,
-            boolean hasNext,
-            List<D> dto
-    ) {
-        return new PageResponse<>(
-                numberOfElements,
-                totalPages,
-                totalElements,
-                hasNext,
-                dto
-        );
-
-    }
-
     private static <E, D> List<D> convertToDto(Page<E> entity, Function<E, D> makeDto) {
         return entity.getContent()
                 .stream()
