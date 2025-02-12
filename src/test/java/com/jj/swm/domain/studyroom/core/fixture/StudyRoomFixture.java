@@ -101,7 +101,7 @@ public class StudyRoomFixture {
                 .build();
     }
 
-    public static UpdateStudyRoomRequest createUpdateStudyRoomRequest(){
+    public static UpdateStudyRoomRequest createUpdateStudyRoomRequest() {
         return UpdateStudyRoomRequest.builder()
                 .title("update_test")
                 .introduce("update_test")
@@ -126,8 +126,7 @@ public class StudyRoomFixture {
                 .entireMinHeadcount(1)
                 .entireMaxHeadcount(2)
                 .imageModification(ModifyStudyRoomImageRequest.builder()
-                        .imageIdsToRemove(List.of(1L, 2L))
-                        .imagesToAdd(List.of("http://test1.png", "http://test2.png"))
+                        .imagesToUpdate(List.of("http://test1.png", "http://test2.png"))
                         .build()
                 )
                 .dayOffModification(ModifyStudyRoomDayOffRequest.builder()
@@ -139,39 +138,6 @@ public class StudyRoomFixture {
                         .tagsToAdd(List.of("tag1", "tag2"))
                         .build()
                 )
-                .build();
-    }
-
-    public static UpdateStudyRoomRequest createUpdateStudyRoomRequestForImageFail() {
-        return UpdateStudyRoomRequest.builder()
-                .title("update_test")
-                .introduce("update_test")
-                .notice("update_test")
-                .guideline("update_test")
-                .openingTime(LocalTime.MIN)
-                .closingTime(LocalTime.MAX)
-                .address(Address.builder()
-                        .address("서울 동작구")
-                        .detailAddress("서울 동작구 23번길")
-                        .region("서울")
-                        .locality("동작구")
-                        .build())
-                .coordinates(Coordinates.builder()
-                        .latitude(0.0)
-                        .longitude(0.0)
-                        .build())
-                .thumbnail("http://test.png")
-                .referenceUrl("http://test.com")
-                .phoneNumber("010-0000-0000")
-                .minReserveTime(2)
-                .entireMinHeadcount(1)
-                .entireMaxHeadcount(2)
-                .imageModification(ModifyStudyRoomImageRequest.builder()
-                        .imageIdsToRemove(List.of(100L, 200L))
-                        .build()
-                )
-                .dayOffModification(null)
-                .tagModification(null)
                 .build();
     }
 
@@ -355,8 +321,8 @@ public class StudyRoomFixture {
                 .entireMinHeadcount(1)
                 .entireMaxHeadcount(2)
                 .imageModification(ModifyStudyRoomImageRequest.builder()
-                        .imagesToAdd(List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
-                                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"))
+                        .imagesToUpdate(List.of("1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+                                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"))
                         .build()
                 )
                 .dayOffModification(null)
