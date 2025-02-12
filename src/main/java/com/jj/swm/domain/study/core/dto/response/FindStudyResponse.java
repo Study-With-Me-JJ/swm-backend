@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class StudyInquiryResponse {
+public class FindStudyResponse {
 
     private Long studyId;
 
@@ -31,10 +31,10 @@ public class StudyInquiryResponse {
 
     private Long studyBookmarkId;
 
-    private List<StudyTagInquiryResponse> tagInquiryListResponse;
+    private List<FindStudyTagResponse> findTagResponseList;
 
-    public static StudyInquiryResponse of(Study study, Long studyBookmarkId) {
-        return StudyInquiryResponse.builder()
+    public static FindStudyResponse of(Study study, Long studyBookmarkId) {
+        return FindStudyResponse.builder()
                 .studyId(study.getId())
                 .title(study.getTitle())
                 .content(study.getContent())
@@ -44,14 +44,14 @@ public class StudyInquiryResponse {
                 .status(study.getStatus())
                 .viewCount(study.getViewCount())
                 .studyBookmarkId(studyBookmarkId)
-                .tagInquiryListResponse(study.getStudyTags().stream()
-                        .map(StudyTagInquiryResponse::from)
+                .findTagResponseList(study.getStudyTagList().stream()
+                        .map(FindStudyTagResponse::from)
                         .toList())
                 .build();
     }
 
-    public static StudyInquiryResponse of(StudyBookmark studyBookmark) {
-        return StudyInquiryResponse.builder()
+    public static FindStudyResponse of(StudyBookmark studyBookmark) {
+        return FindStudyResponse.builder()
                 .studyId(studyBookmark.getStudy().getId())
                 .title(studyBookmark.getStudy().getTitle())
                 .content(studyBookmark.getStudy().getContent())
@@ -61,8 +61,8 @@ public class StudyInquiryResponse {
                 .status(studyBookmark.getStudy().getStatus())
                 .viewCount(studyBookmark.getStudy().getViewCount())
                 .studyBookmarkId(studyBookmark.getId())
-                .tagInquiryListResponse(studyBookmark.getStudy().getStudyTags().stream()
-                        .map(StudyTagInquiryResponse::from)
+                .findTagResponseList(studyBookmark.getStudy().getStudyTagList().stream()
+                        .map(FindStudyTagResponse::from)
                         .toList())
                 .build();
     }

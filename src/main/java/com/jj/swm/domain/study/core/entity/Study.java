@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.core.entity;
 
-import com.jj.swm.domain.study.core.dto.request.StudyCreateRequest;
-import com.jj.swm.domain.study.core.dto.request.StudyStatusUpdateRequest;
-import com.jj.swm.domain.study.core.dto.request.StudyUpdateRequest;
+import com.jj.swm.domain.study.core.dto.request.AddStudyRequest;
+import com.jj.swm.domain.study.core.dto.request.ModifyStudyStatusRequest;
+import com.jj.swm.domain.study.core.dto.request.ModifyStudyRequest;
 import com.jj.swm.domain.user.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -66,14 +66,14 @@ public class Study extends BaseTimeEntity {
     private User user;
 
     @OneToMany(mappedBy = "study")
-    private List<StudyTag> studyTags = new ArrayList<>();
+    private List<StudyTag> studyTagList = new ArrayList<>();
 
-    public static Study of(User user, StudyCreateRequest createRequest) {
+    public static Study of(User user, AddStudyRequest request) {
         return Study.builder()
-                .title(createRequest.getTitle())
-                .content(createRequest.getContent())
-                .openChatUrl(createRequest.getOpenChatUrl())
-                .category(createRequest.getCategory())
+                .title(request.getTitle())
+                .content(request.getContent())
+                .openChatUrl(request.getOpenChatUrl())
+                .category(request.getCategory())
                 .likeCount(0)
                 .commentCount(0)
                 .status(StudyStatus.ACTIVE)
@@ -82,15 +82,15 @@ public class Study extends BaseTimeEntity {
                 .build();
     }
 
-    public void modify(StudyUpdateRequest updateRequest) {
-        this.title = updateRequest.getTitle();
-        this.content = updateRequest.getContent();
-        this.category = updateRequest.getCategory();
-        this.openChatUrl = updateRequest.getOpenChatUrl();
+    public void modify(ModifyStudyRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.category = request.getCategory();
+        this.openChatUrl = request.getOpenChatUrl();
     }
 
-    public void modifyStatus(StudyStatusUpdateRequest updateRequest) {
-        this.status = updateRequest.getStatus();
+    public void modifyStatus(ModifyStudyStatusRequest request) {
+        this.status = request.getStatus();
     }
 
     public void incrementLikeCount() {

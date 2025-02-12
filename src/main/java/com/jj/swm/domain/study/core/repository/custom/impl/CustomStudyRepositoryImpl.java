@@ -1,10 +1,10 @@
 package com.jj.swm.domain.study.core.repository.custom.impl;
 
-import com.jj.swm.domain.study.core.dto.StudyInquiryCondition;
+import com.jj.swm.domain.study.core.dto.FindStudyCondition;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
-import com.jj.swm.domain.study.core.enums.SortCriteria;
+import com.jj.swm.domain.study.core.dto.SortCriteria;
 import com.jj.swm.domain.study.core.repository.custom.CustomStudyRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -25,14 +25,14 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Study> findPagedStudiesByCondition(int pageSize, StudyInquiryCondition inquiryCondition) {
+    public List<Study> findPagedStudyListByCondition(int pageSize, FindStudyCondition condition) {
         return jpaQueryFactory.selectFrom(study)
                 .where(
-                        studyCategoryEq(inquiryCondition.getCategory()),
-                        studyStatusEq(inquiryCondition.getStatus()),
-                        createSortPredicate(inquiryCondition)
+                        studyCategoryEq(condition.getCategory()),
+                        studyStatusEq(condition.getStatus()),
+                        createSortPredicate(condition)
                 )
-                .orderBy(createOrderSpecifier(inquiryCondition.getSortCriteria()))
+                .orderBy(createOrderSpecifier(condition.getSortCriteria()))
                 .limit(pageSize)
                 .fetch();
     }
@@ -65,10 +65,10 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
         };
     }
 
-    private BooleanBuilder createSortPredicate(StudyInquiryCondition inquiryCondition) {
-        Integer lastSortValue = inquiryCondition.getLastSortValue();
-        SortCriteria sortCriteria = inquiryCondition.getSortCriteria();
-        Long lastStudyId = inquiryCondition.getLastStudyId();
+    private BooleanBuilder createSortPredicate(FindStudyCondition condition) {
+        Integer lastSortValue = condition.getLastSortValue();
+        SortCriteria sortCriteria = condition.getSortCriteria();
+        Long lastStudyId = condition.getLastStudyId();
 
         return switch (sortCriteria) {
             case LIKE -> this.nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)

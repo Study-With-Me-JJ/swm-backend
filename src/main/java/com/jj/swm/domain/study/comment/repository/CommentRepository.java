@@ -27,7 +27,7 @@ public interface CommentRepository extends JpaRepository<StudyComment, Long>, Cu
     Optional<StudyComment> findByIdAndUserIdWithParent(Long commentId, UUID userId);
 
     @Query("select c from StudyComment c join fetch c.user where c.study.id = ?1 and c.parent.id is null")
-    Page<StudyComment> findAllByStudyIdWithUser(Long studyId, Pageable pageable);
+    Page<StudyComment> findPagedParentByStudyIdWithUser(Long studyId, Pageable pageable);
 
     @Query("""
             SELECT c.parent.id as parentId, count(c) as replyCount
@@ -36,7 +36,7 @@ public interface CommentRepository extends JpaRepository<StudyComment, Long>, Cu
             GROUP BY c.parent.id
             """
     )
-    List<ReplyCountInfo> countRepliesByParentIds(List<Long> parentIds);
+    List<ReplyCountInfo> countByParentIdListGroupByParentId(List<Long> parentIdList);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id = ?1")

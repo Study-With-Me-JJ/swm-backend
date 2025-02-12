@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.comment.controller;
 
-import com.jj.swm.domain.study.comment.dto.response.ParentCommentInquiryResponse;
-import com.jj.swm.domain.study.comment.dto.response.CommentInquiryResponse;
+import com.jj.swm.domain.study.comment.dto.response.FindParentCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.FindCommentResponse;
 import com.jj.swm.domain.study.comment.service.CommentQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -16,20 +16,20 @@ public class CommentQueryController {
     private final CommentQueryService commentQueryService;
 
     @GetMapping("/v1/study/{studyId}/comment")
-    public ApiResponse<PageResponse<ParentCommentInquiryResponse>> getCommentList(
+    public ApiResponse<PageResponse<FindParentCommentResponse>> commentList(
             @PathVariable("studyId") Long studyId, @RequestParam("pageNo") int pageNo
     ) {
-        PageResponse<ParentCommentInquiryResponse> pageResponse = commentQueryService.getList(studyId, pageNo);
+        PageResponse<FindParentCommentResponse> pageResponse = commentQueryService.findCommentList(studyId, pageNo);
 
         return ApiResponse.ok(pageResponse);
     }
 
     @GetMapping({"/v1/comment/{parentId}/reply", "/v1/comment/{parentId}/reply/{lastReplyId}"})
-    public ApiResponse<PageResponse<CommentInquiryResponse>> getReplyList(
+    public ApiResponse<PageResponse<FindCommentResponse>> replyList(
             @PathVariable("parentId") Long parentId,
             @PathVariable(value = "lastReplyId", required = false) Long lastReplyId
     ) {
-        PageResponse<CommentInquiryResponse> pageResponse = commentQueryService.getReplyList(parentId, lastReplyId);
+        PageResponse<FindCommentResponse> pageResponse = commentQueryService.findReplyList(parentId, lastReplyId);
 
         return ApiResponse.ok(pageResponse);
     }

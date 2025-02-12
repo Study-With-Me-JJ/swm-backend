@@ -10,11 +10,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyImageModifyRequest {
+public class SaveStudyImageRequest {
 
     @Size(max = 100)
-    private List<String> newImageUrls;
+    private List<String> imageUrlListToAdd;
 
     @Size(max = 100)
-    private List<Long> deletedImageIds;
+    private List<Long> imageIdListToRemove;
 }

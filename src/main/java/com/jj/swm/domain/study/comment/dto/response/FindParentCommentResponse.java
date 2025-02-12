@@ -6,12 +6,12 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class ParentCommentInquiryResponse extends CommentInquiryResponse {
+public class FindParentCommentResponse extends FindCommentResponse {
 
     private int replyCount;
 
-    public static ParentCommentInquiryResponse of(StudyComment comment, int replyCount) {
-        return ParentCommentInquiryResponse.builder()
+    public static FindParentCommentResponse of(StudyComment comment, int replyCount) {
+        return FindParentCommentResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
                 .userId(comment.getUser().getId())

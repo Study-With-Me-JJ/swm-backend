@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.comment.controller;
 
-import com.jj.swm.domain.study.comment.dto.request.CommentUpsertRequest;
-import com.jj.swm.domain.study.comment.dto.response.CommentCreateResponse;
-import com.jj.swm.domain.study.comment.dto.response.CommentUpdateResponse;
+import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
+import com.jj.swm.domain.study.comment.dto.response.AddCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.ModifyCommentResponse;
 import com.jj.swm.domain.study.comment.service.CommentCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -20,44 +20,44 @@ public class CommentCommandController {
     private final CommentCommandService commentCommandService;
 
     @PostMapping({"/v1/study/{studyId}/comment", "/v1/study/{studyId}/comment/{parentId}"})
-    public ApiResponse<CommentCreateResponse> createComment(
+    public ApiResponse<AddCommentResponse> commentAdd(
             Principal principal,
             @PathVariable("studyId") Long studyId,
             @PathVariable(value = "parentId", required = false) Long parentId,
-            @Valid @RequestBody CommentUpsertRequest createRequest
+            @Valid @RequestBody UpsertCommentRequest createRequest
     ) {
-        CommentCreateResponse createResponse = commentCommandService.create(
+        AddCommentResponse response = commentCommandService.addComment(
                 UUID.fromString(principal.getName()),
                 studyId,
                 parentId,
                 createRequest
         );
 
-        return ApiResponse.created(createResponse);
+        return ApiResponse.created(response);
     }
 
     @PatchMapping("/v1/study/comment/{commentId}")
-    public ApiResponse<CommentUpdateResponse> updateComment(
+    public ApiResponse<ModifyCommentResponse> commentModify(
             Principal principal,
             @PathVariable("commentId") Long commentId,
-            @Valid @RequestBody CommentUpsertRequest updateRequest
+            @Valid @RequestBody UpsertCommentRequest modifyRequest
     ) {
-        CommentUpdateResponse updateResponse = commentCommandService.update(
+        ModifyCommentResponse response = commentCommandService.modifyComment(
                 UUID.fromString(principal.getName()),
                 commentId,
-                updateRequest
+                modifyRequest
         );
 
-        return ApiResponse.ok(updateResponse);
+        return ApiResponse.ok(response);
     }
 
     @DeleteMapping("/v1/study/{studyId}/comment/{commentId}")
-    public ApiResponse<Void> deleteComment(
+    public ApiResponse<Void> commentRemove(
             Principal principal,
             @PathVariable("studyId") Long studyId,
             @PathVariable("commentId") Long commentId
     ) {
-        commentCommandService.delete(
+        commentCommandService.removeComment(
                 UUID.fromString(principal.getName()),
                 studyId,
                 commentId

@@ -9,11 +9,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyTagModifyRequest {
+public class SaveStudyTagRequest {
 
     @Size(max = 100)
-    private List<String> newTags;
+    private List<String> tagListToAdd;
 
     @Size(max = 100)
-    private List<Long> deletedTagIds;
+    private List<Long> tagIdListToRemove;
 }

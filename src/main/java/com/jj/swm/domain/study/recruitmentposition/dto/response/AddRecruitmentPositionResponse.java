@@ -6,12 +6,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class RecruitmentPositionCreateResponse {
+public class AddRecruitmentPositionResponse {
 
     private Long recruitmentPositionId;
 
-    public static RecruitmentPositionCreateResponse from(StudyRecruitmentPosition recruitmentPosition) {
-        return RecruitmentPositionCreateResponse.builder()
+    public static AddRecruitmentPositionResponse from(StudyRecruitmentPosition recruitmentPosition) {
+        return AddRecruitmentPositionResponse.builder()
                 .recruitmentPositionId(recruitmentPosition.getId())
                 .build();
     }

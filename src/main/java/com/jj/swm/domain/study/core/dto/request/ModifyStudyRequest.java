@@ -1,21 +1,15 @@
 package com.jj.swm.domain.study.core.dto.request;
 
-import com.jj.swm.domain.study.recruitmentposition.dto.request.RecruitPositionCreateRequest;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
-
-import java.util.List;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyCreateRequest {
+public class ModifyStudyRequest {
 
     @NotBlank
     private String title;
@@ -29,14 +23,7 @@ public class StudyCreateRequest {
     @NotNull
     private StudyCategory category;
 
-    @Size(max = 100)
-    private List<String> tags;
+    private SaveStudyTagRequest saveTagRequest;
 
-    @Size(max = 100)
-    private List<String> imageUrls;
-
-    @Valid
-    @NotEmpty
-    @Size(max = 100)
-    private List<RecruitPositionCreateRequest> recruitPositionCreateRequests;
+    private SaveStudyImageRequest saveImageRequest;
 }

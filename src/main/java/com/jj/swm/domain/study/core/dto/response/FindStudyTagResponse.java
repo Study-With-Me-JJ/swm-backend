@@ -6,14 +6,14 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class StudyTagInquiryResponse {
+public class FindStudyTagResponse {
 
     private Long studyTagId;
 
     private String name;
 
-    public static StudyTagInquiryResponse from(StudyTag studyTag) {
-        return StudyTagInquiryResponse.builder()
+    public static FindStudyTagResponse from(StudyTag studyTag) {
+        return FindStudyTagResponse.builder()
                 .studyTagId(studyTag.getId())
                 .name(studyTag.getName())
                 .build();

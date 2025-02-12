@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.comment.service;
 
 import com.jj.swm.domain.study.comment.dto.ReplyCountInfo;
-import com.jj.swm.domain.study.comment.dto.response.CommentInquiryResponse;
-import com.jj.swm.domain.study.comment.dto.response.ParentCommentInquiryResponse;
+import com.jj.swm.domain.study.comment.dto.response.FindCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.FindParentCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -26,54 +26,53 @@ public class CommentQueryService {
     private final CommentRepository commentRepository;
 
     @Transactional(readOnly = true)
-    public PageResponse<ParentCommentInquiryResponse> getList(Long studyId, int pageNo) {
+    public PageResponse<FindParentCommentResponse> findCommentList(Long studyId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyComment,
                 Sort.by("id").descending()
         );
 
-        return loadCommentPageResponse(studyId, pageable);
+        return loadPageParentAndReplyCountResponse(studyId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<CommentInquiryResponse> getReplyList(Long parentId, Long lastReplyId) {
-        List<StudyComment> replies = commentRepository.findAllByParentIdWithUser(
+    public PageResponse<FindCommentResponse> findReplyList(Long parentId, Long lastReplyId) {
+        List<StudyComment> replyList = commentRepository.findPagedReplyListByParentIdWithUser(
                 PageSize.StudyReply + 1,
                 parentId,
                 lastReplyId
         );
 
-        if (replies.isEmpty()) {
+        if (replyList.isEmpty()) {
             return PageResponse.of(List.of(), false);
         }
 
-        boolean hasNext = replies.size() > PageSize.StudyReply;
+        boolean hasNext = replyList.size() > PageSize.StudyReply;
 
-        List<StudyComment> pagedReplies = hasNext ? replies.subList(0, PageSize.StudyReply) : replies;
+        List<StudyComment> pagedReplyList = hasNext ? replyList.subList(0, PageSize.StudyReply) : replyList;
 
-        List<CommentInquiryResponse> commentInquiryResponses = pagedReplies.stream()
-                .map(CommentInquiryResponse::from)
+        List<FindCommentResponse> responseList = pagedReplyList.stream()
+                .map(FindCommentResponse::from)
                 .toList();
 
-        return PageResponse.of(commentInquiryResponses, hasNext);
+        return PageResponse.of(responseList, hasNext);
     }
 
-    public PageResponse<ParentCommentInquiryResponse> loadCommentPageResponse(Long studyId, Pageable pageable) {
-        Page<StudyComment> pagedComments = commentRepository.findAllByStudyIdWithUser(studyId, pageable);
+    public PageResponse<FindParentCommentResponse> loadPageParentAndReplyCountResponse(Long studyId, Pageable pageable) {
+        Page<StudyComment> pagedComment = commentRepository.findPagedParentByStudyIdWithUser(studyId, pageable);
 
-        List<Long> parentIds = pagedComments.get()
+        List<Long> parentIdList = pagedComment.get()
                 .map(StudyComment::getId)
                 .toList();
 
-        Map<Long, Integer> replyCountByParentId = commentRepository.countRepliesByParentIds(parentIds).stream()
+        Map<Long, Integer> replyCountByParentId = commentRepository.countByParentIdListGroupByParentId(parentIdList)
+                .stream()
                 .collect(Collectors.toMap(ReplyCountInfo::getParentId, ReplyCountInfo::getReplyCount));
 
         return PageResponse.of(
-                pagedComments,
-                (comment) -> ParentCommentInquiryResponse.of(
-                        comment, replyCountByParentId.getOrDefault(comment.getId(), 0)
-                )
+                pagedComment,
+                (comment) -> FindParentCommentResponse.of(comment, replyCountByParentId.getOrDefault(comment.getId(), 0))
         );
     }
 }

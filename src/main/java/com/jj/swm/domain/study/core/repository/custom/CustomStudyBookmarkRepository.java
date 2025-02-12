@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface CustomStudyBookmarkRepository {
 
-    List<StudyBookmarkInfo> findAllByUserIdAndStudyIds(UUID userId, List<Long> studyIds);
+    List<StudyBookmarkInfo> findAllByUserIdAndStudyIdList(UUID userId, List<Long> studyIdList);
 }

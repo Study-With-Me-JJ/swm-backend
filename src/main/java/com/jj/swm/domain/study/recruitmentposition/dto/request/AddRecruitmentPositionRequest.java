@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecruitPositionCreateRequest {
+public class AddRecruitmentPositionRequest {
 
     @NotBlank
     private String title;

@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.recruitmentposition.controller;
 
-import com.jj.swm.domain.study.recruitmentposition.dto.request.RecruitPositionCreateRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.RecruitPositionUpdateRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.response.RecruitmentPositionCreateResponse;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.AddRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.ModifyRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.response.AddRecruitmentPositionResponse;
 import com.jj.swm.domain.study.recruitmentposition.service.RecruitmentPositionCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import jakarta.validation.Valid;
@@ -20,40 +20,42 @@ public class RecruitmentPositionCommandController {
     private final RecruitmentPositionCommandService recruitmentPositionCommandService;
 
     @PostMapping("/v1/study/{studyId}/recruitment-position")
-    public ApiResponse<RecruitmentPositionCreateResponse> createRecruitmentPosition(
+    public ApiResponse<AddRecruitmentPositionResponse> recruitmentPositionAdd(
             Principal principal,
             @PathVariable("studyId") Long studyId,
-            @Valid @RequestBody RecruitPositionCreateRequest createRequest
+            @Valid @RequestBody AddRecruitmentPositionRequest request
     ) {
-        RecruitmentPositionCreateResponse createResponse = recruitmentPositionCommandService.create(
+        AddRecruitmentPositionResponse response = recruitmentPositionCommandService.addRecruitmentPosition(
                 UUID.fromString(principal.getName()),
                 studyId,
-                createRequest
+                request
         );
 
-        return ApiResponse.created(createResponse);
+        return ApiResponse.created(response);
     }
 
-    @PatchMapping("/v1/study/recruitment-position/{recruitPositionId}")
-    public ApiResponse<Void> updateRecruitmentPosition(
+    @PatchMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
+    public ApiResponse<Void> recruitmentPositionModify(
             Principal principal,
-            @PathVariable("recruitPositionId") Long recruitPositionId,
-            @Valid @RequestBody RecruitPositionUpdateRequest updateRequest
+            @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
+            @Valid @RequestBody ModifyRecruitmentPositionRequest request
     ) {
-        recruitmentPositionCommandService.update(
+        recruitmentPositionCommandService.modifyRecruitmentPosition(
                 UUID.fromString(principal.getName()),
-                recruitPositionId,
-                updateRequest
+                recruitmentPositionId,
+                request
         );
 
         return ApiResponse.ok(null);
     }
 
-    @DeleteMapping("/v1/study/recruitment-position/{recruitPositionId}")
-    public ApiResponse<Void> deleteRecruitmentPosition(
-            Principal principal, @PathVariable("recruitPositionId") Long recruitPositionId
+    @DeleteMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
+    public ApiResponse<Void> recruitmentPositionRemove(
+            Principal principal, @PathVariable("recruitmentPositionId") Long recruitmentPositionId
     ) {
-        recruitmentPositionCommandService.delete(UUID.fromString(principal.getName()), recruitPositionId);
+        recruitmentPositionCommandService.removeRecruitmentPosition(
+                UUID.fromString(principal.getName()), recruitmentPositionId
+        );
 
         return ApiResponse.ok(null);
     }

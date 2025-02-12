@@ -8,14 +8,14 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class CommentCreateResponse {
+public class AddCommentResponse {
 
     private Long commentId;
 
     private LocalDateTime createdAt;
 
-    public static CommentCreateResponse from(StudyComment comment) {
-        return CommentCreateResponse.builder()
+    public static AddCommentResponse from(StudyComment comment) {
+        return AddCommentResponse.builder()
                 .commentId(comment.getId())
                 .createdAt(comment.getCreatedAt())
                 .build();

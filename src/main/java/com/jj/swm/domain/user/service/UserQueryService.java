@@ -1,6 +1,6 @@
 package com.jj.swm.domain.user.service;
 
-import com.jj.swm.domain.study.core.dto.response.StudyInquiryResponse;
+import com.jj.swm.domain.study.core.dto.response.FindStudyResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
@@ -75,33 +75,35 @@ public class UserQueryService {
 
 
     @Transactional(readOnly = true)
-    public PageResponse<StudyInquiryResponse> getLikedStudies(UUID userId, int pageNo) {
+    public PageResponse<FindStudyResponse> findLikedStudyList(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.Study,
                 Sort.by("id").descending()
         );
 
-        Page<Study> pagedStudies = studyLikeRepository.findStudiesByUserId(userId, pageable);
+        Page<Study> pagedStudy = studyLikeRepository.findPagedStudyByUserId(userId, pageable);
 
-        Map<Long, Long> bookmarkIdByStudyId = studyQueryService.getBookmarkMapping(userId, pagedStudies.getContent());
+        Map<Long, Long> bookmarkIdByStudyId = studyQueryService.loadBookmarkMapping(userId, pagedStudy.getContent());
 
         return PageResponse.of(
-                pagedStudies,
-                (study) -> StudyInquiryResponse.of(study, bookmarkIdByStudyId.getOrDefault(study.getId(), null))
+                pagedStudy,
+                (study) -> FindStudyResponse.of(study, bookmarkIdByStudyId.getOrDefault(study.getId(), null))
         );
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<StudyInquiryResponse> getBookmarkedStudies(UUID userId, int pageNo) {
+    public PageResponse<FindStudyResponse> findBookmarkedStudyList(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.Study,
                 Sort.by("id").descending()
         );
 
-        Page<StudyBookmark> pagedStudyBookmarks = studyBookmarkRepository.findAllByUserIdWithStudy(userId, pageable);
+        Page<StudyBookmark> pagedStudyBookmark = studyBookmarkRepository.findPagedBookmarkByUserIdWithStudy(
+                userId, pageable
+        );
 
-        return PageResponse.of(pagedStudyBookmarks, StudyInquiryResponse::of);
+        return PageResponse.of(pagedStudyBookmark, FindStudyResponse::of);
     }
 }

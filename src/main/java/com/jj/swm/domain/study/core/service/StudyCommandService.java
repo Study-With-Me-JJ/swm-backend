@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.core.service;
 
 import com.jj.swm.domain.study.core.dto.request.*;
-import com.jj.swm.domain.study.core.dto.response.StudyBookmarkCreateResponse;
+import com.jj.swm.domain.study.core.dto.response.AddStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyLike;
@@ -34,70 +34,70 @@ public class StudyCommandService {
     private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional
-    public void create(UUID userId, StudyCreateRequest createRequest) {
+    public void addStudy(UUID userId, AddStudyRequest request) {
         User user = userRepository.getReferenceById(userId);
 
-        Study study = Study.of(user, createRequest);
+        Study study = Study.of(user, request);
         studyRepository.save(study);
 
-        saveTagsIfPresent(study, createRequest.getTags());
+        storeTagListIfPresent(study, request.getTagList());
 
-        saveImagesIfPresent(study, createRequest.getImageUrls());
+        storeImageListIfPresent(study, request.getImageUrlList());
 
-        recruitmentPositionRepository.batchInsert(study, createRequest.getRecruitPositionCreateRequests());
+        recruitmentPositionRepository.batchInsert(study, request.getAddRecruitmentPositionRequestList());
     }
 
     @Transactional
-    public void update(
+    public void modifyStudy(
             UUID userId,
             Long studyId,
-            StudyUpdateRequest updateRequest
+            ModifyStudyRequest request
     ) {
-        Study study = getStudyOrException(userId, studyId);
-        study.modify(updateRequest);
+        Study study = loadStudyOrException(userId, studyId);
+        study.modify(request);
 
-        modifyTags(study, updateRequest.getTagModifyRequest());
+        saveTagList(study, request.getSaveTagRequest());
 
-        modifyImages(study, updateRequest.getImageModifyRequest());
+        saveImageList(study, request.getSaveImageRequest());
     }
 
-    private void modifyTags(Study study, StudyTagModifyRequest modifyRequest) {
-        if (modifyRequest != null) {
-            List<String> addTags = modifyRequest.getNewTags();
-            saveTagsIfPresent(study, addTags);
+    private void saveTagList(Study study, SaveStudyTagRequest request) {
+        if (request != null) {
+            List<String> tagListToAdd = request.getTagListToAdd();
+            storeTagListIfPresent(study, tagListToAdd);
 
-            List<Long> deleteTagIds = modifyRequest.getDeletedTagIds();
-            if (deleteTagIds != null && !deleteTagIds.isEmpty()) {
-                studyTagRepository.deleteAllByIdInAndStudyId(deleteTagIds, study.getId());
+            List<Long> tagIdListToRemove = request.getTagIdListToRemove();
+            if (tagIdListToRemove != null && !tagIdListToRemove.isEmpty()) {
+                studyTagRepository.deleteAllByIdListAndStudyId(tagIdListToRemove, study.getId());
             }
         }
     }
 
-    private void modifyImages(Study study, StudyImageModifyRequest modifyRequest) {
-        if (modifyRequest != null) {
-            List<String> addImageUrls = modifyRequest.getNewImageUrls();
-            saveImagesIfPresent(study, addImageUrls);
+    private void saveImageList(Study study, SaveStudyImageRequest request) {
+        if (request != null) {
+            List<String> imageUrlListToAdd = request.getImageUrlListToAdd();
+            storeImageListIfPresent(study, imageUrlListToAdd);
 
-            List<Long> deleteImageIds = modifyRequest.getDeletedImageIds();
-            if (deleteImageIds != null && !deleteImageIds.isEmpty()) {
-                studyImageRepository.deleteAllByIdInAndStudyId(deleteImageIds, study.getId());
+            List<Long> imageIdListToRemove = request.getImageIdListToRemove();
+            if (imageIdListToRemove != null && !imageIdListToRemove.isEmpty()) {
+                studyImageRepository.deleteAllByIdListAndStudyId(imageIdListToRemove, study.getId());
             }
         }
     }
 
     @Transactional
-    public void updateStatus(
+    public void modifyStudyStatus(
             UUID userId,
             Long studyId,
-            StudyStatusUpdateRequest updateRequest
+            ModifyStudyStatusRequest request
     ) {
-        Study study = getStudyOrException(userId, studyId);
-        study.modifyStatus(updateRequest);
+        Study study = loadStudyOrException(userId, studyId);
+        study.modifyStatus(request);
     }
 
     @Transactional
-    public void delete(UUID userId, Long studyId) {
-        Study study = getStudyOrException(userId, studyId);
+    public void removeStudy(UUID userId, Long studyId) {
+        Study study = loadStudyOrException(userId, studyId);
 
         deleteStudyAndAssociations(studyId, study);
     }
@@ -113,10 +113,10 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public StudyBookmarkCreateResponse bookmarkStudy(UUID userId, Long studyId) {
+    public AddStudyBookmarkResponse addStudyBookmark(UUID userId, Long studyId) {
         Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserIdAndStudyId(userId, studyId);
         if (optionalStudyBookmark.isPresent()) {
-            return StudyBookmarkCreateResponse.from(optionalStudyBookmark.get());
+            return AddStudyBookmarkResponse.from(optionalStudyBookmark.get());
         }
 
         User user = userRepository.getReferenceById(userId);
@@ -127,16 +127,16 @@ public class StudyCommandService {
         StudyBookmark studyBookmark = StudyBookmark.of(study, user);
         studyBookmarkRepository.save(studyBookmark);
 
-        return StudyBookmarkCreateResponse.from(studyBookmark);
+        return AddStudyBookmarkResponse.from(studyBookmark);
     }
 
     @Transactional
-    public void unBookmarkStudy(UUID userId, Long bookmarkId) {
+    public void removeStudyBookmark(UUID userId, Long bookmarkId) {
         studyBookmarkRepository.deleteByIdAndUserId(bookmarkId, userId);
     }
 
     @Transactional
-    public void likeStudy(UUID userId, Long studyId) {
+    public void addStudyLike(UUID userId, Long studyId) {
         Optional<StudyLike> optionalStudyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId);
         if (optionalStudyLike.isPresent()) {
             return;
@@ -144,7 +144,7 @@ public class StudyCommandService {
 
         User user = userRepository.getReferenceById(userId);
 
-        Study study = getStudyPessimisticLock(studyId);
+        Study study = loadStudyUsingPessimisticLock(studyId);
 
         StudyLike studyLike = StudyLike.of(user, study);
         studyLikeRepository.save(studyLike);
@@ -153,37 +153,37 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public void unLikeStudy(UUID userId, Long studyId) {
+    public void removeStudyLike(UUID userId, Long studyId) {
         Optional<StudyLike> optionalStudyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId);
         if (optionalStudyLike.isEmpty()) {
             return;
         }
 
-        Study study = getStudyPessimisticLock(studyId);
+        Study study = loadStudyUsingPessimisticLock(studyId);
 
         studyLikeRepository.delete(optionalStudyLike.get());
 
         study.decrementLikeCount();
     }
 
-    private void saveTagsIfPresent(Study study, List<String> tags) {
-        if (tags != null && !tags.isEmpty()) {
-            studyTagRepository.batchInsert(study, tags);
+    private void storeTagListIfPresent(Study study, List<String> tagList) {
+        if (tagList != null && !tagList.isEmpty()) {
+            studyTagRepository.batchInsert(study, tagList);
         }
     }
 
-    private void saveImagesIfPresent(Study study, List<String> imageUrls) {
-        if (imageUrls != null && !imageUrls.isEmpty()) {
-            studyImageRepository.batchInsert(study, imageUrls);
+    private void storeImageListIfPresent(Study study, List<String> imageUrlList) {
+        if (imageUrlList != null && !imageUrlList.isEmpty()) {
+            studyImageRepository.batchInsert(study, imageUrlList);
         }
     }
 
-    private Study getStudyOrException(UUID userId, Long studyId) {
+    private Study loadStudyOrException(UUID userId, Long studyId) {
         return studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
-    private Study getStudyPessimisticLock(Long studyId) {
+    private Study loadStudyUsingPessimisticLock(Long studyId) {
         return studyRepository.findByIdUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
