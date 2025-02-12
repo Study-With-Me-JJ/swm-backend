@@ -10,7 +10,5 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ModifyStudyRoomImageRequest {
 
-    private List<String> imagesToAdd;
-
-    private List<Long> imageIdsToRemove;
+    private List<String> imagesToUpdate;
 }
