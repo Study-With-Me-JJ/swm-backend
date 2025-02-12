@@ -1,7 +1,6 @@
 package com.jj.swm.global.security.jwt;
 
-import com.google.common.net.HttpHeaders;
-import com.jj.swm.domain.auth.dto.response.Token;
+import com.jj.swm.domain.user.auth.dto.response.Token;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.common.enums.ExpirationTime;
 import com.jj.swm.global.exception.auth.TokenException;
@@ -12,9 +11,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -60,7 +57,7 @@ public class JwtProvider {
                 key.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public Token generateTokens(com.jj.swm.domain.user.entity.User user) {
+    public Token generateTokens(com.jj.swm.domain.user.core.entity.User user) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user.getId(),
                 "",

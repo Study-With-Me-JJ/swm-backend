@@ -70,10 +70,6 @@ public class S3ClientWrapper {
                 .build();
     }
 
-    public void putObject(File file) {
-        putObject(true, file);
-    }
-
     public void putObject(boolean isPublic, File file) {
         String bucketName = isPublic ? publicBucketName : privateBucketName;
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -83,12 +79,11 @@ public class S3ClientWrapper {
         s3Client.putObject(putObjectRequest, file.toPath());
     }
 
-    public String getPresignedURL(boolean isPublic, String key, boolean isImage) {
+    public String getPresignedURL(boolean isPublic, String key) {
         String bucketName = isPublic ? publicBucketName : privateBucketName;
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
-                .contentType(isImage ? "image/jpeg" : "application/octet-stream")
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()

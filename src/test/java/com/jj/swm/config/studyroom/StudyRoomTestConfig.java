@@ -1,7 +1,7 @@
 package com.jj.swm.config.studyroom;
 
-import com.jj.swm.domain.studyroom.service.StudyRoomCommandService;
-import com.jj.swm.domain.studyroom.service.StudyRoomQueryService;
+import com.jj.swm.domain.studyroom.core.service.StudyRoomCommandService;
+import com.jj.swm.domain.studyroom.core.service.StudyRoomQueryService;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;

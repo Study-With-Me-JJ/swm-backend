@@ -1,15 +1,15 @@
 package com.jj.swm.domain.study.core.service;
 
+import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.AddStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyLike;
 import com.jj.swm.domain.study.core.repository.*;
-import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
-import com.jj.swm.domain.user.entity.User;
-import com.jj.swm.domain.user.repository.UserRepository;
+import com.jj.swm.domain.user.core.entity.User;
+import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;

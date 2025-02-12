@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.comment.entity;
 
 import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.user.entity.User;
+import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;

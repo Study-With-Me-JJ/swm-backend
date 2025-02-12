@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static com.jj.swm.domain.study.core.entity.QStudy.study;
 import static com.jj.swm.domain.study.core.entity.QStudyBookmark.studyBookmark;
-import static com.jj.swm.domain.user.entity.QUser.user;
+import static com.jj.swm.domain.user.core.entity.QUser.user;
 
 @RequiredArgsConstructor
 public class CustomStudyBookmarkRepositoryImpl implements CustomStudyBookmarkRepository {

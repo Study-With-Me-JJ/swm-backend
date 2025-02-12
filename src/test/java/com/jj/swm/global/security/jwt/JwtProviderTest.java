@@ -1,8 +1,8 @@
 package com.jj.swm.global.security.jwt;
 
-import com.jj.swm.domain.auth.dto.response.Token;
-import com.jj.swm.domain.user.entity.User;
-import com.jj.swm.domain.user.fixture.UserFixture;
+import com.jj.swm.domain.user.auth.dto.response.Token;
+import com.jj.swm.domain.user.core.entity.User;
+import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.global.common.enums.ExpirationTime;
 import com.jj.swm.global.exception.auth.TokenException;
 import io.jsonwebtoken.Jwts;
