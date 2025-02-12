@@ -1,6 +1,6 @@
 package com.jj.swm.domain.user.controller;
 
-import com.jj.swm.domain.study.core.dto.response.StudyInquiryResponse;
+import com.jj.swm.domain.study.core.dto.response.FindStudyResponse;
 import com.jj.swm.domain.user.dto.response.GetBusinessVerificationRequestResponse;
 import com.jj.swm.domain.user.dto.response.GetUserInfoResponse;
 import com.jj.swm.domain.user.entity.InspectionStatus;
@@ -112,10 +112,10 @@ public class UserQueryController {
     }
 
     @GetMapping("/v1/user/liked-studies")
-    public ApiResponse<PageResponse<StudyInquiryResponse>> getUserLikedStudies(
+    public ApiResponse<PageResponse<FindStudyResponse>> userLikedStudyList(
             Principal principal, @RequestParam(value = "pageNo") int pageNo
     ) {
-        PageResponse<StudyInquiryResponse> pageResponse = userQueryService.getLikedStudies(
+        PageResponse<FindStudyResponse> pageResponse = userQueryService.findLikedStudyList(
                 UUID.fromString(principal.getName()), pageNo
         );
 
@@ -123,10 +123,10 @@ public class UserQueryController {
     }
 
     @GetMapping("/v1/user/bookmarked-studies")
-    public ApiResponse<PageResponse<StudyInquiryResponse>> getUserBookmarkedStudies(
+    public ApiResponse<PageResponse<FindStudyResponse>> userBookmarkedStudyList(
             Principal principal, @RequestParam(value = "pageNo") int pageNo
     ) {
-        PageResponse<StudyInquiryResponse> pageResponse = userQueryService.getBookmarkedStudies(
+        PageResponse<FindStudyResponse> pageResponse = userQueryService.findBookmarkedStudyList(
                 UUID.fromString(principal.getName()), pageNo
         );
 

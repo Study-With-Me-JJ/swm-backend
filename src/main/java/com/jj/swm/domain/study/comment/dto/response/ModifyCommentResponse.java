@@ -8,12 +8,12 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class CommentUpdateResponse {
+public class ModifyCommentResponse {
 
     private LocalDateTime updatedAt;
 
-    public static CommentUpdateResponse from(StudyComment comment) {
-        return CommentUpdateResponse.builder()
+    public static ModifyCommentResponse from(StudyComment comment) {
+        return ModifyCommentResponse.builder()
                 .updatedAt(comment.getUpdatedAt())
                 .build();
     }

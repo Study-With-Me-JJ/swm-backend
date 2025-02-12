@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.comment.service;
 
-import com.jj.swm.domain.study.comment.dto.request.CommentUpsertRequest;
-import com.jj.swm.domain.study.comment.dto.response.CommentCreateResponse;
-import com.jj.swm.domain.study.comment.dto.response.CommentUpdateResponse;
+import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
+import com.jj.swm.domain.study.comment.dto.response.AddCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.ModifyCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
@@ -26,11 +26,11 @@ public class CommentCommandService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public CommentCreateResponse create(
+    public AddCommentResponse addComment(
             UUID userId,
             Long studyId,
             Long parentId,
-            CommentUpsertRequest createRequest
+            UpsertCommentRequest createRequest
     ) {
         User user = userRepository.getReferenceById(userId);
 
@@ -47,7 +47,7 @@ public class CommentCommandService {
 
         commentRepository.save(comment);
 
-        return CommentCreateResponse.from(comment);
+        return AddCommentResponse.from(comment);
     }
 
     private StudyAndParentComment loadStudyAndParentComment(
@@ -75,7 +75,7 @@ public class CommentCommandService {
     private StudyComment buildComment(
             User user,
             StudyAndParentComment studyAndParentComment,
-            CommentUpsertRequest createRequest
+            UpsertCommentRequest createRequest
     ) {
         StudyComment comment = StudyComment.of(
                 user,
@@ -92,20 +92,20 @@ public class CommentCommandService {
     }
 
     @Transactional
-    public CommentUpdateResponse update(
+    public ModifyCommentResponse modifyComment(
             UUID userId,
             Long commentId,
-            CommentUpsertRequest updateRequest
+            UpsertCommentRequest modifyRequest
     ) {
         StudyComment comment = commentRepository.findByIdAndUserId(commentId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
-        comment.modify(updateRequest);
+        comment.modify(modifyRequest);
 
-        return CommentUpdateResponse.from(comment);
+        return ModifyCommentResponse.from(comment);
     }
 
     @Transactional
-    public void delete(
+    public void removeComment(
             UUID userId,
             Long studyId,
             Long commentId

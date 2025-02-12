@@ -6,9 +6,9 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class RecruitPositionInquiryResponse {
+public class FindRecruitmentPositionResponse {
 
-    private Long recruitPositionId;
+    private Long recruitmentPositionId;
 
     private String title;
 
@@ -16,9 +16,9 @@ public class RecruitPositionInquiryResponse {
 
     private Integer acceptedCount;
 
-    public static RecruitPositionInquiryResponse from(StudyRecruitmentPosition recruitmentPosition) {
-        return RecruitPositionInquiryResponse.builder()
-                .recruitPositionId(recruitmentPosition.getId())
+    public static FindRecruitmentPositionResponse from(StudyRecruitmentPosition recruitmentPosition) {
+        return FindRecruitmentPositionResponse.builder()
+                .recruitmentPositionId(recruitmentPosition.getId())
                 .title(recruitmentPosition.getTitle())
                 .headcount(recruitmentPosition.getHeadcount())
                 .acceptedCount(recruitmentPosition.getAcceptedCount())

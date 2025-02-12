@@ -24,5 +24,5 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
     void deleteAllByStudyId(Long studyId);
 
     @Query("select b from StudyBookmark b join fetch b.study where b.user.id = ?1")
-    Page<StudyBookmark> findAllByUserIdWithStudy(UUID userId, Pageable pageable);
+    Page<StudyBookmark> findPagedBookmarkByUserIdWithStudy(UUID userId, Pageable pageable);
 }

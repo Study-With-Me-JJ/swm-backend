@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @SuperBuilder
-public class CommentInquiryResponse {
+public class FindCommentResponse {
 
     private Long commentId;
 
@@ -25,8 +25,8 @@ public class CommentInquiryResponse {
 
     private LocalDateTime updatedAt;
 
-    public static CommentInquiryResponse from(StudyComment comment) {
-        return CommentInquiryResponse.builder()
+    public static FindCommentResponse from(StudyComment comment) {
+        return FindCommentResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
                 .userId(comment.getUser().getId())

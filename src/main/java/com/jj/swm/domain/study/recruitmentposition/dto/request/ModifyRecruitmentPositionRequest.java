@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RecruitPositionUpdateRequest extends RecruitPositionCreateRequest{
+public class ModifyRecruitmentPositionRequest extends AddRecruitmentPositionRequest {
 
     @Min(0)
     @Max(100)

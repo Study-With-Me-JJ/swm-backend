@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.recruitmentposition.entity;
 
-import com.jj.swm.domain.study.recruitmentposition.dto.request.RecruitPositionCreateRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.RecruitPositionUpdateRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.AddRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.ModifyRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.entity.Study;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,18 +40,18 @@ public class StudyRecruitmentPosition {
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    public static StudyRecruitmentPosition of(Study study, RecruitPositionCreateRequest createRequest) {
+    public static StudyRecruitmentPosition of(Study study, AddRecruitmentPositionRequest request) {
         return StudyRecruitmentPosition.builder()
-                .title(createRequest.getTitle())
-                .headcount(createRequest.getHeadcount())
+                .title(request.getTitle())
+                .headcount(request.getHeadcount())
                 .acceptedCount(0)
                 .study(study)
                 .build();
     }
 
-    public void modify(RecruitPositionUpdateRequest updateRequest) {
-        this.title = updateRequest.getTitle();
-        this.headcount = updateRequest.getHeadcount();
-        this.acceptedCount = updateRequest.getAcceptedCount();
+    public void modify(ModifyRecruitmentPositionRequest request) {
+        this.title = request.getTitle();
+        this.headcount = request.getHeadcount();
+        this.acceptedCount = request.getAcceptedCount();
     }
 }

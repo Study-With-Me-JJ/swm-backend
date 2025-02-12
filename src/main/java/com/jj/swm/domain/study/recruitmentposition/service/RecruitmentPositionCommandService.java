@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
-import com.jj.swm.domain.study.recruitmentposition.dto.request.RecruitPositionCreateRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.RecruitPositionUpdateRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.response.RecruitmentPositionCreateResponse;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.AddRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.ModifyRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.response.AddRecruitmentPositionResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
@@ -23,44 +23,44 @@ public class RecruitmentPositionCommandService {
     private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional
-    public RecruitmentPositionCreateResponse create(
+    public AddRecruitmentPositionResponse addRecruitmentPosition(
             UUID userId,
             Long studyId,
-            RecruitPositionCreateRequest createRequest
+            AddRecruitmentPositionRequest request
     ) {
         Study study = studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
-        StudyRecruitmentPosition recruitmentPosition = StudyRecruitmentPosition.of(study, createRequest);
+        StudyRecruitmentPosition recruitmentPosition = StudyRecruitmentPosition.of(study, request);
         recruitmentPositionRepository.save(recruitmentPosition);
 
-        return RecruitmentPositionCreateResponse.from(recruitmentPosition);
+        return AddRecruitmentPositionResponse.from(recruitmentPosition);
     }
 
     @Transactional
-    public void update(
+    public void modifyRecruitmentPosition(
             UUID userId,
-            Long recruitPositionId,
-            RecruitPositionUpdateRequest updateRequest
+            Long recruitmentPositionId,
+            ModifyRecruitmentPositionRequest request
     ) {
         StudyRecruitmentPosition recruitmentPosition =
-                recruitmentPositionRepository.findByIdAndStudyUserId(recruitPositionId, userId)
+                recruitmentPositionRepository.findByIdAndStudyUserId(recruitmentPositionId, userId)
                         .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
 
-        validateAcceptedCount(updateRequest);
+        validateAcceptedCount(request);
 
-        recruitmentPosition.modify(updateRequest);
+        recruitmentPosition.modify(request);
     }
 
-    private void validateAcceptedCount(RecruitPositionUpdateRequest updateRequest) {
-        if (updateRequest.getHeadcount() < updateRequest.getAcceptedCount()) {
+    private void validateAcceptedCount(ModifyRecruitmentPositionRequest request) {
+        if (request.getHeadcount() < request.getAcceptedCount()) {
             throw new GlobalException(ErrorCode.NOT_VALID, "The number of accepted exceeds the recruitment limit.");
         }
     }
 
     @Transactional
-    public void delete(UUID userId, Long recruitPositionId) {
-        recruitmentPositionRepository.deleteByIdAndStudyUserId(recruitPositionId, userId);
+    public void removeRecruitmentPosition(UUID userId, Long recruitmentPositionId) {
+        recruitmentPositionRepository.deleteByIdAndStudyUserId(recruitmentPositionId, userId);
     }
 
 //    @Transactional

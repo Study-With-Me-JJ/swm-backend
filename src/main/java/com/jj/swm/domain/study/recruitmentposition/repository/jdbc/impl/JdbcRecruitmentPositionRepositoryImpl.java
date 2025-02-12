@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.recruitmentposition.repository.jdbc.impl;
 
-import com.jj.swm.domain.study.recruitmentposition.dto.request.RecruitPositionCreateRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.AddRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.recruitmentposition.repository.jdbc.JdbcRecruitmentPositionRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void batchInsert(Study study, List<RecruitPositionCreateRequest> createRequests) {
+    public void batchInsert(Study study, List<AddRecruitmentPositionRequest> requestList) {
         String sql = "insert into study_recruitment_position(study_id, title, headcount, accepted_count) " +
                 " VALUES(?,?,?,?)";
 
@@ -26,17 +26,17 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                RecruitPositionCreateRequest createRequest = createRequests.get(i);
+                AddRecruitmentPositionRequest request = requestList.get(i);
 
                 ps.setLong(1, study.getId());
-                ps.setString(2, createRequest.getTitle());
-                ps.setInt(3, createRequest.getHeadcount());
+                ps.setString(2, request.getTitle());
+                ps.setInt(3, request.getHeadcount());
                 ps.setInt(4, 0);
             }
 
             @Override
             public int getBatchSize() {
-                return createRequests.size();
+                return requestList.size();
             }
         });
     }

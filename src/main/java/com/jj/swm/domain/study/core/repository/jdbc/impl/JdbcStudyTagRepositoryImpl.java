@@ -17,14 +17,14 @@ public class JdbcStudyTagRepositoryImpl implements JdbcStudyTagRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void batchInsert(Study study, List<String> tags) {
+    public void batchInsert(Study study, List<String> tagList) {
         String sql = "insert into study_tag(study_id, name) VALUES(?,?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                String tag = tags.get(i);
+                String tag = tagList.get(i);
 
                 ps.setLong(1, study.getId());
                 ps.setString(2, tag);
@@ -32,7 +32,7 @@ public class JdbcStudyTagRepositoryImpl implements JdbcStudyTagRepository {
 
             @Override
             public int getBatchSize() {
-                return tags.size();
+                return tagList.size();
             }
         });
     }

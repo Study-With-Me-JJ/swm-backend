@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.core.controller;
 
-import com.jj.swm.domain.study.core.dto.StudyInquiryCondition;
-import com.jj.swm.domain.study.core.dto.response.StudyDetailsResponse;
-import com.jj.swm.domain.study.core.dto.response.StudyInquiryResponse;
+import com.jj.swm.domain.study.core.dto.FindStudyCondition;
+import com.jj.swm.domain.study.core.dto.response.FindStudyDetailsResponse;
+import com.jj.swm.domain.study.core.dto.response.FindStudyResponse;
 import com.jj.swm.domain.study.core.service.StudyQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -23,24 +23,22 @@ public class StudyQueryController {
     private final StudyQueryService studyQueryService;
 
     @GetMapping("/v1/study")
-    public ApiResponse<PageResponse<StudyInquiryResponse>> getStudyList(
-            Principal principal, StudyInquiryCondition inquiryCondition
-    ) {
-        PageResponse<StudyInquiryResponse> pageResponse = studyQueryService.getList(
-                principal != null ? UUID.fromString(principal.getName()) : null, inquiryCondition
+    public ApiResponse<PageResponse<FindStudyResponse>> studyList(Principal principal, FindStudyCondition condition) {
+        PageResponse<FindStudyResponse> pageResponse = studyQueryService.findStudyList(
+                principal != null ? UUID.fromString(principal.getName()) : null, condition
         );
 
         return ApiResponse.ok(pageResponse);
     }
 
     @GetMapping("/v1/study/{studyId}")
-    public ApiResponse<StudyDetailsResponse> getStudyDetails(
+    public ApiResponse<FindStudyDetailsResponse> studyDetails(
             Principal principal, @PathVariable("studyId") Long studyId
     ) {
-        StudyDetailsResponse detailsResponse = studyQueryService.get(
+        FindStudyDetailsResponse response = studyQueryService.findStudy(
                 principal != null ? UUID.fromString(principal.getName()) : null, studyId
         );
 
-        return ApiResponse.ok(detailsResponse);
+        return ApiResponse.ok(response);
     }
 }
