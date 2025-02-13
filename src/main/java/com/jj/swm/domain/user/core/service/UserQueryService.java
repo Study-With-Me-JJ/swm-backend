@@ -65,15 +65,6 @@ public class UserQueryService {
         return GetUserInfoResponse.from(user);
     }
 
-    public boolean validateLoginId(String loginId) {
-        return userCredentialRepository.existsByLoginId(loginId);
-    }
-
-    public boolean validateNickname(String nickname) {
-        return userRepository.existsByNickname(nickname);
-    }
-
-
     @Transactional(readOnly = true)
     public PageResponse<FindStudyResponse> findLikedStudyList(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
@@ -105,5 +96,13 @@ public class UserQueryService {
         );
 
         return PageResponse.of(pagedStudyBookmark, FindStudyResponse::of);
+    }
+
+    public boolean validateLoginId(String loginId) {
+        return userCredentialRepository.existsByLoginId(loginId);
+    }
+
+    public boolean validateNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 }
