@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.core.service;
 
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
+import com.jj.swm.domain.study.constants.StudyElementLimit;
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.AddStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.entity.Study;
@@ -54,15 +55,24 @@ public class StudyCommandService {
             ModifyStudyRequest request
     ) {
         Study study = loadStudyOrException(userId, studyId);
-        study.modify(request);
 
         saveTagList(study, request.getSaveTagRequest());
 
         saveImageList(study, request.getSaveImageRequest());
+
+        study.modify(request);
     }
 
     private void saveTagList(Study study, SaveStudyTagRequest request) {
         if (request != null) {
+            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
+            int newTagSize =
+                    oldTagSize + request.getTagListToAdd().size() - request.getTagIdListToRemove().size();
+
+            if (newTagSize > StudyElementLimit.TAG) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Exceeded");
+            }
+
             List<String> tagListToAdd = request.getTagListToAdd();
             storeTagListIfPresent(study, tagListToAdd);
 
@@ -75,6 +85,14 @@ public class StudyCommandService {
 
     private void saveImageList(Study study, SaveStudyImageRequest request) {
         if (request != null) {
+            int oldImageSize = studyImageRepository.countByStudyId(study.getId());
+            int newImageSize =
+                    oldImageSize + request.getImageUrlListToAdd().size() - request.getImageIdListToRemove().size();
+
+            if (newImageSize > StudyElementLimit.IMAGE) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
+            }
+
             List<String> imageUrlListToAdd = request.getImageUrlListToAdd();
             storeImageListIfPresent(study, imageUrlListToAdd);
 

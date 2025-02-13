@@ -1,11 +1,12 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
+import com.jj.swm.domain.study.constants.StudyElementLimit;
+import com.jj.swm.domain.study.core.entity.Study;
+import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.AddRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.ModifyRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.AddRecruitmentPositionResponse;
-import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
@@ -28,6 +29,8 @@ public class RecruitmentPositionCommandService {
             Long studyId,
             AddRecruitmentPositionRequest request
     ) {
+        verifyRecruitmentPositionSizeLimit(studyId);
+
         Study study = studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
@@ -35,6 +38,13 @@ public class RecruitmentPositionCommandService {
         recruitmentPositionRepository.save(recruitmentPosition);
 
         return AddRecruitmentPositionResponse.from(recruitmentPosition);
+    }
+
+    private void verifyRecruitmentPositionSizeLimit(Long studyId) {
+        int recruitmentPositionSize = recruitmentPositionRepository.countByStudyId(studyId);
+        if (recruitmentPositionSize + 1 > StudyElementLimit.RECRUITMENT_POSITION) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment Position Limit Exceeded");
+        }
     }
 
     @Transactional

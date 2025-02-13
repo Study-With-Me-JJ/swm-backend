@@ -19,4 +19,6 @@ public interface StudyImageRepository extends JpaRepository<StudyImage, Long>, J
     @Modifying
     @Query("delete from StudyImage i where i.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
+
+    int countByStudyId(Long studyId);
 }

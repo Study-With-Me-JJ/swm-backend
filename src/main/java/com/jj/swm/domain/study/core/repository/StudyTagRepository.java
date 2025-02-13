@@ -17,4 +17,6 @@ public interface StudyTagRepository extends JpaRepository<StudyTag, Long>, JdbcS
     @Modifying
     @Query("update StudyTag t set t.deletedAt = CURRENT_TIMESTAMP where t.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
+
+    int countByStudyId(Long studyId);
 }

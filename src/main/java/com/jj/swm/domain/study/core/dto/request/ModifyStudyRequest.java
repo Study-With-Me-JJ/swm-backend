@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.core.dto.request;
 
 import com.jj.swm.domain.study.core.entity.StudyCategory;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -23,7 +24,9 @@ public class ModifyStudyRequest {
     @NotNull
     private StudyCategory category;
 
+    @Valid
     private SaveStudyTagRequest saveTagRequest;
 
+    @Valid
     private SaveStudyImageRequest saveImageRequest;
 }
