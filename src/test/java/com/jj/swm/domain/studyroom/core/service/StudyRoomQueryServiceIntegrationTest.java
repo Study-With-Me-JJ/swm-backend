@@ -311,6 +311,42 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
         assertThat(response.isLikeStatus()).isTrue();
     }
 
+    @Test
+    @DisplayName("특정 유저가 좋아요를 누른 스터디 룸 목록을 반환한다.")
+    @Transactional
+    void studyRoom_getLikedStudyRooms_Success() {
+        //given
+        User user = users.getFirst();
+
+        //when
+        PageResponse<GetStudyRoomResponse> response
+                = queryService.getLikedStudyRooms(0, user.getId());
+
+        //then
+        assertThat(response.getData().size()).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("특정 유저가 북마크를 누른 스터디 룸 목록을 반환한다.")
+    @Transactional
+    void studyRoom_getBookmarkedStudyRooms_Success() {
+        //given
+        User user = users.getFirst();
+
+        StudyRoomBookmark studyRoomBookmark
+                = StudyRoomBookmarkFixture.createBookmark(studyRooms.getFirst(), user);
+
+        bookmarkRepository.save(studyRoomBookmark);
+
+        //when
+        PageResponse<GetStudyRoomResponse> response
+                = queryService.getBookmarkedStudyRooms(0, user.getId());
+
+        //then
+        assertThat(response.getData().size()).isGreaterThan(0);
+        assertThat(response.getData().getFirst().getStudyBookmarkId()).isNotNull();
+    }
+
     private List<User> createTestUsers() {
         List<User> users = UserFixture.multiUser(5);
 

@@ -2,6 +2,7 @@ package com.jj.swm.domain.studyroom.core.service;
 
 import com.jj.swm.domain.studyroom.core.dto.response.*;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
+import com.jj.swm.domain.studyroom.core.entity.StudyRoomBookmark;
 import com.jj.swm.domain.studyroom.core.repository.*;
 import com.jj.swm.domain.studyroom.core.dto.GetStudyRoomCondition;
 import com.jj.swm.domain.studyroom.core.dto.StudyRoomBookmarkInfo;
@@ -10,6 +11,10 @@ import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.common.enums.PageSize;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,12 +53,7 @@ public class StudyRoomQueryService {
 
         List<StudyRoom> pagedStudyRooms = hasNext ? studyRooms.subList(0, PageSize.StudyRoom) : studyRooms;
 
-        List<Long> studyRoomIds = pagedStudyRooms.stream()
-                .map(StudyRoom::getId)
-                .toList();
-
-        Map<Long, Long> bookmarkIdByStudyRoomId
-                = mappingStudyRoomBookmarkAndUser(studyRoomIds, userId);
+        Map<Long, Long> bookmarkIdByStudyRoomId = getStudyRoomBookmarkMapping(pagedStudyRooms, userId);
 
         List<GetStudyRoomResponse> responses = pagedStudyRooms.stream()
                 .map(studyRoom -> GetStudyRoomResponse.of(
@@ -72,6 +72,42 @@ public class StudyRoomQueryService {
         boolean likeStatus = userId != null && likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId);
 
         return createAllOfStudyRoomRelatedResponse(studyRoomId, likeStatus, studyRoom);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GetStudyRoomResponse> getLikedStudyRooms(int pageNo, UUID userId) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.StudyRoom,
+                Sort.by("id").descending()
+        );
+
+        Page<StudyRoom> pagedStudyRoomLike
+                = likeRepository.findPagedStudyRoomByUserId(userId, pageable);
+
+        Map<Long, Long> bookmarkIdByStudyRoomId
+                = getStudyRoomBookmarkMapping(pagedStudyRoomLike.getContent(), userId);
+
+        return PageResponse.of(
+                pagedStudyRoomLike,
+                (studyRoom) ->
+                        GetStudyRoomResponse.of(studyRoom, bookmarkIdByStudyRoomId.getOrDefault(studyRoom.getId(), null))
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GetStudyRoomResponse> getBookmarkedStudyRooms(int pageNo, UUID userId) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.StudyRoom,
+                Sort.by("id").descending()
+        );
+
+        Page<StudyRoomBookmark> pagedStudyRoomBookmark = bookmarkRepository.findPagedBookmarkByUserIdWithStudyRoom(
+                userId, pageable
+        );
+
+        return PageResponse.of(pagedStudyRoomBookmark, GetStudyRoomResponse::of);
     }
 
     private GetStudyRoomDetailResponse createAllOfStudyRoomRelatedResponse(
@@ -113,7 +149,11 @@ public class StudyRoomQueryService {
         );
     }
 
-    private Map<Long, Long> mappingStudyRoomBookmarkAndUser(List<Long> studyRoomIds, UUID userId) {
+    private Map<Long, Long> getStudyRoomBookmarkMapping(List<StudyRoom> studyRooms, UUID userId) {
+        List<Long> studyRoomIds = studyRooms.stream()
+                .map(StudyRoom::getId)
+                .toList();
+
         return userId != null
                 ? bookmarkRepository.findAllByUserIdAndStudyRoomIds(userId, studyRoomIds)
                 .stream()

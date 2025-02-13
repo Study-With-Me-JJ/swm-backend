@@ -102,18 +102,6 @@ public class UserQueryController {
         return ApiResponse.ok(response);
     }
 
-    @Operation(
-            summary = "헬스 체크",
-            description = "헬스 체크."
-    )
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200", description = "성공"
-    )
-    @GetMapping("/health")
-    public ApiResponse<String> healthCheck() {
-        return ApiResponse.ok("OK");
-    }
-
     @GetMapping("/v1/user/liked-studies")
     public ApiResponse<PageResponse<FindStudyResponse>> userLikedStudyList(
             Principal principal, @RequestParam(value = "pageNo") int pageNo
@@ -134,5 +122,17 @@ public class UserQueryController {
         );
 
         return ApiResponse.ok(pageResponse);
+    }
+
+    @Operation(
+            summary = "헬스 체크",
+            description = "헬스 체크."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200", description = "성공"
+    )
+    @GetMapping("/health")
+    public ApiResponse<String> healthCheck() {
+        return ApiResponse.ok("OK");
     }
 }

@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.UUID;
@@ -61,6 +58,48 @@ public class StudyRoomQueryController {
     ) {
         GetStudyRoomDetailResponse response = queryService.getStudyRoomDetail(
                 studyRoomId, principal != null ? UUID.fromString(principal.getName()) : null);
+
+        return ApiResponse.ok(response);
+    }
+
+    @Operation(
+            summary = "특정 유저가 좋아요한 스터디 룸 목록 조회",
+            description = "특정 유저가 좋아요한 스터디 룸을 페이징 조회합니다." +
+                    "pageNo는 필수값은 아니지만, 기본값인 0으로 고정됩니다.<br>" +
+                    "그 이후 페이지 번호에 관해서는 Query Param으로 전달 부탁드립니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200", description = "성공"
+    )
+    @GetMapping("/v1/studyroom/user/liked-studyrooms")
+    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserLikedStudyRoomList(
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
+            Principal principal
+    ) {
+        PageResponse<GetStudyRoomResponse> response = queryService.getLikedStudyRooms(
+                pageNo, UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.ok(response);
+    }
+
+    @Operation(
+            summary = "특정 유저가 북마크한 스터디 룸 목록 조회",
+            description = "특정 유저가 북마크한 스터디 룸을 페이징 조회합니다." +
+                    "pageNo는 필수값은 아니지만, 기본값인 0으로 고정됩니다.<br>" +
+                    "그 이후 페이지 번호에 관해서는 Query Param으로 전달 부탁드립니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200", description = "성공"
+    )
+    @GetMapping("/v1/studyroom/user/bookmarked-studyrooms")
+    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserBookmarkedStudyRoomList(
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
+            Principal principal
+    ) {
+        PageResponse<GetStudyRoomResponse> response = queryService.getBookmarkedStudyRooms(
+                pageNo, UUID.fromString(principal.getName())
+        );
 
         return ApiResponse.ok(response);
     }
