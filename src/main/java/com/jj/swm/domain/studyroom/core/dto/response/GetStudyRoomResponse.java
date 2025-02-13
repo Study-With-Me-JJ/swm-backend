@@ -1,6 +1,7 @@
 package com.jj.swm.domain.studyroom.core.dto.response;
 
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
+import com.jj.swm.domain.studyroom.core.entity.StudyRoomBookmark;
 import com.jj.swm.domain.studyroom.core.entity.embeddable.Coordinates;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,6 +49,10 @@ public class GetStudyRoomResponse {
                         : null
                 )
                 .build();
+    }
+
+    public static GetStudyRoomResponse of(StudyRoomBookmark studyRoomBookmark) {
+        return GetStudyRoomResponse.of(studyRoomBookmark.getStudyRoom(), studyRoomBookmark.getId());
     }
 
 }
