@@ -1,11 +1,12 @@
 package com.jj.swm.domain.study.core.repository.custom.impl;
 
 import com.jj.swm.domain.study.core.dto.FindStudyCondition;
+import com.jj.swm.domain.study.core.dto.SortCriteria;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
-import com.jj.swm.domain.study.core.dto.SortCriteria;
 import com.jj.swm.domain.study.core.repository.custom.CustomStudyRepository;
+import com.jj.swm.domain.study.recruitmentposition.entity.RecruitmentPositionTitle;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -30,6 +31,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                 .where(
                         studyCategoryEq(condition.getCategory()),
                         studyStatusEq(condition.getStatus()),
+                        recruitmentPositionTitleExists(condition.getRecruitmentPositionTitleList()),
                         createSortPredicate(condition)
                 )
                 .orderBy(createOrderSpecifier(condition.getSortCriteria()))
@@ -43,6 +45,12 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
 
     private BooleanBuilder studyStatusEq(StudyStatus status) {
         return this.nullSafeBuilder(() -> study.status.eq(status));
+    }
+
+    private BooleanBuilder recruitmentPositionTitleExists(List<RecruitmentPositionTitle> titleList) {
+        return titleList == null || titleList.isEmpty()
+                ? null
+                : this.nullSafeBuilder(() -> study.studyRecruitmentPositionList.any().title.in(titleList));
     }
 
     private BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {

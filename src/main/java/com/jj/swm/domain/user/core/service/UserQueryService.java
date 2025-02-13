@@ -75,7 +75,7 @@ public class UserQueryService {
 
         Page<Study> pagedStudy = studyLikeRepository.findPagedStudyByUserId(userId, pageable);
 
-        Map<Long, Long> bookmarkIdByStudyId = studyQueryService.loadBookmarkMapping(userId, pagedStudy.getContent());
+        Map<Long, Long> bookmarkIdByStudyId = studyQueryService.loadBookmarkInfoMapIfLogin(userId, pagedStudy.getContent());
 
         return PageResponse.of(
                 pagedStudy,
