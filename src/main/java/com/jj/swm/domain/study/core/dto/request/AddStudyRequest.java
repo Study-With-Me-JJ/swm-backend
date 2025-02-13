@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.core.dto.request;
 
+import com.jj.swm.domain.study.constants.StudyElementLimit;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.AddRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import jakarta.validation.Valid;
@@ -29,14 +30,14 @@ public class AddStudyRequest {
     @NotNull
     private StudyCategory category;
 
-    @Size(max = 100)
+    @Size(max = StudyElementLimit.IMAGE)
     private List<String> tagList;
 
-    @Size(max = 100)
+    @Size(max = StudyElementLimit.TAG)
     private List<String> imageUrlList;
 
     @Valid
     @NotEmpty
-    @Size(max = 100)
+    @Size(max = StudyElementLimit.RECRUITMENT_POSITION)
     private List<AddRecruitmentPositionRequest> addRecruitmentPositionRequestList;
 }

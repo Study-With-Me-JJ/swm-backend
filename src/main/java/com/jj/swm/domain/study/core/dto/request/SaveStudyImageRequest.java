@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.core.dto.request;
 
 
+import com.jj.swm.domain.study.constants.StudyElementLimit;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -12,9 +13,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaveStudyImageRequest {
 
-    @Size(max = 100)
+    @Size(max = StudyElementLimit.IMAGE)
     private List<String> imageUrlListToAdd;
 
-    @Size(max = 100)
+    @Size(max = StudyElementLimit.IMAGE)
     private List<Long> imageIdListToRemove;
 }

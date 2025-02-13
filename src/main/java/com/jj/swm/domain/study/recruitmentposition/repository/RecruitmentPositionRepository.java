@@ -25,4 +25,6 @@ public interface RecruitmentPositionRepository extends
     @Modifying
     @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP where rp.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
+
+    int countByStudyId(Long studyId);
 }
