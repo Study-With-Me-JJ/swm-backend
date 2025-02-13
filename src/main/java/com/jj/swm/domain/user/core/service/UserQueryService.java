@@ -16,7 +16,7 @@ import com.jj.swm.domain.user.core.repository.UserCredentialRepository;
 import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
-import com.jj.swm.global.common.enums.PageSize;
+import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

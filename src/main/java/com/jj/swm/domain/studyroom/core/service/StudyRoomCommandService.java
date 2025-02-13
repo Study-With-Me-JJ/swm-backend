@@ -1,5 +1,6 @@
 package com.jj.swm.domain.studyroom.core.service;
 
+import com.jj.swm.domain.studyroom.core.constants.StudyRoomConstraints;
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomReservationTypeRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomRequest;
@@ -23,6 +24,7 @@ import com.jj.swm.domain.studyroom.review.repository.StudyRoomReviewRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.common.util.ListCheckUtils;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.util.*;
+
+import static com.jj.swm.global.common.util.ListCheckUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -156,8 +160,8 @@ public class StudyRoomCommandService {
 
     private void imageModifyLogic(ModifyStudyRoomImageRequest request, StudyRoom studyRoom) {
         if (request != null) {
-            if (request.getImagesToUpdate() != null) {
-                validateSizeLimitExceeded(request.getImagesToUpdate().size(), 20, "Image");
+            if (isListNotNull(request.getImagesToUpdate())) {
+                validateSizeLimitExceeded(request.getImagesToUpdate().size(), StudyRoomConstraints.IMAGE_LIMIT, "Image");
 
                 imageRepository.deleteAllByStudyRoomId(studyRoom.getId());
                 imageRepository.batchInsert(request.getImagesToUpdate(), studyRoom);
@@ -167,13 +171,15 @@ public class StudyRoomCommandService {
 
     private void tagModifyLogic(ModifyStudyRoomTagRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getTagsToAdd() != null && !request.getTagsToAdd().isEmpty()) {
+            if (ListCheckUtils.isListPresent(request.getTagsToAdd())) {
                 long size = tagRepository.countByStudyRoomId(studyRoom.getId());
-                validateSizeLimitExceeded(size + request.getTagsToAdd().size(), 10, "Tag");
+                long totalSize = computeTotalSize(size, request.getTagsToAdd(), request.getTagIdsToRemove());
+
+                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.TAG_LIMIT, "Tag");
 
                 tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
             }
-            if (request.getTagIdsToRemove() != null && !request.getTagIdsToRemove().isEmpty())
+            if (isListPresent(request.getTagIdsToRemove()))
                 removeTags(request.getTagIdsToRemove(), studyRoom);
         }
     }
@@ -190,9 +196,11 @@ public class StudyRoomCommandService {
 
     private void dayOffModifyLogic(ModifyStudyRoomDayOffRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getDayOffsToAdd() != null && !request.getDayOffsToAdd().isEmpty()) {
+            if (isListPresent(request.getDayOffsToAdd())) {
                 long size = dayOffRepository.countByStudyRoomId(studyRoom.getId());
-                validateSizeLimitExceeded(size + request.getDayOffsToAdd().size(), 7, "DayOff");
+                long totalSize = computeTotalSize(size, request.getDayOffsToAdd(), request.getDayOffIdsToRemove());
+
+                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.DAYOFF_LIMIT, "DayOff");
 
                 List<DayOfWeek> dayOffsToAdd = request.getDayOffsToAdd();
 
@@ -203,7 +211,7 @@ public class StudyRoomCommandService {
 
                 dayOffRepository.batchInsert(dayOffsToAdd, studyRoom);
             }
-            if (request.getDayOffIdsToRemove() != null && !request.getDayOffIdsToRemove().isEmpty())
+            if (isListPresent(request.getDayOffIdsToRemove()))
                 removeDayOffs(request.getDayOffIdsToRemove(), studyRoom);
         }
     }
@@ -220,7 +228,7 @@ public class StudyRoomCommandService {
 
     private void optionModifyLogic(ModifyStudyRoomOptionInfoRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getOptionsToAdd() != null && !request.getOptionsToAdd().isEmpty()) {
+            if (isListPresent(request.getOptionsToAdd())) {
                 List<StudyRoomOption> optionsToAdd = request.getOptionsToAdd();
 
                 boolean isAlreadyExists = optionInfoRepository.existsByStudyRoomIdAndOptionIn(studyRoom.getId(), optionsToAdd);
@@ -230,7 +238,7 @@ public class StudyRoomCommandService {
 
                 optionInfoRepository.batchInsert(optionsToAdd, studyRoom);
             }
-            if (request.getOptionsIdsToRemove() != null && !request.getOptionsIdsToRemove().isEmpty())
+            if (isListPresent(request.getOptionsIdsToRemove()))
                 removeOptions(request.getOptionsIdsToRemove(), studyRoom);
         }
     }
@@ -247,9 +255,11 @@ public class StudyRoomCommandService {
 
     private void typeModifyLogic(ModifyStudyRoomTypeInfoRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getTypesToAdd() != null && !request.getTypesToAdd().isEmpty()) {
+            if (isListPresent(request.getTypesToAdd())) {
                 long size = typeInfoRepository.countByStudyRoomId(studyRoom.getId());
-                validateSizeLimitExceeded(size + request.getTypesToAdd().size(), 3, "Type");
+                long totalSize = computeTotalSize(size, request.getTypesToAdd(), request.getTypeIdsToRemove());
+
+                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.TYPE_LIMIT, "Type");
 
                 List<StudyRoomType> typesToAdd = request.getTypesToAdd();
 
@@ -260,7 +270,7 @@ public class StudyRoomCommandService {
 
                 typeInfoRepository.batchInsert(typesToAdd, studyRoom);
             }
-            if (request.getTypeIdsToRemove() != null && !request.getTypeIdsToRemove().isEmpty())
+            if (isListPresent(request.getTypeIdsToRemove()))
                 removeTypes(request.getTypeIdsToRemove(), studyRoom);
         }
     }
@@ -277,11 +287,11 @@ public class StudyRoomCommandService {
 
     private void reserveTypeModifyLogic(ModifyStudyRoomReservationTypeRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (request.getReservationTypesToAdd() != null)
+            if (isListNotNull(request.getReservationTypesToAdd()))
                 reserveTypeRepository.batchInsert(request.getReservationTypesToAdd(), studyRoom);
-            if (request.getReservationTypesToUpdate() != null && !request.getReservationTypesToUpdate().isEmpty())
+            if (isListPresent(request.getReservationTypesToUpdate()))
                 updateReserveTypes(request.getReservationTypesToUpdate(), studyRoom);
-            if (request.getReservationTypeIdsToRemove() != null && !request.getReservationTypeIdsToRemove().isEmpty())
+            if (isListPresent(request.getReservationTypeIdsToRemove()))
                 removeReserveTypes(request.getReservationTypeIdsToRemove(), studyRoom);
         }
     }
@@ -345,14 +355,14 @@ public class StudyRoomCommandService {
 
     private void validateDayOffs(List<DayOfWeek> dayOffs, StudyRoom studyRoom) {
         // DayOff 생성 및 저장
-        if (dayOffs != null && !dayOffs.isEmpty()) {
+        if (isListPresent(dayOffs)) {
             dayOffRepository.batchInsert(dayOffs, studyRoom);
         }
     }
 
     private void validateTags(List<String> tags, StudyRoom studyRoom) {
         // Tag 생성 및 저장
-        if (tags != null && !tags.isEmpty()) {
+        if (isListPresent(tags)) {
             tagRepository.batchInsert(tags, studyRoom);
         }
     }
@@ -389,5 +399,12 @@ public class StudyRoomCommandService {
 
     private void validateSizeLimitExceeded(long size, long limit, String targetName) {
         if(size > limit) throw new GlobalException(ErrorCode.NOT_VALID, targetName + " Limit Exceeded");
+    }
+
+    private long computeTotalSize(long storedSize, List<?> aboutAdd, List<?> aboutRemove){
+        if(isListPresent(aboutRemove))
+            return storedSize + aboutAdd.size() - aboutRemove.size();
+        else
+            return storedSize + aboutAdd.size();
     }
 }

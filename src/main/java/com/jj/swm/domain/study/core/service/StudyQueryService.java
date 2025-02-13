@@ -18,7 +18,7 @@ import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPositi
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
-import com.jj.swm.global.common.enums.PageSize;
+import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;

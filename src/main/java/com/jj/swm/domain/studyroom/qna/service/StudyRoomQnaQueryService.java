@@ -4,7 +4,7 @@ import com.jj.swm.domain.studyroom.qna.dto.response.GetStudyRoomQnaResponse;
 import com.jj.swm.domain.studyroom.qna.entity.StudyRoomQna;
 import com.jj.swm.domain.studyroom.qna.repository.StudyRoomQnaRepository;
 import com.jj.swm.global.common.dto.PageResponse;
-import com.jj.swm.global.common.enums.PageSize;
+import com.jj.swm.global.common.constants.PageSize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

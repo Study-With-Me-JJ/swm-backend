@@ -1,4 +1,4 @@
-package com.jj.swm.global.common.enums;
+package com.jj.swm.global.common.constants;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

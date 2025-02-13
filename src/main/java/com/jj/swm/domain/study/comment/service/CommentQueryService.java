@@ -6,7 +6,7 @@ import com.jj.swm.domain.study.comment.dto.response.FindParentCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.global.common.dto.PageResponse;
-import com.jj.swm.global.common.enums.PageSize;
+import com.jj.swm.global.common.constants.PageSize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

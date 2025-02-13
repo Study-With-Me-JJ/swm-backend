@@ -11,7 +11,7 @@ import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.dto.PageResponse;
-import com.jj.swm.global.common.enums.PageSize;
+import com.jj.swm.global.common.constants.PageSize;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
