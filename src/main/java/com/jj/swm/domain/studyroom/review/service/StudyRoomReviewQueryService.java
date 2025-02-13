@@ -4,7 +4,7 @@ import com.jj.swm.domain.studyroom.review.dto.response.GetStudyRoomReviewRespons
 import com.jj.swm.domain.studyroom.review.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.review.repository.StudyRoomReviewRepository;
 import com.jj.swm.global.common.dto.PageResponse;
-import com.jj.swm.global.common.enums.PageSize;
+import com.jj.swm.global.common.constants.PageSize;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
