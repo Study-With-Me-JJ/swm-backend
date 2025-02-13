@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.UUID;
@@ -61,6 +58,30 @@ public class StudyRoomQueryController {
     ) {
         GetStudyRoomDetailResponse response = queryService.getStudyRoomDetail(
                 studyRoomId, principal != null ? UUID.fromString(principal.getName()) : null);
+
+        return ApiResponse.ok(response);
+    }
+
+    @GetMapping("/v1/studyroom/user/liked-studyrooms")
+    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserLikedStudyRoomList(
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
+            Principal principal
+    ) {
+        PageResponse<GetStudyRoomResponse> response = queryService.getLikedStudyRooms(
+                pageNo, UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.ok(response);
+    }
+
+    @GetMapping("/v1/studyroom/user/bookmarked-studyrooms")
+    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserBookmarkedStudyRoomList(
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
+            Principal principal
+    ) {
+        PageResponse<GetStudyRoomResponse> response = queryService.getBookmarkedStudyRooms(
+                pageNo, UUID.fromString(principal.getName())
+        );
 
         return ApiResponse.ok(response);
     }
