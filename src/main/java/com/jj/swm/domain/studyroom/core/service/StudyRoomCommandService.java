@@ -171,7 +171,7 @@ public class StudyRoomCommandService {
 
     private void tagModifyLogic(ModifyStudyRoomTagRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (ListCheckUtils.isListPresent(request.getTagsToAdd())) {
+            if (isListPresent(request.getTagsToAdd())) {
                 long size = tagRepository.countByStudyRoomId(studyRoom.getId());
                 long totalSize = computeTotalSize(size, request.getTagsToAdd(), request.getTagIdsToRemove());
 
