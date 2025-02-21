@@ -1,6 +1,6 @@
 package com.jj.swm.domain.studyroom.core.service;
 
-import com.jj.swm.domain.studyroom.core.constants.StudyRoomConstraints;
+import com.jj.swm.domain.studyroom.core.constants.StudyRoomConstants;
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomReservationTypeRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomRequest;
@@ -24,7 +24,6 @@ import com.jj.swm.domain.studyroom.review.repository.StudyRoomReviewRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
-import com.jj.swm.global.common.util.ListCheckUtils;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -161,7 +160,7 @@ public class StudyRoomCommandService {
     private void imageModifyLogic(ModifyStudyRoomImageRequest request, StudyRoom studyRoom) {
         if (request != null) {
             if (isListNotNull(request.getImagesToUpdate())) {
-                validateSizeLimitExceeded(request.getImagesToUpdate().size(), StudyRoomConstraints.IMAGE_LIMIT, "Image");
+                validateSizeLimitExceeded(request.getImagesToUpdate().size(), StudyRoomConstants.IMAGE_LIMIT, "Image");
 
                 imageRepository.deleteAllByStudyRoomId(studyRoom.getId());
                 imageRepository.batchInsert(request.getImagesToUpdate(), studyRoom);
@@ -175,7 +174,7 @@ public class StudyRoomCommandService {
                 long size = tagRepository.countByStudyRoomId(studyRoom.getId());
                 long totalSize = computeTotalSize(size, request.getTagsToAdd(), request.getTagIdsToRemove());
 
-                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.TAG_LIMIT, "Tag");
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.TAG_LIMIT, "Tag");
 
                 tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
             }
@@ -200,7 +199,7 @@ public class StudyRoomCommandService {
                 long size = dayOffRepository.countByStudyRoomId(studyRoom.getId());
                 long totalSize = computeTotalSize(size, request.getDayOffsToAdd(), request.getDayOffIdsToRemove());
 
-                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.DAYOFF_LIMIT, "DayOff");
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.DAYOFF_LIMIT, "DayOff");
 
                 List<DayOfWeek> dayOffsToAdd = request.getDayOffsToAdd();
 
@@ -259,7 +258,7 @@ public class StudyRoomCommandService {
                 long size = typeInfoRepository.countByStudyRoomId(studyRoom.getId());
                 long totalSize = computeTotalSize(size, request.getTypesToAdd(), request.getTypeIdsToRemove());
 
-                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.TYPE_LIMIT, "Type");
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.TYPE_LIMIT, "Type");
 
                 List<StudyRoomType> typesToAdd = request.getTypesToAdd();
 
