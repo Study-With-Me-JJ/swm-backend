@@ -1,7 +1,6 @@
 package com.jj.swm.domain.study.core.dto.response;
 
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.GetRecruitmentPositionResponse;
@@ -63,7 +62,7 @@ public class GetStudyResponse {
                 .build();
     }
 
-    public static GetStudyResponse of(Study study, Long studyBookmarkId) {
+    public static GetStudyResponse of(Study study) {
         return GetStudyResponse.builder()
                 .studyId(study.getId())
                 .title(study.getTitle())
@@ -73,31 +72,12 @@ public class GetStudyResponse {
                 .commentCount(study.getCommentCount())
                 .status(study.getStatus())
                 .viewCount(study.getViewCount())
-                .studyBookmarkId(studyBookmarkId)
+                .studyBookmarkId(null)
+                .liked(false)
                 .getTagResponseList(study.getStudyTagList().stream()
                         .map(GetStudyTagResponse::from)
                         .toList())
                 .getRecruitmentPositionResponseList(study.getStudyRecruitmentPositionList().stream()
-                        .map(GetRecruitmentPositionResponse::from)
-                        .toList())
-                .build();
-    }
-
-    public static GetStudyResponse of(StudyBookmark studyBookmark) {
-        return GetStudyResponse.builder()
-                .studyId(studyBookmark.getStudy().getId())
-                .title(studyBookmark.getStudy().getTitle())
-                .content(studyBookmark.getStudy().getContent())
-                .category(studyBookmark.getStudy().getCategory())
-                .likeCount(studyBookmark.getStudy().getLikeCount())
-                .commentCount(studyBookmark.getStudy().getCommentCount())
-                .status(studyBookmark.getStudy().getStatus())
-                .viewCount(studyBookmark.getStudy().getViewCount())
-                .studyBookmarkId(studyBookmark.getId())
-                .getTagResponseList(studyBookmark.getStudy().getStudyTagList().stream()
-                        .map(GetStudyTagResponse::from)
-                        .toList())
-                .getRecruitmentPositionResponseList(studyBookmark.getStudy().getStudyRecruitmentPositionList().stream()
                         .map(GetRecruitmentPositionResponse::from)
                         .toList())
                 .build();
