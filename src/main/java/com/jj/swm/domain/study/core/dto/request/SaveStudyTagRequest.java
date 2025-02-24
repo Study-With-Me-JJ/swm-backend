@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.dto.request;
 
-import com.jj.swm.domain.study.constants.StudyElementLimit;
+import com.jj.swm.domain.study.constants.StudyConstants;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -12,9 +12,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SaveStudyTagRequest {
 
-    @Size(max = StudyElementLimit.TAG)
+    @Size(max = StudyConstants.TAG_LIMIT)
     private List<String> tagListToAdd;
 
-    @Size(max = StudyElementLimit.TAG)
+    @Size(max = StudyConstants.TAG_LIMIT)
     private List<Long> tagIdListToRemove;
 }

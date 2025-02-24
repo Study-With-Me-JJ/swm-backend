@@ -1,8 +1,7 @@
 package com.jj.swm.domain.study.core.dto.request;
 
-import com.jj.swm.domain.study.constants.StudyElementLimit;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -11,6 +10,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.List;
+
+import static com.jj.swm.domain.study.constants.StudyConstants.*;
 
 @Getter
 @Builder
@@ -30,14 +31,14 @@ public class CreateStudyRequest {
     @NotNull
     private StudyCategory category;
 
-    @Size(max = StudyElementLimit.IMAGE)
+    @Size(max = IMAGE_LIMIT)
     private List<String> tagList;
 
-    @Size(max = StudyElementLimit.TAG)
+    @Size(max = TAG_LIMIT)
     private List<String> imageUrlList;
 
     @Valid
     @NotEmpty
-    @Size(max = StudyElementLimit.RECRUITMENT_POSITION)
+    @Size(max = RECRUITMENT_POSITION_LIMIT)
     private List<CreateRecruitmentPositionRequest> createRecruitmentPositionRequestList;
 }
