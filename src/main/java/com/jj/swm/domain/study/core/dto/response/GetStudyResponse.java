@@ -32,9 +32,36 @@ public class GetStudyResponse {
 
     private Long studyBookmarkId;
 
+    private boolean liked;
+
     private List<GetStudyTagResponse> getTagResponseList;
 
     private List<GetRecruitmentPositionResponse> getRecruitmentPositionResponseList;
+
+    public static GetStudyResponse of(
+            Study study,
+            Long studyBookmarkId,
+            boolean liked
+    ) {
+        return GetStudyResponse.builder()
+                .studyId(study.getId())
+                .title(study.getTitle())
+                .content(study.getContent())
+                .category(study.getCategory())
+                .likeCount(study.getLikeCount())
+                .commentCount(study.getCommentCount())
+                .status(study.getStatus())
+                .viewCount(study.getViewCount())
+                .studyBookmarkId(studyBookmarkId)
+                .liked(liked)
+                .getTagResponseList(study.getStudyTagList().stream()
+                        .map(GetStudyTagResponse::from)
+                        .toList())
+                .getRecruitmentPositionResponseList(study.getStudyRecruitmentPositionList().stream()
+                        .map(GetRecruitmentPositionResponse::from)
+                        .toList())
+                .build();
+    }
 
     public static GetStudyResponse of(Study study, Long studyBookmarkId) {
         return GetStudyResponse.builder()
