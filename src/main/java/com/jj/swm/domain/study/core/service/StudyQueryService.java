@@ -9,7 +9,6 @@ import com.jj.swm.domain.study.core.dto.response.GetStudyDetailsResponse;
 import com.jj.swm.domain.study.core.dto.response.GetStudyImageResponse;
 import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyImage;
 import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
@@ -27,7 +26,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -151,12 +149,7 @@ public class StudyQueryService {
 
         Page<Study> pagedStudy = studyLikeRepository.findPagedStudyByUserId(userId, pageable);
 
-        Map<Long, Long> bookmarkIdByStudyId = loadBookmarkInfoMap(userId, pagedStudy.getContent());
-
-        return PageResponse.of(
-                pagedStudy,
-                (study) -> GetStudyResponse.of(study, bookmarkIdByStudyId.getOrDefault(study.getId(), null))
-        );
+        return PageResponse.of(pagedStudy, GetStudyResponse::of);
     }
 
     @Transactional(readOnly = true)
@@ -167,20 +160,9 @@ public class StudyQueryService {
                 Sort.by("id").descending()
         );
 
-        Page<StudyBookmark> pagedStudyBookmark = studyBookmarkRepository.findPagedBookmarkByUserIdWithStudy(
-                userId, pageable
-        );
+        Page<Study> pagedStudy = studyBookmarkRepository.findPagedStudyByUserId(userId, pageable);
 
-        return PageResponse.of(pagedStudyBookmark, GetStudyResponse::of);
-    }
-
-    private Map<Long, Long> loadBookmarkInfoMap(UUID userId, Collection<Study> pagedStudy) {
-        List<Long> studyIdList = pagedStudy.stream()
-                .map(Study::getId)
-                .toList();
-
-        return studyBookmarkRepository.findAllByUserIdAndStudyIdList(userId, studyIdList).stream()
-                .collect(Collectors.toMap(StudyBookmarkInfo::studyId, StudyBookmarkInfo::id));
+        return PageResponse.of(pagedStudy, GetStudyResponse::of);
     }
 
     private record LikeStatusAndBookmarkId(boolean likeStatus, Long bookmarkId) {
