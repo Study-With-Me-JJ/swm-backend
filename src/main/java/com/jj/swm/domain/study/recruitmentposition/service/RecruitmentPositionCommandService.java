@@ -1,6 +1,5 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
-import com.jj.swm.domain.study.constants.StudyElementLimit;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
@@ -15,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+
+import static com.jj.swm.domain.study.constants.StudyConstants.RECRUITMENT_POSITION_LIMIT;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,7 @@ public class RecruitmentPositionCommandService {
 
     private void verifyRecruitmentPositionSizeLimit(Long studyId) {
         int recruitmentPositionSize = recruitmentPositionRepository.countByStudyId(studyId);
-        if (recruitmentPositionSize + 1 > StudyElementLimit.RECRUITMENT_POSITION) {
+        if (recruitmentPositionSize + 1 > RECRUITMENT_POSITION_LIMIT) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment Position Limit Exceeded");
         }
     }

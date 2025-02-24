@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.core.service;
 
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
-import com.jj.swm.domain.study.constants.StudyElementLimit;
+import com.jj.swm.domain.study.constants.StudyConstants;
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.entity.Study;
@@ -71,7 +71,7 @@ public class StudyCommandService {
             int newTagSize =
                     oldTagSize + request.getTagListToAdd().size() - request.getTagIdListToRemove().size();
 
-            if (newTagSize > StudyElementLimit.TAG) {
+            if (newTagSize > StudyConstants.TAG_LIMIT) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Exceeded");
             }
 
@@ -91,7 +91,7 @@ public class StudyCommandService {
             int newImageSize =
                     oldImageSize + request.getImageUrlListToAdd().size() - request.getImageIdListToRemove().size();
 
-            if (newImageSize > StudyElementLimit.IMAGE) {
+            if (newImageSize > StudyConstants.IMAGE_LIMIT) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
             }
 
