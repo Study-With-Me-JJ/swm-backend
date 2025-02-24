@@ -4,11 +4,11 @@ import com.jj.swm.domain.study.comment.dto.response.GetParentCommentResponse;
 import com.jj.swm.domain.study.comment.service.CommentQueryService;
 import com.jj.swm.domain.study.core.dto.GetStudyCondition;
 import com.jj.swm.domain.study.core.dto.StudyBookmarkInfo;
+import com.jj.swm.domain.study.core.dto.StudyLikeInfo;
 import com.jj.swm.domain.study.core.dto.response.GetStudyDetailsResponse;
 import com.jj.swm.domain.study.core.dto.response.GetStudyImageResponse;
 import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyImage;
 import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
@@ -26,7 +26,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,29 +53,47 @@ public class StudyQueryService {
 
         List<Study> pagedStudyList = hasNext ? studyList.subList(0, PageSize.Study) : studyList;
 
-        Map<Long, Long> bookmarkIdByStudyId = loadBookmarkInfoMapIfLogin(userId, pagedStudyList);
+        Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyId =
+                loadLikeStatusAndBookmarkByStudyIdIdBasedOnLogin(userId, pagedStudyList);
 
-        List<GetStudyResponse> responseList = loadGetStudyResponse(pagedStudyList, bookmarkIdByStudyId);
+        List<GetStudyResponse> responseList = loadGetStudyResponse(pagedStudyList, likeStatusAndBookmarkIdByStudyId);
 
         return PageResponse.of(responseList, hasNext);
     }
 
-    private Map<Long, Long> loadBookmarkInfoMapIfLogin(UUID userId, List<Study> studyList) {
+    private Map<Long, LikeStatusAndBookmarkId> loadLikeStatusAndBookmarkByStudyIdIdBasedOnLogin(
+            UUID userId, List<Study> studyList
+    ) {
         if (userId == null) {
-            return Collections.emptyMap();
+            return studyList.stream()
+                    .collect(Collectors.toMap(Study::getId, study -> new LikeStatusAndBookmarkId(false, null)));
         }
 
-        return loadBookmarkInfoMap(userId, studyList);
+        List<Long> studyIdList = studyList.stream()
+                .map(Study::getId)
+                .toList();
+
+        Map<Long, Long> collect = studyLikeRepository.findAllByUserIdAndStudyIdList(userId, studyIdList).stream()
+                .collect(Collectors.toMap(StudyLikeInfo::studyId, StudyLikeInfo::id));
+
+        Map<Long, Long> collect1 = studyBookmarkRepository.findAllByUserIdAndStudyIdList(userId, studyIdList).stream()
+                .collect(Collectors.toMap(StudyBookmarkInfo::studyId, StudyBookmarkInfo::id));
+
+        return studyIdList.stream()
+                .collect(Collectors.toMap(studyId -> studyId, studyId -> new LikeStatusAndBookmarkId(
+                        collect.getOrDefault(studyId, null) != null, collect1.getOrDefault(studyId, null)
+                )));
     }
 
     private List<GetStudyResponse> loadGetStudyResponse(
-            List<Study> pagedStudyList, Map<Long, Long> bookmarkIdByStudyId
+            List<Study> pagedStudyList, Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyId
     ) {
         return pagedStudyList.stream()
                 .map(study -> GetStudyResponse.of(
-                        study, bookmarkIdByStudyId.getOrDefault(study.getId(), null)
-                ))
-                .toList();
+                        study,
+                        likeStatusAndBookmarkIdByStudyId.get(study.getId()).bookmarkId,
+                        likeStatusAndBookmarkIdByStudyId.get(study.getId()).likeStatus
+                )).toList();
     }
 
     @Transactional
@@ -81,7 +101,7 @@ public class StudyQueryService {
         Study study = studyRepository.findByIdWithUserUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
-        LikeStatusAndBookmarkId likeStatusAndBookmarkId = loadLikeStatusAndBookmarkIdIfLogin(userId, studyId);
+        LikeStatusAndBookmarkId likeStatusAndBookmarkId = loadLikeStatusAndBookmarkIdBasedOnLogin(userId, studyId);
 
         study.incrementViewCount();
 
@@ -108,16 +128,15 @@ public class StudyQueryService {
         );
     }
 
-    private LikeStatusAndBookmarkId loadLikeStatusAndBookmarkIdIfLogin(UUID userId, Long studyId) {
-        boolean likeStatus = false;
-        Long bookmarkId = null;
-
-        if (userId != null) {
-            likeStatus = studyLikeRepository.existsByUserIdAndStudyId(userId, studyId);
-            bookmarkId = studyBookmarkRepository.findIdByUserIdAndStudyId(userId, studyId);
+    private LikeStatusAndBookmarkId loadLikeStatusAndBookmarkIdBasedOnLogin(UUID userId, Long studyId) {
+        if (userId == null) {
+            return new LikeStatusAndBookmarkId(false, null);
         }
 
-        return new LikeStatusAndBookmarkId(likeStatus, bookmarkId);
+        return new LikeStatusAndBookmarkId(
+                studyLikeRepository.existsByUserIdAndStudyId(userId, studyId),
+                studyBookmarkRepository.findIdByUserIdAndStudyId(userId, studyId)
+        );
     }
 
     @Transactional(readOnly = true)
@@ -130,12 +149,7 @@ public class StudyQueryService {
 
         Page<Study> pagedStudy = studyLikeRepository.findPagedStudyByUserId(userId, pageable);
 
-        Map<Long, Long> bookmarkIdByStudyId = loadBookmarkInfoMap(userId, pagedStudy.getContent());
-
-        return PageResponse.of(
-                pagedStudy,
-                (study) -> GetStudyResponse.of(study, bookmarkIdByStudyId.getOrDefault(study.getId(), null))
-        );
+        return PageResponse.of(pagedStudy, GetStudyResponse::of);
     }
 
     @Transactional(readOnly = true)
@@ -146,20 +160,9 @@ public class StudyQueryService {
                 Sort.by("id").descending()
         );
 
-        Page<StudyBookmark> pagedStudyBookmark = studyBookmarkRepository.findPagedBookmarkByUserIdWithStudy(
-                userId, pageable
-        );
+        Page<Study> pagedStudy = studyBookmarkRepository.findPagedStudyByUserId(userId, pageable);
 
-        return PageResponse.of(pagedStudyBookmark, GetStudyResponse::of);
-    }
-
-    private Map<Long, Long> loadBookmarkInfoMap(UUID userId, Collection<Study> pagedStudy) {
-        List<Long> studyIdList = pagedStudy.stream()
-                .map(Study::getId)
-                .toList();
-
-        return studyBookmarkRepository.findAllByUserIdAndStudyIdList(userId, studyIdList).stream()
-                .collect(Collectors.toMap(StudyBookmarkInfo::studyId, StudyBookmarkInfo::id));
+        return PageResponse.of(pagedStudy, GetStudyResponse::of);
     }
 
     private record LikeStatusAndBookmarkId(boolean likeStatus, Long bookmarkId) {

@@ -11,7 +11,6 @@ import java.util.UUID;
 
 import static com.jj.swm.domain.study.core.entity.QStudy.study;
 import static com.jj.swm.domain.study.core.entity.QStudyBookmark.studyBookmark;
-import static com.jj.swm.domain.user.core.entity.QUser.user;
 
 @RequiredArgsConstructor
 public class CustomStudyBookmarkRepositoryImpl implements CustomStudyBookmarkRepository {
@@ -21,9 +20,7 @@ public class CustomStudyBookmarkRepositoryImpl implements CustomStudyBookmarkRep
     public List<StudyBookmarkInfo> findAllByUserIdAndStudyIdList(UUID userId, List<Long> studyIdList) {
         return jpaQueryFactory.select(new QStudyBookmarkInfo(studyBookmark.id, study.id))
                 .from(studyBookmark)
-                .join(studyBookmark.study, study)
-                .join(studyBookmark.user, user)
-                .where(user.id.eq(userId), study.id.in(studyIdList))
+                .where(studyBookmark.user.id.eq(userId), studyBookmark.study.id.in(studyIdList))
                 .fetch();
     }
 }
