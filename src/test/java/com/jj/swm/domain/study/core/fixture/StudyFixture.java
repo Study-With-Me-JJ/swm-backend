@@ -1,4 +1,4 @@
-package com.jj.swm.domain.study;
+package com.jj.swm.domain.study.core.fixture;
 
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
