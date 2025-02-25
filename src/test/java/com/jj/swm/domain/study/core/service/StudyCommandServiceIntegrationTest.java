@@ -1,8 +1,8 @@
 //package com.jj.swm.domain.study.service;
 //
 //import com.jj.swm.IntegrationContainerSupporter;
-//import com.jj.swm.domain.study.StudyFixture;
-//import com.jj.swm.domain.study.StudyLikeFixture;
+//import com.jj.swm.domain.study.core.fixture.StudyFixture;
+//import com.jj.swm.domain.study.core.fixture.StudyLikeFixture;
 //import com.jj.swm.domain.study.core.entity.Study;
 //import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
 //import com.jj.swm.domain.study.core.repository.StudyRepository;
