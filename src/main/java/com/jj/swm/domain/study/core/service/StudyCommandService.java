@@ -17,10 +17,12 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.jj.swm.global.common.util.ListCheckUtils.isListNotEmpty;
 import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 
 @Service
@@ -67,39 +69,44 @@ public class StudyCommandService {
 
     private void saveTagList(Study study, SaveStudyTagRequest request) {
         if (request != null) {
-            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
-            int newTagSize =
-                    oldTagSize + request.getTagListToAdd().size() - request.getTagIdListToRemove().size();
+            List<String> tagListToAdd = Optional.ofNullable(request.getTagListToAdd())
+                    .orElse(Collections.emptyList());
+            List<Long> tagIdListToRemove = Optional.ofNullable(request.getTagIdListToRemove())
+                    .orElse(Collections.emptyList());
 
-            if (newTagSize > StudyConstants.TAG_LIMIT) {
+            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
+            int newTagSize = oldTagSize + tagListToAdd.size() - tagIdListToRemove.size();
+
+            if (newTagSize < 0 || newTagSize > StudyConstants.TAG_LIMIT) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Exceeded");
             }
 
-            List<String> tagListToAdd = request.getTagListToAdd();
-            storeTagListIfPresent(study, tagListToAdd);
+            if (isListNotEmpty(tagListToAdd))
+                studyTagRepository.batchInsert(study, tagListToAdd);
 
-            List<Long> tagIdListToRemove = request.getTagIdListToRemove();
-            if (isListPresent(tagIdListToRemove)) {
+            if (isListNotEmpty(tagIdListToRemove))
                 studyTagRepository.deleteAllByIdListAndStudyId(tagIdListToRemove, study.getId());
-            }
         }
     }
 
     private void saveImageList(Study study, SaveStudyImageRequest request) {
         if (request != null) {
-            int oldImageSize = studyImageRepository.countByStudyId(study.getId());
-            int newImageSize =
-                    oldImageSize + request.getImageUrlListToAdd().size() - request.getImageIdListToRemove().size();
+            List<String> imageUrlListToAdd = Optional.ofNullable(request.getImageUrlListToAdd())
+                    .orElse(Collections.emptyList());
+            List<Long> imageIdListToRemove = Optional.ofNullable(request.getImageIdListToRemove())
+                    .orElse(Collections.emptyList());
 
-            if (newImageSize > StudyConstants.IMAGE_LIMIT) {
+            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
+            int newImageSize = oldTagSize + imageUrlListToAdd.size() - imageIdListToRemove.size();
+
+            if (newImageSize < 0 || newImageSize > StudyConstants.IMAGE_LIMIT) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
             }
 
-            List<String> imageUrlListToAdd = request.getImageUrlListToAdd();
-            storeImageListIfPresent(study, imageUrlListToAdd);
+            if (isListNotEmpty(imageUrlListToAdd))
+                studyImageRepository.batchInsert(study, imageUrlListToAdd);
 
-            List<Long> imageIdListToRemove = request.getImageIdListToRemove();
-            if (isListPresent(imageIdListToRemove)) {
+            if (isListNotEmpty(imageIdListToRemove)) {
                 studyImageRepository.deleteAllByIdListAndStudyId(imageIdListToRemove, study.getId());
             }
         }
