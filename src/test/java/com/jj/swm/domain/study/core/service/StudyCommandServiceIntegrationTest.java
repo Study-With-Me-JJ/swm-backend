@@ -3,7 +3,9 @@ package com.jj.swm.domain.study.core.service;
 import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
+import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
 import com.jj.swm.domain.study.core.entity.Study;
+import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.core.fixture.request.StudyRequestFixture;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
@@ -203,4 +205,21 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyStudy(user.getId(), 1L, request));
     }
+
+    @Test
+    @DisplayName("스터디 상태 수정에 성공한다.")
+    void modifyStudyStatus_Success() {
+        //given
+        UpdateStudyStatusRequest request = StudyRequestFixture.buildUpdateStudyStatusRequest();
+
+        //when
+        studyCommandService.modifyStudyStatus(user.getId(), 1L, request);
+
+        //then
+        Optional<Study> optionalStudy = studyRepository.findById(1L);
+        assertTrue(optionalStudy.isPresent());
+        Study study = optionalStudy.get();
+        assertEquals(StudyStatus.INACTIVE, study.getStatus());
+    }
+
 }

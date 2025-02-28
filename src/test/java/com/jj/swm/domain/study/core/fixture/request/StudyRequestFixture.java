@@ -1,10 +1,8 @@
 package com.jj.swm.domain.study.core.fixture.request;
 
-import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
-import com.jj.swm.domain.study.core.dto.request.SaveStudyImageRequest;
-import com.jj.swm.domain.study.core.dto.request.SaveStudyTagRequest;
-import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
+import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
+import com.jj.swm.domain.study.core.entity.StudyStatus;
 
 import java.util.List;
 
@@ -184,5 +182,11 @@ public class StudyRequestFixture {
                         "http://new_test_image4.png", "http://new_test_image5.png", "http://new_test_image6.png",
                         "http://new_test_image7.png", "http://new_test_image8.png", "http://new_test_image9.png"
                 )).build();
+    }
+
+    public static UpdateStudyStatusRequest buildUpdateStudyStatusRequest() {
+        return UpdateStudyStatusRequest.builder()
+                .status(StudyStatus.INACTIVE)
+                .build();
     }
 }
