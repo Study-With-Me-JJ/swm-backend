@@ -97,8 +97,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(study.getContent(), request.getContent());
         assertEquals(study.getOpenChatUrl(), request.getOpenChatUrl());
         assertEquals(study.getCategory(), request.getCategory());
-        assertEquals(studyTagRepository.countByStudyId(1L), 3); // 기존 데이터 2개에서 1개 제거하고 2개 추가
-        assertEquals(studyImageRepository.countByStudyId(1L), 3); // 기존 데이터 2개에서 1개 제거하고 2개 추가
+        assertEquals(3, studyTagRepository.countByStudyId(1L)); // 기존 데이터 2개에서 1개 제거하고 2개 추가
+        assertEquals(3, studyImageRepository.countByStudyId(1L)); // 기존 데이터 2개에서 1개 제거하고 2개 추가
     }
 
     @Test
@@ -118,8 +118,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(study.getContent(), request.getContent());
         assertEquals(study.getOpenChatUrl(), request.getOpenChatUrl());
         assertEquals(study.getCategory(), request.getCategory());
-        assertEquals(studyTagRepository.countByStudyId(1L), 2); // 기존 데이터 2개
-        assertEquals(studyImageRepository.countByStudyId(1L), 2); // 기존 데이터 2개
+        assertEquals(2, studyTagRepository.countByStudyId(1L)); // 기존 데이터 2개
+        assertEquals(2, studyImageRepository.countByStudyId(1L)); // 기존 데이터 2개
     }
 
     @Test
@@ -139,8 +139,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(study.getContent(), request.getContent());
         assertEquals(study.getOpenChatUrl(), request.getOpenChatUrl());
         assertEquals(study.getCategory(), request.getCategory());
-        assertEquals(studyTagRepository.countByStudyId(1L), 1); // 기존 데이터 2개에서 1개 제거
-        assertEquals(studyImageRepository.countByStudyId(1L), 1); // 기존 데이터 2개에서 1개 제거
+        assertEquals(1, studyTagRepository.countByStudyId(1L)); // 기존 데이터 2개에서 1개 제거
+        assertEquals(1, studyImageRepository.countByStudyId(1L)); // 기존 데이터 2개에서 1개 제거
     }
 
     @Test
@@ -160,8 +160,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(study.getContent(), request.getContent());
         assertEquals(study.getOpenChatUrl(), request.getOpenChatUrl());
         assertEquals(study.getCategory(), request.getCategory());
-        assertEquals(studyTagRepository.countByStudyId(1L), 4); // 기존 데이터 2개에서 2개 추가
-        assertEquals(studyImageRepository.countByStudyId(1L), 4); // 기존 데이터 2개에서 2개 추가
+        assertEquals(4, studyTagRepository.countByStudyId(1L)); // 기존 데이터 2개에서 2개 추가
+        assertEquals(4, studyImageRepository.countByStudyId(1L)); // 기존 데이터 2개에서 2개 추가
     }
 
     @Test
