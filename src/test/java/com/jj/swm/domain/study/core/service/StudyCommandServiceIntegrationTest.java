@@ -165,8 +165,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("태그 개수가 0보다 작으면 스터디 모집 수정에 실패한다")
-    void modifyStudy_FailedByUnderTagLimit() {
+    @DisplayName("태그 개수가 0보다 작으면 스터디 모집 수정에 실패한다.")
+    void modifyStudy_FailByUnderTagLimit() {
         //given
         UpdateStudyRequest request = StudyRequestFixture.buildUpdateStudyRequestWithUnderTagLimit();
 
@@ -175,8 +175,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("태그 제한 개수를 초과하면 스터디 모집 수정에 실패한다")
-    void modifyStudy_FailedByExceedTagLimit() {
+    @DisplayName("태그 제한 개수를 초과하면 스터디 모집 수정에 실패한다.")
+    void modifyStudy_FailByExceedTagLimit() {
         //given
         UpdateStudyRequest request = StudyRequestFixture.buildUpdateStudyRequestWithExceedTagLimit();
 
@@ -185,8 +185,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("이미지 개수가 0보다 작으면 스터디 모집 수정에 실패한다")
-    void modifyStudy_FailedByUnderImageLimit() {
+    @DisplayName("이미지 개수가 0보다 작으면 스터디 모집 수정에 실패한다.")
+    void modifyStudy_FailByUnderImageLimit() {
         //given
         UpdateStudyRequest request = StudyRequestFixture.buildUpdateStudyRequestWithUnderImageLimit();
 
@@ -195,8 +195,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("이미지 제한 개수를 초과하면 스터디 모집 수정에 실패한다")
-    void modifyStudy_FailedByExceedImageLimit() {
+    @DisplayName("이미지 제한 개수를 초과하면 스터디 모집 수정에 실패한다.")
+    void modifyStudy_FailByExceedImageLimit() {
         //given
         UpdateStudyRequest request = StudyRequestFixture.buildUpdateStudyRequestWithExceedImageLimit();
 
