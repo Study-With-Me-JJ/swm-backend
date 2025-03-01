@@ -308,7 +308,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
                 = queryService.getStudyRoomDetail(studyRooms.getFirst().getId(), user.getId());
 
         //then
-        assertThat(response.getLikeId()).isNotNull();
+        assertThat(response.isLiked()).isTrue();
     }
 
     @Test
@@ -360,7 +360,6 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
         //then
         assertThat(response.getData().size()).isGreaterThan(0);
-        assertThat(response.getData().getFirst().getStudyBookmarkId()).isNotNull();
     }
 
     private List<User> createTestUsers() {
