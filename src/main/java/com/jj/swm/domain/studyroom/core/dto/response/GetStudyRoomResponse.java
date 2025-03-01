@@ -26,9 +26,14 @@ public class GetStudyRoomResponse {
     private double starAvg;
     private Coordinates coordinates;
     private Long studyBookmarkId;
+    private boolean liked;
     private List<GetStudyRoomTagResponse> tags;
 
-    public static GetStudyRoomResponse of(StudyRoom studyRoom, Long studyBookmarkId) {
+    public static GetStudyRoomResponse of(
+            StudyRoom studyRoom,
+            boolean liked,
+            Long studyBookmarkId
+    ) {
         return GetStudyRoomResponse.builder()
                 .studyRoomId(studyRoom.getId())
                 .title(studyRoom.getTitle())
@@ -44,6 +49,7 @@ public class GetStudyRoomResponse {
                 .entireMaxHeadcount(studyRoom.getEntireMaxHeadcount())
                 .coordinates(studyRoom.getCoordinates())
                 .studyBookmarkId(studyBookmarkId)
+                .liked(liked)
                 .tags(studyRoom.getTags() != null ?
                         studyRoom.getTags().stream().map(GetStudyRoomTagResponse::from).toList()
                         : null
@@ -51,8 +57,8 @@ public class GetStudyRoomResponse {
                 .build();
     }
 
-    public static GetStudyRoomResponse of(StudyRoomBookmark studyRoomBookmark) {
-        return GetStudyRoomResponse.of(studyRoomBookmark.getStudyRoom(), studyRoomBookmark.getId());
+    public static GetStudyRoomResponse of(StudyRoom studyRoom) {
+        return GetStudyRoomResponse.of(studyRoom, false, null);
     }
 
 }
