@@ -254,4 +254,18 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         long count = studyBookmarkRepository.count();
         assertEquals(1, count);
     }
+
+    @Test
+    @DisplayName("스터디 모집 북마크 삭제에 성공한다.")
+    void removeStudyBookmark_Success() {
+        //given
+        studyCommandService.addStudyBookmark(user.getId(), 1L);
+
+        //when
+        studyCommandService.removeStudyBookmark(user.getId(), 1L);
+
+        //then
+        Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findById(1L);
+        assertFalse(optionalStudyBookmark.isPresent());
+    }
 }
