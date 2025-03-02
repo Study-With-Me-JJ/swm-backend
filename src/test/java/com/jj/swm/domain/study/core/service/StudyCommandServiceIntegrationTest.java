@@ -4,9 +4,12 @@ import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
+import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.entity.Study;
+import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.core.fixture.request.StudyRequestFixture;
+import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.core.repository.StudyTagRepository;
@@ -41,6 +44,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Autowired
     private StudyTagRepository studyTagRepository;
+
+    @Autowired
+    private StudyBookmarkRepository studyBookmarkRepository;
 
     // entity
     private User user;
@@ -222,4 +228,30 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(StudyStatus.INACTIVE, study.getStatus());
     }
 
+    @Test
+    @DisplayName("스터디 모집 북마크 생성에 성공한다.")
+    void addStudyBookmark_Success() {
+        //when
+        studyCommandService.addStudyBookmark(user.getId(), 1L);
+
+        //then
+        Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findById(1L);
+        assertTrue(optionalStudyBookmark.isPresent());
+    }
+
+    @Test
+    @DisplayName("이미 북마크한 것에 북마크하면 기존 북마크 정보를 반환하는 것에 성공한다.")
+    void addStudyBookmark_AlreadyExists_Success() {
+        //given
+        studyCommandService.addStudyBookmark(user.getId(), 1L);
+
+        //when
+        CreateStudyBookmarkResponse response = studyCommandService.addStudyBookmark(user.getId(), 1L);
+
+        //then
+        assertEquals(1L, response.getBookmarkId());
+
+        long count = studyBookmarkRepository.count();
+        assertEquals(1, count);
+    }
 }
