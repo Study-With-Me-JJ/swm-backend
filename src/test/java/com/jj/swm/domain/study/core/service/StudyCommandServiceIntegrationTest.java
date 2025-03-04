@@ -9,10 +9,7 @@ import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.core.fixture.request.StudyRequestFixture;
-import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
-import com.jj.swm.domain.study.core.repository.StudyImageRepository;
-import com.jj.swm.domain.study.core.repository.StudyRepository;
-import com.jj.swm.domain.study.core.repository.StudyTagRepository;
+import com.jj.swm.domain.study.core.repository.*;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -22,11 +19,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
+
+    private static final int THREAD_COUNT = 100;
 
     // service
     @Autowired
@@ -48,8 +52,14 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @Autowired
     private StudyBookmarkRepository studyBookmarkRepository;
 
+    @Autowired
+    private StudyLikeRepository studyLikeRepository;
+
     // entity
     private User user;
+
+    private ExecutorService executorService;
+    private CountDownLatch countDownLatch;
 
     @BeforeEach
     void setUp() {
@@ -267,5 +277,79 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //then
         Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findById(1L);
         assertFalse(optionalStudyBookmark.isPresent());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 스터디 모집 북마크에 대해 삭제해도 성공한다.")
+    void removeStudyBookmark_NonExists_Success() {
+        //when & then
+        assertDoesNotThrow(() -> studyCommandService.addStudyBookmark(user.getId(), 1L));
+    }
+
+    @Test
+    @DisplayName("스터디 모집 좋아요 생성에 성공한다.")
+    void addStudyLike_Success() {
+        //when
+        studyCommandService.addStudyLike(user.getId(), 1L);
+
+        //then
+        boolean result = studyLikeRepository.existsByUserIdAndStudyId(user.getId(), 1L);
+        assertTrue(result);
+
+        Study study = studyRepository.findById(1L).get();
+        assertEquals(1, study.getLikeCount());
+    }
+
+    @Test
+    @DisplayName("이미 좋아요한 것에 좋아요해도 성공한다.")
+    void addStudyLike_AlreadyExists_Success() {
+        //given
+        studyCommandService.addStudyLike(user.getId(), 1L);
+
+        //when & then
+        assertDoesNotThrow(() -> studyCommandService.addStudyLike(user.getId(), 1L));
+
+        assertEquals(1, studyLikeRepository.count());
+    }
+
+    @Test
+    @DisplayName("스터디 모집 좋아요 동시성 제어에 성공한다.")
+    void addStudyLike_Concurrency_Success() throws InterruptedException {
+        //given
+        List<UUID> userIdList = storeUserListAndLoadUserIdList();
+        executorService = Executors.newFixedThreadPool(100);
+        countDownLatch = new CountDownLatch(100);
+
+        //when
+            for (int i = 0; i < THREAD_COUNT; i++) {
+            UUID userId = userIdList.get(i);
+            executorService.submit(() -> {
+                try {
+                    studyCommandService.addStudyLike(userId, 1L);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+
+        countDownLatch.await();
+        executorService.shutdown();
+
+        //then
+        assertEquals(THREAD_COUNT, studyLikeRepository.count());
+
+        Study study = studyRepository.findById(1L).get();
+        assertEquals(THREAD_COUNT, study.getLikeCount());
+    }
+
+    private List<UUID> storeUserListAndLoadUserIdList() {
+        List<User> userList = UserFixture.multiUser(THREAD_COUNT);
+        userRepository.saveAll(userList);
+
+        return userList.stream()
+                .map(User::getId)
+                .toList();
     }
 }
