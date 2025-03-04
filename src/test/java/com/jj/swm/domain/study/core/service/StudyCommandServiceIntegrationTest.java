@@ -26,11 +26,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.jj.swm.domain.study.util.ConcurrencyTestUtils.THREAD_COUNT;
+import static com.jj.swm.domain.study.util.ConcurrencyTestUtils.storeUserListAndLoadUserIdList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
-
-    private static final int THREAD_COUNT = 100;
 
     // service
     @Autowired
@@ -316,12 +316,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 모집 좋아요 동시성 제어에 성공한다.")
     void addStudyLike_Concurrency_Success() throws InterruptedException {
         //given
-        List<UUID> userIdList = storeUserListAndLoadUserIdList();
-        executorService = Executors.newFixedThreadPool(100);
-        countDownLatch = new CountDownLatch(100);
+        List<UUID> userIdList = storeUserListAndLoadUserIdList(userRepository);
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
 
         //when
-            for (int i = 0; i < THREAD_COUNT; i++) {
+        for (int i = 0; i < THREAD_COUNT; i++) {
             UUID userId = userIdList.get(i);
             executorService.submit(() -> {
                 try {
@@ -344,12 +344,63 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(THREAD_COUNT, study.getLikeCount());
     }
 
-    private List<UUID> storeUserListAndLoadUserIdList() {
-        List<User> userList = UserFixture.multiUser(THREAD_COUNT);
-        userRepository.saveAll(userList);
+    @Test
+    @DisplayName("스터디 모집 좋아요 삭제에 성공한다.")
+    void removeStudyLike_Success() {
+        //given
+        studyCommandService.addStudyLike(user.getId(), 1L);
 
-        return userList.stream()
-                .map(User::getId)
-                .toList();
+        //when
+        studyCommandService.removeStudyLike(user.getId(), 1L);
+
+        //then
+        boolean result = studyLikeRepository.existsByUserIdAndStudyId(user.getId(), 1L);
+        assertFalse(result);
+
+        Study study = studyRepository.findById(1L).get();
+        assertEquals(0, study.getLikeCount());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 스터디 모집 좋아요에 대해 삭제해도 성공한다.")
+    void removeStudyLike_NonExists_Success() {
+        //when & then
+        assertDoesNotThrow(() -> studyCommandService.removeStudyLike(user.getId(), 1L));
+    }
+
+    @Test
+    @DisplayName("스터디 모집 좋아요 취소 동시성 제어에 성공한다.")
+    void removeStudyLike_Concurrency_Success() throws InterruptedException {
+        //given
+        List<UUID> userIdList = storeUserListAndLoadUserIdList(userRepository);
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
+
+        for (UUID userId : userIdList) {
+            studyCommandService.addStudyLike(userId, 1L);
+        }
+
+        //when
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            UUID userId = userIdList.get(i);
+            executorService.submit(() -> {
+                try {
+                    studyCommandService.removeStudyLike(userId, 1L);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+
+        countDownLatch.await();
+        executorService.shutdown();
+
+        //then
+        assertEquals(0, studyLikeRepository.count());
+
+        Study study = studyRepository.findById(1L).get();
+        assertEquals(0, study.getLikeCount());
     }
 }
