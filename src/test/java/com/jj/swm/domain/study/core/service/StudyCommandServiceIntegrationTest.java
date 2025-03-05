@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.jj.swm.domain.study.util.ConcurrencyTestUtils.THREAD_COUNT;
-import static com.jj.swm.domain.study.util.ConcurrencyTestUtils.storeUserListAndLoadUserIdList;
+import static com.jj.swm.domain.study.util.ConcurrencyTestUtils.storeUserListAndBuildUserIdList;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
@@ -316,7 +316,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 모집 좋아요 동시성 제어에 성공한다.")
     void addStudyLike_Concurrency_Success() throws InterruptedException {
         //given
-        List<UUID> userIdList = storeUserListAndLoadUserIdList(userRepository);
+        List<UUID> userIdList = storeUserListAndBuildUserIdList(userRepository);
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
@@ -372,7 +372,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 모집 좋아요 취소 동시성 제어에 성공한다.")
     void removeStudyLike_Concurrency_Success() throws InterruptedException {
         //given
-        List<UUID> userIdList = storeUserListAndLoadUserIdList(userRepository);
+        List<UUID> userIdList = storeUserListAndBuildUserIdList(userRepository);
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 

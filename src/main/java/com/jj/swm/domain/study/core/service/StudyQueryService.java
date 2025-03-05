@@ -56,7 +56,7 @@ public class StudyQueryService {
         Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyId =
                 loadLikeStatusAndBookmarkByStudyIdIdBasedOnLogin(userId, pagedStudyList);
 
-        List<GetStudyResponse> responseList = loadGetStudyResponse(pagedStudyList, likeStatusAndBookmarkIdByStudyId);
+        List<GetStudyResponse> responseList = buildGetStudyResponse(pagedStudyList, likeStatusAndBookmarkIdByStudyId);
 
         return PageResponse.of(responseList, hasNext);
     }
@@ -85,7 +85,7 @@ public class StudyQueryService {
                 )));
     }
 
-    private List<GetStudyResponse> loadGetStudyResponse(
+    private List<GetStudyResponse> buildGetStudyResponse(
             List<Study> pagedStudyList, Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyId
     ) {
         return pagedStudyList.stream()

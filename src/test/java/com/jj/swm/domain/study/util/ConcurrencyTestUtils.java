@@ -11,7 +11,7 @@ public class ConcurrencyTestUtils {
 
     public static final int THREAD_COUNT = 100;
 
-    public static List<UUID> storeUserListAndLoadUserIdList(UserRepository userRepository) {
+    public static List<UUID> storeUserListAndBuildUserIdList(UserRepository userRepository) {
         List<User> userList = UserFixture.multiUser(THREAD_COUNT);
         userRepository.saveAll(userList);
 
