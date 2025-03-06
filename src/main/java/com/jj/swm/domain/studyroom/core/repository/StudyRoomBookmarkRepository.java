@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,8 +22,8 @@ public interface StudyRoomBookmarkRepository extends JpaRepository<StudyRoomBook
     Optional<StudyRoomBookmark> findByIdAndUserId(Long studyRoomBookmarkId, UUID userId);
 
     @Modifying
-    @Query("delete from StudyRoomBookmark s where s.studyRoom.id = ?1")
-    void deleteAllByStudyRoomId(Long studyRoomId);
+    @Query("delete from StudyRoomBookmark s where s.studyRoom.id in ?1")
+    void deleteByStudyRoomIds(List<Long> studyRoomId);
 
     @Query("select s.id from StudyRoomBookmark s where s.studyRoom.id = ?1 and s.user.id = ?2")
     Long findIdByStudyRoomIdAndUserId(Long studyRoomId, UUID userId);

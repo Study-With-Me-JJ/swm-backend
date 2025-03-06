@@ -21,7 +21,8 @@ public interface StudyRoomReviewRepository extends JpaRepository<StudyRoomReview
 
     Optional<StudyRoomReview> findByIdAndUserId(Long studyRoomReviewId, UUID userId);
 
-    List<StudyRoomReview> findByStudyRoomId(Long studyRoomId);
+    @Query("select s from StudyRoomReview s where s.studyRoom.id in ?1")
+    List<StudyRoomReview> findByStudyRoomIds(List<Long> studyRoomId);
 
     @Query(value = "select srr.* " +
             "from study_room_review srr " +
@@ -45,5 +46,5 @@ public interface StudyRoomReviewRepository extends JpaRepository<StudyRoomReview
 
     @Modifying
     @Query("update StudyRoomReview s set s.deletedAt = CURRENT_TIMESTAMP where s.id in (?1)")
-    void deleteAllByReviewIds(List<Long> reviewIds);
+    void deleteByReviewIds(List<Long> reviewIds);
 }

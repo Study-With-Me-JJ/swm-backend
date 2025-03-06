@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,8 +24,8 @@ public interface StudyRoomLikeRepository extends JpaRepository<StudyRoomLike, Lo
     int countStudyRoomLikeByStudyRoom(StudyRoom studyRoom);
 
     @Modifying
-    @Query("delete from StudyRoomLike s where s.studyRoom.id = ?1")
-    void deleteAllByStudyRoomId(Long studyRoomId);
+    @Query("delete from StudyRoomLike s where s.studyRoom.id in ?1")
+    void deleteByStudyRoomIds(List<Long> studyRoomId);
 
     @Query("select s.studyRoom from StudyRoomLike s where s.user.id = ?1")
     Page<StudyRoom> findPagedStudyRoomByUserId(UUID userId, Pageable pageable);

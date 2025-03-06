@@ -19,8 +19,8 @@ public interface StudyRoomDayOffRepository extends JpaRepository<StudyRoomDayOff
     List<StudyRoomDayOff> findAllByStudyRoomId(Long studyRoomId);
 
     @Modifying
-    @Query("delete from StudyRoomDayOff s where s.studyRoom.id = ?1")
-    void deleteAllByStudyRoomId(Long studyRoomId);
+    @Query("delete from StudyRoomDayOff s where s.studyRoom.id in ?1")
+    void deleteByStudyRoomIds(List<Long> studyRoomId);
 
     long countByStudyRoomId(Long studyRoomId);
 
