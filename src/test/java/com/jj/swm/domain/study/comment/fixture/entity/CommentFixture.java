@@ -13,13 +13,4 @@ public class CommentFixture {
                 .user(user)
                 .build();
     }
-
-    public static StudyComment buildStudyCommentForReply(User user, Study study, StudyComment parent) {
-        return StudyComment.builder()
-                .content("test_content")
-                .study(study)
-                .user(user)
-                .parent(parent)
-                .build();
-    }
 }

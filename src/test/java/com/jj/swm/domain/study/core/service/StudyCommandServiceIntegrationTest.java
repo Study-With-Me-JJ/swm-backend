@@ -1,6 +1,10 @@
 package com.jj.swm.domain.study.core.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
+import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
+import com.jj.swm.domain.study.comment.fixture.request.CommentRequestFixture;
+import com.jj.swm.domain.study.comment.repository.CommentRepository;
+import com.jj.swm.domain.study.comment.service.CommentCommandService;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
@@ -10,6 +14,7 @@ import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.core.fixture.request.StudyRequestFixture;
 import com.jj.swm.domain.study.core.repository.*;
+import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -36,6 +41,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @Autowired
     private StudyCommandService studyCommandService;
 
+    @Autowired
+    private CommentCommandService commentCommandService;
+
     // repository
     @Autowired
     private UserRepository userRepository;
@@ -54,6 +62,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Autowired
     private StudyLikeRepository studyLikeRepository;
+
+    @Autowired
+    private RecruitmentPositionRepository recruitmentPositionRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     // entity
     private User user;
@@ -402,5 +416,39 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
         Study study = studyRepository.findById(1L).get();
         assertEquals(0, study.getLikeCount());
+    }
+
+    @Test
+    @DisplayName("스터디 모집 삭제에 성공한다.")
+    void removeStudy_Success() {
+        //given
+        studyCommandService.addStudyLike(user.getId(), 1L);
+        studyCommandService.addStudyBookmark(user.getId(), 1L);
+
+        UpsertCommentRequest createRequest = CommentRequestFixture.buildUpsertCommentRequest();
+        Long parentId = commentCommandService.addComment(
+                user.getId(),
+                1L,
+                null,
+                createRequest
+        ).getCommentId();
+        commentCommandService.addComment(
+                user.getId(),
+                1L,
+                parentId,
+                createRequest
+        );
+
+        //when
+        studyCommandService.removeStudy(user.getId(), 1L);
+
+        //then
+        assertEquals(0, studyTagRepository.count());
+        assertEquals(0, studyImageRepository.count());
+        assertEquals(0, recruitmentPositionRepository.count());
+        assertEquals(0, studyLikeRepository.count());
+        assertEquals(0, commentRepository.count());
+        assertEquals(0, studyBookmarkRepository.count());
+        assertEquals(0, studyRepository.count());
     }
 }
