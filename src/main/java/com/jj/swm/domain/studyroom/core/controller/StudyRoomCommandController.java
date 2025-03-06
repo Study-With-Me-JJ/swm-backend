@@ -1,6 +1,7 @@
 package com.jj.swm.domain.studyroom.core.controller;
 
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.DeleteStudyRoomsRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomSettingRequest;
 import com.jj.swm.domain.studyroom.core.dto.response.CreateStudyRoomBookmarkResponse;
@@ -101,6 +102,16 @@ public class StudyRoomCommandController {
     @DeleteMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> delete(@PathVariable("studyRoomId") Long studyRoomId, Principal principal) {
         commandService.delete(studyRoomId, UUID.fromString(principal.getName()));
+
+        return ApiResponse.ok(null);
+    }
+
+    @Secured("ROLE_ROOM_ADMIN")
+    @DeleteMapping("/v1/studyroom")
+    public ApiResponse<Void> deleteStudyRooms(
+            @RequestBody @Valid DeleteStudyRoomsRequest request, Principal principal)
+    {
+        commandService.deleteStudyRooms(request, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
