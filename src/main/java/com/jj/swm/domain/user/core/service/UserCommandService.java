@@ -132,7 +132,7 @@ public class UserCommandService {
 
         List<Long> studyRoomIds = studyRoomRepository.findStudyRoomIdsByUserId(user.getId());
 
-        studyRoomIds.forEach(studyRoomId -> studyRoomCommandService.delete(studyRoomId, user.getId()));
+        studyRoomCommandService.deleteStudyRooms(studyRoomIds, user.getId());
 
         userRepository.delete(user);
     }
