@@ -1,4 +1,4 @@
-package com.jj.swm.domain.study.core.fixture.request;
+package com.jj.swm.domain.study.recruitmentposition.fixture.request;
 
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.entity.RecruitmentPositionTitle;

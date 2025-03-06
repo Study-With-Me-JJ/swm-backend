@@ -6,7 +6,7 @@ import com.jj.swm.domain.study.core.entity.StudyStatus;
 
 import java.util.List;
 
-import static com.jj.swm.domain.study.core.fixture.request.RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest;
+import static com.jj.swm.domain.study.recruitmentposition.fixture.request.RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest;
 
 public class StudyRequestFixture {
 
