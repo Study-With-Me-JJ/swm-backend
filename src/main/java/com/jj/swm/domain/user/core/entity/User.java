@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "UPDATE users SET deleted_at = NOW(), nickname = CONCAT('deleted_', UUID()) WHERE id = ?")
 @SQLRestriction("deleted_at is null")
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
