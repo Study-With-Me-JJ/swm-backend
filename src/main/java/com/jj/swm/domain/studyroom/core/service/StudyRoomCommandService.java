@@ -108,9 +108,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void deleteStudyRooms(DeleteStudyRoomsRequest request, UUID userId) {
-        List<Long> studyRoomIds = request.getStudyRoomIds();
-
+    public void deleteStudyRooms(List<Long> studyRoomIds, UUID userId) {
         if(!studyRoomRepository.allExistsByIdsAndUserId(studyRoomIds, userId, studyRoomIds.size()))
             throw new GlobalException(ErrorCode.NOT_FOUND, "Some StudyRoom Not Found");
 

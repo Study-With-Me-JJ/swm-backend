@@ -302,13 +302,8 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @Test
     @DisplayName("스터디 룸 다중 삭제에 성공한다.")
     void studyRoom_deleteStudyRooms_Success() {
-        //given
-        DeleteStudyRoomsRequest request = DeleteStudyRoomsRequest.builder()
-                .studyRoomIds(List.of(studyRoom.getId()))
-                .build();
-
         //when
-        commandService.deleteStudyRooms(request, roomAdmin.getId());
+        commandService.deleteStudyRooms(List.of(studyRoom.getId()), roomAdmin.getId());
 
         //then
         Optional<StudyRoom> findStudyRoom = studyRoomRepository.findById(studyRoom.getId());
@@ -318,14 +313,9 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @Test
     @DisplayName("스터디 룸 다중 삭제 시 관련 스터디 룸이 존재하지 않는다면 삭제에 실패한다.")
     void studyRoom_deleteStudyRooms_whenNotRelatedSomeStudyRoom_thenFail() {
-        //given
-        DeleteStudyRoomsRequest request = DeleteStudyRoomsRequest.builder()
-                .studyRoomIds(List.of(100L))
-                .build();
-
         //when & then
         Assertions.assertThrows(GlobalException.class,
-                () -> commandService.deleteStudyRooms(request, roomAdmin.getId())
+                () -> commandService.deleteStudyRooms(List.of(100L), roomAdmin.getId())
         );
     }
 

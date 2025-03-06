@@ -118,7 +118,7 @@ public class StudyRoomCommandController {
     public ApiResponse<Void> deleteStudyRooms(
             @RequestBody @Valid DeleteStudyRoomsRequest request, Principal principal)
     {
-        commandService.deleteStudyRooms(request, UUID.fromString(principal.getName()));
+        commandService.deleteStudyRooms(request.getStudyRoomIds(), UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
