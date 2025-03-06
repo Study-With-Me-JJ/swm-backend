@@ -55,8 +55,12 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         UpsertCommentRequest createRequest = CommentRequestFixture.buildUpsertCommentRequest();
 
         //when
-        CreateCommentResponse response =
-                commentCommandService.addComment(user.getId(), study.getId(), null, createRequest);
+        CreateCommentResponse response = commentCommandService.addComment(
+                user.getId(),
+                study.getId(),
+                null,
+                createRequest
+        );
 
         //then
         assertEquals(2L, response.getCommentId());
@@ -69,8 +73,12 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         UpsertCommentRequest createRequest = CommentRequestFixture.buildUpsertCommentRequest();
 
         //when
-        CreateCommentResponse response =
-                commentCommandService.addComment(user.getId(), study.getId(), parent.getId(), createRequest);
+        CreateCommentResponse response = commentCommandService.addComment(
+                user.getId(),
+                study.getId(),
+                parent.getId(),
+                createRequest
+        );
 
         //then
         assertEquals(2L, response.getCommentId());
@@ -83,18 +91,27 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 대댓글 id에 대해 대댓글을 생성해도 성공한다")
     void addComment_WithReplyIdForParent_Success() {
         //given
-        StudyComment reply1 = commentRepository.save(CommentFixture.buildStudyCommentForReply(user, study, parent));
         UpsertCommentRequest createRequest = CommentRequestFixture.buildUpsertCommentRequest();
+        Long replyId = commentCommandService.addComment(
+                user.getId(),
+                study.getId(),
+                parent.getId(),
+                createRequest
+        ).getCommentId();
 
         //when
-        CreateCommentResponse response =
-                commentCommandService.addComment(user.getId(), study.getId(), reply1.getId(), createRequest);
+        CreateCommentResponse response = commentCommandService.addComment(
+                user.getId(),
+                study.getId(),
+                replyId,
+                createRequest
+        );
 
         //then
         assertEquals(3L, response.getCommentId());
 
-        StudyComment reply2 = commentRepository.findById(3L).get();
-        assertEquals(parent.getId(), reply2.getParent().getId());
+        StudyComment reply = commentRepository.findById(3L).get();
+        assertEquals(parent.getId(), reply.getParent().getId());
 
     }
 }
