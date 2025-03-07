@@ -53,7 +53,7 @@ public class UserCommandController {
     }
 
     @Operation(
-            summary = "유저 삭제(구현 X)",
+            summary = "유저 삭제",
             description = "유저를 삭제합니다. 관련된 모든 스터디, 스터디 룸도 삭제됩니다."
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(

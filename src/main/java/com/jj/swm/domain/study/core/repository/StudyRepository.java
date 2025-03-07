@@ -29,4 +29,7 @@ public interface StudyRepository extends JpaRepository<Study, Long>, CustomStudy
     @Modifying
     @Query("update Study s set s.deletedAt = CURRENT_TIMESTAMP where s.id in ?1")
     void deleteAllByStudyIdList(List<Long> studyIdList);
+
+    @Query("select s.id from Study s where s.user.id = ?1")
+    List<Long> findIdsByUserId(UUID userId);
 }
