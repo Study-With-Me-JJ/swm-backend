@@ -40,7 +40,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserCommandService {
 
-    private final StudyCommandService studyCommandService;
     @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
     private int batchSize;
 
@@ -51,6 +50,7 @@ public class UserCommandService {
     private final BusinessStatusService businessStatusService;
     private final StudyRoomCommandService studyRoomCommandService;
     private final TokenRedisService tokenRedisService;
+    private final StudyCommandService studyCommandService;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
