@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.comment.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -21,8 +22,10 @@ public class GetCommentResponse {
 
     private String profileImageUrl;
 
+    @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime createdAt;
 
+    @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime updatedAt;
 
     public static GetCommentResponse from(StudyComment comment) {

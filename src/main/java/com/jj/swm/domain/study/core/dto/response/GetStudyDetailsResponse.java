@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.core.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.study.comment.dto.response.GetParentCommentResponse;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
@@ -9,6 +10,7 @@ import com.jj.swm.global.common.dto.PageResponse;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +54,12 @@ public class GetStudyDetailsResponse {
 
     private PageResponse<GetParentCommentResponse> pageCommentResponse;
 
+    @JsonFormat(pattern = "yy.MM.dd HH:mm")
+    private LocalDateTime createdAt;
+
+    @JsonFormat(pattern = "yy.MM.dd HH:mm")
+    private LocalDateTime updatedAt;
+
     public static GetStudyDetailsResponse of(
             Study study,
             boolean likeStatus,
@@ -83,6 +91,8 @@ public class GetStudyDetailsResponse {
                         .toList()
                 )
                 .pageCommentResponse(pageCommentResponse)
+                .createdAt(study.getCreatedAt())
+                .updatedAt(study.getUpdatedAt())
                 .build();
     }
 }
