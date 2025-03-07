@@ -1,5 +1,8 @@
 package com.jj.swm.domain.user.core.service;
 
+import com.google.common.collect.Lists;
+import com.jj.swm.domain.study.core.repository.StudyRepository;
+import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.studyroom.core.repository.StudyRoomRepository;
 import com.jj.swm.domain.studyroom.core.service.StudyRoomCommandService;
 import com.jj.swm.domain.user.core.dto.event.BusinessInspectionUpdateEvent;
@@ -23,6 +26,7 @@ import com.jj.swm.global.event.Events;
 import com.jj.swm.global.exception.GlobalException;
 import com.jj.swm.global.security.jwt.TokenRedisService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +40,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserCommandService {
 
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int batchSize;
+
     private static final String AUTH_CODE_VERIFIED = "VERIFIED";
 
     private final RedisService redisService;
@@ -43,6 +50,7 @@ public class UserCommandService {
     private final BusinessStatusService businessStatusService;
     private final StudyRoomCommandService studyRoomCommandService;
     private final TokenRedisService tokenRedisService;
+    private final StudyCommandService studyCommandService;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -50,6 +58,7 @@ public class UserCommandService {
     private final UserCredentialRepository userCredentialRepository;
     private final BusinessVerificationRequestRepository businessVerificationRequestRepository;
     private final StudyRoomRepository studyRoomRepository;
+    private final StudyRepository studyRepository;
 
     public void sendAuthCode(String loginId, EmailSendType type) {
         String authCode = RandomUtils.generateRandomCode();
@@ -114,16 +123,15 @@ public class UserCommandService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
 
-        if(!userRepository.existsByNickname(request.getNickname())){
+        if (!userRepository.existsByNickname(request.getNickname())) {
             user.modify(request);
-        } else{
+        } else {
             throw new GlobalException(ErrorCode.NOT_VALID, "duplicated nickname");
         }
     }
 
     @Transactional
     public void delete(UUID userId) {
-        // TODO: Study 로직 추가 및 StudyRoom 삭제 최적화
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
 
@@ -132,7 +140,11 @@ public class UserCommandService {
 
         List<Long> studyRoomIds = studyRoomRepository.findStudyRoomIdsByUserId(user.getId());
 
-        studyRoomIds.forEach(studyRoomId -> studyRoomCommandService.delete(studyRoomId, user.getId()));
+        studyRoomCommandService.deleteStudyRooms(studyRoomIds, user.getId());
+
+        List<Long> studyIdList = studyRepository.findIdsByUserId(userId);
+        Lists.partition(studyIdList, batchSize)
+                .forEach(studyCommandService::deleteStudyListAndAssociations);
 
         userRepository.delete(user);
     }
@@ -168,7 +180,7 @@ public class UserCommandService {
     }
 
     public void retrieveLoginId(RetrieveUserLoginIdRequest request) {
-        if(userCredentialRepository
+        if (userCredentialRepository
                 .existsByLoginIdAndName(request.getLoginId(), request.getName())
         ) {
             emailService.sendRetrieveEmail(request.getLoginId());
@@ -183,7 +195,7 @@ public class UserCommandService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "User Not Found"));
 
-            if(businessVerificationRequestRepository
+            if (businessVerificationRequestRepository
                     .existsByBusinessNumber(request.getBusinessNumber())
             ) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "해당 사업자 번호는 요청되어 있습니다.");
@@ -206,7 +218,7 @@ public class UserCommandService {
         List<BusinessVerificationRequest> businessVerificationRequests
                 = businessVerificationRequestRepository.findAllById(businessVerificationRequestIds);
 
-        if(businessVerificationRequests.size() == businessVerificationRequestIds.size()
+        if (businessVerificationRequests.size() == businessVerificationRequestIds.size()
         ) {
             businessVerificationRequestRepository.updateInspectionStatus(businessVerificationRequestIds, status);
             businessVerificationRequests.forEach(bvr -> Events.send(BusinessInspectionUpdateEvent.of(bvr, status)));

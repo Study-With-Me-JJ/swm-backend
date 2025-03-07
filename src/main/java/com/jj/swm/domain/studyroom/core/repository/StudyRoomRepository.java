@@ -19,6 +19,9 @@ public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long>, Cus
 
     boolean existsByIdAndUserId(Long studyRoomId, UUID userId);
 
+    @Query("select count(s) = ?3 from StudyRoom s where s.id in ?1 and s.user.id = ?2")
+    boolean allExistsByIdsAndUserId(List<Long> studyRoomIds, UUID userId, int size);
+
     @Query("select s.id from StudyRoom s where s.user.id = ?1")
     List<Long> findStudyRoomIdsByUserId(UUID userId);
 
@@ -38,6 +41,6 @@ public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long>, Cus
     Optional<StudyRoom> findByIdWithTags(Long studyRoomId);
 
     @Modifying
-    @Query("update StudyRoom s set s.deletedAt = CURRENT_TIMESTAMP where s.id = ?1")
-    void deleteByIdWithJpql(Long studyRoomId);
+    @Query("update StudyRoom s set s.deletedAt = CURRENT_TIMESTAMP where s.id in ?1")
+    void deleteByIdWithJpql(List<Long> studyRoomId);
 }

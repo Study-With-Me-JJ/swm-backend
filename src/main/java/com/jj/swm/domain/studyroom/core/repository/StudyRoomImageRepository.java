@@ -1,6 +1,5 @@
 package com.jj.swm.domain.studyroom.core.repository;
 
-import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomImage;
 import com.jj.swm.domain.studyroom.core.repository.jdbc.JdbcImageRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,14 +12,10 @@ import java.util.List;
 @Repository
 public interface StudyRoomImageRepository extends JpaRepository<StudyRoomImage, Long>, JdbcImageRepository {
 
-    int countStudyRoomImageByIdInAndStudyRoom(List<Long> imageIds, StudyRoom studyRoom);
-
     @Query("select s from StudyRoomImage s where s.studyRoom.id = ?1 order by s.sortOrder")
     List<StudyRoomImage> findAllByStudyRoomId(Long studyRoomId);
 
     @Modifying
-    @Query("delete from StudyRoomImage s where s.studyRoom.id = ?1")
-    void deleteAllByStudyRoomId(Long studyRoomId);
-
-    long countByStudyRoomId(Long studyRoomId);
+    @Query("delete from StudyRoomImage s where s.studyRoom.id in ?1")
+    void deleteByStudyRoomIds(List<Long> studyRoomId);
 }

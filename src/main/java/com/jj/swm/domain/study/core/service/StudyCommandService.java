@@ -133,6 +133,28 @@ public class StudyCommandService {
     }
 
     @Transactional
+    public void deleteStudyList(UUID userId, DeleteStudyListRequest request) {
+        List<Long> studyIdList = request.getStudyIdList();
+        long numToDelete = studyRepository.countByIdInAndUserId(studyIdList, userId);
+
+        if (numToDelete != studyIdList.size()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "Some Study Not Found");
+        }
+
+        deleteStudyListAndAssociations(studyIdList);
+    }
+
+    public void deleteStudyListAndAssociations(List<Long> studyIdList) {
+        studyTagRepository.deleteAllByStudyIdList(studyIdList);
+        studyImageRepository.deleteAllByStudyIdList(studyIdList);
+        recruitmentPositionRepository.deleteAllByStudyIdList(studyIdList);
+        studyLikeRepository.deleteAllByStudyIdList(studyIdList);
+        commentRepository.deleteAllByStudyIdList(studyIdList);
+        studyBookmarkRepository.deleteAllByStudyIdList(studyIdList);
+        studyRepository.deleteAllByStudyIdList(studyIdList);
+    }
+
+    @Transactional
     public CreateStudyBookmarkResponse addStudyBookmark(UUID userId, Long studyId) {
         Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserIdAndStudyId(userId, studyId);
         if (optionalStudyBookmark.isPresent()) {
