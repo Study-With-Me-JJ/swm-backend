@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.core.controller;
 
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
+import com.jj.swm.domain.study.core.dto.request.DeleteStudyListRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
@@ -85,6 +86,21 @@ public class StudyCommandController {
     )
     public ApiResponse<Void> studyRemove(Principal principal, @PathVariable("studyId") Long studyId) {
         studyCommandService.removeStudy(UUID.fromString(principal.getName()), studyId);
+
+        return ApiResponse.ok(null);
+    }
+
+    @DeleteMapping("/v1/study")
+    @Operation(
+            summary = "스터디 다중 삭제",
+            description = """
+                    로그인한, 해당 글을 작성한 유저가 스터디를 다중 삭제합니다. 관련된 모든 정보가 삭제됩니다.
+                    삭제할 수 있는 최대 개수는 PageSize 내의 Study 개수입니다.
+                    즉, 페이지 내에서 최대로 보이는 개수만큼 최대로 삭제할 수 있습니다.
+                    """
+    )
+    public ApiResponse<Void> deleteStudyList(Principal principal, @RequestBody @Valid DeleteStudyListRequest request) {
+        studyCommandService.deleteStudyList(UUID.fromString(principal.getName()), request);
 
         return ApiResponse.ok(null);
     }

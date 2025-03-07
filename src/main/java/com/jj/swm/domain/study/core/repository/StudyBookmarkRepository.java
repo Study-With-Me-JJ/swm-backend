@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +24,10 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
     @Modifying
     @Query("delete from StudyBookmark b where b.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
+
+    @Modifying
+    @Query("delete from StudyBookmark b where b.study.id in ?1")
+    void deleteAllByStudyIdList(List<Long> studyIdList);
 
     @Query("select b.study from StudyBookmark b where b.user.id = ?1")
     Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);
