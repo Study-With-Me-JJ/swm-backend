@@ -5,7 +5,6 @@ import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
 import com.jj.swm.domain.study.comment.dto.response.CreateCommentResponse;
 import com.jj.swm.domain.study.comment.dto.response.UpdateCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.study.comment.fixture.entity.CommentFixture;
 import com.jj.swm.domain.study.comment.fixture.request.CommentRequestFixture;
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.domain.study.core.entity.Study;
@@ -19,6 +18,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Optional;
+
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -41,13 +43,18 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     // entity
     private User user;
     private Study study;
-    private StudyComment comment;
+    private Long commentId;
 
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
         study = studyRepository.save(StudyFixture.buildStudy(user));
-        comment = commentRepository.save(CommentFixture.buildStudyComment(user, study));
+        commentId = commentCommandService.addComment(
+                user.getId(),
+                study.getId(),
+                null,
+                CommentRequestFixture.buildCreateCommentRequest()
+        ).getCommentId();
     }
 
     @Test
@@ -65,6 +72,9 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         );
 
         //then
+        study = studyRepository.findById(study.getId()).get();
+        assertEquals(2, study.getCommentCount());
+
         assertEquals(2L, response.getCommentId());
     }
 
@@ -78,15 +88,18 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         CreateCommentResponse response = commentCommandService.addComment(
                 user.getId(),
                 study.getId(),
-                comment.getId(),
+                commentId,
                 createRequest
         );
 
         //then
+        study = studyRepository.findById(study.getId()).get();
+        assertEquals(1, study.getCommentCount());
+
         assertEquals(2L, response.getCommentId());
 
         StudyComment reply = commentRepository.findById(2L).get();
-        assertEquals(comment.getId(), reply.getParent().getId());
+        assertEquals(commentId, reply.getParent().getId());
     }
 
     @Test
@@ -97,7 +110,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         Long replyId = commentCommandService.addComment(
                 user.getId(),
                 study.getId(),
-                comment.getId(),
+                commentId,
                 createRequest
         ).getCommentId();
 
@@ -110,10 +123,13 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         );
 
         //then
+        study = studyRepository.findById(study.getId()).get();
+        assertEquals(1, study.getCommentCount());
+
         assertEquals(3L, response.getCommentId());
 
         StudyComment reply = commentRepository.findById(3L).get();
-        assertEquals(comment.getId(), reply.getParent().getId());
+        assertEquals(commentId, reply.getParent().getId());
     }
 
     @Test
@@ -124,12 +140,71 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
         //when
         UpdateCommentResponse response =
-                commentCommandService.modifyComment(user.getId(), comment.getId(), updateRequest);
+                commentCommandService.modifyComment(user.getId(), commentId, updateRequest);
 
         //then
-        comment = commentRepository.findById(comment.getId()).get();
+        StudyComment comment = commentRepository.findById(commentId).get();
 
         assertEquals(updateRequest.getContent(), comment.getContent());
         assertNotEquals(comment.getCreatedAt(), response.getUpdatedAt());
+    }
+
+    @Test
+    @DisplayName("스터디 모집 댓글 삭제에 성공한다.")
+    void removeComment_Success() {
+        //when
+        commentCommandService.removeComment(user.getId(), study.getId(), commentId);
+
+        //then
+        study = studyRepository.findById(study.getId()).get();
+        assertEquals(0, study.getCommentCount());
+
+        assertEquals(0, commentRepository.count());
+    }
+
+    @Test
+    @DisplayName("대댓글이 있어도 스터디 모집 댓글 삭제에 성공한다.")
+    void removeComment_WithReply_Success() {
+        UpsertCommentRequest createRequest = CommentRequestFixture.buildCreateCommentRequest();
+        commentCommandService.addComment(
+                user.getId(),
+                study.getId(),
+                commentId,
+                createRequest
+        );
+
+        //when
+        commentCommandService.removeComment(user.getId(), study.getId(), commentId);
+
+        //then
+        study = studyRepository.findById(study.getId()).get();
+        assertEquals(0, study.getCommentCount());
+
+        assertEquals(0, commentRepository.count());
+    }
+
+    @Test
+    @DisplayName("스터디 모집 대댓글 삭제에 성공한다.")
+    void removeComment_WithReplyId_Success() {
+        //given
+        UpsertCommentRequest createRequest = CommentRequestFixture.buildCreateCommentRequest();
+        Long replyId = commentCommandService.addComment(
+                user.getId(),
+                study.getId(),
+                commentId,
+                createRequest
+        ).getCommentId();
+
+        //when
+        commentCommandService.removeComment(user.getId(), study.getId(), replyId);
+
+        //then
+        study = studyRepository.findById(study.getId()).get();
+        Optional<StudyComment> optionalComment = commentRepository.findById(replyId);
+
+        assertEquals(1, study.getCommentCount());
+        assertFalse(optionalComment.isPresent());
+
+
     }
 }
