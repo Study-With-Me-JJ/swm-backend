@@ -101,7 +101,7 @@ public class CommentCommandService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
         comment.modify(modifyRequest);
 
-        return UpdateCommentResponse.from(comment);
+        return UpdateCommentResponse.from();
     }
 
     @Transactional

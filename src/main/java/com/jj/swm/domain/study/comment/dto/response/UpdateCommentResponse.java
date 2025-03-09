@@ -1,6 +1,5 @@
 package com.jj.swm.domain.study.comment.dto.response;
 
-import com.jj.swm.domain.study.comment.entity.StudyComment;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,9 +11,9 @@ public class UpdateCommentResponse {
 
     private LocalDateTime updatedAt;
 
-    public static UpdateCommentResponse from(StudyComment comment) {
+    public static UpdateCommentResponse from() {
         return UpdateCommentResponse.builder()
-                .updatedAt(comment.getUpdatedAt())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 }

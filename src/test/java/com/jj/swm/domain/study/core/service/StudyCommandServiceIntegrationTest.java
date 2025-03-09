@@ -425,7 +425,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.addStudyLike(user.getId(), 1L);
         studyCommandService.addStudyBookmark(user.getId(), 1L);
 
-        UpsertCommentRequest createRequest = CommentRequestFixture.buildUpsertCommentRequest();
+        UpsertCommentRequest createRequest = CommentRequestFixture.buildCreateCommentRequest();
         Long parentId = commentCommandService.addComment(
                 user.getId(),
                 1L,
