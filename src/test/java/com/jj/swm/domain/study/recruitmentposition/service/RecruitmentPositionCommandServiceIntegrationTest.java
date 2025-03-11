@@ -131,4 +131,24 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 request
         ));
     }
+
+    @Test
+    @DisplayName("모집 포지션 삭제에 성공한다.")
+    void removeRecruitmentPosition_Success() {
+        //when
+        recruitmentPositionCommandService.removeRecruitmentPosition(user.getId(), 1L);
+
+        //then
+        assertEquals(0, recruitmentPositionRepository.count());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 데이터여도 모집 포지션 삭제에 성공한다.")
+    void removeRecruitmentPosition_WithoutExistsData_Success() {
+        //when
+        recruitmentPositionCommandService.removeRecruitmentPosition(user.getId(), 2L);
+
+        //then
+        assertEquals(1, recruitmentPositionRepository.count());
+    }
 }
