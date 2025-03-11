@@ -5,6 +5,7 @@ import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.fixture.entity.StudyFixture;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.recruitmentposition.fixture.request.RecruitmentPositionRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
@@ -45,20 +46,25 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
         study = studyRepository.save(StudyFixture.buildStudy(user));
+        recruitmentPositionCommandService.addRecruitmentPosition(
+                user.getId(),
+                study.getId(),
+                RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest()
+        );
     }
 
     @Test
     @DisplayName("모집 포지션 생성에 성공한다.")
     void addRecruitmentPosition_Success() {
         //given
-        CreateRecruitmentPositionRequest createRecruitmentPositionRequest =
+        CreateRecruitmentPositionRequest request =
                 RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest();
 
         //when
         Long recruitmentPositionId = recruitmentPositionCommandService.addRecruitmentPosition(
                 user.getId(),
                 study.getId(),
-                createRecruitmentPositionRequest
+                request
         ).getRecruitmentPositionId();
 
         //then
@@ -66,14 +72,14 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 recruitmentPositionRepository.findById(recruitmentPositionId);
         assertTrue(optionalRecruitmentPosition.isPresent());
 
-        assertEquals(1L, recruitmentPositionId);
+        assertEquals(2L, recruitmentPositionId);
     }
 
     @Test
     @DisplayName("모집 포지션 최대 개수에 도달하면 생성에 실패한다.")
     void addRecruitmentPosition_FailByExceedLimit() {
         //given
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 9; i++) {
             recruitmentPositionCommandService.addRecruitmentPosition(
                     user.getId(),
                     study.getId(),
@@ -86,6 +92,43 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 user.getId(),
                 study.getId(),
                 RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest()
+        ));
+    }
+
+    @Test
+    @DisplayName("모집 포지션 수정에 성공한다.")
+    void modifyRecruitmentPosition_Success() {
+        //given
+        UpdateRecruitmentPositionRequest request =
+                RecruitmentPositionRequestFixture.buildUpdateRecruitmentPositionRequest();
+
+        //when
+        recruitmentPositionCommandService.modifyRecruitmentPosition(
+                user.getId(),
+                1L,
+                request
+        );
+
+        //then
+        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(1L).get();
+
+        assertEquals(request.getHeadcount(), recruitmentPosition.getHeadcount());
+        assertEquals(request.getAcceptedCount(), recruitmentPosition.getAcceptedCount());
+        assertEquals(request.getTitle(), recruitmentPosition.getTitle());
+    }
+
+    @Test
+    @DisplayName("모집 인원보다 수락 인원이 많으면 모집 포지션 수정에 실패한다.")
+    void modifyRecruitmentPosition_FailByAcceptedMoreThanHeadcount() {
+        //given
+        UpdateRecruitmentPositionRequest request =
+                RecruitmentPositionRequestFixture.buildUpdateRecruitmentPositionRequestAcceptedMoreThanHeadcount();
+
+        //when & then
+        assertThrows(GlobalException.class,()->recruitmentPositionCommandService.modifyRecruitmentPosition(
+                user.getId(),
+                1L,
+                request
         ));
     }
 }
