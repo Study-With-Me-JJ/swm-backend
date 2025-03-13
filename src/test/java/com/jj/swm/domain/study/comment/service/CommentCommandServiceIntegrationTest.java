@@ -44,8 +44,8 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
     // entity
     private User user;
-    private Long studyId;
     private Long commentId;
+    private final Long studyId = 1L;
 
     @BeforeEach
     void setUp() {
