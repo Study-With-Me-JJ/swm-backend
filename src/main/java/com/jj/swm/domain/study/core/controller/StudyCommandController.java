@@ -99,8 +99,8 @@ public class StudyCommandController {
                     즉, 페이지 내에서 최대로 보이는 개수만큼 최대로 삭제할 수 있습니다.
                     """
     )
-    public ApiResponse<Void> deleteStudyList(Principal principal, @RequestBody @Valid DeleteStudyListRequest request) {
-        studyCommandService.deleteStudyList(UUID.fromString(principal.getName()), request);
+    public ApiResponse<Void> studyListRemove(Principal principal, @RequestBody @Valid DeleteStudyListRequest request) {
+        studyCommandService.removeStudyList(UUID.fromString(principal.getName()), request);
 
         return ApiResponse.ok(null);
     }

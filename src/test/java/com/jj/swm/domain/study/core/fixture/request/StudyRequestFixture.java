@@ -189,4 +189,10 @@ public class StudyRequestFixture {
                 .status(StudyStatus.INACTIVE)
                 .build();
     }
+
+    public static DeleteStudyListRequest buildDeleteStudyListRequest(List<Long> studyIdList) {
+        return DeleteStudyListRequest.builder()
+                .studyIdList(studyIdList)
+                .build();
+    }
 }
