@@ -6,6 +6,7 @@ import com.jj.swm.domain.study.comment.fixture.request.CommentRequestFixture;
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.domain.study.comment.service.CommentCommandService;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
+import com.jj.swm.domain.study.core.dto.request.DeleteStudyListRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
@@ -450,5 +451,69 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(0, commentRepository.count());
         assertEquals(0, studyBookmarkRepository.count());
         assertEquals(0, studyRepository.count());
+    }
+
+    @Test
+    @DisplayName("스터디 모집 다중 삭제에 성공한다.")
+    void removeStudyList_Success() {
+        //given
+        studyCommandService.addStudy(user.getId(), StudyRequestFixture.buildCreateStudyRequest());
+
+        studyCommandService.addStudyLike(user.getId(), 1L);
+        studyCommandService.addStudyBookmark(user.getId(), 1L);
+
+        studyCommandService.addStudyLike(user.getId(), 2L);
+        studyCommandService.addStudyBookmark(user.getId(), 2L);
+
+        UpsertCommentRequest createRequest = CommentRequestFixture.buildCreateCommentRequest();
+        Long parentId1 = commentCommandService.addComment(
+                user.getId(),
+                1L,
+                null,
+                createRequest
+        ).getCommentId();
+        commentCommandService.addComment(
+                user.getId(),
+                1L,
+                parentId1,
+                createRequest
+        );
+
+        Long parentId2 = commentCommandService.addComment(
+                user.getId(),
+                2L,
+                null,
+                createRequest
+        ).getCommentId();
+        commentCommandService.addComment(
+                user.getId(),
+                2L,
+                parentId2,
+                createRequest
+        );
+
+        DeleteStudyListRequest request = StudyRequestFixture.buildDeleteStudyListRequest(List.of(1L, 2L));
+
+        //when
+        studyCommandService.removeStudyList(user.getId(), request);
+
+        //then
+        assertEquals(0, studyTagRepository.count());
+        assertEquals(0, studyImageRepository.count());
+        assertEquals(0, recruitmentPositionRepository.count());
+        assertEquals(0, studyLikeRepository.count());
+        assertEquals(0, commentRepository.count());
+        assertEquals(0, studyBookmarkRepository.count());
+        assertEquals(0, studyRepository.count());
+    }
+
+    @Test
+    @DisplayName("삭제할 스터디가 존재하지 않으면 스터디 모집 다중 삭제에 실패한다.")
+    void removeStudyList_FailByNotExist() {
+        //given
+        DeleteStudyListRequest request = StudyRequestFixture.buildDeleteStudyListRequest(List.of(1L, 2L));
+
+        //when & then
+        assertThrows(GlobalException.class, () -> studyCommandService.removeStudyList(user.getId(), request));
     }
 }

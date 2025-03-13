@@ -140,7 +140,7 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public void deleteStudyList(UUID userId, DeleteStudyListRequest request) {
+    public void removeStudyList(UUID userId, DeleteStudyListRequest request) {
         List<Long> studyIdList = request.getStudyIdList();
         long numToDelete = studyRepository.countByIdInAndUserId(studyIdList, userId);
 
