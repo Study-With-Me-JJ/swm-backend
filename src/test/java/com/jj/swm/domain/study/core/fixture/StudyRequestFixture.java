@@ -1,4 +1,4 @@
-package com.jj.swm.domain.study.core.fixture.request;
+package com.jj.swm.domain.study.core.fixture;
 
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
@@ -6,11 +6,11 @@ import com.jj.swm.domain.study.core.entity.StudyStatus;
 
 import java.util.List;
 
-import static com.jj.swm.domain.study.recruitmentposition.fixture.request.RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest;
+import static com.jj.swm.domain.study.recruitmentposition.fixture.RecruitmentPositionRequestFixture.createRecruitmentPositionRequest;
 
 public class StudyRequestFixture {
 
-    public static CreateStudyRequest buildCreateStudyRequest() {
+    public static CreateStudyRequest createStudyRequest() {
         return CreateStudyRequest.builder()
                 .title("test_title")
                 .content("test_content")
@@ -19,33 +19,33 @@ public class StudyRequestFixture {
                 .tagList(List.of("test_tag1", "test_tag2"))
                 .imageUrlList(List.of("http://test_image1.png", "http://test_image2.png"))
                 .createRecruitmentPositionRequestList(List.of(
-                        buildCreateRecruitmentPositionRequest(), buildCreateRecruitmentPositionRequest()
+                        createRecruitmentPositionRequest(), createRecruitmentPositionRequest()
                 )).build();
     }
 
-    public static CreateStudyRequest buildCreateStudyRequestWithoutTagAndImageList() {
+    public static CreateStudyRequest createStudyRequestWithoutTagAndImageList() {
         return CreateStudyRequest.builder()
                 .title("test_title")
                 .content("test_content")
                 .openChatUrl("test_open_chat_url")
                 .category(StudyCategory.ALGORITHM)
                 .createRecruitmentPositionRequestList(List.of(
-                        buildCreateRecruitmentPositionRequest(), buildCreateRecruitmentPositionRequest()
+                        createRecruitmentPositionRequest(), createRecruitmentPositionRequest()
                 )).build();
     }
 
-    public static UpdateStudyRequest buildUpdateStudyRequest() {
+    public static UpdateStudyRequest updateStudyRequest() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(StudyCategory.DEVELOPMENT)
-                .saveTagRequest(buildSaveStudyTagRequest())
-                .saveImageRequest(buildSaveStudyImageRequest())
+                .saveTagRequest(saveStudyTagRequest())
+                .saveImageRequest(saveStudyImageRequest())
                 .build();
     }
 
-    public static UpdateStudyRequest buildUpdateStudyRequestWithoutSaveTagAndImageRequest() {
+    public static UpdateStudyRequest updateStudyRequestWithoutSaveTagAndImageRequest() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
@@ -54,94 +54,94 @@ public class StudyRequestFixture {
                 .build();
     }
 
-    public static UpdateStudyRequest buildUpdateStudyRequestWithoutTagAndImageListToAdd() {
+    public static UpdateStudyRequest updateStudyRequestWithoutTagAndImageListToAdd() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(StudyCategory.DEVELOPMENT)
-                .saveTagRequest(buildSaveStudyTagRequestWithoutTagListToAdd())
-                .saveImageRequest(buildSaveStudyImageRequestWithoutImageListToAdd())
+                .saveTagRequest(saveStudyTagRequestWithoutTagListToAdd())
+                .saveImageRequest(saveStudyImageRequestWithoutImageListToAdd())
                 .build();
     }
 
-    public static UpdateStudyRequest buildUpdateStudyRequestWithoutTagAndImageIdListToRemove() {
+    public static UpdateStudyRequest updateStudyRequestWithoutTagAndImageIdListToRemove() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(StudyCategory.DEVELOPMENT)
-                .saveTagRequest(buildSaveStudyTagRequestWithoutTagIdListToRemove())
-                .saveImageRequest(buildSaveStudyImageRequestWithoutImageIdListToRemove())
+                .saveTagRequest(saveStudyTagRequestWithoutTagIdListToRemove())
+                .saveImageRequest(saveStudyImageRequestWithoutImageIdListToRemove())
                 .build();
     }
 
-    public static UpdateStudyRequest buildUpdateStudyRequestWithUnderTagLimit() {
+    public static UpdateStudyRequest updateStudyRequestWithUnderTagLimit() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(StudyCategory.DEVELOPMENT)
-                .saveTagRequest(buildSaveStudyTagRequestWithUnderTagLimit())
+                .saveTagRequest(saveStudyTagRequestWithUnderTagLimit())
                 .build();
     }
 
-    public static UpdateStudyRequest buildUpdateStudyRequestWithExceedTagLimit() {
+    public static UpdateStudyRequest updateStudyRequestWithExceedTagLimit() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(StudyCategory.DEVELOPMENT)
-                .saveTagRequest(buildSaveStudyTagRequestWithExceedTagLimit())
+                .saveTagRequest(saveStudyTagRequestWithExceedTagLimit())
                 .build();
     }
 
-    public static UpdateStudyRequest buildUpdateStudyRequestWithUnderImageLimit() {
+    public static UpdateStudyRequest updateStudyRequestWithUnderImageLimit() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(StudyCategory.DEVELOPMENT)
-                .saveImageRequest(buildSaveStudyImageRequestWithUnderImageLimit())
+                .saveImageRequest(saveStudyImageRequestWithUnderImageLimit())
                 .build();
     }
 
-    public static UpdateStudyRequest buildUpdateStudyRequestWithExceedImageLimit() {
+    public static UpdateStudyRequest updateStudyRequestWithExceedImageLimit() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(StudyCategory.DEVELOPMENT)
-                .saveImageRequest(buildSaveStudyImageRequestWithExceedImageLimit())
+                .saveImageRequest(saveStudyImageRequestWithExceedImageLimit())
                 .build();
     }
 
-    private static SaveStudyTagRequest buildSaveStudyTagRequest() {
+    private static SaveStudyTagRequest saveStudyTagRequest() {
         return SaveStudyTagRequest.builder()
                 .tagListToAdd(List.of("new_test_tag1", "new_test_tag2"))
                 .tagIdListToRemove(List.of(1L))
                 .build();
     }
 
-    private static SaveStudyTagRequest buildSaveStudyTagRequestWithoutTagListToAdd() {
+    private static SaveStudyTagRequest saveStudyTagRequestWithoutTagListToAdd() {
         return SaveStudyTagRequest.builder()
                 .tagIdListToRemove(List.of(1L))
                 .build();
     }
 
-    private static SaveStudyTagRequest buildSaveStudyTagRequestWithoutTagIdListToRemove() {
+    private static SaveStudyTagRequest saveStudyTagRequestWithoutTagIdListToRemove() {
         return SaveStudyTagRequest.builder()
                 .tagListToAdd(List.of("new_test_tag1", "new_test_tag2"))
                 .build();
     }
 
-    private static SaveStudyTagRequest buildSaveStudyTagRequestWithUnderTagLimit() {
+    private static SaveStudyTagRequest saveStudyTagRequestWithUnderTagLimit() {
         return SaveStudyTagRequest.builder()
                 .tagIdListToRemove(List.of(1L, 2L, 3L))
                 .build();
     }
 
-    private static SaveStudyTagRequest buildSaveStudyTagRequestWithExceedTagLimit() {
+    private static SaveStudyTagRequest saveStudyTagRequestWithExceedTagLimit() {
         return SaveStudyTagRequest.builder()
                 .tagListToAdd(List.of(
                         "new_test_tag1", "new_test_tag2", "new_test_tag3",
@@ -150,32 +150,32 @@ public class StudyRequestFixture {
                 )).build();
     }
 
-    private static SaveStudyImageRequest buildSaveStudyImageRequest() {
+    private static SaveStudyImageRequest saveStudyImageRequest() {
         return SaveStudyImageRequest.builder()
                 .imageUrlListToAdd(List.of("http://new_test_image1.png", "http://new_test_image2.png"))
                 .imageIdListToRemove(List.of(1L))
                 .build();
     }
 
-    private static SaveStudyImageRequest buildSaveStudyImageRequestWithoutImageListToAdd() {
+    private static SaveStudyImageRequest saveStudyImageRequestWithoutImageListToAdd() {
         return SaveStudyImageRequest.builder()
                 .imageIdListToRemove(List.of(1L))
                 .build();
     }
 
-    private static SaveStudyImageRequest buildSaveStudyImageRequestWithoutImageIdListToRemove() {
+    private static SaveStudyImageRequest saveStudyImageRequestWithoutImageIdListToRemove() {
         return SaveStudyImageRequest.builder()
                 .imageUrlListToAdd(List.of("http://new_test_image1.png", "http://new_test_image2.png"))
                 .build();
     }
 
-    private static SaveStudyImageRequest buildSaveStudyImageRequestWithUnderImageLimit() {
+    private static SaveStudyImageRequest saveStudyImageRequestWithUnderImageLimit() {
         return SaveStudyImageRequest.builder()
                 .imageIdListToRemove(List.of(1L, 2L, 3L))
                 .build();
     }
 
-    private static SaveStudyImageRequest buildSaveStudyImageRequestWithExceedImageLimit() {
+    private static SaveStudyImageRequest saveStudyImageRequestWithExceedImageLimit() {
         return SaveStudyImageRequest.builder()
                 .imageUrlListToAdd(List.of(
                         "http://new_test_image1.png", "http://new_test_image2.png", "http://new_test_image3.png",
@@ -184,13 +184,13 @@ public class StudyRequestFixture {
                 )).build();
     }
 
-    public static UpdateStudyStatusRequest buildUpdateStudyStatusRequest() {
+    public static UpdateStudyStatusRequest updateStudyStatusRequest() {
         return UpdateStudyStatusRequest.builder()
                 .status(StudyStatus.INACTIVE)
                 .build();
     }
 
-    public static DeleteStudyListRequest buildDeleteStudyListRequest(List<Long> studyIdList) {
+    public static DeleteStudyListRequest deleteStudyListRequest(List<Long> studyIdList) {
         return DeleteStudyListRequest.builder()
                 .studyIdList(studyIdList)
                 .build();

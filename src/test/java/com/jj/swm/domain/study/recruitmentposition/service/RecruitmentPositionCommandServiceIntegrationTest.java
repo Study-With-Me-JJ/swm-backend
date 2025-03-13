@@ -1,12 +1,12 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
-import com.jj.swm.domain.study.core.fixture.request.StudyRequestFixture;
+import com.jj.swm.domain.study.core.fixture.StudyRequestFixture;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.recruitmentposition.fixture.request.RecruitmentPositionRequestFixture;
+import com.jj.swm.domain.study.recruitmentposition.fixture.RecruitmentPositionRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
@@ -46,7 +46,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
-        studyCommandService.addStudy(user.getId(), StudyRequestFixture.buildCreateStudyRequest());
+        studyCommandService.addStudy(user.getId(), StudyRequestFixture.createStudyRequest());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     void addRecruitmentPosition_Success() {
         //given
         CreateRecruitmentPositionRequest request =
-                RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest();
+                RecruitmentPositionRequestFixture.createRecruitmentPositionRequest();
 
         //when
         Long newRecruitmentPositionId = recruitmentPositionCommandService.addRecruitmentPosition(
@@ -77,7 +77,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     void addRecruitmentPosition_FailByExceedLimit() {
         //given
         CreateRecruitmentPositionRequest request =
-                RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest();
+                RecruitmentPositionRequestFixture.createRecruitmentPositionRequest();
 
         for (int i = 1; i <= 8; i++) {
             recruitmentPositionCommandService.addRecruitmentPosition(
@@ -100,7 +100,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     void modifyRecruitmentPosition_Success() {
         //given
         UpdateRecruitmentPositionRequest request =
-                RecruitmentPositionRequestFixture.buildUpdateRecruitmentPositionRequest();
+                RecruitmentPositionRequestFixture.updateRecruitmentPositionRequest();
 
         //when
         recruitmentPositionCommandService.modifyRecruitmentPosition(
@@ -125,7 +125,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.modifyRecruitmentPosition(
                 user.getId(),
                 recruitmentPositionId,
-                RecruitmentPositionRequestFixture.buildUpdateRecruitmentPositionRequestAcceptedMoreThanHeadcount()
+                RecruitmentPositionRequestFixture.updateRecruitmentPositionRequestAcceptedMoreThanHeadcount()
         ));
     }
 

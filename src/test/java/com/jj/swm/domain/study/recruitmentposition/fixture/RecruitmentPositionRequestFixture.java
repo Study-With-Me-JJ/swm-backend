@@ -1,4 +1,4 @@
-package com.jj.swm.domain.study.recruitmentposition.fixture.request;
+package com.jj.swm.domain.study.recruitmentposition.fixture;
 
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
@@ -6,14 +6,14 @@ import com.jj.swm.domain.study.recruitmentposition.entity.RecruitmentPositionTit
 
 public class RecruitmentPositionRequestFixture {
 
-    public static CreateRecruitmentPositionRequest buildCreateRecruitmentPositionRequest() {
+    public static CreateRecruitmentPositionRequest createRecruitmentPositionRequest() {
         return CreateRecruitmentPositionRequest.builder()
                 .title(RecruitmentPositionTitle.BACKEND)
                 .headcount(3)
                 .build();
     }
 
-    public static UpdateRecruitmentPositionRequest buildUpdateRecruitmentPositionRequest() {
+    public static UpdateRecruitmentPositionRequest updateRecruitmentPositionRequest() {
         return UpdateRecruitmentPositionRequest.builder()
                 .title(RecruitmentPositionTitle.FRONTEND)
                 .headcount(5)
@@ -21,7 +21,7 @@ public class RecruitmentPositionRequestFixture {
                 .build();
     }
 
-    public static UpdateRecruitmentPositionRequest buildUpdateRecruitmentPositionRequestAcceptedMoreThanHeadcount() {
+    public static UpdateRecruitmentPositionRequest updateRecruitmentPositionRequestAcceptedMoreThanHeadcount() {
         return UpdateRecruitmentPositionRequest.builder()
                 .title(RecruitmentPositionTitle.FRONTEND)
                 .headcount(1)

@@ -4,10 +4,10 @@ import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
 import com.jj.swm.domain.study.comment.dto.response.UpdateCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.study.comment.fixture.request.CommentRequestFixture;
+import com.jj.swm.domain.study.comment.fixture.CommentRequestFixture;
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.fixture.request.StudyRequestFixture;
+import com.jj.swm.domain.study.core.fixture.StudyRequestFixture;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.user.core.entity.User;
@@ -50,12 +50,12 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
-        studyCommandService.addStudy(user.getId(), StudyRequestFixture.buildCreateStudyRequest());
+        studyCommandService.addStudy(user.getId(), StudyRequestFixture.createStudyRequest());
         commentId = commentCommandService.addComment(
                 user.getId(),
                 studyId,
                 null,
-                CommentRequestFixture.buildCreateCommentRequest()
+                CommentRequestFixture.createCommentRequest()
         ).getCommentId();
     }
 
@@ -63,7 +63,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 댓글 생성에 성공한다.")
     void addComment_Success() {
         //given
-        UpsertCommentRequest createRequest = CommentRequestFixture.buildCreateCommentRequest();
+        UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
 
         //when
         Long newCommentId = commentCommandService.addComment(
@@ -92,7 +92,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
                 user.getId(),
                 studyId,
                 commentId,
-                CommentRequestFixture.buildCreateCommentRequest()
+                CommentRequestFixture.createCommentRequest()
         ).getCommentId();
 
         //then
@@ -107,7 +107,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 대댓글 id에 대해 대댓글을 생성해도 성공한다.")
     void addComment_WithReplyIdForParent_Success() {
         //given
-        UpsertCommentRequest createRequest = CommentRequestFixture.buildCreateCommentRequest();
+        UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
         Long replyId = commentCommandService.addComment(
                 user.getId(),
                 studyId,
@@ -132,7 +132,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 댓글 수정에 성공한다.")
     void modifyComment_Success() {
         //given
-        UpsertCommentRequest updateRequest = CommentRequestFixture.buildUpdateCommentRequest();
+        UpsertCommentRequest updateRequest = CommentRequestFixture.updateCommentRequest();
 
         //when
         UpdateCommentResponse response = commentCommandService.modifyComment(
@@ -172,7 +172,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
                 user.getId(),
                 studyId,
                 commentId,
-                CommentRequestFixture.buildCreateCommentRequest()
+                CommentRequestFixture.createCommentRequest()
         );
 
         //when
@@ -197,7 +197,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
                 user.getId(),
                 studyId,
                 commentId,
-                CommentRequestFixture.buildCreateCommentRequest()
+                CommentRequestFixture.createCommentRequest()
         ).getCommentId();
 
         //when
