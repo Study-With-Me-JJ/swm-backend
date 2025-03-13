@@ -295,7 +295,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("존재하지 않는 스터디 모집 북마크에 대해 삭제해도 성공한다.")
     void removeStudyBookmark_NonExists_Success() {
         //when & then
-        assertDoesNotThrow(() -> studyCommandService.addStudyBookmark(user.getId(), 123456789L));
+        assertDoesNotThrow(() -> studyCommandService.removeStudyBookmark(user.getId(), 123456789L));
     }
 
     @Test
