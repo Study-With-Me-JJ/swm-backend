@@ -1,10 +1,7 @@
 package com.jj.swm.domain.studyroom.core.service;
 
-import com.jj.swm.domain.studyroom.core.constants.StudyRoomConstraints;
-import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomReservationTypeRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomSettingRequest;
+import com.jj.swm.domain.studyroom.core.constants.StudyRoomConstants;
+import com.jj.swm.domain.studyroom.core.dto.request.*;
 import com.jj.swm.domain.studyroom.core.entity.*;
 import com.jj.swm.domain.studyroom.core.repository.*;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomDayOffRequest;
@@ -24,7 +21,6 @@ import com.jj.swm.domain.studyroom.review.repository.StudyRoomReviewRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
-import com.jj.swm.global.common.util.ListCheckUtils;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -107,8 +103,16 @@ public class StudyRoomCommandService {
     public void delete(Long studyRoomId, UUID userId) {
         if(!studyRoomRepository.existsByIdAndUserId(studyRoomId, userId))
             throw new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found");
-        else
-            deleteStudyRoomLogic(studyRoomId);
+
+        deleteStudyRoomLogic(List.of(studyRoomId));
+    }
+
+    @Transactional
+    public void deleteStudyRooms(List<Long> studyRoomIds, UUID userId) {
+        if(!studyRoomRepository.allExistsByIdsAndUserId(studyRoomIds, userId, studyRoomIds.size()))
+            throw new GlobalException(ErrorCode.NOT_FOUND, "Some StudyRoom Not Found");
+
+        deleteStudyRoomLogic(studyRoomIds);
     }
 
     @Transactional
@@ -161,9 +165,9 @@ public class StudyRoomCommandService {
     private void imageModifyLogic(ModifyStudyRoomImageRequest request, StudyRoom studyRoom) {
         if (request != null) {
             if (isListNotNull(request.getImagesToUpdate())) {
-                validateSizeLimitExceeded(request.getImagesToUpdate().size(), StudyRoomConstraints.IMAGE_LIMIT, "Image");
+                validateSizeLimitExceeded(request.getImagesToUpdate().size(), StudyRoomConstants.IMAGE_LIMIT, "Image");
 
-                imageRepository.deleteAllByStudyRoomId(studyRoom.getId());
+                imageRepository.deleteByStudyRoomIds(List.of(studyRoom.getId()));
                 imageRepository.batchInsert(request.getImagesToUpdate(), studyRoom);
             }
         }
@@ -171,11 +175,11 @@ public class StudyRoomCommandService {
 
     private void tagModifyLogic(ModifyStudyRoomTagRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (ListCheckUtils.isListPresent(request.getTagsToAdd())) {
+            if (isListPresent(request.getTagsToAdd())) {
                 long size = tagRepository.countByStudyRoomId(studyRoom.getId());
                 long totalSize = computeTotalSize(size, request.getTagsToAdd(), request.getTagIdsToRemove());
 
-                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.TAG_LIMIT, "Tag");
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.TAG_LIMIT, "Tag");
 
                 tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
             }
@@ -200,7 +204,7 @@ public class StudyRoomCommandService {
                 long size = dayOffRepository.countByStudyRoomId(studyRoom.getId());
                 long totalSize = computeTotalSize(size, request.getDayOffsToAdd(), request.getDayOffIdsToRemove());
 
-                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.DAYOFF_LIMIT, "DayOff");
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.DAYOFF_LIMIT, "DayOff");
 
                 List<DayOfWeek> dayOffsToAdd = request.getDayOffsToAdd();
 
@@ -259,7 +263,7 @@ public class StudyRoomCommandService {
                 long size = typeInfoRepository.countByStudyRoomId(studyRoom.getId());
                 long totalSize = computeTotalSize(size, request.getTypesToAdd(), request.getTypeIdsToRemove());
 
-                validateSizeLimitExceeded(totalSize, StudyRoomConstraints.TYPE_LIMIT, "Type");
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.TYPE_LIMIT, "Type");
 
                 List<StudyRoomType> typesToAdd = request.getTypesToAdd();
 
@@ -330,17 +334,17 @@ public class StudyRoomCommandService {
         }
     }
 
-    private void deleteStudyRoomLogic(Long studyRoomId) {
-        imageRepository.deleteAllByStudyRoomId(studyRoomId);
-        tagRepository.deleteAllByStudyRoomId(studyRoomId);
-        optionInfoRepository.deleteAllByStudyRoomId(studyRoomId);
-        typeInfoRepository.deleteAllByStudyRoomId(studyRoomId);
-        reserveTypeRepository.deleteAllByStudyRoomId(studyRoomId);
-        dayOffRepository.deleteAllByStudyRoomId(studyRoomId);
-        likeRepository.deleteAllByStudyRoomId(studyRoomId);
-        bookmarkRepository.deleteAllByStudyRoomId(studyRoomId);
+    private void deleteStudyRoomLogic(List<Long> studyRoomId) {
+        imageRepository.deleteByStudyRoomIds(studyRoomId);
+        tagRepository.deleteByStudyRoomIds(studyRoomId);
+        optionInfoRepository.deleteByStudyRoomIds(studyRoomId);
+        typeInfoRepository.deleteByStudyRoomIds(studyRoomId);
+        reserveTypeRepository.deleteByStudyRoomIds(studyRoomId);
+        dayOffRepository.deleteByStudyRoomIds(studyRoomId);
+        likeRepository.deleteByStudyRoomIds(studyRoomId);
+        bookmarkRepository.deleteByStudyRoomIds(studyRoomId);
 
-        List<StudyRoomReview> reviews = reviewRepository.findByStudyRoomId(studyRoomId);
+        List<StudyRoomReview> reviews = reviewRepository.findByStudyRoomIds(studyRoomId);
         List<Long> reviewIds = reviews.stream()
                         .map(StudyRoomReview::getId)
                         .toList();
@@ -348,8 +352,8 @@ public class StudyRoomCommandService {
         reviewReplyRepository.deleteAllByStudyRoomReviewIdIn(reviewIds);
         reviewImageRepository.deleteAllByStudyRoomReviewIdIn(reviewIds);
 
-        reviewRepository.deleteAllByReviewIds(reviewIds);
-        qnaRepository.deleteAllByStudyRoomId(studyRoomId);
+        reviewRepository.deleteByReviewIds(reviewIds);
+        qnaRepository.deleteByStudyRoomIds(studyRoomId);
         studyRoomRepository.deleteByIdWithJpql(studyRoomId);
     }
 
@@ -407,4 +411,5 @@ public class StudyRoomCommandService {
         else
             return storedSize + aboutAdd.size();
     }
+
 }

@@ -1,7 +1,7 @@
 package com.jj.swm.domain.studyroom.core.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jj.swm.domain.studyroom.core.constants.StudyRoomConstraints;
+import com.jj.swm.domain.studyroom.core.constants.StudyRoomConstants;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.core.entity.embeddable.Address;
@@ -61,17 +61,17 @@ public class CreateStudyRoomRequest {
     @NotBlank
     private String phoneNumber;
 
-    @Size(max = StudyRoomConstraints.TAG_LIMIT)
+    @Size(max = StudyRoomConstants.TAG_LIMIT)
     private List<String> tags;
 
-    @Size(max = StudyRoomConstraints.DAYOFF_LIMIT)
+    @Size(max = StudyRoomConstants.DAYOFF_LIMIT)
     private List<DayOfWeek> dayOffs;
 
-    @Size(max = StudyRoomConstraints.IMAGE_LIMIT)
+    @Size(max = StudyRoomConstants.IMAGE_LIMIT)
     @NotEmpty
     private List<String> imageUrls;
 
-    @Size(max = StudyRoomConstraints.TYPE_LIMIT)
+    @Size(max = StudyRoomConstants.TYPE_LIMIT)
     @NotEmpty
     private List<StudyRoomType> types;
 
@@ -85,22 +85,22 @@ public class CreateStudyRoomRequest {
     @Positive
     private Integer minReserveTime;
 
-    @Max(StudyRoomConstraints.MAX_HEADCOUNT)
+    @Max(StudyRoomConstants.MAX_HEADCOUNT)
     @NotNull
     @Positive
     private Integer entireMinHeadcount;
 
-    @Max(StudyRoomConstraints.MAX_HEADCOUNT)
+    @Max(StudyRoomConstants.MAX_HEADCOUNT)
     @NotNull
     @Positive
     private Integer entireMaxHeadcount;
 
-    @Max(StudyRoomConstraints.MAX_PRICE_PER_HOUR)
+    @Max(StudyRoomConstants.MAX_PRICE_PER_HOUR)
     @NotNull
     @Positive
     private Integer entireMinPricePerHour;
 
-    @Max(StudyRoomConstraints.MAX_PRICE_PER_HOUR)
+    @Max(StudyRoomConstants.MAX_PRICE_PER_HOUR)
     @NotNull
     @Positive
     private Integer entireMaxPricePerHour;

@@ -1,16 +1,16 @@
 package com.jj.swm.domain.studyroom.core.dto.request;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DeleteStudyRoomRequest {
+public class DeleteStudyRoomsRequest {
 
-    @NotNull
-    @Positive
-    private Long studyRoomId;
+    @NotEmpty
+    private List<Long> studyRoomIds;
 }

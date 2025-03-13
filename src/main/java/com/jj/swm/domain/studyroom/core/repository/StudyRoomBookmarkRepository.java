@@ -1,5 +1,6 @@
 package com.jj.swm.domain.studyroom.core.repository;
 
+import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomBookmark;
 import com.jj.swm.domain.studyroom.core.repository.custom.CustomStudyRoomBookmarkRepository;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,13 +21,13 @@ public interface StudyRoomBookmarkRepository extends JpaRepository<StudyRoomBook
 
     Optional<StudyRoomBookmark> findByIdAndUserId(Long studyRoomBookmarkId, UUID userId);
 
-    @Query("select s from StudyRoomBookmark s join fetch s.studyRoom where s.user.id = ?1")
-    Page<StudyRoomBookmark> findPagedBookmarkByUserIdWithStudyRoom(UUID userId, Pageable pageable);
-
     @Modifying
-    @Query("delete from StudyRoomBookmark s where s.studyRoom.id = ?1")
-    void deleteAllByStudyRoomId(Long studyRoomId);
+    @Query("delete from StudyRoomBookmark s where s.studyRoom.id in ?1")
+    void deleteByStudyRoomIds(List<Long> studyRoomId);
 
     @Query("select s.id from StudyRoomBookmark s where s.studyRoom.id = ?1 and s.user.id = ?2")
     Long findIdByStudyRoomIdAndUserId(Long studyRoomId, UUID userId);
+
+    @Query("select s.studyRoom from StudyRoomBookmark s where s.user.id = ?1")
+    Page<StudyRoom> findPagedStudyRoomByUserId(UUID userId, Pageable pageable);
 }

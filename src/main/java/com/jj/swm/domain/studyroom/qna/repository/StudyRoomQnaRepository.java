@@ -6,9 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,11 +33,6 @@ public interface StudyRoomQnaRepository extends JpaRepository<StudyRoomQna, Long
     Page<StudyRoomQna> findPagedQnaWithUserByStudyRoomId(Long studyRoomId, Pageable pageable);
 
     @Modifying
-    @Query("update StudyRoomQna s set s.deletedAt = CURRENT_TIMESTAMP where s.studyRoom.id = ?1")
-    void deleteAllByStudyRoomId(Long studyRoomId);
-
-    // Test 코드를 위한 JPQL
-    @Modifying
-    @Query(value = "DELETE FROM study_room_qna", nativeQuery = true)
-    void deleteAllByIdOrParentId(@Param("studyRoomQnaId") Long studyRoomQnaId);
+    @Query("update StudyRoomQna s set s.deletedAt = CURRENT_TIMESTAMP where s.studyRoom.id in ?1")
+    void deleteByStudyRoomIds(List<Long> studyRoomId);
 }

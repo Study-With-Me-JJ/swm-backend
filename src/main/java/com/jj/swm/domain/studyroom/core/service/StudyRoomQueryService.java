@@ -1,8 +1,8 @@
 package com.jj.swm.domain.studyroom.core.service;
 
+import com.jj.swm.domain.studyroom.core.dto.StudyRoomLikeInfo;
 import com.jj.swm.domain.studyroom.core.dto.response.*;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
-import com.jj.swm.domain.studyroom.core.entity.StudyRoomBookmark;
 import com.jj.swm.domain.studyroom.core.repository.*;
 import com.jj.swm.domain.studyroom.core.dto.GetStudyRoomCondition;
 import com.jj.swm.domain.studyroom.core.dto.StudyRoomBookmarkInfo;
@@ -53,13 +53,15 @@ public class StudyRoomQueryService {
 
         List<StudyRoom> pagedStudyRooms = hasNext ? studyRooms.subList(0, PageSize.StudyRoom) : studyRooms;
 
-        Map<Long, Long> bookmarkIdByStudyRoomId = getStudyRoomBookmarkMapping(pagedStudyRooms, userId);
+        Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyRoom
+                = getStudyRoomLikeAndBookmarkMapping(pagedStudyRooms, userId);
 
         List<GetStudyRoomResponse> responses = pagedStudyRooms.stream()
                 .map(studyRoom -> GetStudyRoomResponse.of(
-                                studyRoom,
-                        bookmarkIdByStudyRoomId.getOrDefault(studyRoom.getId(), null)))
-                .toList();
+                        studyRoom,
+                        likeStatusAndBookmarkIdByStudyRoom.get(studyRoom.getId()).likeStatus,
+                        likeStatusAndBookmarkIdByStudyRoom.get(studyRoom.getId()).bookmarkId()
+                )).toList();
 
         return PageResponse.of(responses, hasNext);
     }
@@ -69,10 +71,23 @@ public class StudyRoomQueryService {
         StudyRoom studyRoom = studyRoomRepository.findByIdWithTags(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
 
-        Long likeId = userId != null ? likeRepository.findIdByStudyRoomIdAndUserId(studyRoomId, userId) : null;
-        Long bookmarkId = userId != null ? bookmarkRepository.findIdByStudyRoomIdAndUserId(studyRoomId, userId) : null;
+        LikeStatusAndBookmarkId likeStatusAndBookmarkId = getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(studyRoomId, userId);
 
-        return createAllOfStudyRoomRelatedResponse(likeId, bookmarkId, studyRoom);
+        return createAllOfStudyRoomRelatedResponse(
+                likeStatusAndBookmarkId.likeStatus,
+                likeStatusAndBookmarkId.bookmarkId,
+                studyRoom
+        );
+    }
+
+    private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(Long studyRoomId, UUID userId) {
+        if(userId == null)
+            return new LikeStatusAndBookmarkId(false, null);
+
+        return new LikeStatusAndBookmarkId(
+                likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId),
+                bookmarkRepository.findIdByStudyRoomIdAndUserId(studyRoomId, userId)
+        );
     }
 
     @Transactional(readOnly = true)
@@ -83,17 +98,10 @@ public class StudyRoomQueryService {
                 Sort.by("id").descending()
         );
 
-        Page<StudyRoom> pagedStudyRoomLike
+        Page<StudyRoom> pagedStudyRoom
                 = likeRepository.findPagedStudyRoomByUserId(userId, pageable);
 
-        Map<Long, Long> bookmarkIdByStudyRoomId
-                = getStudyRoomBookmarkMapping(pagedStudyRoomLike.getContent(), userId);
-
-        return PageResponse.of(
-                pagedStudyRoomLike,
-                (studyRoom) ->
-                        GetStudyRoomResponse.of(studyRoom, bookmarkIdByStudyRoomId.getOrDefault(studyRoom.getId(), null))
-        );
+        return PageResponse.of(pagedStudyRoom, GetStudyRoomResponse::of);
     }
 
     @Transactional(readOnly = true)
@@ -104,15 +112,15 @@ public class StudyRoomQueryService {
                 Sort.by("id").descending()
         );
 
-        Page<StudyRoomBookmark> pagedStudyRoomBookmark = bookmarkRepository.findPagedBookmarkByUserIdWithStudyRoom(
+        Page<StudyRoom> pagedStudyRoom = bookmarkRepository.findPagedStudyRoomByUserId(
                 userId, pageable
         );
 
-        return PageResponse.of(pagedStudyRoomBookmark, GetStudyRoomResponse::of);
+        return PageResponse.of(pagedStudyRoom, GetStudyRoomResponse::of);
     }
 
     private GetStudyRoomDetailResponse createAllOfStudyRoomRelatedResponse(
-            Long likeId,
+            boolean likeStatus,
             Long bookmarkId,
             StudyRoom studyRoom
     ) {
@@ -141,7 +149,7 @@ public class StudyRoomQueryService {
 
         return GetStudyRoomDetailResponse.of(
                 studyRoom,
-                likeId,
+                likeStatus,
                 bookmarkId,
                 imageResponses,
                 dayOffResponses,
@@ -159,7 +167,33 @@ public class StudyRoomQueryService {
         return userId != null
                 ? bookmarkRepository.findAllByUserIdAndStudyRoomIds(userId, studyRoomIds)
                 .stream()
-                .collect(Collectors.toMap(StudyRoomBookmarkInfo::getStudyRoomId, StudyRoomBookmarkInfo::getId))
+                .collect(Collectors.toMap(StudyRoomBookmarkInfo::studyRoomId, StudyRoomBookmarkInfo::id))
                 : Collections.emptyMap();
+    }
+
+    private Map<Long, LikeStatusAndBookmarkId> getStudyRoomLikeAndBookmarkMapping(List<StudyRoom> studyRooms, UUID userId) {
+        if(userId == null){
+            return studyRooms.stream()
+                    .collect(Collectors.toMap(StudyRoom::getId, studyRoom -> new LikeStatusAndBookmarkId(false, null)));
+        }
+
+        List<Long> studyRoomIds = studyRooms.stream()
+                .map(StudyRoom::getId)
+                .toList();
+
+        Map<Long, Long> likesMap = likeRepository.findAllByUserIdAndStudyRoomIds(userId, studyRoomIds).stream()
+                .collect(Collectors.toMap(StudyRoomLikeInfo::studyRoomId, StudyRoomLikeInfo::id));
+
+        Map<Long, Long> bookmarksMap = bookmarkRepository.findAllByUserIdAndStudyRoomIds(userId, studyRoomIds).stream()
+                .collect(Collectors.toMap(StudyRoomBookmarkInfo::studyRoomId, StudyRoomBookmarkInfo::id));
+
+        return studyRoomIds.stream()
+                .collect(Collectors.toMap(studyRoomId -> studyRoomId, studyRoomId -> new LikeStatusAndBookmarkId(
+                    likesMap.getOrDefault(studyRoomId, null) != null,
+                    bookmarksMap.getOrDefault(studyRoomId, null)
+                )));
+    }
+
+    private record LikeStatusAndBookmarkId(boolean likeStatus, Long bookmarkId) {
     }
 }
