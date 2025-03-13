@@ -1,9 +1,8 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
-import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.fixture.entity.StudyFixture;
-import com.jj.swm.domain.study.core.repository.StudyRepository;
+import com.jj.swm.domain.study.core.fixture.request.StudyRequestFixture;
+import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
@@ -24,33 +23,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RecruitmentPositionCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
-    //service
+    // target service
     @Autowired
     private RecruitmentPositionCommandService recruitmentPositionCommandService;
+
+    // service
+    @Autowired
+    private StudyCommandService studyCommandService;
 
     //repository
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private StudyRepository studyRepository;
-
-    @Autowired
     private RecruitmentPositionRepository recruitmentPositionRepository;
 
     // entity
     private User user;
-    private Study study;
+    private final Long studyId = 1L;
+    private final Long recruitmentPositionId = 1L; // addStudy 할 시에 모집 포지션 2개 삽입
 
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
-        study = studyRepository.save(StudyFixture.buildStudy(user));
-        recruitmentPositionCommandService.addRecruitmentPosition(
-                user.getId(),
-                study.getId(),
-                RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest()
-        );
+        studyCommandService.addStudy(user.getId(), StudyRequestFixture.buildCreateStudyRequest());
     }
 
     @Test
@@ -61,37 +57,41 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest();
 
         //when
-        Long recruitmentPositionId = recruitmentPositionCommandService.addRecruitmentPosition(
+        Long newRecruitmentPositionId = recruitmentPositionCommandService.addRecruitmentPosition(
                 user.getId(),
-                study.getId(),
+                studyId,
                 request
         ).getRecruitmentPositionId();
 
         //then
         Optional<StudyRecruitmentPosition> optionalRecruitmentPosition =
-                recruitmentPositionRepository.findById(recruitmentPositionId);
+                recruitmentPositionRepository.findById(newRecruitmentPositionId);
         assertTrue(optionalRecruitmentPosition.isPresent());
 
-        assertEquals(2L, recruitmentPositionId);
+        StudyRecruitmentPosition recruitmentPosition = optionalRecruitmentPosition.get();
+        assertEquals(request.getHeadcount(), recruitmentPosition.getHeadcount());
     }
 
     @Test
     @DisplayName("모집 포지션 최대 개수에 도달하면 생성에 실패한다.")
     void addRecruitmentPosition_FailByExceedLimit() {
         //given
-        for (int i = 1; i <= 9; i++) {
+        CreateRecruitmentPositionRequest request =
+                RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest();
+
+        for (int i = 1; i <= 8; i++) {
             recruitmentPositionCommandService.addRecruitmentPosition(
                     user.getId(),
-                    study.getId(),
-                    RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest()
+                    studyId,
+                    request
             );
         }
 
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.addRecruitmentPosition(
                 user.getId(),
-                study.getId(),
-                RecruitmentPositionRequestFixture.buildCreateRecruitmentPositionRequest()
+                studyId,
+                request
         ));
     }
 
@@ -105,12 +105,13 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         //when
         recruitmentPositionCommandService.modifyRecruitmentPosition(
                 user.getId(),
-                1L,
+                recruitmentPositionId,
                 request
         );
 
         //then
-        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(1L).get();
+        StudyRecruitmentPosition recruitmentPosition =
+                recruitmentPositionRepository.findById(recruitmentPositionId).get();
 
         assertEquals(request.getHeadcount(), recruitmentPosition.getHeadcount());
         assertEquals(request.getAcceptedCount(), recruitmentPosition.getAcceptedCount());
@@ -120,15 +121,11 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @Test
     @DisplayName("모집 인원보다 수락 인원이 많으면 모집 포지션 수정에 실패한다.")
     void modifyRecruitmentPosition_FailByAcceptedMoreThanHeadcount() {
-        //given
-        UpdateRecruitmentPositionRequest request =
-                RecruitmentPositionRequestFixture.buildUpdateRecruitmentPositionRequestAcceptedMoreThanHeadcount();
-
         //when & then
-        assertThrows(GlobalException.class,()->recruitmentPositionCommandService.modifyRecruitmentPosition(
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.modifyRecruitmentPosition(
                 user.getId(),
-                1L,
-                request
+                recruitmentPositionId,
+                RecruitmentPositionRequestFixture.buildUpdateRecruitmentPositionRequestAcceptedMoreThanHeadcount()
         ));
     }
 
@@ -136,19 +133,19 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("모집 포지션 삭제에 성공한다.")
     void removeRecruitmentPosition_Success() {
         //when
-        recruitmentPositionCommandService.removeRecruitmentPosition(user.getId(), 1L);
+        recruitmentPositionCommandService.removeRecruitmentPosition(user.getId(), recruitmentPositionId);
 
         //then
-        assertEquals(0, recruitmentPositionRepository.count());
+        assertEquals(1, recruitmentPositionRepository.count());
     }
 
     @Test
     @DisplayName("존재하지 않는 데이터여도 모집 포지션 삭제에 성공한다.")
     void removeRecruitmentPosition_WithoutExistsData_Success() {
         //when
-        recruitmentPositionCommandService.removeRecruitmentPosition(user.getId(), 2L);
+        recruitmentPositionCommandService.removeRecruitmentPosition(user.getId(), 123456789L);
 
         //then
-        assertEquals(1, recruitmentPositionRepository.count());
+        assertEquals(2, recruitmentPositionRepository.count());
     }
 }
