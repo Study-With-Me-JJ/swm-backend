@@ -1,4 +1,4 @@
-package com.jj.swm.domain.study;
+package com.jj.swm.domain.study.core.fixture.entity;
 
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
@@ -7,12 +7,11 @@ import com.jj.swm.domain.user.core.entity.User;
 
 public class StudyFixture {
 
-    public static final Long studyId = -1L;
-
-    public static Study createStudy(User user) {
+    public static Study buildStudy(User user) {
         return Study.builder()
                 .title("test_title")
                 .content("test_content")
+                .openChatUrl("test_openChatUrl")
                 .category(StudyCategory.ALGORITHM)
                 .likeCount(0)
                 .commentCount(0)

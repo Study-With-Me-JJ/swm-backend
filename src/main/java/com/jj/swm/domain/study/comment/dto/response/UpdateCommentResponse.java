@@ -14,9 +14,9 @@ public class UpdateCommentResponse {
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime updatedAt;
 
-    public static UpdateCommentResponse from(StudyComment comment) {
+    public static UpdateCommentResponse from() {
         return UpdateCommentResponse.builder()
-                .updatedAt(comment.getUpdatedAt())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 }
