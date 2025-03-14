@@ -334,7 +334,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     void studyRoom_getUserStudyRooms_Success() {
         //when
         PageResponse<GetStudyRoomResponse> response
-                = queryService.getUserStudyRooms(0, roomAdmin.getId());
+                = queryService.getUserStudyRooms(roomAdmin.getId(), 0);
 
         //then
         assertThat(response.getData().size()).isGreaterThan(0);
@@ -349,7 +349,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
         //when
         PageResponse<GetStudyRoomResponse> response
-                = queryService.getUserLikedStudyRooms(0, user.getId());
+                = queryService.getUserLikedStudyRooms(user.getId(), 0);
 
         //then
         assertThat(response.getData().size()).isGreaterThan(0);
@@ -369,7 +369,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
         //when
         PageResponse<GetStudyRoomResponse> response
-                = queryService.getUserBookmarkedStudyRooms(0, user.getId());
+                = queryService.getUserBookmarkedStudyRooms(user.getId(), 0);
 
         //then
         assertThat(response.getData().size()).isGreaterThan(0);

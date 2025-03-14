@@ -81,7 +81,7 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyRoomResponse> getUserStudyRooms(int pageNo, UUID userId) {
+    public PageResponse<GetStudyRoomResponse> getUserStudyRooms(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyRoom,
@@ -95,7 +95,7 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyRoomResponse> getUserLikedStudyRooms(int pageNo, UUID userId) {
+    public PageResponse<GetStudyRoomResponse> getUserLikedStudyRooms(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyRoom,
@@ -109,7 +109,7 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyRoomResponse> getUserBookmarkedStudyRooms(int pageNo, UUID userId) {
+    public PageResponse<GetStudyRoomResponse> getUserBookmarkedStudyRooms(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyRoom,

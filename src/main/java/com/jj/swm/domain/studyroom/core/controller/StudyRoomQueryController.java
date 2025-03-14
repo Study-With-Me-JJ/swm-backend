@@ -66,11 +66,11 @@ public class StudyRoomQueryController {
     @Secured("ROLE_ROOM_ADMIN")
     @GetMapping("/v1/studyroom/user/studyrooms")
     public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserStudyRooms(
-            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
-            Principal principal
+            Principal principal,
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
         PageResponse<GetStudyRoomResponse> response = queryService.getUserStudyRooms(
-                pageNo, UUID.fromString(principal.getName())
+                UUID.fromString(principal.getName()), pageNo
         );
 
         return ApiResponse.ok(response);
@@ -87,11 +87,11 @@ public class StudyRoomQueryController {
     )
     @GetMapping("/v1/studyroom/user/liked-studyrooms")
     public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserLikedStudyRooms(
-            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
-            Principal principal
+            Principal principal,
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
         PageResponse<GetStudyRoomResponse> response = queryService.getUserLikedStudyRooms(
-                pageNo, UUID.fromString(principal.getName())
+                UUID.fromString(principal.getName()), pageNo
         );
 
         return ApiResponse.ok(response);
@@ -108,11 +108,11 @@ public class StudyRoomQueryController {
     )
     @GetMapping("/v1/studyroom/user/bookmarked-studyrooms")
     public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserBookmarkedStudyRooms(
-            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
-            Principal principal
+            Principal principal,
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
         PageResponse<GetStudyRoomResponse> response = queryService.getUserBookmarkedStudyRooms(
-                pageNo, UUID.fromString(principal.getName())
+                UUID.fromString(principal.getName()), pageNo
         );
 
         return ApiResponse.ok(response);
