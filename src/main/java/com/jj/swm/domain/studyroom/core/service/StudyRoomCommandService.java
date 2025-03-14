@@ -51,7 +51,7 @@ public class StudyRoomCommandService {
     private final StudyRoomQnaRepository qnaRepository;
 
     @Transactional
-    public void create(CreateStudyRoomRequest request, UUID userId){
+    public void createStudyRoom(CreateStudyRoomRequest request, UUID userId){
         User user = userRepository.getReferenceById(userId);
 
         StudyRoom studyRoom = StudyRoom.of(request);
@@ -72,7 +72,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void update(
+    public void updateStudyRoomSettings(
             UpdateStudyRoomRequest request,
             Long studyRoomId,
             UUID userId
@@ -87,7 +87,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void updateSettings(
+    public void updateStudyRoomAssociations(
             UpdateStudyRoomSettingRequest request,
             Long studyRoomId,
             UUID userId
@@ -100,7 +100,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void delete(Long studyRoomId, UUID userId) {
+    public void deleteStudyRoom(Long studyRoomId, UUID userId) {
         if(!studyRoomRepository.existsByIdAndUserId(studyRoomId, userId))
             throw new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found");
 
@@ -116,7 +116,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public CreateStudyRoomLikeResponse createLike(Long studyRoomId, UUID userId) {
+    public CreateStudyRoomLikeResponse createStudyRoomLike(Long studyRoomId, UUID userId) {
         validateExistsLike(studyRoomId, userId);
 
         StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
@@ -132,7 +132,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void unLike(Long studyRoomId, UUID userId) {
+    public void deleteStudyRoomLike(Long studyRoomId, UUID userId) {
         StudyRoomLike studyRoomLike = validateLike(studyRoomId, userId);
 
         StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
@@ -142,7 +142,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public CreateStudyRoomBookmarkResponse createBookmark(Long studyRoomId, UUID userId) {
+    public CreateStudyRoomBookmarkResponse createStudyRoomBookmark(Long studyRoomId, UUID userId) {
         validateExistsBookmark(studyRoomId, userId);
         StudyRoom studyRoom = validateStudyRoom(studyRoomId);
         User user = userRepository.getReferenceById(userId);
@@ -155,7 +155,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void unBookmark(Long studyRoomBookmarkId, UUID userId) {
+    public void deleteStudyRoomBookmark(Long studyRoomBookmarkId, UUID userId) {
         StudyRoomBookmark studyRoomBookmark = bookmarkRepository.findByIdAndUserId(studyRoomBookmarkId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomBookmark Not Found"));
 

@@ -35,10 +35,10 @@ public class StudyRoomCommandController {
     )
     @Secured("ROLE_ROOM_ADMIN")
     @PostMapping("/v1/studyroom")
-    public ApiResponse<Void> create(
+    public ApiResponse<Void> createStudyRoom(
             @Valid @RequestBody CreateStudyRoomRequest request, Principal principal
     ) {
-        commandService.create(request, UUID.fromString(principal.getName()));
+        commandService.createStudyRoom(request, UUID.fromString(principal.getName()));
 
         return ApiResponse.created(null);
     }
@@ -53,12 +53,12 @@ public class StudyRoomCommandController {
     )
     @Secured("ROLE_ROOM_ADMIN")
     @PatchMapping("/v1/studyroom/{studyRoomId}")
-    public ApiResponse<Void> update(
+    public ApiResponse<Void> updateStudyRoomSettings(
             @Valid @RequestBody UpdateStudyRoomRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {
-        commandService.update(
+        commandService.updateStudyRoomSettings(
                 request,
                 studyRoomId,
                 UUID.fromString(principal.getName())
@@ -77,12 +77,12 @@ public class StudyRoomCommandController {
     )
     @Secured("ROLE_ROOM_ADMIN")
     @PatchMapping("/v1/studyroom/settings/{studyRoomId}")
-    public ApiResponse<Void> updateSettings(
+    public ApiResponse<Void> updateStudyRoomAssociations(
             @Valid @RequestBody UpdateStudyRoomSettingRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {
-        commandService.updateSettings(
+        commandService.updateStudyRoomAssociations(
                 request,
                 studyRoomId,
                 UUID.fromString(principal.getName())
@@ -100,8 +100,8 @@ public class StudyRoomCommandController {
     )
     @Secured("ROLE_ROOM_ADMIN")
     @DeleteMapping("/v1/studyroom/{studyRoomId}")
-    public ApiResponse<Void> delete(@PathVariable("studyRoomId") Long studyRoomId, Principal principal) {
-        commandService.delete(studyRoomId, UUID.fromString(principal.getName()));
+    public ApiResponse<Void> deleteStudyRoom(@PathVariable("studyRoomId") Long studyRoomId, Principal principal) {
+        commandService.deleteStudyRoom(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -131,11 +131,11 @@ public class StudyRoomCommandController {
             responseCode = "201", description = "성공"
     )
     @PostMapping("/v1/studyroom/{studyRoomId}/like")
-    public ApiResponse<CreateStudyRoomLikeResponse> createLike(
+    public ApiResponse<CreateStudyRoomLikeResponse> createStudyRoomLike(
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
         CreateStudyRoomLikeResponse response
-                = commandService.createLike(studyRoomId, UUID.fromString(principal.getName()));
+                = commandService.createStudyRoomLike(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.created(response);
     }
@@ -148,10 +148,10 @@ public class StudyRoomCommandController {
             responseCode = "200", description = "성공"
     )
     @DeleteMapping("/v1/studyroom/like/{studyRoomId}")
-    public ApiResponse<Void> unLike(
+    public ApiResponse<Void> deleteStudyRoomLike(
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
-        commandService.unLike(studyRoomId, UUID.fromString(principal.getName()));
+        commandService.deleteStudyRoomLike(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -164,11 +164,11 @@ public class StudyRoomCommandController {
             responseCode = "201", description = "성공"
     )
     @PostMapping("/v1/studyroom/{studyRoomId}/bookmark")
-    public ApiResponse<CreateStudyRoomBookmarkResponse> createBookmark(
+    public ApiResponse<CreateStudyRoomBookmarkResponse> createStudyRoomBookmark(
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
         CreateStudyRoomBookmarkResponse response =
-                commandService.createBookmark(studyRoomId, UUID.fromString(principal.getName()));
+                commandService.createStudyRoomBookmark(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.created(response);
     }
@@ -181,10 +181,10 @@ public class StudyRoomCommandController {
             responseCode = "200", description = "성공"
     )
     @DeleteMapping("/v1/studyroom/bookmark/{studyRoomBookmarkId}")
-    public ApiResponse<Void> unBookmark(
+    public ApiResponse<Void> deleteStudyRoomBookmark(
             @PathVariable("studyRoomBookmarkId") Long studyRoomBookmarkId, Principal principal
     ) {
-        commandService.unBookmark(studyRoomBookmarkId, UUID.fromString(principal.getName()));
+        commandService.deleteStudyRoomBookmark(studyRoomBookmarkId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

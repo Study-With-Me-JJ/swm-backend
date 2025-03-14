@@ -98,7 +98,7 @@ public class UserCommandService {
     }
 
     @Transactional
-    public void create(CreateUserRequest createRequest) {
+    public void createUser(CreateUserRequest createRequest) {
         validateNicknameAndLoginId(createRequest.getNickname(), createRequest.getLoginId());
 
         User user = User.from(createRequest);
@@ -119,7 +119,7 @@ public class UserCommandService {
     }
 
     @Transactional
-    public void update(UpdateUserRequest request, UUID userId) {
+    public void updateUser(UpdateUserRequest request, UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
 
@@ -131,7 +131,7 @@ public class UserCommandService {
     }
 
     @Transactional
-    public void delete(UUID userId) {
+    public void deleteUser(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
 

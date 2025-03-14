@@ -18,7 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -67,7 +66,7 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public GetStudyRoomDetailResponse getStudyRoomDetail(Long studyRoomId, UUID userId) {
+    public GetStudyRoomDetailResponse getStudyRoomDetails(Long studyRoomId, UUID userId) {
         StudyRoom studyRoom = studyRoomRepository.findByIdWithTags(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
 
@@ -105,7 +104,7 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyRoomResponse> getLikedStudyRooms(int pageNo, UUID userId) {
+    public PageResponse<GetStudyRoomResponse> getUserLikedStudyRooms(int pageNo, UUID userId) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyRoom,
@@ -119,7 +118,7 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyRoomResponse> getBookmarkedStudyRooms(int pageNo, UUID userId) {
+    public PageResponse<GetStudyRoomResponse> getUserBookmarkedStudyRooms(int pageNo, UUID userId) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyRoom,
