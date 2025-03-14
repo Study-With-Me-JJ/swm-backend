@@ -135,7 +135,7 @@ public class StudyCommandService {
 
     @Transactional
     public void deleteStudyLike(Long studyId, UUID userId) {
-        StudyLike studyLike = studyLikeRepository.findByUserIdAndStudyId(studyId, userId)
+        StudyLike studyLike = studyLikeRepository.findByStudyIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
 
         Study study = findByIdUsingLockOrThrow(studyId);
@@ -233,13 +233,13 @@ public class StudyCommandService {
     }
 
     private void throwIfAlreadyBookmarked(Long studyId, UUID userId) {
-        if (studyBookmarkRepository.existsByUserIdAndStudyId(studyId, userId)) {
+        if (studyBookmarkRepository.existsByStudyIdAndUserId(studyId, userId)) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
         }
     }
 
     private void throwIfAlreadyLiked(Long studyId, UUID userId) {
-        if (studyLikeRepository.existsByUserIdAndStudyId(studyId, userId)) {
+        if (studyLikeRepository.existsByStudyIdAndUserId(studyId, userId)) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
         }
     }

@@ -169,8 +169,8 @@ public class StudyQueryService {
         }
 
         return new LikeStatusAndBookmarkId(
-                studyLikeRepository.existsByUserIdAndStudyId(studyId, userId),
-                studyBookmarkRepository.findIdByUserIdAndStudyId(userId, studyId)
+                studyLikeRepository.existsByStudyIdAndUserId(studyId, userId),
+                studyBookmarkRepository.findIdByStudyIdAndUserId(studyId, userId)
         );
     }
 

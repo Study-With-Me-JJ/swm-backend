@@ -140,12 +140,11 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     }
 
     @Test
-    @DisplayName("존재하지 않는 데이터여도 모집 포지션 삭제에 성공한다.")
-    void deleteRecruitmentPosition_WithoutExistsData_Success() {
-        //when
-        recruitmentPositionCommandService.deleteRecruitmentPosition(123456789L, user.getId());
-
-        //then
-        assertEquals(2, recruitmentPositionRepository.count());
+    @DisplayName("존재하지 않는 모집 포지션이면 삭제에 실패한다.")
+    void deleteRecruitmentPosition_WhenNonExists_ThenFail() {
+        //when & then
+        assertThrows(
+                GlobalException.class,
+                () -> recruitmentPositionCommandService.deleteRecruitmentPosition(123456789L, user.getId()));
     }
 }

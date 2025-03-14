@@ -8,7 +8,6 @@ import com.jj.swm.domain.study.comment.service.CommentCommandService;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
-import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.fixture.StudyRequestFixture;
@@ -262,19 +261,13 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("이미 북마크한 것에 북마크하면 기존 북마크 정보를 반환하는 것에 성공한다.")
-    void createStudyBookmark_AlreadyExists_Success() {
+    @DisplayName("이미 북마크한 것에 북마크하면 실패한다.")
+    void createStudyBookmark_WhenAlreadyExists_ThenFail() {
         //given
-        Long bookmarkId = studyCommandService.createStudyBookmark(studyId, user.getId()).getBookmarkId();
+        studyCommandService.createStudyBookmark(studyId, user.getId());
 
-        //when
-        CreateStudyBookmarkResponse response = studyCommandService.createStudyBookmark(studyId, user.getId());
-
-        //then
-        assertEquals(bookmarkId, response.getBookmarkId());
-
-        long count = studyBookmarkRepository.count();
-        assertEquals(1, count);
+        //when & then
+        assertThrows(GlobalException.class, () -> studyCommandService.createStudyBookmark(studyId, user.getId()));
     }
 
     @Test
@@ -292,10 +285,10 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("존재하지 않는 스터디 모집 북마크에 대해 삭제해도 성공한다.")
-    void deleteStudyBookmark_NonExists_Success() {
+    @DisplayName("존재하지 않는 스터디 모집 북마크에 대해 삭제하면 실패한다.")
+    void deleteStudyBookmark_WhenNonExists_ThenFail() {
         //when & then
-        assertDoesNotThrow(() -> studyCommandService.deleteStudyBookmark(123456789L, user.getId()));
+        assertThrows(GlobalException.class, () -> studyCommandService.deleteStudyBookmark(123456789L, user.getId()));
     }
 
     @Test
@@ -305,7 +298,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.createStudyLike(studyId, user.getId());
 
         //then
-        boolean result = studyLikeRepository.existsByUserIdAndStudyId(studyId, user.getId());
+        boolean result = studyLikeRepository.existsByStudyIdAndUserId(studyId, user.getId());
         assertTrue(result);
 
         Study study = studyRepository.findById(studyId).get();
@@ -313,15 +306,13 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("이미 좋아요한 것에 좋아요해도 성공한다.")
-    void createStudyLike_AlreadyExists_Success() {
+    @DisplayName("이미 좋아요한 것에 좋아요하면 실패한다.")
+    void createStudyLike_WhenAlreadyExists_ThenFail() {
         //given
         studyCommandService.createStudyLike(studyId, user.getId());
 
         //when & then
-        assertDoesNotThrow(() -> studyCommandService.createStudyLike(studyId, user.getId()));
-
-        assertEquals(1, studyLikeRepository.count());
+        assertThrows(GlobalException.class, () -> studyCommandService.createStudyLike(studyId, user.getId()));
     }
 
     @Test
@@ -366,7 +357,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.deleteStudyLike(studyId, user.getId());
 
         //then
-        boolean result = studyLikeRepository.existsByUserIdAndStudyId(studyId, user.getId());
+        boolean result = studyLikeRepository.existsByStudyIdAndUserId(studyId, user.getId());
         assertFalse(result);
 
         Study study = studyRepository.findById(1L).get();
@@ -374,10 +365,10 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("존재하지 않는 스터디 모집 좋아요에 대해 삭제해도 성공한다.")
-    void deleteStudyLike_NonExists_Success() {
+    @DisplayName("존재하지 않는 스터디 모집 좋아요에 대해 삭제하면 실패한다.")
+    void deleteStudyLike_WhenNonExists_ThenFail() {
         //when & then
-        assertDoesNotThrow(() -> studyCommandService.deleteStudyLike(studyId, user.getId()));
+        assertThrows(GlobalException.class, () -> studyCommandService.deleteStudyLike(studyId, user.getId()));
     }
 
     @Test
