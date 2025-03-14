@@ -68,7 +68,7 @@ public class StudyRoomCommandService {
             Long studyRoomId,
             UUID userId
     ){
-        StudyRoom studyRoom = validateStudyRoomWithUserId(studyRoomId, userId);
+        StudyRoom studyRoom = findByStudyRoomIdAndUserIdOrThrow(studyRoomId, userId);
 
         studyRoom.modifyStudyRoom(request);
 
@@ -83,7 +83,7 @@ public class StudyRoomCommandService {
             Long studyRoomId,
             UUID userId
     ) {
-        StudyRoom studyRoom = validateStudyRoomWithUserId(studyRoomId, userId);
+        StudyRoom studyRoom = findByStudyRoomIdAndUserIdOrThrow(studyRoomId, userId);
 
         modifyOptions(request.getOptionInfoModification(), studyRoom);
         modifyTypes(request.getTypeInfoModification(), studyRoom);
@@ -100,7 +100,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void deleteStudyRooms(List<Long> studyRoomIds, UUID userId) {
-        if(!studyRoomRepository.allExistsByIdsAndUserId(studyRoomIds, userId, studyRoomIds.size()))
+        if(!studyRoomRepository.validateAllExistsByIdsAndUserId(studyRoomIds, userId, studyRoomIds.size()))
             throw new GlobalException(ErrorCode.NOT_FOUND, "Some StudyRoom Not Found");
 
         deleteStudyRoomLogic(studyRoomIds);
@@ -117,7 +117,7 @@ public class StudyRoomCommandService {
 
         likeRepository.save(studyRoomLike);
 
-        studyRoom.likeStudyRoom();
+        studyRoom.addLike();
 
         return CreateStudyRoomLikeResponse.from(studyRoomLike);
     }
@@ -129,7 +129,7 @@ public class StudyRoomCommandService {
 
         StudyRoom studyRoom = findByStudyRoomIdWithLockOrThrow(studyRoomId);
 
-        studyRoom.unLikeStudyRoom();
+        studyRoom.unLike();
         likeRepository.delete(studyRoomLike);
     }
 
@@ -236,7 +236,8 @@ public class StudyRoomCommandService {
             if (isListPresent(request.getOptionsToAdd())) {
                 List<StudyRoomOption> optionsToAdd = request.getOptionsToAdd();
 
-                boolean isAlreadyExists = optionInfoRepository.existsByStudyRoomIdAndOptionIn(studyRoom.getId(), optionsToAdd);
+                boolean isAlreadyExists
+                        = optionInfoRepository.existsByStudyRoomIdAndOptionIn(studyRoom.getId(), optionsToAdd);
 
                 if(isAlreadyExists)
                     throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated Option");
@@ -329,7 +330,7 @@ public class StudyRoomCommandService {
                 reservationTypeIdsToRemove, studyRoom);
 
         if (size == reservationTypeIdsToRemove.size()) {
-            reserveTypeRepository.deleteAllByIdInBatch(reservationTypeIdsToRemove);
+            reserveTypeRepository.deleteByIds(reservationTypeIdsToRemove);
         } else {
             throw new GlobalException(ErrorCode.NOT_VALID, "Some reserve type not matching StudyRoom.");
         }
@@ -340,7 +341,7 @@ public class StudyRoomCommandService {
         tagRepository.deleteByStudyRoomIds(studyRoomId);
         optionInfoRepository.deleteByStudyRoomIds(studyRoomId);
         typeInfoRepository.deleteByStudyRoomIds(studyRoomId);
-        reserveTypeRepository.deleteByStudyRoomIds(studyRoomId);
+        reserveTypeRepository.deleteByStudyRoomId(studyRoomId);
         dayOffRepository.deleteByStudyRoomIds(studyRoomId);
         likeRepository.deleteByStudyRoomIds(studyRoomId);
         bookmarkRepository.deleteByStudyRoomIds(studyRoomId);
@@ -372,7 +373,7 @@ public class StudyRoomCommandService {
         }
     }
 
-    private StudyRoom validateStudyRoomWithUserId(Long studyRoomId, UUID userId) {
+    private StudyRoom findByStudyRoomIdAndUserIdOrThrow(Long studyRoomId, UUID userId) {
         return studyRoomRepository.findByIdAndUserIdWithUser(studyRoomId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "StudyRoom Not Found"));
     }

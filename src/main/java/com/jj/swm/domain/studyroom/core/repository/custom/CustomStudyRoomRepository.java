@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface CustomStudyRoomRepository {
 
-    List<StudyRoom> findAllWithPaginationAndCondition(int pageSize, GetStudyRoomCondition condition);
+    List<StudyRoom> findPagedStudyRoomByCondition(int pageSize, GetStudyRoomCondition condition);
 }

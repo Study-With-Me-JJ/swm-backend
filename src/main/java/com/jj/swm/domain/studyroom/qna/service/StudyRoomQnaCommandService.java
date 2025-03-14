@@ -46,7 +46,7 @@ public class StudyRoomQnaCommandService {
         );
 
         if(parentId != null){
-            StudyRoomQna parent = qnaRepository.findByIdWithParent(parentId, userId)
+            StudyRoomQna parent = qnaRepository.findByIdAndUserIdWithParent(parentId, userId)
                     .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Qna Not Found"));
 
             parent = parent.getParent() == null ? parent : parent.getParent();
@@ -77,7 +77,7 @@ public class StudyRoomQnaCommandService {
 
     @Transactional
     public void deleteQna(Long studyRoomQnaId, UUID userId) {
-        qnaRepository.deleteAllByIdOrParentIdAndUserId(studyRoomQnaId, userId);
+        qnaRepository.deleteAllByIdAndUserIdOrParentId(studyRoomQnaId, userId);
     }
 
     private boolean isNotQnaAuthorAndRoomAdmin(StudyRoomQna parent, User user, StudyRoom studyRoom){
