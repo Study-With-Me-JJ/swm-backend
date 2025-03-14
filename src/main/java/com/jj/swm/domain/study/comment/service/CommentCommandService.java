@@ -79,13 +79,13 @@ public class CommentCommandService {
 
     private void decrementCommentCountIfParent(Long studyId, StudyComment comment) {
         if (comment.getParent() == null) {
-            Study study = findByIdUsingPessimisticLockOrThrow(studyId);
+            Study study = findByIdUsingLockOrThrow(studyId);
             study.decrementCommentCount();
         }
     }
 
-    private Study findByIdUsingPessimisticLockOrThrow(Long studyId) {
-        return studyRepository.findByIdUsingPessimisticLock(studyId)
+    private Study findByIdUsingLockOrThrow(Long studyId) {
+        return studyRepository.findByIdUsingLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
@@ -104,7 +104,7 @@ public class CommentCommandService {
                     .map(comment -> comment.getParent() == null ? comment : comment.getParent())
                     .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
         } else {
-            study = findByIdUsingPessimisticLockOrThrow(studyId);
+            study = findByIdUsingLockOrThrow(studyId);
             study.incrementCommentCount();
         }
 

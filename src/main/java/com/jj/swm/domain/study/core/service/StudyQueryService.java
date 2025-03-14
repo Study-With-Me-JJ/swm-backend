@@ -68,7 +68,7 @@ public class StudyQueryService {
 
     @Transactional
     public GetStudyDetailsResponse getStudyDetails(UUID userId, Long studyId) {
-        Study study = studyRepository.findByIdWithUserUsingPessimisticLock(studyId)
+        Study study = studyRepository.findByIdWithUserUsingLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
         LikeStatusAndBookmarkId likeStatusAndBookmarkId = getLikeStatusAndBookmarkIdBasedOnLogin(userId, studyId);

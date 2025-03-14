@@ -16,11 +16,6 @@ public interface RecruitmentPositionRepository extends
     Optional<StudyRecruitmentPosition> findByIdAndStudyUserId(Long recruitmentPositionId, UUID userId);
 
     @Modifying
-    @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP " +
-            "where rp.id = ?1 and rp.study.user.id = ?2")
-    void deleteByIdAndStudyUserId(Long recruitmentPositionId, UUID userId);
-
-    @Modifying
     @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP where rp.study.id = ?1")
     void deleteAllByStudyId(Long studyId);
 

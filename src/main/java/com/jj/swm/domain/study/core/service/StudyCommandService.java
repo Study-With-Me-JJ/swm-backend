@@ -125,7 +125,7 @@ public class StudyCommandService {
 
         User user = userRepository.getReferenceById(userId);
 
-        Study study = findByIdUsingPessimisticLockOrThrow(studyId);
+        Study study = findByIdUsingLockOrThrow(studyId);
 
         StudyLike studyLike = StudyLike.of(user, study);
         studyLikeRepository.save(studyLike);
@@ -138,7 +138,7 @@ public class StudyCommandService {
         StudyLike studyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
 
-        Study study = findByIdUsingPessimisticLockOrThrow(studyId);
+        Study study = findByIdUsingLockOrThrow(studyId);
 
         studyLikeRepository.delete(studyLike);
 
@@ -162,8 +162,8 @@ public class StudyCommandService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
-    private Study findByIdUsingPessimisticLockOrThrow(Long studyId) {
-        return studyRepository.findByIdUsingPessimisticLock(studyId)
+    private Study findByIdUsingLockOrThrow(Long studyId) {
+        return studyRepository.findByIdUsingLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
