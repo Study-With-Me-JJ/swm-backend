@@ -42,7 +42,7 @@ public class StudyRoomQueryService {
             UUID userId
     ) {
         List<StudyRoom> studyRooms
-                = studyRoomRepository.findAllWithPaginationAndCondition(PageSize.StudyRoom + 1, condition);
+                = studyRoomRepository.findPagedStudyRoomByCondition(PageSize.StudyRoom + 1, condition);
 
         if(studyRooms.isEmpty()) {
             return PageResponse.of(List.of(), false);
@@ -52,14 +52,14 @@ public class StudyRoomQueryService {
 
         List<StudyRoom> pagedStudyRooms = hasNext ? studyRooms.subList(0, PageSize.StudyRoom) : studyRooms;
 
-        Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyRoom
-                = getStudyRoomLikeAndBookmarkMapping(pagedStudyRooms, userId);
+        Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdMap
+                = getStudyRoomLikeStatusAndBookmarkIdMap(pagedStudyRooms, userId);
 
         List<GetStudyRoomResponse> responses = pagedStudyRooms.stream()
                 .map(studyRoom -> GetStudyRoomResponse.of(
                         studyRoom,
-                        likeStatusAndBookmarkIdByStudyRoom.get(studyRoom.getId()).likeStatus,
-                        likeStatusAndBookmarkIdByStudyRoom.get(studyRoom.getId()).bookmarkId()
+                        likeStatusAndBookmarkIdMap.get(studyRoom.getId()).likeStatus,
+                        likeStatusAndBookmarkIdMap.get(studyRoom.getId()).bookmarkId()
                 )).toList();
 
         return PageResponse.of(responses, hasNext);
@@ -70,22 +70,13 @@ public class StudyRoomQueryService {
         StudyRoom studyRoom = studyRoomRepository.findByIdWithTags(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
 
-        LikeStatusAndBookmarkId likeStatusAndBookmarkId = getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(studyRoomId, userId);
+        LikeStatusAndBookmarkId likeStatusAndBookmarkId
+                = getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(studyRoomId, userId);
 
-        return createAllOfStudyRoomRelatedResponse(
+        return buildGetStudyRoomDetailsResponse(
                 likeStatusAndBookmarkId.likeStatus,
                 likeStatusAndBookmarkId.bookmarkId,
                 studyRoom
-        );
-    }
-
-    private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(Long studyRoomId, UUID userId) {
-        if(userId == null)
-            return new LikeStatusAndBookmarkId(false, null);
-
-        return new LikeStatusAndBookmarkId(
-                likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId),
-                bookmarkRepository.findIdByStudyRoomIdAndUserId(studyRoomId, userId)
         );
     }
 
@@ -125,14 +116,13 @@ public class StudyRoomQueryService {
                 Sort.by("id").descending()
         );
 
-        Page<StudyRoom> pagedStudyRoom = bookmarkRepository.findPagedStudyRoomByUserId(
-                userId, pageable
-        );
+        Page<StudyRoom> pagedStudyRoom
+                = bookmarkRepository.findPagedStudyRoomByUserId(userId, pageable);
 
         return PageResponse.of(pagedStudyRoom, GetStudyRoomResponse::of);
     }
 
-    private GetStudyRoomDetailResponse createAllOfStudyRoomRelatedResponse(
+    private GetStudyRoomDetailResponse buildGetStudyRoomDetailsResponse(
             boolean likeStatus,
             Long bookmarkId,
             StudyRoom studyRoom
@@ -172,7 +162,7 @@ public class StudyRoomQueryService {
         );
     }
 
-    private Map<Long, LikeStatusAndBookmarkId> getStudyRoomLikeAndBookmarkMapping(List<StudyRoom> studyRooms, UUID userId) {
+    private Map<Long, LikeStatusAndBookmarkId> getStudyRoomLikeStatusAndBookmarkIdMap(List<StudyRoom> studyRooms, UUID userId) {
         if(userId == null){
             return studyRooms.stream()
                     .collect(Collectors.toMap(StudyRoom::getId, studyRoom -> new LikeStatusAndBookmarkId(false, null)));
@@ -193,6 +183,16 @@ public class StudyRoomQueryService {
                     likesMap.getOrDefault(studyRoomId, null) != null,
                     bookmarksMap.getOrDefault(studyRoomId, null)
                 )));
+    }
+
+    private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(Long studyRoomId, UUID userId) {
+        if(userId == null)
+            return new LikeStatusAndBookmarkId(false, null);
+
+        return new LikeStatusAndBookmarkId(
+                likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId),
+                bookmarkRepository.findIdByStudyRoomIdAndUserId(studyRoomId, userId)
+        );
     }
 
     private record LikeStatusAndBookmarkId(boolean likeStatus, Long bookmarkId) {

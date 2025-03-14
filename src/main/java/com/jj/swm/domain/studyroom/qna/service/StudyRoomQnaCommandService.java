@@ -70,7 +70,7 @@ public class StudyRoomQnaCommandService {
         StudyRoomQna studyRoomQna = qnaRepository.findByIdAndUserId(studyRoomQnaId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Qna Not Found"));
 
-        studyRoomQna.modify(request.getComment());
+        studyRoomQna.modifyComment(request.getComment());
 
         return UpdateStudyRoomQnaResponse.from(studyRoomQna);
     }
