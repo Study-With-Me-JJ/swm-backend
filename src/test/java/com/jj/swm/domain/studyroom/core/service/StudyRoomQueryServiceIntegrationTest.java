@@ -46,6 +46,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Autowired private UserRepository userRepository;
     @Autowired private StudyRoomReviewRepository reviewRepository;
 
+    private User roomAdmin;
     private List<User> users;
     private List<StudyRoom> studyRooms;
 
@@ -57,7 +58,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
      */
     @BeforeEach
     void setUp(){
-        User roomAdmin = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
+        roomAdmin = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
 
         users = createTestUsers();
         studyRooms = new ArrayList<>();
@@ -325,6 +326,18 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
         //then
         assertThat(response.getBookmarkId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("특정 유저가 생성한 스터디 룸 목록을 반환한다.")
+    @Transactional
+    void studyRoom_getUserStudyRooms_Success() {
+        //when
+        PageResponse<GetStudyRoomResponse> response
+                = queryService.getUserStudyRooms(0, roomAdmin.getId());
+
+        //then
+        assertThat(response.getData().size()).isGreaterThan(0);
     }
 
     @Test

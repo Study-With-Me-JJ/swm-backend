@@ -91,6 +91,20 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
+    public PageResponse<GetStudyRoomResponse> getUserStudyRooms(int pageNo, UUID userId) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.StudyRoom,
+                Sort.by("id").descending()
+        );
+
+        Page<StudyRoom> pagedStudyRoom
+                = studyRoomRepository.findPagedStudyRoomByUserId(userId, pageable);
+
+        return PageResponse.of(pagedStudyRoom, GetStudyRoomResponse::of);
+    }
+
+    @Transactional(readOnly = true)
     public PageResponse<GetStudyRoomResponse> getLikedStudyRooms(int pageNo, UUID userId) {
         Pageable pageable = PageRequest.of(
                 pageNo,
@@ -157,18 +171,6 @@ public class StudyRoomQueryService {
                 optionInfoResponses,
                 typeInfoResponses
         );
-    }
-
-    private Map<Long, Long> getStudyRoomBookmarkMapping(List<StudyRoom> studyRooms, UUID userId) {
-        List<Long> studyRoomIds = studyRooms.stream()
-                .map(StudyRoom::getId)
-                .toList();
-
-        return userId != null
-                ? bookmarkRepository.findAllByUserIdAndStudyRoomIds(userId, studyRoomIds)
-                .stream()
-                .collect(Collectors.toMap(StudyRoomBookmarkInfo::studyRoomId, StudyRoomBookmarkInfo::id))
-                : Collections.emptyMap();
     }
 
     private Map<Long, LikeStatusAndBookmarkId> getStudyRoomLikeAndBookmarkMapping(List<StudyRoom> studyRooms, UUID userId) {

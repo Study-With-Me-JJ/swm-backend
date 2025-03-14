@@ -3,6 +3,8 @@ package com.jj.swm.domain.studyroom.core.repository;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.core.repository.custom.CustomStudyRoomRepository;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -43,4 +45,7 @@ public interface StudyRoomRepository extends JpaRepository<StudyRoom, Long>, Cus
     @Modifying
     @Query("update StudyRoom s set s.deletedAt = CURRENT_TIMESTAMP where s.id in ?1")
     void deleteByIdWithJpql(List<Long> studyRoomId);
+
+    @Query("select s from StudyRoom s where s.user.id = ?1")
+    Page<StudyRoom> findPagedStudyRoomByUserId(UUID userId, Pageable pageable);
 }
