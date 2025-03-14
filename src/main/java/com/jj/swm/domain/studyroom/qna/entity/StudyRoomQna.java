@@ -60,7 +60,7 @@ public class StudyRoomQna extends BaseTimeEntity {
         this.parent = parent;
     }
 
-    public void modify(String comment){
+    public void modifyComment(String comment){
         this.comment = comment;
     }
 }
