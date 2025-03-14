@@ -24,7 +24,7 @@ public class StudyLike {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public static StudyLike of(User user, Study study) {
+    public static StudyLike of(Study study, User user) {
         return StudyLike.builder()
                 .user(user)
                 .study(study)

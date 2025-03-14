@@ -15,7 +15,7 @@ public class JdbcStudyImageRepositoryImpl implements JdbcStudyImageRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void batchInsert(Study study, List<String> imageUrls) {
+    public void batchInsert(List<String> imageUrls, Study study) {
         String sql = "insert into study_image(study_id, image_url) VALUES(?,?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {

@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Long>, CustomStudyBookmarkRepository {
 
-    boolean existsByUserIdAndStudyId(UUID userId, Long studyId);
+    boolean existsByUserIdAndStudyId(Long studyId, UUID userId);
 
     @Modifying
     @Query("delete from StudyBookmark b where b.study.id = ?1")

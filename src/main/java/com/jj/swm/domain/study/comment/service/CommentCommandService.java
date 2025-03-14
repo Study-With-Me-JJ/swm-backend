@@ -27,10 +27,10 @@ public class CommentCommandService {
 
     @Transactional
     public CreateCommentResponse createComment(
-            UUID userId,
+            UpsertCommentRequest createRequest,
             Long studyId,
             Long parentId,
-            UpsertCommentRequest createRequest
+            UUID userId
     ) {
         User user = userRepository.getReferenceById(userId);
 
@@ -40,9 +40,9 @@ public class CommentCommandService {
         );
 
         StudyComment comment = buildComment(
-                user,
+                createRequest,
                 studyAndParentComment,
-                createRequest
+                user
         );
 
         commentRepository.save(comment);
@@ -52,9 +52,9 @@ public class CommentCommandService {
 
     @Transactional
     public UpdateCommentResponse updateComment(
-            UUID userId,
+            UpsertCommentRequest updateRequest,
             Long commentId,
-            UpsertCommentRequest updateRequest
+            UUID userId
     ) {
         StudyComment comment = commentRepository.findByIdAndUserId(commentId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
@@ -65,9 +65,9 @@ public class CommentCommandService {
 
     @Transactional
     public void deleteComment(
-            UUID userId,
             Long studyId,
-            Long commentId
+            Long commentId,
+            UUID userId
     ) {
         StudyComment comment = commentRepository.findByIdAndUserIdWithParent(commentId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
@@ -112,14 +112,14 @@ public class CommentCommandService {
     }
 
     private StudyComment buildComment(
-            User user,
+            UpsertCommentRequest createRequest,
             StudyAndParentComment studyAndParentComment,
-            UpsertCommentRequest createRequest
+            User user
     ) {
         StudyComment comment = StudyComment.of(
-                user,
+                createRequest,
                 studyAndParentComment.study(),
-                createRequest
+                user
         );
 
         StudyComment parent = studyAndParentComment.parent();

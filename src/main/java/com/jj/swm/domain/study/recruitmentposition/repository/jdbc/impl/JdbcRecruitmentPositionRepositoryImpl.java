@@ -19,7 +19,7 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void batchInsert(Study study, List<CreateRecruitmentPositionRequest> requests) {
+    public void batchInsert(List<CreateRecruitmentPositionRequest> requests, Study study) {
         String sql = "insert into study_recruitment_position(study_id, title, headcount, accepted_count) " +
                 " VALUES(?,?,?,?)";
 

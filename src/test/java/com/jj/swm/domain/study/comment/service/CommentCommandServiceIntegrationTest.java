@@ -50,12 +50,12 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
-        studyCommandService.createStudy(user.getId(), StudyRequestFixture.createStudyRequest());
+        studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
         commentId = commentCommandService.createComment(
-                user.getId(),
+                CommentRequestFixture.createCommentRequest(),
                 studyId,
                 null,
-                CommentRequestFixture.createCommentRequest()
+                user.getId()
         ).getCommentId();
     }
 
@@ -67,10 +67,10 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
         //when
         Long newCommentId = commentCommandService.createComment(
-                user.getId(),
+                createRequest,
                 studyId,
                 null,
-                createRequest
+                user.getId()
         ).getCommentId();
 
         //then
@@ -89,10 +89,10 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     void createComment_WithParentId_Success() {
         //when
         Long replyId = commentCommandService.createComment(
-                user.getId(),
+                CommentRequestFixture.createCommentRequest(),
                 studyId,
                 commentId,
-                CommentRequestFixture.createCommentRequest()
+                user.getId()
         ).getCommentId();
 
         //then
@@ -109,18 +109,18 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         //given
         UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
         Long replyId = commentCommandService.createComment(
-                user.getId(),
+                createRequest,
                 studyId,
                 commentId,
-                createRequest
+                user.getId()
         ).getCommentId();
 
         //when
         Long reRePlyId = commentCommandService.createComment(
-                user.getId(),
+                createRequest,
                 studyId,
                 replyId,
-                createRequest
+                user.getId()
         ).getCommentId();
 
         //then
@@ -136,9 +136,9 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
         //when
         UpdateCommentResponse response = commentCommandService.updateComment(
-                user.getId(),
+                updateRequest,
                 commentId,
-                updateRequest
+                user.getId()
         );
 
         //then
@@ -153,9 +153,9 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     void deleteComment_Success() {
         //when
         commentCommandService.deleteComment(
-                user.getId(),
                 studyId,
-                commentId
+                commentId,
+                user.getId()
         );
 
         //then
@@ -169,17 +169,17 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("대댓글이 있어도 스터디 모집 댓글 삭제에 성공한다.")
     void deleteComment_WithReply_Success() {
         commentCommandService.createComment(
-                user.getId(),
+                CommentRequestFixture.createCommentRequest(),
                 studyId,
                 commentId,
-                CommentRequestFixture.createCommentRequest()
+                user.getId()
         );
 
         //when
         commentCommandService.deleteComment(
-                user.getId(),
                 studyId,
-                commentId
+                commentId,
+                user.getId()
         );
 
         //then
@@ -194,17 +194,17 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     void deleteComment_WithReplyId_Success() {
         //given
         Long replyId = commentCommandService.createComment(
-                user.getId(),
+                CommentRequestFixture.createCommentRequest(),
                 studyId,
                 commentId,
-                CommentRequestFixture.createCommentRequest()
+                user.getId()
         ).getCommentId();
 
         //when
         commentCommandService.deleteComment(
-                user.getId(),
                 studyId,
-                replyId
+                replyId,
+                user.getId()
         );
 
         //then

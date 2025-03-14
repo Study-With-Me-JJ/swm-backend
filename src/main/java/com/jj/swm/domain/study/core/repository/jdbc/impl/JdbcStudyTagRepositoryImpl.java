@@ -17,7 +17,7 @@ public class JdbcStudyTagRepositoryImpl implements JdbcStudyTagRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void batchInsert(Study study, List<String> tags) {
+    public void batchInsert(List<String> tags, Study study) {
         String sql = "insert into study_tag(study_id, name) VALUES(?,?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {

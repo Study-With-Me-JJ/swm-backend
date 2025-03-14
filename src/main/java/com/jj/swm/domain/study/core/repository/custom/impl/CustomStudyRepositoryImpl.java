@@ -26,7 +26,7 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Study> findPagedStudyByCondition(int pageSize, GetStudyCondition condition) {
+    public List<Study> findPagedStudyByCondition(GetStudyCondition condition, int pageSize) {
         return jpaQueryFactory.selectFrom(study)
                 .where(
                         studyTitleContains(condition.getTitle()),

@@ -26,16 +26,16 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public CreateRecruitmentPositionResponse createRecruitmentPosition(
-            UUID userId,
+            CreateRecruitmentPositionRequest request,
             Long studyId,
-            CreateRecruitmentPositionRequest request
+            UUID userId
     ) {
         validateRecruitmentPositionSizeLimit(studyId);
 
         Study study = studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
-        StudyRecruitmentPosition recruitmentPosition = StudyRecruitmentPosition.of(study, request);
+        StudyRecruitmentPosition recruitmentPosition = StudyRecruitmentPosition.of(request, study);
         recruitmentPositionRepository.save(recruitmentPosition);
 
         return CreateRecruitmentPositionResponse.from(recruitmentPosition);
@@ -43,11 +43,11 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public void updateRecruitmentPosition(
-            UUID userId,
+            UpdateRecruitmentPositionRequest request,
             Long recruitmentPositionId,
-            UpdateRecruitmentPositionRequest request
+            UUID userId
     ) {
-        StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(userId, recruitmentPositionId);
+        StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
 
         validateAcceptedCount(request);
 
@@ -55,8 +55,8 @@ public class RecruitmentPositionCommandService {
     }
 
     @Transactional
-    public void deleteRecruitmentPosition(UUID userId, Long recruitmentPositionId) {
-        StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(userId, recruitmentPositionId);
+    public void deleteRecruitmentPosition(Long recruitmentPositionId, UUID userId) {
+        StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
 
         recruitmentPositionRepository.delete(recruitmentPosition);
     }
@@ -74,7 +74,7 @@ public class RecruitmentPositionCommandService {
         }
     }
 
-    private StudyRecruitmentPosition findByIdAndUserIdOrThrow(UUID userId, Long recruitmentPositionId) {
+    private StudyRecruitmentPosition findByIdAndUserIdOrThrow(Long recruitmentPositionId, UUID userId) {
         return recruitmentPositionRepository.findByIdAndStudyUserId(recruitmentPositionId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
     }

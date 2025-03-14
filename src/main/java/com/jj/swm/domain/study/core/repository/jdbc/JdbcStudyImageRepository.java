@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface JdbcStudyImageRepository {
 
-    void batchInsert(Study study, List<String> imageUrls);
+    void batchInsert(List<String> imageUrls, Study study);
 }

@@ -39,53 +39,53 @@ public class StudyCommandService {
     private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional
-    public void createStudy(UUID userId, CreateStudyRequest request) {
+    public void createStudy(CreateStudyRequest request, UUID userId) {
         User user = userRepository.getReferenceById(userId);
 
-        Study study = Study.of(user, request);
+        Study study = Study.of(request, user);
         studyRepository.save(study);
 
-        insertTagsIfPresent(study, request.getTags());
+        insertTagsIfPresent(request.getTags(), study);
 
-        insertImagesIfPresent(study, request.getImageUrls());
+        insertImagesIfPresent(request.getImageUrls(), study);
 
-        recruitmentPositionRepository.batchInsert(study, request.getCreateRecruitmentPositionRequests());
+        recruitmentPositionRepository.batchInsert(request.getCreateRecruitmentPositionRequests(), study);
     }
 
     @Transactional
     public void updateStudy(
-            UUID userId,
+            UpdateStudyRequest request,
             Long studyId,
-            UpdateStudyRequest request
+            UUID userId
     ) {
-        Study study = findByIdAndUserIdOrThrow(userId, studyId);
+        Study study = findByIdAndUserIdOrThrow(studyId, userId);
 
-        modifyTags(study, request.getModifyTagRequest());
+        modifyTags(request.getModifyTagRequest(), study);
 
-        modifyImages(study, request.getModifyImageRequest());
+        modifyImages(request.getModifyImageRequest(), study);
 
         study.modify(request);
     }
 
     @Transactional
     public void updateStudyStatus(
-            UUID userId,
+            UpdateStudyStatusRequest request,
             Long studyId,
-            UpdateStudyStatusRequest request
+            UUID userId
     ) {
-        Study study = findByIdAndUserIdOrThrow(userId, studyId);
+        Study study = findByIdAndUserIdOrThrow(studyId, userId);
         study.modifyStatus(request);
     }
 
     @Transactional
-    public void deleteStudy(UUID userId, Long studyId) {
-        Study study = findByIdAndUserIdOrThrow(userId, studyId);
+    public void deleteStudy(Long studyId, UUID userId) {
+        Study study = findByIdAndUserIdOrThrow(studyId, userId);
 
         deleteStudyAndAssociations(studyId, study);
     }
 
     @Transactional
-    public void deleteStudies(UUID userId, DeleteStudiesRequest request) {
+    public void deleteStudies(DeleteStudiesRequest request, UUID userId) {
         List<Long> studyIds = request.getStudyIds();
         long numToDelete = studyRepository.countByIdInAndUserId(studyIds, userId);
 
@@ -97,8 +97,8 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public CreateStudyBookmarkResponse createStudyBookmark(UUID userId, Long studyId) {
-        throwIfAlreadyBookmarked(userId, studyId);
+    public CreateStudyBookmarkResponse createStudyBookmark(Long studyId, UUID userId) {
+        throwIfAlreadyBookmarked(studyId, userId);
 
         User user = userRepository.getReferenceById(userId);
 
@@ -112,7 +112,7 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public void deleteStudyBookmark(UUID userId, Long bookmarkId) {
+    public void deleteStudyBookmark(Long bookmarkId, UUID userId) {
         StudyBookmark studyBookmark = studyBookmarkRepository.findByIdAndUserId(bookmarkId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study bookmark not found"));
 
@@ -120,22 +120,22 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public void createStudyLike(UUID userId, Long studyId) {
-        throwIfAlreadyLiked(userId, studyId);
+    public void createStudyLike(Long studyId, UUID userId) {
+        throwIfAlreadyLiked(studyId, userId);
 
         User user = userRepository.getReferenceById(userId);
 
         Study study = findByIdUsingLockOrThrow(studyId);
 
-        StudyLike studyLike = StudyLike.of(user, study);
+        StudyLike studyLike = StudyLike.of(study, user);
         studyLikeRepository.save(studyLike);
 
         study.incrementLikeCount();
     }
 
     @Transactional
-    public void deleteStudyLike(UUID userId, Long studyId) {
-        StudyLike studyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId)
+    public void deleteStudyLike(Long studyId, UUID userId) {
+        StudyLike studyLike = studyLikeRepository.findByUserIdAndStudyId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
 
         Study study = findByIdUsingLockOrThrow(studyId);
@@ -145,19 +145,19 @@ public class StudyCommandService {
         study.decrementLikeCount();
     }
 
-    private void insertTagsIfPresent(Study study, List<String> tags) {
+    private void insertTagsIfPresent(List<String> tags, Study study) {
         if (isListPresent(tags)) {
-            studyTagRepository.batchInsert(study, tags);
+            studyTagRepository.batchInsert(tags, study);
         }
     }
 
-    private void insertImagesIfPresent(Study study, List<String> imageUrls) {
+    private void insertImagesIfPresent(List<String> imageUrls, Study study) {
         if (isListPresent(imageUrls)) {
-            studyImageRepository.batchInsert(study, imageUrls);
+            studyImageRepository.batchInsert(imageUrls, study);
         }
     }
 
-    private Study findByIdAndUserIdOrThrow(UUID userId, Long studyId) {
+    private Study findByIdAndUserIdOrThrow(Long studyId, UUID userId) {
         return studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
@@ -167,7 +167,7 @@ public class StudyCommandService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
-    private void modifyTags(Study study, ModifyStudyTagRequest request) {
+    private void modifyTags(ModifyStudyTagRequest request, Study study) {
         if (request != null) {
             List<String> tagsToAdd = Optional.ofNullable(request.getTagsToAdd())
                     .orElse(Collections.emptyList());
@@ -182,14 +182,14 @@ public class StudyCommandService {
             }
 
             if (isListNotEmpty(tagsToAdd))
-                studyTagRepository.batchInsert(study, tagsToAdd);
+                studyTagRepository.batchInsert(tagsToAdd, study);
 
             if (isListNotEmpty(tagIdsToRemove))
                 studyTagRepository.deleteAllByIdsAndStudyId(tagIdsToRemove, study.getId());
         }
     }
 
-    private void modifyImages(Study study, ModifyStudyImageRequest request) {
+    private void modifyImages(ModifyStudyImageRequest request, Study study) {
         if (request != null) {
             List<String> imageUrlsToAdd = Optional.ofNullable(request.getImageUrlsToAdd())
                     .orElse(Collections.emptyList());
@@ -204,7 +204,7 @@ public class StudyCommandService {
             }
 
             if (isListNotEmpty(imageUrlsToAdd))
-                studyImageRepository.batchInsert(study, imageUrlsToAdd);
+                studyImageRepository.batchInsert(imageUrlsToAdd, study);
 
             if (isListNotEmpty(imageIdsToRemove)) {
                 studyImageRepository.deleteAllByIdsAndStudyId(imageIdsToRemove, study.getId());
@@ -232,14 +232,14 @@ public class StudyCommandService {
         studyRepository.deleteAllByStudyIds(studyIds);
     }
 
-    private void throwIfAlreadyBookmarked(UUID userId, Long studyId) {
-        if (studyBookmarkRepository.existsByUserIdAndStudyId(userId, studyId)) {
+    private void throwIfAlreadyBookmarked(Long studyId, UUID userId) {
+        if (studyBookmarkRepository.existsByUserIdAndStudyId(studyId, userId)) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
         }
     }
 
-    private void throwIfAlreadyLiked(UUID userId, Long studyId) {
-        if(studyLikeRepository.existsByUserIdAndStudyId(userId, studyId)){
+    private void throwIfAlreadyLiked(Long studyId, UUID userId) {
+        if (studyLikeRepository.existsByUserIdAndStudyId(studyId, userId)) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
         }
     }

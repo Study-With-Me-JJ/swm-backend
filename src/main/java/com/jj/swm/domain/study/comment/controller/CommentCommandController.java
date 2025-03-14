@@ -29,16 +29,16 @@ public class CommentCommandController {
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
     public ApiResponse<CreateCommentResponse> createComment(
-            Principal principal,
+            @Valid @RequestBody UpsertCommentRequest createRequest,
             @PathVariable("studyId") Long studyId,
             @PathVariable(value = "parentId", required = false) Long parentId,
-            @Valid @RequestBody UpsertCommentRequest createRequest
+            Principal principal
     ) {
         CreateCommentResponse response = commentCommandService.createComment(
-                UUID.fromString(principal.getName()),
+                createRequest,
                 studyId,
                 parentId,
-                createRequest
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.created(response);
@@ -47,14 +47,14 @@ public class CommentCommandController {
     @PatchMapping("/v1/study/comment/{commentId}")
     @Operation(summary = "스터디 댓글 수정", description = "스터디 댓글을 수정합니다.")
     public ApiResponse<UpdateCommentResponse> updateComment(
-            Principal principal,
+            @Valid @RequestBody UpsertCommentRequest updateRequest,
             @PathVariable("commentId") Long commentId,
-            @Valid @RequestBody UpsertCommentRequest updateRequest
+            Principal principal
     ) {
         UpdateCommentResponse response = commentCommandService.updateComment(
-                UUID.fromString(principal.getName()),
+                updateRequest,
                 commentId,
-                updateRequest
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(response);
@@ -63,14 +63,14 @@ public class CommentCommandController {
     @DeleteMapping("/v1/study/{studyId}/comment/{commentId}")
     @Operation(summary = "스터디 댓글 삭제", description = "스터디 댓글을 삭제합니다.")
     public ApiResponse<Void> deleteComment(
-            Principal principal,
             @PathVariable("studyId") Long studyId,
-            @PathVariable("commentId") Long commentId
+            @PathVariable("commentId") Long commentId,
+            Principal principal
     ) {
         commentCommandService.deleteComment(
-                UUID.fromString(principal.getName()),
                 studyId,
-                commentId
+                commentId,
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);

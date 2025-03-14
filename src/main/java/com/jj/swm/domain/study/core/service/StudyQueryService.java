@@ -43,7 +43,7 @@ public class StudyQueryService {
 
     @Transactional(readOnly = true)
     public PageResponse<GetStudyResponse> getStudies(UUID userId, GetStudyCondition condition) {
-        List<Study> studies = studyRepository.findPagedStudyByCondition(PageSize.Study + 1, condition);
+        List<Study> studies = studyRepository.findPagedStudyByCondition(condition, PageSize.Study + 1);
 
         if (studies.isEmpty()) {
             return PageResponse.of(List.of(), false);
@@ -54,7 +54,7 @@ public class StudyQueryService {
         List<Study> pagedStudy = hasNext ? studies.subList(0, PageSize.Study) : studies;
 
         Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyId =
-                getLikeStatusAndBookmarkByStudyIdIdBasedOnLogin(userId, pagedStudy);
+                getLikeStatusAndBookmarkIdByStudyIdBasedOnLogin(pagedStudy, userId);
 
         List<GetStudyResponse> responses = pagedStudy.stream()
                 .map(study -> GetStudyResponse.of(
@@ -67,11 +67,11 @@ public class StudyQueryService {
     }
 
     @Transactional
-    public GetStudyDetailsResponse getStudyDetails(UUID userId, Long studyId) {
+    public GetStudyDetailsResponse getStudyDetails(Long studyId, UUID userId) {
         Study study = studyRepository.findByIdWithUserUsingLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
-        LikeStatusAndBookmarkId likeStatusAndBookmarkId = getLikeStatusAndBookmarkIdBasedOnLogin(userId, studyId);
+        LikeStatusAndBookmarkId likeStatusAndBookmarkId = getLikeStatusAndBookmarkIdBasedOnLogin(studyId, userId);
 
         study.incrementViewCount();
 
@@ -137,37 +137,39 @@ public class StudyQueryService {
         return PageResponse.of(pagedStudy, GetStudyResponse::of);
     }
 
-    private Map<Long, LikeStatusAndBookmarkId> getLikeStatusAndBookmarkByStudyIdIdBasedOnLogin(
-            UUID userId, List<Study> studies
+    private Map<Long, LikeStatusAndBookmarkId> getLikeStatusAndBookmarkIdByStudyIdBasedOnLogin(
+            List<Study> studies, UUID userId
     ) {
         if (userId == null) {
             return studies.stream()
                     .collect(Collectors.toMap(Study::getId, study -> new LikeStatusAndBookmarkId(false, null)));
         }
 
-        List<Long> studyIdList = studies.stream()
+        List<Long> studyIds = studies.stream()
                 .map(Study::getId)
                 .toList();
 
-        Map<Long, Long> collect = studyLikeRepository.findAllByUserIdAndStudyIds(userId, studyIdList).stream()
+        Map<Long, Long> likeIdByStudyId = studyLikeRepository.findAllByUserIdAndStudyIds(studyIds, userId).stream()
                 .collect(Collectors.toMap(StudyLikeInfo::studyId, StudyLikeInfo::id));
 
-        Map<Long, Long> collect1 = studyBookmarkRepository.findAllByUserIdAndStudyIds(userId, studyIdList).stream()
-                .collect(Collectors.toMap(StudyBookmarkInfo::studyId, StudyBookmarkInfo::id));
+        Map<Long, Long> bookmarkIdByStudyId =
+                studyBookmarkRepository.findAllByUserIdAndStudyIds(userId, studyIds).stream()
+                        .collect(Collectors.toMap(StudyBookmarkInfo::studyId, StudyBookmarkInfo::id));
 
-        return studyIdList.stream()
+        return studyIds.stream()
                 .collect(Collectors.toMap(studyId -> studyId, studyId -> new LikeStatusAndBookmarkId(
-                        collect.getOrDefault(studyId, null) != null, collect1.getOrDefault(studyId, null)
+                        likeIdByStudyId.getOrDefault(studyId, null) != null,
+                        bookmarkIdByStudyId.getOrDefault(studyId, null)
                 )));
     }
 
-    private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdBasedOnLogin(UUID userId, Long studyId) {
+    private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdBasedOnLogin(Long studyId, UUID userId) {
         if (userId == null) {
             return new LikeStatusAndBookmarkId(false, null);
         }
 
         return new LikeStatusAndBookmarkId(
-                studyLikeRepository.existsByUserIdAndStudyId(userId, studyId),
+                studyLikeRepository.existsByUserIdAndStudyId(studyId, userId),
                 studyBookmarkRepository.findIdByUserIdAndStudyId(userId, studyId)
         );
     }

@@ -46,7 +46,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
-        studyCommandService.createStudy(user.getId(), StudyRequestFixture.createStudyRequest());
+        studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
     }
 
     @Test
@@ -58,9 +58,9 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
         //when
         Long newRecruitmentPositionId = recruitmentPositionCommandService.createRecruitmentPosition(
-                user.getId(),
+                request,
                 studyId,
-                request
+                user.getId()
         ).getRecruitmentPositionId();
 
         //then
@@ -81,17 +81,17 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
         for (int i = 1; i <= 8; i++) {
             recruitmentPositionCommandService.createRecruitmentPosition(
-                    user.getId(),
+                    request,
                     studyId,
-                    request
+                    user.getId()
             );
         }
 
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createRecruitmentPosition(
-                user.getId(),
+                request,
                 studyId,
-                request
+                user.getId()
         ));
     }
 
@@ -104,9 +104,9 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
         //when
         recruitmentPositionCommandService.updateRecruitmentPosition(
-                user.getId(),
+                request,
                 recruitmentPositionId,
-                request
+                user.getId()
         );
 
         //then
@@ -123,9 +123,9 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     void updateRecruitmentPosition_FailByAcceptedMoreThanHeadcount() {
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateRecruitmentPosition(
-                user.getId(),
+                RecruitmentPositionRequestFixture.updateRecruitmentPositionRequestAcceptedMoreThanHeadcount(),
                 recruitmentPositionId,
-                RecruitmentPositionRequestFixture.updateRecruitmentPositionRequestAcceptedMoreThanHeadcount()
+                user.getId()
         ));
     }
 
@@ -133,7 +133,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("모집 포지션 삭제에 성공한다.")
     void deleteRecruitmentPosition_Success() {
         //when
-        recruitmentPositionCommandService.deleteRecruitmentPosition(user.getId(), recruitmentPositionId);
+        recruitmentPositionCommandService.deleteRecruitmentPosition(recruitmentPositionId, user.getId());
 
         //then
         assertEquals(1, recruitmentPositionRepository.count());
@@ -143,7 +143,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("존재하지 않는 데이터여도 모집 포지션 삭제에 성공한다.")
     void deleteRecruitmentPosition_WithoutExistsData_Success() {
         //when
-        recruitmentPositionCommandService.deleteRecruitmentPosition(user.getId(), 123456789L);
+        recruitmentPositionCommandService.deleteRecruitmentPosition(123456789L, user.getId());
 
         //then
         assertEquals(2, recruitmentPositionRepository.count());

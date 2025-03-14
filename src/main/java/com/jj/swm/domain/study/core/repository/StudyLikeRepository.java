@@ -16,9 +16,9 @@ import java.util.UUID;
 
 public interface StudyLikeRepository extends JpaRepository<StudyLike, Long>, CustomStudyLikeRepository {
 
-    Optional<StudyLike> findByUserIdAndStudyId(UUID userId, Long studyId);
+    Optional<StudyLike> findByUserIdAndStudyId(Long studyId, UUID userId);
 
-    boolean existsByUserIdAndStudyId(UUID userId, Long studyId);
+    boolean existsByUserIdAndStudyId(Long studyId, UUID userId);
 
     @Modifying
     @Query("delete from StudyLike l where l.study.id = ?1")

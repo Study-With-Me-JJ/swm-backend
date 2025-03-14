@@ -39,9 +39,9 @@ public class CommentQueryService {
     @Transactional(readOnly = true)
     public PageResponse<GetCommentResponse> getReplies(Long parentId, Long lastReplyId) {
         List<StudyComment> replies = commentRepository.findPagedReplyByParentIdWithUser(
-                PageSize.StudyReply + 1,
                 parentId,
-                lastReplyId
+                lastReplyId,
+                PageSize.StudyReply + 1
         );
 
         if (replies.isEmpty()) {

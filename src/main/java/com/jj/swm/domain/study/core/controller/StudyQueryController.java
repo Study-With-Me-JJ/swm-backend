@@ -45,10 +45,10 @@ public class StudyQueryController {
     @GetMapping("/v1/study/{studyId}")
     @Operation(summary = "스터디 상세 조회", description = "스터디를 상세 조회합니다.")
     public ApiResponse<GetStudyDetailsResponse> getStudyDetails(
-            Principal principal, @PathVariable("studyId") Long studyId
+            @PathVariable("studyId") Long studyId, Principal principal
     ) {
         GetStudyDetailsResponse response = studyQueryService.getStudyDetails(
-                principal != null ? UUID.fromString(principal.getName()) : null, studyId
+                studyId, principal != null ? UUID.fromString(principal.getName()) : null
         );
 
         return ApiResponse.ok(response);

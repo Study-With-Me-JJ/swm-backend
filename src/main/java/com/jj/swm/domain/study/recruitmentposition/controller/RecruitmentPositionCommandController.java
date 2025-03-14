@@ -29,14 +29,14 @@ public class RecruitmentPositionCommandController {
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
     public ApiResponse<CreateRecruitmentPositionResponse> createRecruitmentPosition(
-            Principal principal,
+            @Valid @RequestBody CreateRecruitmentPositionRequest request,
             @PathVariable("studyId") Long studyId,
-            @Valid @RequestBody CreateRecruitmentPositionRequest request
+            Principal principal
     ) {
         CreateRecruitmentPositionResponse response = recruitmentPositionCommandService.createRecruitmentPosition(
-                UUID.fromString(principal.getName()),
+                request,
                 studyId,
-                request
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.created(response);
@@ -45,14 +45,14 @@ public class RecruitmentPositionCommandController {
     @PatchMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
     @Operation(summary = "스터디 모집 포지션 수정", description = "스터디 모집 포지션을 수정합니다.")
     public ApiResponse<Void> updateRecruitmentPosition(
-            Principal principal,
+            @Valid @RequestBody UpdateRecruitmentPositionRequest request,
             @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
-            @Valid @RequestBody UpdateRecruitmentPositionRequest request
+            Principal principal
     ) {
         recruitmentPositionCommandService.updateRecruitmentPosition(
-                UUID.fromString(principal.getName()),
+                request,
                 recruitmentPositionId,
-                request
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);
@@ -61,10 +61,10 @@ public class RecruitmentPositionCommandController {
     @DeleteMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
     @Operation(summary = "스터디 모집 포지션 삭제", description = "스터디 모집 포지션을 삭제합니다.")
     public ApiResponse<Void> deleteRecruitmentPosition(
-            Principal principal, @PathVariable("recruitmentPositionId") Long recruitmentPositionId
+            @PathVariable("recruitmentPositionId") Long recruitmentPositionId, Principal principal
     ) {
         recruitmentPositionCommandService.deleteRecruitmentPosition(
-                UUID.fromString(principal.getName()), recruitmentPositionId
+                recruitmentPositionId, UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);

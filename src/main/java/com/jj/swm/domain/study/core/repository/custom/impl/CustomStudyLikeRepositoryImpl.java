@@ -18,7 +18,7 @@ public class CustomStudyLikeRepositoryImpl implements CustomStudyLikeRepository 
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<StudyLikeInfo> findAllByUserIdAndStudyIds(UUID userId, List<Long> studyIds) {
+    public List<StudyLikeInfo> findAllByUserIdAndStudyIds(List<Long> studyIds, UUID userId) {
         return jpaQueryFactory.select(new QStudyLikeInfo(studyLike.id, study.id))
                 .from(studyLike)
                 .where(studyLike.user.id.eq(userId), studyLike.study.id.in(studyIds))
