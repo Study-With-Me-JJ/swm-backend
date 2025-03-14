@@ -2,6 +2,7 @@ package com.jj.swm.domain.study.comment.repository;
 
 import com.jj.swm.domain.study.comment.dto.ReplyCountInfo;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
+import com.jj.swm.domain.study.comment.repository.custom.CustomCommentRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,7 +37,7 @@ public interface CommentRepository extends JpaRepository<StudyComment, Long>, Cu
             GROUP BY c.parent.id
             """
     )
-    List<ReplyCountInfo> countByParentIdListGroupByParentId(List<Long> parentIdList);
+    List<ReplyCountInfo> countByParentIdsGroupByParentId(List<Long> parentIds);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id = ?1")
@@ -44,5 +45,5 @@ public interface CommentRepository extends JpaRepository<StudyComment, Long>, Cu
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id in ?1")
-    void deleteAllByStudyIdList(List<Long> studyIdList);
+    void deleteAllByStudyIds(List<Long> studyIds);
 }

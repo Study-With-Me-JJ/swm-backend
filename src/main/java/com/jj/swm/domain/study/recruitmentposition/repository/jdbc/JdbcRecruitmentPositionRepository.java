@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface JdbcRecruitmentPositionRepository {
 
-    void batchInsert(Study study, List<CreateRecruitmentPositionRequest> requestList);
+    void batchInsert(Study study, List<CreateRecruitmentPositionRequest> requests);
 }

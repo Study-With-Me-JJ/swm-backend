@@ -27,7 +27,7 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
 
     @Modifying
     @Query("delete from StudyBookmark b where b.study.id in ?1")
-    void deleteAllByStudyIdList(List<Long> studyIdList);
+    void deleteAllByStudyIds(List<Long> studyIds);
 
     @Query("select b.study from StudyBookmark b where b.user.id = ?1")
     Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);

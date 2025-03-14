@@ -12,7 +12,7 @@ public interface StudyImageRepository extends JpaRepository<StudyImage, Long>, J
 
     @Modifying
     @Query("delete from StudyImage i where i.id in ?1 and i.study.id = ?2")
-    void deleteAllByIdListAndStudyId(List<Long> idList, Long studyId);
+    void deleteAllByIdsAndStudyId(List<Long> ids, Long studyId);
 
     List<StudyImage> findAllByStudyId(Long studyId);
 
@@ -22,7 +22,7 @@ public interface StudyImageRepository extends JpaRepository<StudyImage, Long>, J
 
     @Modifying
     @Query("delete from StudyImage i where i.study.id in ?1")
-    void deleteAllByStudyIdList(List<Long> studyIdList);
+    void deleteAllByStudyIds(List<Long> studyIds);
 
     int countByStudyId(Long studyId);
 }

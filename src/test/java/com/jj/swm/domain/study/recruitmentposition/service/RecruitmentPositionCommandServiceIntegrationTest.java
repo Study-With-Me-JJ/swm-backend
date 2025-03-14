@@ -46,18 +46,18 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
-        studyCommandService.addStudy(user.getId(), StudyRequestFixture.createStudyRequest());
+        studyCommandService.createStudy(user.getId(), StudyRequestFixture.createStudyRequest());
     }
 
     @Test
     @DisplayName("모집 포지션 생성에 성공한다.")
-    void addRecruitmentPosition_Success() {
+    void createRecruitmentPosition_Success() {
         //given
         CreateRecruitmentPositionRequest request =
                 RecruitmentPositionRequestFixture.createRecruitmentPositionRequest();
 
         //when
-        Long newRecruitmentPositionId = recruitmentPositionCommandService.addRecruitmentPosition(
+        Long newRecruitmentPositionId = recruitmentPositionCommandService.createRecruitmentPosition(
                 user.getId(),
                 studyId,
                 request
@@ -74,13 +74,13 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Test
     @DisplayName("모집 포지션 최대 개수에 도달하면 생성에 실패한다.")
-    void addRecruitmentPosition_FailByExceedLimit() {
+    void createRecruitmentPosition_FailByExceedLimit() {
         //given
         CreateRecruitmentPositionRequest request =
                 RecruitmentPositionRequestFixture.createRecruitmentPositionRequest();
 
         for (int i = 1; i <= 8; i++) {
-            recruitmentPositionCommandService.addRecruitmentPosition(
+            recruitmentPositionCommandService.createRecruitmentPosition(
                     user.getId(),
                     studyId,
                     request
@@ -88,7 +88,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         }
 
         //when & then
-        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.addRecruitmentPosition(
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createRecruitmentPosition(
                 user.getId(),
                 studyId,
                 request
@@ -97,13 +97,13 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Test
     @DisplayName("모집 포지션 수정에 성공한다.")
-    void modifyRecruitmentPosition_Success() {
+    void updateRecruitmentPosition_Success() {
         //given
         UpdateRecruitmentPositionRequest request =
                 RecruitmentPositionRequestFixture.updateRecruitmentPositionRequest();
 
         //when
-        recruitmentPositionCommandService.modifyRecruitmentPosition(
+        recruitmentPositionCommandService.updateRecruitmentPosition(
                 user.getId(),
                 recruitmentPositionId,
                 request
@@ -120,9 +120,9 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Test
     @DisplayName("모집 인원보다 수락 인원이 많으면 모집 포지션 수정에 실패한다.")
-    void modifyRecruitmentPosition_FailByAcceptedMoreThanHeadcount() {
+    void updateRecruitmentPosition_FailByAcceptedMoreThanHeadcount() {
         //when & then
-        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.modifyRecruitmentPosition(
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateRecruitmentPosition(
                 user.getId(),
                 recruitmentPositionId,
                 RecruitmentPositionRequestFixture.updateRecruitmentPositionRequestAcceptedMoreThanHeadcount()
@@ -131,9 +131,9 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Test
     @DisplayName("모집 포지션 삭제에 성공한다.")
-    void removeRecruitmentPosition_Success() {
+    void deleteRecruitmentPosition_Success() {
         //when
-        recruitmentPositionCommandService.removeRecruitmentPosition(user.getId(), recruitmentPositionId);
+        recruitmentPositionCommandService.deleteRecruitmentPosition(user.getId(), recruitmentPositionId);
 
         //then
         assertEquals(1, recruitmentPositionRepository.count());
@@ -141,9 +141,9 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Test
     @DisplayName("존재하지 않는 데이터여도 모집 포지션 삭제에 성공한다.")
-    void removeRecruitmentPosition_WithoutExistsData_Success() {
+    void deleteRecruitmentPosition_WithoutExistsData_Success() {
         //when
-        recruitmentPositionCommandService.removeRecruitmentPosition(user.getId(), 123456789L);
+        recruitmentPositionCommandService.deleteRecruitmentPosition(user.getId(), 123456789L);
 
         //then
         assertEquals(2, recruitmentPositionRepository.count());

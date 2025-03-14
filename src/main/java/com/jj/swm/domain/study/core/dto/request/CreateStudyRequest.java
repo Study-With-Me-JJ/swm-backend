@@ -32,13 +32,13 @@ public class CreateStudyRequest {
     private StudyCategory category;
 
     @Size(max = IMAGE_LIMIT)
-    private List<String> tagList;
+    private List<String> tags;
 
     @Size(max = TAG_LIMIT)
-    private List<String> imageUrlList;
+    private List<String> imageUrls;
 
     @Valid
     @NotEmpty
     @Size(max = RECRUITMENT_POSITION_LIMIT)
-    private List<CreateRecruitmentPositionRequest> createRecruitmentPositionRequestList;
+    private List<CreateRecruitmentPositionRequest> createRecruitmentPositionRequests;
 }

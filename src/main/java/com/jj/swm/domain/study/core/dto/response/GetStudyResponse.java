@@ -33,9 +33,9 @@ public class GetStudyResponse {
 
     private boolean liked;
 
-    private List<GetStudyTagResponse> getTagResponseList;
+    private List<GetStudyTagResponse> getTagResponses;
 
-    private List<GetRecruitmentPositionResponse> getRecruitmentPositionResponseList;
+    private List<GetRecruitmentPositionResponse> getRecruitmentPositionResponses;
 
     public static GetStudyResponse of(
             Study study,
@@ -53,10 +53,10 @@ public class GetStudyResponse {
                 .viewCount(study.getViewCount())
                 .studyBookmarkId(studyBookmarkId)
                 .liked(liked)
-                .getTagResponseList(study.getStudyTagList().stream()
+                .getTagResponses(study.getStudyTags().stream()
                         .map(GetStudyTagResponse::from)
                         .toList())
-                .getRecruitmentPositionResponseList(study.getStudyRecruitmentPositionList().stream()
+                .getRecruitmentPositionResponses(study.getStudyRecruitmentPositions().stream()
                         .map(GetRecruitmentPositionResponse::from)
                         .toList())
                 .build();
@@ -74,10 +74,10 @@ public class GetStudyResponse {
                 .viewCount(study.getViewCount())
                 .studyBookmarkId(null)
                 .liked(false)
-                .getTagResponseList(study.getStudyTagList().stream()
+                .getTagResponses(study.getStudyTags().stream()
                         .map(GetStudyTagResponse::from)
                         .toList())
-                .getRecruitmentPositionResponseList(study.getStudyRecruitmentPositionList().stream()
+                .getRecruitmentPositionResponses(study.getStudyRecruitmentPositions().stream()
                         .map(GetRecruitmentPositionResponse::from)
                         .toList())
                 .build();

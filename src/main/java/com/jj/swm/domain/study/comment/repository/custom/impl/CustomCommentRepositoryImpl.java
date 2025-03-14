@@ -1,6 +1,7 @@
-package com.jj.swm.domain.study.comment.repository;
+package com.jj.swm.domain.study.comment.repository.custom.impl;
 
 import com.jj.swm.domain.study.comment.entity.StudyComment;
+import com.jj.swm.domain.study.comment.repository.custom.CustomCommentRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,7 +17,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<StudyComment> findPagedReplyListByParentIdWithUser(
+    public List<StudyComment> findPagedReplyByParentIdWithUser(
             int pageSize,
             Long parentId,
             Long lastReplyId

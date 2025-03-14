@@ -24,10 +24,10 @@ public class CommentQueryController {
             description = "스터디 댓글을 페이지 기반으로 조회합니다. 대댓글 개수도 조회합니다.<br>" +
                     "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
     )
-    public ApiResponse<PageResponse<GetParentCommentResponse>> commentList(
+    public ApiResponse<PageResponse<GetParentCommentResponse>> getComments(
             @PathVariable("studyId") Long studyId, @RequestParam("pageNo") int pageNo
     ) {
-        PageResponse<GetParentCommentResponse> pageResponse = commentQueryService.findCommentList(studyId, pageNo);
+        PageResponse<GetParentCommentResponse> pageResponse = commentQueryService.getComments(studyId, pageNo);
 
         return ApiResponse.ok(pageResponse);
     }
@@ -38,11 +38,11 @@ public class CommentQueryController {
             description = "스터디 대댓글을 무한 스크롤 기반으로 조회합니다.<br>" +
                     "lastReplyId는 필수 값이 아닙니다. lastReplyId를 보내면 이 다음 대댓글을 불러옵니다."
     )
-    public ApiResponse<PageResponse<GetCommentResponse>> replyList(
+    public ApiResponse<PageResponse<GetCommentResponse>> getReplies(
             @PathVariable("parentId") Long parentId,
             @PathVariable(value = "lastReplyId", required = false) Long lastReplyId
     ) {
-        PageResponse<GetCommentResponse> pageResponse = commentQueryService.findReplyList(parentId, lastReplyId);
+        PageResponse<GetCommentResponse> pageResponse = commentQueryService.getReplies(parentId, lastReplyId);
 
         return ApiResponse.ok(pageResponse);
     }

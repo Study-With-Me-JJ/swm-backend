@@ -26,13 +26,13 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Study> findPagedStudyListByCondition(int pageSize, GetStudyCondition condition) {
+    public List<Study> findPagedStudyByCondition(int pageSize, GetStudyCondition condition) {
         return jpaQueryFactory.selectFrom(study)
                 .where(
                         studyTitleContains(condition.getTitle()),
                         studyCategoryEq(condition.getCategory()),
                         studyStatusEq(condition.getStatus()),
-                        recruitmentPositionTitleExists(condition.getRecruitmentPositionTitleList()),
+                        recruitmentPositionTitleExists(condition.getRecruitmentPositionTitles()),
                         createSortPredicate(condition)
                 )
                 .orderBy(createOrderSpecifier(condition.getSortCriteria()))
@@ -52,10 +52,10 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
         return this.nullSafeBuilder(() -> study.status.eq(status));
     }
 
-    private BooleanBuilder recruitmentPositionTitleExists(List<RecruitmentPositionTitle> titleList) {
-        return titleList == null || titleList.isEmpty()
+    private BooleanBuilder recruitmentPositionTitleExists(List<RecruitmentPositionTitle> titles) {
+        return titles == null || titles.isEmpty()
                 ? null
-                : this.nullSafeBuilder(() -> study.studyRecruitmentPositionList.any().title.in(titleList));
+                : this.nullSafeBuilder(() -> study.studyRecruitmentPositions.any().title.in(titles));
     }
 
     private BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {

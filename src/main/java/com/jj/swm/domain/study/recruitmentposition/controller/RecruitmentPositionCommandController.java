@@ -28,12 +28,12 @@ public class RecruitmentPositionCommandController {
             description = "스터디 모집 포지션을 추가합니다. 모집 포지션 개수가 10개를 초과하면 예외가 발생합니다."
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
-    public ApiResponse<CreateRecruitmentPositionResponse> recruitmentPositionAdd(
+    public ApiResponse<CreateRecruitmentPositionResponse> createRecruitmentPosition(
             Principal principal,
             @PathVariable("studyId") Long studyId,
             @Valid @RequestBody CreateRecruitmentPositionRequest request
     ) {
-        CreateRecruitmentPositionResponse response = recruitmentPositionCommandService.addRecruitmentPosition(
+        CreateRecruitmentPositionResponse response = recruitmentPositionCommandService.createRecruitmentPosition(
                 UUID.fromString(principal.getName()),
                 studyId,
                 request
@@ -44,12 +44,12 @@ public class RecruitmentPositionCommandController {
 
     @PatchMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
     @Operation(summary = "스터디 모집 포지션 수정", description = "스터디 모집 포지션을 수정합니다.")
-    public ApiResponse<Void> recruitmentPositionModify(
+    public ApiResponse<Void> updateRecruitmentPosition(
             Principal principal,
             @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
             @Valid @RequestBody UpdateRecruitmentPositionRequest request
     ) {
-        recruitmentPositionCommandService.modifyRecruitmentPosition(
+        recruitmentPositionCommandService.updateRecruitmentPosition(
                 UUID.fromString(principal.getName()),
                 recruitmentPositionId,
                 request
@@ -60,10 +60,10 @@ public class RecruitmentPositionCommandController {
 
     @DeleteMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
     @Operation(summary = "스터디 모집 포지션 삭제", description = "스터디 모집 포지션을 삭제합니다.")
-    public ApiResponse<Void> recruitmentPositionRemove(
+    public ApiResponse<Void> deleteRecruitmentPosition(
             Principal principal, @PathVariable("recruitmentPositionId") Long recruitmentPositionId
     ) {
-        recruitmentPositionCommandService.removeRecruitmentPosition(
+        recruitmentPositionCommandService.deleteRecruitmentPosition(
                 UUID.fromString(principal.getName()), recruitmentPositionId
         );
 

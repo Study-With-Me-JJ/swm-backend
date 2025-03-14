@@ -19,7 +19,7 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void batchInsert(Study study, List<CreateRecruitmentPositionRequest> requestList) {
+    public void batchInsert(Study study, List<CreateRecruitmentPositionRequest> requests) {
         String sql = "insert into study_recruitment_position(study_id, title, headcount, accepted_count) " +
                 " VALUES(?,?,?,?)";
 
@@ -27,7 +27,7 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                CreateRecruitmentPositionRequest request = requestList.get(i);
+                CreateRecruitmentPositionRequest request = requests.get(i);
 
                 ps.setLong(1, study.getId());
                 ps.setObject(2, request.getTitle().name(), Types.OTHER);
@@ -37,7 +37,7 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
             @Override
             public int getBatchSize() {
-                return requestList.size();
+                return requests.size();
             }
         });
     }

@@ -81,17 +81,17 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
 
-        studyCommandService.addStudy(user.getId(), StudyRequestFixture.createStudyRequest());
+        studyCommandService.createStudy(user.getId(), StudyRequestFixture.createStudyRequest());
     }
 
     @Test
     @DisplayName("스터디 모집 생성에 성공한다.")
-    void addStudy_Success() {
+    void createStudy_Success() {
         //given
         CreateStudyRequest request = StudyRequestFixture.createStudyRequest();
 
         //when
-        studyCommandService.addStudy(user.getId(), request);
+        studyCommandService.createStudy(user.getId(), request);
         Long newStudyId = 2L; // setUp에서 1L 생성되고 이 메소드에서 하나 더 생성하므로 id 값은 2L
 
         //then
@@ -101,19 +101,19 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         Study study = optionalStudy.get();
         assertEquals(request.getTitle(), study.getTitle());
 
-        assertEquals(request.getTagList().size(), studyTagRepository.countByStudyId(newStudyId));
-        assertEquals(request.getImageUrlList().size(), studyImageRepository.countByStudyId(newStudyId));
+        assertEquals(request.getTags().size(), studyTagRepository.countByStudyId(newStudyId));
+        assertEquals(request.getImageUrls().size(), studyImageRepository.countByStudyId(newStudyId));
         assertEquals(
-                request.getCreateRecruitmentPositionRequestList().size(),
+                request.getCreateRecruitmentPositionRequests().size(),
                 recruitmentPositionRepository.countByStudyId(newStudyId)
         );
     }
 
     @Test
-    @DisplayName("tag&imageUrlList가 없어도 스터디 모집 생성에 성공한다.")
-    void addStudy_WithoutTagAndImageList_Success() {
+    @DisplayName("tags&imageUrls가 없어도 스터디 모집 생성에 성공한다.")
+    void createStudy_WithoutTagAndImages_Success() {
         //when
-        studyCommandService.addStudy(user.getId(), StudyRequestFixture.createStudyRequestWithoutTagAndImageList());
+        studyCommandService.createStudy(user.getId(), StudyRequestFixture.createStudyRequestWithoutTagAndImages());
         Long newStudyId = 2L;
 
         //then
@@ -124,12 +124,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("스터디 모집 수정에 성공한다")
-    void modifyStudy_Success() {
+    void updateStudy_Success() {
         //given
         UpdateStudyRequest request = StudyRequestFixture.updateStudyRequest();
 
         //when
-        studyCommandService.modifyStudy(
+        studyCommandService.updateStudy(
                 user.getId(),
                 studyId,
                 request
@@ -145,12 +145,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("SaveTag&ImageRequest가 없어도 스터디 모집 수정에 성공한다.")
-    void modifyStudy_WithoutSaveTagAndImageRequest_Success() {
+    void updateStudy_WithoutSaveTagAndImageRequest_Success() {
         //when
-        studyCommandService.modifyStudy(
+        studyCommandService.updateStudy(
                 user.getId(),
                 studyId,
-                StudyRequestFixture.updateStudyRequestWithoutSaveTagAndImageRequest()
+                StudyRequestFixture.updateStudyRequestWithoutModifyTagAndImageRequest()
         );
 
         //then
@@ -159,13 +159,13 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("Tag&ImageListToAdd가 없어도 스터디 모집 수정에 성공한다.")
-    void modifyStudy_WithoutTagAndImageListToAdd_Success() {
+    @DisplayName("Tags&ImagesToAdd가 없어도 스터디 모집 수정에 성공한다.")
+    void updateStudy_WithoutTagAndImagesToAdd_Success() {
         //when
-        studyCommandService.modifyStudy(
+        studyCommandService.updateStudy(
                 user.getId(),
                 studyId,
-                StudyRequestFixture.updateStudyRequestWithoutTagAndImageListToAdd()
+                StudyRequestFixture.updateStudyRequestWithoutTagAndImagesToAdd()
         );
 
         //then
@@ -174,13 +174,13 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("Tag&ImageIdListToRemove가 없어도 스터디 모집 수정에 성공한다.")
-    void modifyStudy_WithoutTagAndImageIdListToRemove_Success() {
+    @DisplayName("Tag&ImageIdsToRemove가 없어도 스터디 모집 수정에 성공한다.")
+    void updateStudy_WithoutTagAndImageIdsToRemove_Success() {
         //when
-        studyCommandService.modifyStudy(
+        studyCommandService.updateStudy(
                 user.getId(),
                 studyId,
-                StudyRequestFixture.updateStudyRequestWithoutTagAndImageIdListToRemove()
+                StudyRequestFixture.updateStudyRequestWithoutTagAndImageIdsToRemove()
         );
 
         //then
@@ -190,9 +190,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("태그 개수가 0보다 작으면 스터디 모집 수정에 실패한다.")
-    void modifyStudy_FailByUnderTagLimit() {
+    void updateStudy_FailByUnderTagLimit() {
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.modifyStudy(
+        assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 user.getId(),
                 studyId,
                 StudyRequestFixture.updateStudyRequestWithUnderTagLimit()
@@ -201,9 +201,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("태그 제한 개수를 초과하면 스터디 모집 수정에 실패한다.")
-    void modifyStudy_FailByExceedTagLimit() {
+    void updateStudy_FailByExceedTagLimit() {
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.modifyStudy(
+        assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 user.getId(),
                 studyId,
                 StudyRequestFixture.updateStudyRequestWithExceedTagLimit()
@@ -212,9 +212,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("이미지 개수가 0보다 작으면 스터디 모집 수정에 실패한다.")
-    void modifyStudy_FailByUnderImageLimit() {
+    void updateStudy_FailByUnderImageLimit() {
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.modifyStudy(
+        assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 user.getId(),
                 studyId,
                 StudyRequestFixture.updateStudyRequestWithUnderImageLimit()
@@ -223,9 +223,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("이미지 제한 개수를 초과하면 스터디 모집 수정에 실패한다.")
-    void modifyStudy_FailByExceedImageLimit() {
+    void updateStudy_FailByExceedImageLimit() {
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.modifyStudy(
+        assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 user.getId(),
                 studyId,
                 StudyRequestFixture.updateStudyRequestWithExceedImageLimit()
@@ -234,12 +234,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("스터디 모집 상태 수정에 성공한다.")
-    void modifyStudyStatus_Success() {
+    void updateStudyStatus_Success() {
         //given
         UpdateStudyStatusRequest request = StudyRequestFixture.updateStudyStatusRequest();
 
         //when
-        studyCommandService.modifyStudyStatus(
+        studyCommandService.updateStudyStatus(
                 user.getId(),
                 studyId,
                 request
@@ -252,9 +252,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("스터디 모집 북마크 생성에 성공한다.")
-    void addStudyBookmark_Success() {
+    void createStudyBookmark_Success() {
         //when
-        Long bookmarkId = studyCommandService.addStudyBookmark(user.getId(), studyId).getBookmarkId();
+        Long bookmarkId = studyCommandService.createStudyBookmark(user.getId(), studyId).getBookmarkId();
 
         //then
         Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findById(bookmarkId);
@@ -263,12 +263,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("이미 북마크한 것에 북마크하면 기존 북마크 정보를 반환하는 것에 성공한다.")
-    void addStudyBookmark_AlreadyExists_Success() {
+    void createStudyBookmark_AlreadyExists_Success() {
         //given
-        Long bookmarkId = studyCommandService.addStudyBookmark(user.getId(), studyId).getBookmarkId();
+        Long bookmarkId = studyCommandService.createStudyBookmark(user.getId(), studyId).getBookmarkId();
 
         //when
-        CreateStudyBookmarkResponse response = studyCommandService.addStudyBookmark(user.getId(), studyId);
+        CreateStudyBookmarkResponse response = studyCommandService.createStudyBookmark(user.getId(), studyId);
 
         //then
         assertEquals(bookmarkId, response.getBookmarkId());
@@ -279,12 +279,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("스터디 모집 북마크 삭제에 성공한다.")
-    void removeStudyBookmark_Success() {
+    void deleteStudyBookmark_Success() {
         //given
-        Long bookmarkId = studyCommandService.addStudyBookmark(user.getId(), studyId).getBookmarkId();
+        Long bookmarkId = studyCommandService.createStudyBookmark(user.getId(), studyId).getBookmarkId();
 
         //when
-        studyCommandService.removeStudyBookmark(user.getId(), bookmarkId);
+        studyCommandService.deleteStudyBookmark(user.getId(), bookmarkId);
 
         //then
         Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findById(bookmarkId);
@@ -293,16 +293,16 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("존재하지 않는 스터디 모집 북마크에 대해 삭제해도 성공한다.")
-    void removeStudyBookmark_NonExists_Success() {
+    void deleteStudyBookmark_NonExists_Success() {
         //when & then
-        assertDoesNotThrow(() -> studyCommandService.removeStudyBookmark(user.getId(), 123456789L));
+        assertDoesNotThrow(() -> studyCommandService.deleteStudyBookmark(user.getId(), 123456789L));
     }
 
     @Test
     @DisplayName("스터디 모집 좋아요 생성에 성공한다.")
-    void addStudyLike_Success() {
+    void createStudyLike_Success() {
         //when
-        studyCommandService.addStudyLike(user.getId(), studyId);
+        studyCommandService.createStudyLike(user.getId(), studyId);
 
         //then
         boolean result = studyLikeRepository.existsByUserIdAndStudyId(user.getId(), studyId);
@@ -314,30 +314,30 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("이미 좋아요한 것에 좋아요해도 성공한다.")
-    void addStudyLike_AlreadyExists_Success() {
+    void createStudyLike_AlreadyExists_Success() {
         //given
-        studyCommandService.addStudyLike(user.getId(), studyId);
+        studyCommandService.createStudyLike(user.getId(), studyId);
 
         //when & then
-        assertDoesNotThrow(() -> studyCommandService.addStudyLike(user.getId(), studyId));
+        assertDoesNotThrow(() -> studyCommandService.createStudyLike(user.getId(), studyId));
 
         assertEquals(1, studyLikeRepository.count());
     }
 
     @Test
     @DisplayName("스터디 모집 좋아요 동시성 제어에 성공한다.")
-    void addStudyLike_Concurrency_Success() throws InterruptedException {
+    void createStudyLike_Concurrency_Success() throws InterruptedException {
         //given
-        List<UUID> userIdList = storeUserListAndBuildUserIdList(userRepository);
+        List<UUID> userIds = storeUserListAndBuildUserIdList(userRepository);
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
         //when
         for (int i = 0; i < THREAD_COUNT; i++) {
-            UUID userId = userIdList.get(i);
+            UUID userId = userIds.get(i);
             executorService.submit(() -> {
                 try {
-                    studyCommandService.addStudyLike(userId, studyId);
+                    studyCommandService.createStudyLike(userId, studyId);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -358,12 +358,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("스터디 모집 좋아요 삭제에 성공한다.")
-    void removeStudyLike_Success() {
+    void deleteStudyLike_Success() {
         //given
-        studyCommandService.addStudyLike(user.getId(), studyId);
+        studyCommandService.createStudyLike(user.getId(), studyId);
 
         //when
-        studyCommandService.removeStudyLike(user.getId(), studyId);
+        studyCommandService.deleteStudyLike(user.getId(), studyId);
 
         //then
         boolean result = studyLikeRepository.existsByUserIdAndStudyId(user.getId(), studyId);
@@ -375,29 +375,29 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("존재하지 않는 스터디 모집 좋아요에 대해 삭제해도 성공한다.")
-    void removeStudyLike_NonExists_Success() {
+    void deleteStudyLike_NonExists_Success() {
         //when & then
-        assertDoesNotThrow(() -> studyCommandService.removeStudyLike(user.getId(), studyId));
+        assertDoesNotThrow(() -> studyCommandService.deleteStudyLike(user.getId(), studyId));
     }
 
     @Test
     @DisplayName("스터디 모집 좋아요 취소 동시성 제어에 성공한다.")
-    void removeStudyLike_Concurrency_Success() throws InterruptedException {
+    void deleteStudyLike_Concurrency_Success() throws InterruptedException {
         //given
-        List<UUID> userIdList = storeUserListAndBuildUserIdList(userRepository);
+        List<UUID> userIds = storeUserListAndBuildUserIdList(userRepository);
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
-        for (UUID userId : userIdList) {
-            studyCommandService.addStudyLike(userId, studyId);
+        for (UUID userId : userIds) {
+            studyCommandService.createStudyLike(userId, studyId);
         }
 
         //when
         for (int i = 0; i < THREAD_COUNT; i++) {
-            UUID userId = userIdList.get(i);
+            UUID userId = userIds.get(i);
             executorService.submit(() -> {
                 try {
-                    studyCommandService.removeStudyLike(userId, studyId);
+                    studyCommandService.deleteStudyLike(userId, studyId);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -418,19 +418,19 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("스터디 모집 삭제에 성공한다.")
-    void removeStudy_Success() {
+    void deleteStudy_Success() {
         //given
-        studyCommandService.addStudyLike(user.getId(), studyId);
-        studyCommandService.addStudyBookmark(user.getId(), studyId);
+        studyCommandService.createStudyLike(user.getId(), studyId);
+        studyCommandService.createStudyBookmark(user.getId(), studyId);
 
         UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
-        Long parentId = commentCommandService.addComment(
+        Long parentId = commentCommandService.createComment(
                 user.getId(),
                 studyId,
                 null,
                 createRequest
         ).getCommentId();
-        commentCommandService.addComment(
+        commentCommandService.createComment(
                 user.getId(),
                 studyId,
                 parentId,
@@ -438,7 +438,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //when
-        studyCommandService.removeStudy(user.getId(), 1L);
+        studyCommandService.deleteStudy(user.getId(), 1L);
 
         //then
         assertEquals(0, studyTagRepository.count());
@@ -452,38 +452,38 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("스터디 모집 다중 삭제에 성공한다.")
-    void removeStudyList_Success() {
+    void deleteStudies_Success() {
         //given
-        studyCommandService.addStudy(user.getId(), StudyRequestFixture.createStudyRequest());
+        studyCommandService.createStudy(user.getId(), StudyRequestFixture.createStudyRequest());
         Long newStudyId = 2L;
 
-        studyCommandService.addStudyLike(user.getId(), studyId);
-        studyCommandService.addStudyBookmark(user.getId(), studyId);
+        studyCommandService.createStudyLike(user.getId(), studyId);
+        studyCommandService.createStudyBookmark(user.getId(), studyId);
 
-        studyCommandService.addStudyLike(user.getId(), newStudyId);
-        studyCommandService.addStudyBookmark(user.getId(), newStudyId);
+        studyCommandService.createStudyLike(user.getId(), newStudyId);
+        studyCommandService.createStudyBookmark(user.getId(), newStudyId);
 
         UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
-        Long parentId1 = commentCommandService.addComment(
+        Long parentId1 = commentCommandService.createComment(
                 user.getId(),
                 studyId,
                 null,
                 createRequest
         ).getCommentId();
-        commentCommandService.addComment(
+        commentCommandService.createComment(
                 user.getId(),
                 newStudyId,
                 parentId1,
                 createRequest
         );
 
-        Long parentId2 = commentCommandService.addComment(
+        Long parentId2 = commentCommandService.createComment(
                 user.getId(),
                 newStudyId,
                 null,
                 createRequest
         ).getCommentId();
-        commentCommandService.addComment(
+        commentCommandService.createComment(
                 user.getId(),
                 newStudyId,
                 parentId2,
@@ -491,9 +491,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //when
-        studyCommandService.removeStudyList(
+        studyCommandService.deleteStudies(
                 user.getId(),
-                StudyRequestFixture.deleteStudyListRequest(List.of(studyId, newStudyId))
+                StudyRequestFixture.deleteStudiesRequest(List.of(studyId, newStudyId))
         );
 
         //then
@@ -508,11 +508,11 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("삭제할 스터디가 존재하지 않으면 스터디 모집 다중 삭제에 실패한다.")
-    void removeStudyList_FailByNotExist() {
+    void deleteStudies_FailByNotExist() {
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.removeStudyList(
+        assertThrows(GlobalException.class, () -> studyCommandService.deleteStudies(
                 user.getId(),
-                StudyRequestFixture.deleteStudyListRequest(List.of(studyId, 123456789L)))
+                StudyRequestFixture.deleteStudiesRequest(List.of(studyId, 123456789L)))
         );
     }
 }

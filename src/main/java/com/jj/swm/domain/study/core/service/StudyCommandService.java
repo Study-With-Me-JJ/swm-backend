@@ -39,130 +39,65 @@ public class StudyCommandService {
     private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional
-    public void addStudy(UUID userId, CreateStudyRequest request) {
+    public void createStudy(UUID userId, CreateStudyRequest request) {
         User user = userRepository.getReferenceById(userId);
 
         Study study = Study.of(user, request);
         studyRepository.save(study);
 
-        storeTagListIfPresent(study, request.getTagList());
+        insertTagsIfPresent(study, request.getTags());
 
-        storeImageListIfPresent(study, request.getImageUrlList());
+        insertImagesIfPresent(study, request.getImageUrls());
 
-        recruitmentPositionRepository.batchInsert(study, request.getCreateRecruitmentPositionRequestList());
+        recruitmentPositionRepository.batchInsert(study, request.getCreateRecruitmentPositionRequests());
     }
 
     @Transactional
-    public void modifyStudy(
+    public void updateStudy(
             UUID userId,
             Long studyId,
             UpdateStudyRequest request
     ) {
-        Study study = loadStudyOrException(userId, studyId);
+        Study study = findByIdAndUserIdOrThrow(userId, studyId);
 
-        saveTagList(study, request.getSaveTagRequest());
+        modifyTags(study, request.getModifyTagRequest());
 
-        saveImageList(study, request.getSaveImageRequest());
+        modifyImages(study, request.getModifyImageRequest());
 
         study.modify(request);
     }
 
-    private void saveTagList(Study study, SaveStudyTagRequest request) {
-        if (request != null) {
-            List<String> tagListToAdd = Optional.ofNullable(request.getTagListToAdd())
-                    .orElse(Collections.emptyList());
-            List<Long> tagIdListToRemove = Optional.ofNullable(request.getTagIdListToRemove())
-                    .orElse(Collections.emptyList());
-
-            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
-            int newTagSize = oldTagSize + tagListToAdd.size() - tagIdListToRemove.size();
-
-            if (newTagSize < 0 || newTagSize > StudyConstants.TAG_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Exceeded");
-            }
-
-            if (isListNotEmpty(tagListToAdd))
-                studyTagRepository.batchInsert(study, tagListToAdd);
-
-            if (isListNotEmpty(tagIdListToRemove))
-                studyTagRepository.deleteAllByIdListAndStudyId(tagIdListToRemove, study.getId());
-        }
-    }
-
-    private void saveImageList(Study study, SaveStudyImageRequest request) {
-        if (request != null) {
-            List<String> imageUrlListToAdd = Optional.ofNullable(request.getImageUrlListToAdd())
-                    .orElse(Collections.emptyList());
-            List<Long> imageIdListToRemove = Optional.ofNullable(request.getImageIdListToRemove())
-                    .orElse(Collections.emptyList());
-
-            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
-            int newImageSize = oldTagSize + imageUrlListToAdd.size() - imageIdListToRemove.size();
-
-            if (newImageSize < 0 || newImageSize > StudyConstants.IMAGE_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
-            }
-
-            if (isListNotEmpty(imageUrlListToAdd))
-                studyImageRepository.batchInsert(study, imageUrlListToAdd);
-
-            if (isListNotEmpty(imageIdListToRemove)) {
-                studyImageRepository.deleteAllByIdListAndStudyId(imageIdListToRemove, study.getId());
-            }
-        }
-    }
-
     @Transactional
-    public void modifyStudyStatus(
+    public void updateStudyStatus(
             UUID userId,
             Long studyId,
             UpdateStudyStatusRequest request
     ) {
-        Study study = loadStudyOrException(userId, studyId);
+        Study study = findByIdAndUserIdOrThrow(userId, studyId);
         study.modifyStatus(request);
     }
 
     @Transactional
-    public void removeStudy(UUID userId, Long studyId) {
-        Study study = loadStudyOrException(userId, studyId);
+    public void deleteStudy(UUID userId, Long studyId) {
+        Study study = findByIdAndUserIdOrThrow(userId, studyId);
 
         deleteStudyAndAssociations(studyId, study);
     }
 
-    private void deleteStudyAndAssociations(Long studyId, Study study) {
-        studyTagRepository.deleteAllByStudyId(studyId);
-        studyImageRepository.deleteAllByStudyId(studyId);
-        recruitmentPositionRepository.deleteAllByStudyId(studyId);
-        studyLikeRepository.deleteAllByStudyId(studyId);
-        commentRepository.deleteAllByStudyId(studyId);
-        studyBookmarkRepository.deleteAllByStudyId(studyId);
-        studyRepository.delete(study);
-    }
-
     @Transactional
-    public void removeStudyList(UUID userId, DeleteStudyListRequest request) {
-        List<Long> studyIdList = request.getStudyIdList();
-        long numToDelete = studyRepository.countByIdInAndUserId(studyIdList, userId);
+    public void deleteStudies(UUID userId, DeleteStudiesRequest request) {
+        List<Long> studyIds = request.getStudyIds();
+        long numToDelete = studyRepository.countByIdInAndUserId(studyIds, userId);
 
-        if (numToDelete != studyIdList.size()) {
+        if (numToDelete != studyIds.size()) {
             throw new GlobalException(ErrorCode.NOT_FOUND, "Some Study Not Found");
         }
 
-        deleteStudyListAndAssociations(studyIdList);
-    }
-
-    public void deleteStudyListAndAssociations(List<Long> studyIdList) {
-        studyTagRepository.deleteAllByStudyIdList(studyIdList);
-        studyImageRepository.deleteAllByStudyIdList(studyIdList);
-        recruitmentPositionRepository.deleteAllByStudyIdList(studyIdList);
-        studyLikeRepository.deleteAllByStudyIdList(studyIdList);
-        commentRepository.deleteAllByStudyIdList(studyIdList);
-        studyBookmarkRepository.deleteAllByStudyIdList(studyIdList);
-        studyRepository.deleteAllByStudyIdList(studyIdList);
+        deleteStudiesAndAssociations(studyIds);
     }
 
     @Transactional
-    public CreateStudyBookmarkResponse addStudyBookmark(UUID userId, Long studyId) {
+    public CreateStudyBookmarkResponse createStudyBookmark(UUID userId, Long studyId) {
         Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserIdAndStudyId(userId, studyId);
         if (optionalStudyBookmark.isPresent()) {
             return CreateStudyBookmarkResponse.from(optionalStudyBookmark.get());
@@ -180,12 +115,12 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public void removeStudyBookmark(UUID userId, Long bookmarkId) {
+    public void deleteStudyBookmark(UUID userId, Long bookmarkId) {
         studyBookmarkRepository.deleteByIdAndUserId(bookmarkId, userId);
     }
 
     @Transactional
-    public void addStudyLike(UUID userId, Long studyId) {
+    public void createStudyLike(UUID userId, Long studyId) {
         Optional<StudyLike> optionalStudyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId);
         if (optionalStudyLike.isPresent()) {
             return;
@@ -193,7 +128,7 @@ public class StudyCommandService {
 
         User user = userRepository.getReferenceById(userId);
 
-        Study study = loadStudyUsingPessimisticLock(studyId);
+        Study study = findByIdUsingPessimisticLockOrThrow(studyId);
 
         StudyLike studyLike = StudyLike.of(user, study);
         studyLikeRepository.save(studyLike);
@@ -202,38 +137,103 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public void removeStudyLike(UUID userId, Long studyId) {
+    public void deleteStudyLike(UUID userId, Long studyId) {
         Optional<StudyLike> optionalStudyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId);
         if (optionalStudyLike.isEmpty()) {
             return;
         }
 
-        Study study = loadStudyUsingPessimisticLock(studyId);
+        Study study = findByIdUsingPessimisticLockOrThrow(studyId);
 
         studyLikeRepository.delete(optionalStudyLike.get());
 
         study.decrementLikeCount();
     }
 
-    private void storeTagListIfPresent(Study study, List<String> tagList) {
-        if (isListPresent(tagList)) {
-            studyTagRepository.batchInsert(study, tagList);
+    private void insertTagsIfPresent(Study study, List<String> tags) {
+        if (isListPresent(tags)) {
+            studyTagRepository.batchInsert(study, tags);
         }
     }
 
-    private void storeImageListIfPresent(Study study, List<String> imageUrlList) {
-        if (isListPresent(imageUrlList)) {
-            studyImageRepository.batchInsert(study, imageUrlList);
+    private void insertImagesIfPresent(Study study, List<String> imageUrls) {
+        if (isListPresent(imageUrls)) {
+            studyImageRepository.batchInsert(study, imageUrls);
         }
     }
 
-    private Study loadStudyOrException(UUID userId, Long studyId) {
+    private Study findByIdAndUserIdOrThrow(UUID userId, Long studyId) {
         return studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
-    private Study loadStudyUsingPessimisticLock(Long studyId) {
+    private Study findByIdUsingPessimisticLockOrThrow(Long studyId) {
         return studyRepository.findByIdUsingPessimisticLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+    }
+
+    private void modifyTags(Study study, ModifyStudyTagRequest request) {
+        if (request != null) {
+            List<String> tagsToAdd = Optional.ofNullable(request.getTagsToAdd())
+                    .orElse(Collections.emptyList());
+            List<Long> tagIdsToRemove = Optional.ofNullable(request.getTagIdsToRemove())
+                    .orElse(Collections.emptyList());
+
+            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
+            int newTagSize = oldTagSize + tagsToAdd.size() - tagIdsToRemove.size();
+
+            if (newTagSize < 0 || newTagSize > StudyConstants.TAG_LIMIT) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Exceeded");
+            }
+
+            if (isListNotEmpty(tagsToAdd))
+                studyTagRepository.batchInsert(study, tagsToAdd);
+
+            if (isListNotEmpty(tagIdsToRemove))
+                studyTagRepository.deleteAllByIdsAndStudyId(tagIdsToRemove, study.getId());
+        }
+    }
+
+    private void modifyImages(Study study, ModifyStudyImageRequest request) {
+        if (request != null) {
+            List<String> imageUrlsToAdd = Optional.ofNullable(request.getImageUrlsToAdd())
+                    .orElse(Collections.emptyList());
+            List<Long> imageIdsToRemove = Optional.ofNullable(request.getImageIdsToRemove())
+                    .orElse(Collections.emptyList());
+
+            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
+            int newImageSize = oldTagSize + imageUrlsToAdd.size() - imageIdsToRemove.size();
+
+            if (newImageSize < 0 || newImageSize > StudyConstants.IMAGE_LIMIT) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
+            }
+
+            if (isListNotEmpty(imageUrlsToAdd))
+                studyImageRepository.batchInsert(study, imageUrlsToAdd);
+
+            if (isListNotEmpty(imageIdsToRemove)) {
+                studyImageRepository.deleteAllByIdsAndStudyId(imageIdsToRemove, study.getId());
+            }
+        }
+    }
+
+    private void deleteStudyAndAssociations(Long studyId, Study study) {
+        studyTagRepository.deleteAllByStudyId(studyId);
+        studyImageRepository.deleteAllByStudyId(studyId);
+        recruitmentPositionRepository.deleteAllByStudyId(studyId);
+        studyLikeRepository.deleteAllByStudyId(studyId);
+        commentRepository.deleteAllByStudyId(studyId);
+        studyBookmarkRepository.deleteAllByStudyId(studyId);
+        studyRepository.delete(study);
+    }
+
+    public void deleteStudiesAndAssociations(List<Long> studyIds) {
+        studyTagRepository.deleteAllByStudyIds(studyIds);
+        studyImageRepository.deleteAllByStudyIds(studyIds);
+        recruitmentPositionRepository.deleteAllByStudyIds(studyIds);
+        studyLikeRepository.deleteAllByStudyIds(studyIds);
+        commentRepository.deleteAllByStudyIds(studyIds);
+        studyBookmarkRepository.deleteAllByStudyIds(studyIds);
+        studyRepository.deleteAllByStudyIds(studyIds);
     }
 }
