@@ -190,7 +190,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("태그 개수가 0보다 작으면 스터디 모집 수정에 실패한다.")
-    void updateStudy_WhenUnderTagLimit_thenFail() {
+    void updateStudy_WhenUnderTagLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 StudyRequestFixture.updateStudyRequestWithUnderTagLimit(),
@@ -201,7 +201,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("태그 제한 개수를 초과하면 스터디 모집 수정에 실패한다.")
-    void updateStudy_WhenExceedTagLimit_thenFail() {
+    void updateStudy_WhenExceedTagLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 StudyRequestFixture.updateStudyRequestWithExceedTagLimit(),
@@ -212,7 +212,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("이미지 개수가 0보다 작으면 스터디 모집 수정에 실패한다.")
-    void updateStudy_WhenUnderImageLimit_thenFail() {
+    void updateStudy_WhenUnderImageLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 StudyRequestFixture.updateStudyRequestWithUnderImageLimit(),
@@ -223,7 +223,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("이미지 제한 개수를 초과하면 스터디 모집 수정에 실패한다.")
-    void updateStudy_WhenExceedImageLimit_thenFail() {
+    void updateStudy_WhenExceedImageLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 StudyRequestFixture.updateStudyRequestWithExceedImageLimit(),
@@ -507,7 +507,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("삭제할 스터디가 존재하지 않으면 스터디 모집 다중 삭제에 실패한다.")
-    void deleteStudies_WhenNotExist_thenFail() {
+    void deleteStudies_WhenNotExist_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.deleteStudies(
                         StudyRequestFixture.deleteStudiesRequest(List.of(studyId, 123456789L)), user.getId()

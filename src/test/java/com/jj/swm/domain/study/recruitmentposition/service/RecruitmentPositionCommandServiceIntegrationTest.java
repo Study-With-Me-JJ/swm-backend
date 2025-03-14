@@ -74,7 +74,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Test
     @DisplayName("모집 포지션 최대 개수에 도달하면 생성에 실패한다.")
-    void createRecruitmentPosition_WhenExceedLimit_thenFail() {
+    void createRecruitmentPosition_WhenExceedLimit_ThenFail() {
         //given
         CreateRecruitmentPositionRequest request =
                 RecruitmentPositionRequestFixture.createRecruitmentPositionRequest();
@@ -120,7 +120,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Test
     @DisplayName("모집 인원보다 수락 인원이 많으면 모집 포지션 수정에 실패한다.")
-    void updateRecruitmentPosition_WhenAcceptedMoreThanHeadcount_thenFail() {
+    void updateRecruitmentPosition_WhenAcceptedMoreThanHeadcount_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateRecruitmentPosition(
                 RecruitmentPositionRequestFixture.updateRecruitmentPositionRequestAcceptedMoreThanHeadcount(),
