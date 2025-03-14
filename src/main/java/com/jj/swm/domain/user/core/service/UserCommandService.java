@@ -99,7 +99,7 @@ public class UserCommandService {
 
     @Transactional
     public void createUser(CreateUserRequest createRequest) {
-        validateNicknameAndLoginId(createRequest.getNickname(), createRequest.getLoginId());
+        validateNicknameAndLoginIdOrThrow(createRequest.getNickname(), createRequest.getLoginId());
 
         User user = User.from(createRequest);
         userRepository.save(user);
@@ -227,7 +227,7 @@ public class UserCommandService {
         }
     }
 
-    private void validateNicknameAndLoginId(String nickname, String loginId) {
+    private void validateNicknameAndLoginIdOrThrow(String nickname, String loginId) {
         boolean nicknameDuplicatedStatus = userRepository.existsByNickname(nickname);
 
         if (nicknameDuplicatedStatus) {
