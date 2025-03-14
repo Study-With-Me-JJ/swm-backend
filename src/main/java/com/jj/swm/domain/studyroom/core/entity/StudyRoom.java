@@ -150,15 +150,15 @@ public class StudyRoom extends BaseTimeEntity {
     }
 
     // 스터디 룸 연계 개수 카운트 메소드
-    public void likeStudyRoom() {
+    public void addLike() {
         this.likeCount++;
     }
 
-    public void unLikeStudyRoom(){
+    public void unLike(){
         this.likeCount = Math.max(0, this.likeCount - 1);
     }
 
-    public void addReviewStudyRoom(int rating) {
+    public void addReview(int rating) {
         this.averageRating = (this.averageRating * this.reviewCount + rating) / ++this.reviewCount;
     }
 
@@ -166,7 +166,7 @@ public class StudyRoom extends BaseTimeEntity {
         this.averageRating += (double) (newRating - oldRating) / this.reviewCount;
     }
 
-    public void deleteReviewStudyRoom(int rating) {
+    public void deleteReview(int rating) {
         this.averageRating = this.reviewCount == 1 ?
                 --this.reviewCount : (this.averageRating * this.reviewCount - rating) / --this.reviewCount;
     }
