@@ -13,8 +13,6 @@ import java.util.UUID;
 public interface RecruitmentPositionRepository extends
         JpaRepository<StudyRecruitmentPosition, Long>, JdbcRecruitmentPositionRepository {
 
-    List<StudyRecruitmentPosition> findAllByStudyId(Long studyId);
-
     Optional<StudyRecruitmentPosition> findByIdAndStudyUserId(Long recruitmentPositionId, UUID userId);
 
     @Modifying
