@@ -3,6 +3,8 @@ package com.jj.swm.domain.study.core.repository;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.custom.CustomStudyRepository;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -32,4 +34,6 @@ public interface StudyRepository extends JpaRepository<Study, Long>, CustomStudy
 
     @Query("select s.id from Study s where s.user.id = ?1")
     List<Long> findIdsByUserId(UUID userId);
+
+    Page<Study> findAllByUserId(UUID userId, Pageable pageable);
 }
