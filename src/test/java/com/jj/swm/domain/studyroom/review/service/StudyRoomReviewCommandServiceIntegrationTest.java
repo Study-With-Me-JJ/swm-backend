@@ -128,7 +128,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
                 .build();
 
         //StudyRoom에 이용 후기 점수 추가
-        studyRoom.addReviewStudyRoom(5);
+        studyRoom.addReview(5);
 
         //when
         studyRoom = studyRoomRepository.findById(studyRoom.getId()).get();

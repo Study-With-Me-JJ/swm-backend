@@ -72,14 +72,14 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
             for(int j = i; j >= 1; j--){
                 StudyRoomReview review = StudyRoomReviewFixture.createReview(studyRoom, i, users.get(j - 1));
-                studyRoom.addReviewStudyRoom(i);
+                studyRoom.addReview(i);
 
                 reviewRepository.save(review);
             }
 
             for(int j = 1; j <= i; j++){
                 StudyRoomLike like = StudyRoomLikeFixture.createLike(studyRoom, users.get(j - 1));
-                studyRoom.likeStudyRoom();
+                studyRoom.addLike();
 
                 likeRepository.save(like);
             }
