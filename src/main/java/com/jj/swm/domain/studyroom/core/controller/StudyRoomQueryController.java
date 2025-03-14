@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -62,6 +63,19 @@ public class StudyRoomQueryController {
         return ApiResponse.ok(response);
     }
 
+    @Secured("ROLE_ROOM_ADMIN")
+    @GetMapping("/v1/studyroom/user/studyrooms")
+    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserStudyRooms(
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
+            Principal principal
+    ) {
+        PageResponse<GetStudyRoomResponse> response = queryService.getUserStudyRooms(
+                pageNo, UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.ok(response);
+    }
+
     @Operation(
             summary = "특정 유저가 좋아요한 스터디 룸 목록 조회",
             description = "특정 유저가 좋아요한 스터디 룸을 페이징 조회합니다." +
@@ -72,7 +86,7 @@ public class StudyRoomQueryController {
             responseCode = "200", description = "성공"
     )
     @GetMapping("/v1/studyroom/user/liked-studyrooms")
-    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserLikedStudyRoomList(
+    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserLikedStudyRooms(
             @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
             Principal principal
     ) {
@@ -93,7 +107,7 @@ public class StudyRoomQueryController {
             responseCode = "200", description = "성공"
     )
     @GetMapping("/v1/studyroom/user/bookmarked-studyrooms")
-    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserBookmarkedStudyRoomList(
+    public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserBookmarkedStudyRooms(
             @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
             Principal principal
     ) {
