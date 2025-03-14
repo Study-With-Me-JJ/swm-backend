@@ -1,7 +1,6 @@
 package com.jj.swm.domain.studyroom.core.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
-import com.jj.swm.domain.studyroom.core.dto.request.DeleteStudyRoomsRequest;
 import com.jj.swm.domain.studyroom.core.repository.*;
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomRequest;
@@ -21,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.jj.swm.domain.user.helper.UserTestHelper.insertUsersAndGetUserIds;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainerSupporter {
@@ -48,20 +48,20 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @BeforeEach
     void setUp(){
         roomAdmin = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
-        commandService.create(StudyRoomFixture.createStudyRoomRequestFixture(), roomAdmin.getId());
+        commandService.createStudyRoom(StudyRoomFixture.createStudyRoomRequestFixture(), roomAdmin.getId());
 
         studyRoom = studyRoomRepository.findById(1L).get();
     }
 
     @Test
     @DisplayName("스터디 룸 생성에 성공한다.")
-    void studyRoom_create_Success() {
+    void studyRoom_create_StudyRoom_Success() {
         //given
         User user = UserFixture.createRoomAdmin();
         CreateStudyRoomRequest request =  StudyRoomFixture.createStudyRoomRequestFixture();
 
         //when
-        commandService.create(request, user.getId());
+        commandService.createStudyRoom(request, user.getId());
 
         //then
         Optional<StudyRoom> studyRoom = studyRoomRepository.findById(2L);
@@ -323,7 +323,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 좋아요 동시성 테스트에 성공한다.")
     void studyRoom_like_concurrency_test_Success() throws InterruptedException {
         //given
-        List<UUID> userUuids = createTestUsers();
+        List<UUID> userUuids = insertUsersAndGetUserIds(userRepository, THREAD_COUNT);
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
@@ -356,7 +356,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 좋아요 취소 동시성 테스트에 성공한다.")
     void studyRoom_dislike_concurrency_test_Success() throws InterruptedException {
         //given
-        List<UUID> userUuids = createTestUsers();
+        List<UUID> userUuids = insertUsersAndGetUserIds(userRepository, THREAD_COUNT);
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
@@ -403,7 +403,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 북마크 생성에 성공한다.")
-    void studyRoom_createBookmark_Success() {
+    void studyRoom_createStudyRoomBookmark_Success() {
         //when
         commandService.createBookmark(studyRoom.getId(), roomAdmin.getId());
 
@@ -449,14 +449,6 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
         Assertions.assertThrows(GlobalException.class,
                 () -> commandService.unBookmark(studyRoom.getId(), roomAdmin.getId())
         );
-    }
-
-    private List<UUID> createTestUsers() {
-        List<User> users = UserFixture.multiUser(THREAD_COUNT);
-
-        userRepository.saveAll(users);
-
-        return users.stream().map(User::getId).toList();
     }
 }
 

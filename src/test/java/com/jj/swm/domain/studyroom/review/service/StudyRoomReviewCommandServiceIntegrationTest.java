@@ -30,6 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.jj.swm.domain.user.helper.UserTestHelper.insertUsersAndGetUserIds;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationContainerSupporter {
@@ -51,6 +52,9 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     private StudyRoom studyRoom;
     private User createReviewUser;
     private StudyRoomReview studyRoomReview;
+
+    private ExecutorService executorService;
+    private CountDownLatch countDownLatch;
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
@@ -186,7 +190,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     @DisplayName("스터디 룸 이용후기 평균 평점 계산에 성공한다.")
     void studyRoom_calculate_average_rating_Success() {
         //given
-        List<UUID> userUuids = createTestUsers(5);
+        List<UUID> userUuids = insertUsersAndGetUserIds(userRepository, 5);
         int rating = 5;
 
         //when
@@ -346,9 +350,9 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     @DisplayName("스터디 룸 이용후기 동시성 테스트에 성공한다.")
     void studyRoom_review_concurrency_test_Success() throws InterruptedException {
         //given
-        List<UUID> userUuids = createTestUsers(THREAD_COUNT);
-        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-        CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+        List<UUID> userUuids = insertUsersAndGetUserIds(userRepository, THREAD_COUNT);
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
 
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
@@ -402,13 +406,5 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
         Optional<StudyRoomReview> findStudyRoomReview = reviewRepository.findById(response.getStudyRoomReviewId());
 
         assertThat(findStudyRoomReview.isPresent()).isFalse();
-    }
-
-    private List<UUID> createTestUsers(int size) {
-        List<User> users = UserFixture.multiUser(size);
-
-        userRepository.saveAll(users);
-
-        return users.stream().map(User::getId).toList();
     }
 }
