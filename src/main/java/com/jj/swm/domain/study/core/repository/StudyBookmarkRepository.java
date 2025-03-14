@@ -19,7 +19,7 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
     @Query("delete from StudyBookmark b where b.id = ?1 and b.user.id = ?2")
     void deleteByIdAndUserId(Long bookmarkId, UUID userId);
 
-    Optional<StudyBookmark> findByUserIdAndStudyId(UUID userId, Long studyId);
+    boolean existsByUserIdAndStudyId(UUID userId, Long studyId);
 
     @Modifying
     @Query("delete from StudyBookmark b where b.study.id = ?1")
@@ -34,4 +34,6 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
 
     @Query("select b.id from StudyBookmark b where b.user.id = ?1 and b.study.id = ?2")
     Long findIdByUserIdAndStudyId(UUID userId, Long studyId);
+
+    Optional<StudyBookmark> findByIdAndUserId(Long bookmarkId, UUID userId);
 }

@@ -47,9 +47,7 @@ public class RecruitmentPositionCommandService {
             Long recruitmentPositionId,
             UpdateRecruitmentPositionRequest request
     ) {
-        StudyRecruitmentPosition recruitmentPosition =
-                recruitmentPositionRepository.findByIdAndStudyUserId(recruitmentPositionId, userId)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
+        StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(userId, recruitmentPositionId);
 
         validateAcceptedCount(request);
 
@@ -58,7 +56,9 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public void deleteRecruitmentPosition(UUID userId, Long recruitmentPositionId) {
-        recruitmentPositionRepository.deleteByIdAndStudyUserId(recruitmentPositionId, userId);
+        StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(userId, recruitmentPositionId);
+
+        recruitmentPositionRepository.delete(recruitmentPosition);
     }
 
     private void validateRecruitmentPositionSizeLimit(Long studyId) {
@@ -72,6 +72,11 @@ public class RecruitmentPositionCommandService {
         if (request.getHeadcount() < request.getAcceptedCount()) {
             throw new GlobalException(ErrorCode.NOT_VALID, "The number of accepted exceeds the recruitment limit.");
         }
+    }
+
+    private StudyRecruitmentPosition findByIdAndUserIdOrThrow(UUID userId, Long recruitmentPositionId) {
+        return recruitmentPositionRepository.findByIdAndStudyUserId(recruitmentPositionId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
     }
 
 //    @Transactional

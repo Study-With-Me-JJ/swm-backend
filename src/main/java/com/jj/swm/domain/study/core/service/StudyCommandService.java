@@ -98,10 +98,7 @@ public class StudyCommandService {
 
     @Transactional
     public CreateStudyBookmarkResponse createStudyBookmark(UUID userId, Long studyId) {
-        Optional<StudyBookmark> optionalStudyBookmark = studyBookmarkRepository.findByUserIdAndStudyId(userId, studyId);
-        if (optionalStudyBookmark.isPresent()) {
-            return CreateStudyBookmarkResponse.from(optionalStudyBookmark.get());
-        }
+        throwIfAlreadyBookmarked(userId, studyId);
 
         User user = userRepository.getReferenceById(userId);
 
@@ -116,15 +113,15 @@ public class StudyCommandService {
 
     @Transactional
     public void deleteStudyBookmark(UUID userId, Long bookmarkId) {
-        studyBookmarkRepository.deleteByIdAndUserId(bookmarkId, userId);
+        StudyBookmark studyBookmark = studyBookmarkRepository.findByIdAndUserId(bookmarkId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study bookmark not found"));
+
+        studyBookmarkRepository.delete(studyBookmark);
     }
 
     @Transactional
     public void createStudyLike(UUID userId, Long studyId) {
-        Optional<StudyLike> optionalStudyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId);
-        if (optionalStudyLike.isPresent()) {
-            return;
-        }
+        throwIfAlreadyLiked(userId, studyId);
 
         User user = userRepository.getReferenceById(userId);
 
@@ -138,14 +135,12 @@ public class StudyCommandService {
 
     @Transactional
     public void deleteStudyLike(UUID userId, Long studyId) {
-        Optional<StudyLike> optionalStudyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId);
-        if (optionalStudyLike.isEmpty()) {
-            return;
-        }
+        StudyLike studyLike = studyLikeRepository.findByUserIdAndStudyId(userId, studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
 
         Study study = findByIdUsingPessimisticLockOrThrow(studyId);
 
-        studyLikeRepository.delete(optionalStudyLike.get());
+        studyLikeRepository.delete(studyLike);
 
         study.decrementLikeCount();
     }
@@ -235,5 +230,17 @@ public class StudyCommandService {
         commentRepository.deleteAllByStudyIds(studyIds);
         studyBookmarkRepository.deleteAllByStudyIds(studyIds);
         studyRepository.deleteAllByStudyIds(studyIds);
+    }
+
+    private void throwIfAlreadyBookmarked(UUID userId, Long studyId) {
+        if (studyBookmarkRepository.existsByUserIdAndStudyId(userId, studyId)) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
+        }
+    }
+
+    private void throwIfAlreadyLiked(UUID userId, Long studyId) {
+        if(studyLikeRepository.existsByUserIdAndStudyId(userId, studyId)){
+            throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
+        }
     }
 }
