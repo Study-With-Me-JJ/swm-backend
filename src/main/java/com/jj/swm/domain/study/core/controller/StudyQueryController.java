@@ -85,4 +85,20 @@ public class StudyQueryController {
 
         return ApiResponse.ok(pageResponse);
     }
+
+    @GetMapping("/v1/study/user/studies")
+    @Operation(
+            summary = "특정 유저가 작성한 스터디 목록 조회",
+            description = "특정 유저가 작성한 스터디를 페이징 조회합니다.<br>" +
+                    "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
+    )
+    public ApiResponse<PageResponse<GetStudyResponse>> userStudyList(
+            Principal principal, @RequestParam(value = "pageNo") int pageNo
+    ) {
+        PageResponse<GetStudyResponse> pageResponse = studyQueryService.findUserStudyList(
+                UUID.fromString(principal.getName()), pageNo
+        );
+
+        return ApiResponse.ok(pageResponse);
+    }
 }

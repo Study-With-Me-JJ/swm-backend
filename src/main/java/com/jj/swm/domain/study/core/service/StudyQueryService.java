@@ -165,6 +165,19 @@ public class StudyQueryService {
         return PageResponse.of(pagedStudy, GetStudyResponse::of);
     }
 
+    @Transactional(readOnly = true)
+    public PageResponse<GetStudyResponse> findUserStudyList(UUID userId, int pageNo) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.Study,
+                Sort.by("id").descending()
+        );
+
+        Page<Study> pagedStudy = studyRepository.findAllByUserId(userId, pageable);
+
+        return PageResponse.of(pagedStudy, GetStudyResponse::of);
+    }
+
     private record LikeStatusAndBookmarkId(boolean likeStatus, Long bookmarkId) {
     }
 }
