@@ -12,7 +12,7 @@ import com.jj.swm.domain.studyroom.core.repository.StudyRoomOptionInfoRepository
 import com.jj.swm.domain.studyroom.core.repository.StudyRoomRepository;
 import com.jj.swm.domain.studyroom.core.dto.GetStudyRoomCondition;
 import com.jj.swm.domain.studyroom.core.dto.SortCriteria;
-import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomDetailResponse;
+import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomDetailsResponse;
 import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomResponse;
 import com.jj.swm.domain.studyroom.review.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.review.fixture.StudyRoomReviewFixture;
@@ -72,14 +72,14 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
             for(int j = i; j >= 1; j--){
                 StudyRoomReview review = StudyRoomReviewFixture.createReview(studyRoom, i, users.get(j - 1));
-                studyRoom.addReviewStudyRoom(i);
+                studyRoom.addReview(i);
 
                 reviewRepository.save(review);
             }
 
             for(int j = 1; j <= i; j++){
                 StudyRoomLike like = StudyRoomLikeFixture.createLike(studyRoom, users.get(j - 1));
-                studyRoom.likeStudyRoom();
+                studyRoom.addLike();
 
                 likeRepository.save(like);
             }
@@ -91,7 +91,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸 페이지네이션 평점 순 조회에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRooms_orderByStars_Success(){
+    void getStudyRooms_OrderByStars_Success(){
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
@@ -111,7 +111,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸 페이지네이션 좋아요 순 조회에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRooms_orderByLikes_Success() {
+    void getStudyRooms_OrderByLikes_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
@@ -132,7 +132,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸 페이지네이션 리뷰 순 조회에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRooms_orderByReviews_Success() {
+    void getStudyRooms_OrderByReviews_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
@@ -153,7 +153,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸 페이지네이션 가격 오름차순 정렬에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRooms_orderByPriceAsc_Success() {
+    void getStudyRooms_OrderByPriceAsc_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
@@ -174,7 +174,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸 페이지네이션 가격 내림차순 정렬에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRooms_orderByPriceDesc_Success() {
+    void getStudyRooms_OrderByPriceDesc_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
@@ -196,7 +196,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸 페이지네이션 거리 순 정렬에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRooms_orderByDistance_Success(){
+    void getStudyRooms_OrderByDistance_Success(){
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
@@ -224,7 +224,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸 조회시 관련 locality가 없다면 빈값 조회에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRooms_whenWithoutLocality_Success() {
+    void getStudyRooms_WhenWithoutLocality_Success() {
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ELECTRICAL));
@@ -240,7 +240,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("유저 ID와 함께 조회 요청 시 북마크 정보도 반환한다.")
     @Transactional
-    void studyRoom_getStudyRoomsWithUserId_thenReturnBookmarkInfo_Success() {
+    void getStudyRooms_WhenWithUserId_ThenReturnBookmarkInfo_Success() {
         //given
         User user = users.getFirst();
 
@@ -265,7 +265,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸이 조회시 관련 옵션이 없을 때 빈값 반환에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRoom_whenNotCorrect_emptyReturn_Success(){
+    void getStudyRooms_WhenNotExistsCorrectOption_ThenEmptyReturn_Success(){
         //given
         GetStudyRoomCondition condition = new GetStudyRoomCondition();
         condition.setOptions(List.of(StudyRoomOption.ALCOHOL));
@@ -280,10 +280,10 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("스터디 룸 상세조회에 성공한다.")
     @Transactional
-    void studyRoom_getStudyRoomDetail_Success() {
+    void getStudyRoomDetails_Success() {
         //when
-        GetStudyRoomDetailResponse response
-                = queryService.getStudyRoomDetail(studyRooms.getFirst().getId(), null);
+        GetStudyRoomDetailsResponse response
+                = queryService.getStudyRoomDetails(studyRooms.getFirst().getId(), null);
 
         //then
         assertThat(response.getStudyRoomId()).isEqualTo(studyRooms.getFirst().getId());
@@ -291,22 +291,22 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("잘못된 스터디 룸 ID 접근시 상세조회에 실패한다.")
-    void studyRoom_getStudyRoomDetail_thenReturnNotFound() {
+    void getStudyRoomDetails_whenNotExistsStudyRoomId_ThenFail() {
         //when
         Assertions.assertThrows(GlobalException.class,
-                () -> queryService.getStudyRoomDetail(-1L, null));
+                () -> queryService.getStudyRoomDetails(-1L, null));
     }
 
     @Test
     @DisplayName("유저 ID와 함께 조회 요청 시 좋아요 정보도 반환한다.")
     @Transactional
-    void studyRoom_getStudyRoomDetailWithUserId_thenReturnLikeId_Success() {
+    void getStudyRoomDetails_WhenWithUserId_ThenReturnLikeId_Success() {
         //given
         User user = users.getFirst();
 
         //when
-        GetStudyRoomDetailResponse response
-                = queryService.getStudyRoomDetail(studyRooms.getFirst().getId(), user.getId());
+        GetStudyRoomDetailsResponse response
+                = queryService.getStudyRoomDetails(studyRooms.getFirst().getId(), user.getId());
 
         //then
         assertThat(response.isLiked()).isTrue();
@@ -315,14 +315,14 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("유저 ID와 함께 조회 요청 시 북마크 정보도 반환한다.")
     @Transactional
-    void studyRoom_getStudyRoomDetailWithUserId_thenReturnBookmarkId_Success() {
+    void getStudyRoomDetails_WhenWithUserId_ThenReturnBookmarkId_Success() {
         //given
         User user = users.getFirst();
         bookmarkRepository.save(StudyRoomBookmark.of(studyRooms.getFirst(), user));
 
         //when
-        GetStudyRoomDetailResponse response
-                = queryService.getStudyRoomDetail(studyRooms.getFirst().getId(), user.getId());
+        GetStudyRoomDetailsResponse response
+                = queryService.getStudyRoomDetails(studyRooms.getFirst().getId(), user.getId());
 
         //then
         assertThat(response.getBookmarkId()).isNotNull();
@@ -331,10 +331,10 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("특정 유저가 생성한 스터디 룸 목록을 반환한다.")
     @Transactional
-    void studyRoom_getUserStudyRooms_Success() {
+    void getUserStudyRooms_Success() {
         //when
         PageResponse<GetStudyRoomResponse> response
-                = queryService.getUserStudyRooms(0, roomAdmin.getId());
+                = queryService.getUserStudyRooms(roomAdmin.getId(), 0);
 
         //then
         assertThat(response.getData().size()).isGreaterThan(0);
@@ -343,13 +343,13 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("특정 유저가 좋아요를 누른 스터디 룸 목록을 반환한다.")
     @Transactional
-    void studyRoom_getLikedStudyRooms_Success() {
+    void getUserLikedStudyRooms_Success() {
         //given
         User user = users.getFirst();
 
         //when
         PageResponse<GetStudyRoomResponse> response
-                = queryService.getLikedStudyRooms(0, user.getId());
+                = queryService.getUserLikedStudyRooms(user.getId(), 0);
 
         //then
         assertThat(response.getData().size()).isGreaterThan(0);
@@ -358,7 +358,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Test
     @DisplayName("특정 유저가 북마크를 누른 스터디 룸 목록을 반환한다.")
     @Transactional
-    void studyRoom_getBookmarkedStudyRooms_Success() {
+    void getUserBookmarkedStudyRooms_Success() {
         //given
         User user = users.getFirst();
 
@@ -369,7 +369,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
 
         //when
         PageResponse<GetStudyRoomResponse> response
-                = queryService.getBookmarkedStudyRooms(0, user.getId());
+                = queryService.getUserBookmarkedStudyRooms(user.getId(), 0);
 
         //then
         assertThat(response.getData().size()).isGreaterThan(0);

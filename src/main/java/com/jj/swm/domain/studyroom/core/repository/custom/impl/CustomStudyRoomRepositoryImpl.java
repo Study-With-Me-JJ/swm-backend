@@ -26,7 +26,7 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
     private static final double earthRadiusKm = 6371.0;
 
     @Override
-    public List<StudyRoom> findAllWithPaginationAndCondition(int pageSize, GetStudyRoomCondition condition) {
+    public List<StudyRoom> findPagedStudyRoomByCondition(int pageSize, GetStudyRoomCondition condition) {
         return jpaQueryFactory.selectFrom(studyRoom)
                 .where(
                         studyRoomTitleContains(condition.getTitle()),

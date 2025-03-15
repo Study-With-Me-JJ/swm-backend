@@ -18,7 +18,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,7 +42,7 @@ public class StudyRoomQueryService {
             UUID userId
     ) {
         List<StudyRoom> studyRooms
-                = studyRoomRepository.findAllWithPaginationAndCondition(PageSize.StudyRoom + 1, condition);
+                = studyRoomRepository.findPagedStudyRoomByCondition(PageSize.StudyRoom + 1, condition);
 
         if(studyRooms.isEmpty()) {
             return PageResponse.of(List.of(), false);
@@ -53,45 +52,36 @@ public class StudyRoomQueryService {
 
         List<StudyRoom> pagedStudyRooms = hasNext ? studyRooms.subList(0, PageSize.StudyRoom) : studyRooms;
 
-        Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyRoom
-                = getStudyRoomLikeAndBookmarkMapping(pagedStudyRooms, userId);
+        Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdMap
+                = getStudyRoomLikeStatusAndBookmarkIdMap(pagedStudyRooms, userId);
 
         List<GetStudyRoomResponse> responses = pagedStudyRooms.stream()
                 .map(studyRoom -> GetStudyRoomResponse.of(
                         studyRoom,
-                        likeStatusAndBookmarkIdByStudyRoom.get(studyRoom.getId()).likeStatus,
-                        likeStatusAndBookmarkIdByStudyRoom.get(studyRoom.getId()).bookmarkId()
+                        likeStatusAndBookmarkIdMap.get(studyRoom.getId()).likeStatus,
+                        likeStatusAndBookmarkIdMap.get(studyRoom.getId()).bookmarkId()
                 )).toList();
 
         return PageResponse.of(responses, hasNext);
     }
 
     @Transactional(readOnly = true)
-    public GetStudyRoomDetailResponse getStudyRoomDetail(Long studyRoomId, UUID userId) {
+    public GetStudyRoomDetailsResponse getStudyRoomDetails(Long studyRoomId, UUID userId) {
         StudyRoom studyRoom = studyRoomRepository.findByIdWithTags(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
 
-        LikeStatusAndBookmarkId likeStatusAndBookmarkId = getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(studyRoomId, userId);
+        LikeStatusAndBookmarkId likeStatusAndBookmarkId
+                = getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(studyRoomId, userId);
 
-        return createAllOfStudyRoomRelatedResponse(
+        return buildGetStudyRoomDetailsResponse(
                 likeStatusAndBookmarkId.likeStatus,
                 likeStatusAndBookmarkId.bookmarkId,
                 studyRoom
         );
     }
 
-    private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(Long studyRoomId, UUID userId) {
-        if(userId == null)
-            return new LikeStatusAndBookmarkId(false, null);
-
-        return new LikeStatusAndBookmarkId(
-                likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId),
-                bookmarkRepository.findIdByStudyRoomIdAndUserId(studyRoomId, userId)
-        );
-    }
-
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyRoomResponse> getUserStudyRooms(int pageNo, UUID userId) {
+    public PageResponse<GetStudyRoomResponse> getUserStudyRooms(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyRoom,
@@ -105,7 +95,7 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyRoomResponse> getLikedStudyRooms(int pageNo, UUID userId) {
+    public PageResponse<GetStudyRoomResponse> getUserLikedStudyRooms(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyRoom,
@@ -119,21 +109,20 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyRoomResponse> getBookmarkedStudyRooms(int pageNo, UUID userId) {
+    public PageResponse<GetStudyRoomResponse> getUserBookmarkedStudyRooms(UUID userId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyRoom,
                 Sort.by("id").descending()
         );
 
-        Page<StudyRoom> pagedStudyRoom = bookmarkRepository.findPagedStudyRoomByUserId(
-                userId, pageable
-        );
+        Page<StudyRoom> pagedStudyRoom
+                = bookmarkRepository.findPagedStudyRoomByUserId(userId, pageable);
 
         return PageResponse.of(pagedStudyRoom, GetStudyRoomResponse::of);
     }
 
-    private GetStudyRoomDetailResponse createAllOfStudyRoomRelatedResponse(
+    private GetStudyRoomDetailsResponse buildGetStudyRoomDetailsResponse(
             boolean likeStatus,
             Long bookmarkId,
             StudyRoom studyRoom
@@ -161,7 +150,7 @@ public class StudyRoomQueryService {
                 .map(GetStudyRoomTypeInfoResponse::from)
                 .toList();
 
-        return GetStudyRoomDetailResponse.of(
+        return GetStudyRoomDetailsResponse.of(
                 studyRoom,
                 likeStatus,
                 bookmarkId,
@@ -173,7 +162,7 @@ public class StudyRoomQueryService {
         );
     }
 
-    private Map<Long, LikeStatusAndBookmarkId> getStudyRoomLikeAndBookmarkMapping(List<StudyRoom> studyRooms, UUID userId) {
+    private Map<Long, LikeStatusAndBookmarkId> getStudyRoomLikeStatusAndBookmarkIdMap(List<StudyRoom> studyRooms, UUID userId) {
         if(userId == null){
             return studyRooms.stream()
                     .collect(Collectors.toMap(StudyRoom::getId, studyRoom -> new LikeStatusAndBookmarkId(false, null)));
@@ -194,6 +183,16 @@ public class StudyRoomQueryService {
                     likesMap.getOrDefault(studyRoomId, null) != null,
                     bookmarksMap.getOrDefault(studyRoomId, null)
                 )));
+    }
+
+    private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdByStudyRoomIdAndUserId(Long studyRoomId, UUID userId) {
+        if(userId == null)
+            return new LikeStatusAndBookmarkId(false, null);
+
+        return new LikeStatusAndBookmarkId(
+                likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId),
+                bookmarkRepository.findIdByStudyRoomIdAndUserId(studyRoomId, userId)
+        );
     }
 
     private record LikeStatusAndBookmarkId(boolean likeStatus, Long bookmarkId) {

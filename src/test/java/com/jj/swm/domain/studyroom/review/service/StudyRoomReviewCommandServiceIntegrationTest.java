@@ -30,14 +30,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.jj.swm.domain.user.helper.UserTestHelper.insertUsersAndGetUserIds;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     private static final int THREAD_COUNT = 50;
     private static final List<String> ignoreBeforeEachMethod = List.of(
-            "studyRoom_review_concurrency_test_Success",
-            "studyRoom_deleteReview_concurrency_test_Success");
+            "createReview_ConcurrencyTest_Success",
+            "deleteReview_ConcurrencyTest_Success");
 
     // Target Service Bean
     @Autowired private StudyRoomReviewCommandService commandService;
@@ -51,6 +52,9 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     private StudyRoom studyRoom;
     private User createReviewUser;
     private StudyRoomReview studyRoomReview;
+
+    private ExecutorService executorService;
+    private CountDownLatch countDownLatch;
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
@@ -69,7 +73,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 생성에 성공한다.")
-    void studyRoom_createReview_Success() {
+    void createReview_Success() {
         //given
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
@@ -96,7 +100,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("등록되지 않은 스터디 룸 ID로 생성시 이용후기 생성에 실패한다.")
-    void studyRoom_createReview_whenNotValidStudyRoom_Fail() {
+    void createReview_WhenNotValidStudyRoom_ThenFail() {
         //given
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
@@ -116,7 +120,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     @Test
     @DisplayName("스터디 룸 이용후기 수정에 성공한다.")
     @Transactional
-    void studyRoom_updateReview_Success() {
+    void updateReview_Success() {
         //given
         UpdateStudyRoomReviewRequest request = UpdateStudyRoomReviewRequest.builder()
                 .comment("update_test")
@@ -124,7 +128,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
                 .build();
 
         //StudyRoom에 이용 후기 점수 추가
-        studyRoom.addReviewStudyRoom(5);
+        studyRoom.addReview(5);
 
         //when
         studyRoom = studyRoomRepository.findById(studyRoom.getId()).get();
@@ -146,7 +150,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 작성자가 아니라면 삭제에 실패한다.")
-    void studyRoom_updateReview_whenNotAuthor_Fail() {
+    void updateReview_WhenNotAuthor_ThenFail() {
         //given
         UpdateStudyRoomReviewRequest request = UpdateStudyRoomReviewRequest.builder()
                 .comment("update_test")
@@ -164,7 +168,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 삭제에 성공한다.")
-    void studyRoom_deleteReview_Success() {
+    void deleteReview_Success() {
         //when
         studyRoom = studyRoomRepository.findById(studyRoom.getId()).get();
         commandService.deleteReview(studyRoom.getId(), studyRoomReview.getId(), createReviewUser.getId());
@@ -176,7 +180,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 작성자가 아니라면 삭제에 실패한다.")
-    void studyRoom_deleteReview_whenNotAuthor_Fail() {
+    void deleteReview_WhenNotAuthor_ThenFail() {
         //when & then
         Assertions.assertThrows(GlobalException.class,
                 () -> commandService.deleteReview(studyRoom.getId(), studyRoomReview.getId(), UUID.randomUUID()));
@@ -184,9 +188,9 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 평균 평점 계산에 성공한다.")
-    void studyRoom_calculate_average_rating_Success() {
+    void createReview_AboutCalculateAverageRating_Success() {
         //given
-        List<UUID> userUuids = createTestUsers(5);
+        List<UUID> userUuids = insertUsersAndGetUserIds(userRepository, 5);
         int rating = 5;
 
         //when
@@ -208,7 +212,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기를 작성한 일반 유저 혹은 관리자이면 답글 생성에 성공한다.")
-    void studyRoom_review_create_normal_user_and_room_admin_Success() {
+    void createReviewReply_WhenNormalUserAndRoomAdmin_Success() {
         //given
         CreateStudyRoomReviewReplyRequest requestNormalUser = CreateStudyRoomReviewReplyRequest.builder()
                 .reply("normalUser")
@@ -239,7 +243,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기를 작성한 유저가 아니라면 답글 생성에 실패한다.")
-    void studyRoom_review_create_unknown_user_thenFail() {
+    void createReviewReply_WhenNotValidUser_ThenFail() {
         //given
         CreateStudyRoomReviewReplyRequest request = CreateStudyRoomReviewReplyRequest.builder()
                 .reply("test")
@@ -257,7 +261,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 답글 수정에 성공한다.")
-    void studyRoom_review_reply_update_Success() {
+    void updateReviewReply_Success() {
         //given
         StudyRoomReviewReply studyRoomReviewReply = reviewReplyRepository.save(
                 StudyRoomReviewReply.of(
@@ -281,7 +285,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 답글 작성자가 아니라면 수정에 실패한다.")
-    void studyRoom_updateReviewReply_whenNotAuthor_thenFail() {
+    void updateReviewReply_WhenNotAuthor_ThenFail() {
         //given
         StudyRoomReviewReply studyRoomReviewReply = reviewReplyRepository.save(
                 StudyRoomReviewReply.of(
@@ -306,7 +310,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 답글 삭제에 성공한다.")
-    void studyRoom_deleteReviewReply_Success() {
+    void deleteReviewReply_Success() {
         //given
         StudyRoomReviewReply studyRoomReviewReply = reviewReplyRepository.save(
                 StudyRoomReviewReply.of(
@@ -326,7 +330,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 답글 작성자가 아니라면 삭제에 실패한다.")
-    void studyRoom_deleteReviewReply_whenNotAuthor_thenFail() {
+    void deleteReviewReply_WhenNotAuthor_ThenFail() {
         //given
         StudyRoomReviewReply studyRoomReviewReply = reviewReplyRepository.save(
                 StudyRoomReviewReply.of(
@@ -344,11 +348,11 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 동시성 테스트에 성공한다.")
-    void studyRoom_review_concurrency_test_Success() throws InterruptedException {
+    void createReview_ConcurrencyTest_Success() throws InterruptedException {
         //given
-        List<UUID> userUuids = createTestUsers(THREAD_COUNT);
-        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-        CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+        List<UUID> userUuids = insertUsersAndGetUserIds(userRepository, THREAD_COUNT);
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
 
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
@@ -383,7 +387,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     @Test
     @DisplayName("스터디 룸 이용후기 삭제 테스트에 성공한다.")
-    void studyRoom_deleteReview_concurrency_test_Success() throws InterruptedException {
+    void deleteReview_ConcurrencyTest_Success() throws InterruptedException {
         //given
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
@@ -402,13 +406,5 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
         Optional<StudyRoomReview> findStudyRoomReview = reviewRepository.findById(response.getStudyRoomReviewId());
 
         assertThat(findStudyRoomReview.isPresent()).isFalse();
-    }
-
-    private List<UUID> createTestUsers(int size) {
-        List<User> users = UserFixture.multiUser(size);
-
-        userRepository.saveAll(users);
-
-        return users.stream().map(User::getId).toList();
     }
 }

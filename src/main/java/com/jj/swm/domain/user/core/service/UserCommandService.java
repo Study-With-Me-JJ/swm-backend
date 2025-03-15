@@ -98,8 +98,8 @@ public class UserCommandService {
     }
 
     @Transactional
-    public void create(CreateUserRequest createRequest) {
-        validateNicknameAndLoginId(createRequest.getNickname(), createRequest.getLoginId());
+    public void createUser(CreateUserRequest createRequest) {
+        validateNicknameAndLoginIdOrThrow(createRequest.getNickname(), createRequest.getLoginId());
 
         User user = User.from(createRequest);
         userRepository.save(user);
@@ -119,7 +119,7 @@ public class UserCommandService {
     }
 
     @Transactional
-    public void update(UpdateUserRequest request, UUID userId) {
+    public void updateUser(UpdateUserRequest request, UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
 
@@ -131,7 +131,7 @@ public class UserCommandService {
     }
 
     @Transactional
-    public void delete(UUID userId) {
+    public void deleteUser(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "Not Found User"));
 
@@ -227,7 +227,7 @@ public class UserCommandService {
         }
     }
 
-    private void validateNicknameAndLoginId(String nickname, String loginId) {
+    private void validateNicknameAndLoginIdOrThrow(String nickname, String loginId) {
         boolean nicknameDuplicatedStatus = userRepository.existsByNickname(nickname);
 
         if (nicknameDuplicatedStatus) {

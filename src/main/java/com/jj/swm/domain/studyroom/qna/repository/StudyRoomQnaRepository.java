@@ -18,7 +18,7 @@ public interface StudyRoomQnaRepository extends JpaRepository<StudyRoomQna, Long
     @Query("select s from StudyRoomQna s " +
             "left join fetch s.parent p " +
             "where s.id = ?1")
-    Optional<StudyRoomQna> findByIdWithParent(Long studyRoomQnaId, UUID userId);
+    Optional<StudyRoomQna> findByIdAndUserIdWithParent(Long studyRoomQnaId, UUID userId);
 
     Optional<StudyRoomQna> findByIdAndUserId(Long studyRoomQnaId, UUID userId);
 
@@ -27,7 +27,7 @@ public interface StudyRoomQnaRepository extends JpaRepository<StudyRoomQna, Long
             "set s.deletedAt = CURRENT_TIMESTAMP " +
             "where (s.id = ?1 and s.user.id = ?2) " +
             "or s.parent.id = ?1")
-    void deleteAllByIdOrParentIdAndUserId(Long studyRoomQnaId, UUID userId);
+    void deleteAllByIdAndUserIdOrParentId(Long studyRoomQnaId, UUID userId);
 
     @Query("select s from StudyRoomQna s join fetch s.user where s.studyRoom.id = ?1 and s.parent is null")
     Page<StudyRoomQna> findPagedQnaWithUserByStudyRoomId(Long studyRoomId, Pageable pageable);

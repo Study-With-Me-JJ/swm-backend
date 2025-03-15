@@ -115,6 +115,6 @@ public class RecruitmentPositionCommandService {
 //            throw new GlobalException(ErrorCode.NOT_VALID, "application status is not pending");
 //        }
 //
-//        participantRepository.delete(studyParticipant);
+//        participantRepository.deleteStudyRoom(studyParticipant);
 //    }
 }

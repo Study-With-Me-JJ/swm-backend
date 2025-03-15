@@ -31,8 +31,8 @@ public class UserCommandController {
             responseCode = "201", description = "성공"
     )
     @PostMapping("/v1/user")
-    public ApiResponse<Void> create(@Valid @RequestBody CreateUserRequest request){
-        userCommandService.create(request);
+    public ApiResponse<Void> createUser(@Valid @RequestBody CreateUserRequest request){
+        userCommandService.createUser(request);
 
         return ApiResponse.created(null);
     }
@@ -45,9 +45,9 @@ public class UserCommandController {
             responseCode = "200", description = "성공"
     )
     @PatchMapping("/v1/user")
-    public ApiResponse<Void> update(
+    public ApiResponse<Void> updateUser(
             @Valid @RequestBody UpdateUserRequest request, Principal principal){
-        userCommandService.update(request,UUID.fromString(principal.getName()));
+        userCommandService.updateUser(request,UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -60,8 +60,8 @@ public class UserCommandController {
             responseCode = "200", description = "성공"
     )
     @DeleteMapping("/v1/user")
-    public ApiResponse<Void> delete(Principal principal){
-        userCommandService.delete(UUID.fromString(principal.getName()));
+    public ApiResponse<Void> deleteUser(Principal principal){
+        userCommandService.deleteUser(UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -76,7 +76,7 @@ public class UserCommandController {
             responseCode = "200", description = "성공"
     )
     @PatchMapping("/v1/user/password")
-    public ApiResponse<Void> updatePassword(
+    public ApiResponse<Void> updateUserPassword(
             @Valid @RequestBody UpdateUserPasswordRequest request, Principal principal
     ){
         userCommandService.updateUserPassword(

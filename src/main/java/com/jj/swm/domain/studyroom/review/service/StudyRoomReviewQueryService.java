@@ -30,9 +30,9 @@ public class StudyRoomReviewQueryService {
         Page<StudyRoomReview> pagedReviews;
 
         if (onlyImage) {
-            pagedReviews = reviewRepository.findPagedReviewWithOnlyImageAndUserByStudyRoomId(studyRoomId, pageable);
+            pagedReviews = reviewRepository.findPagedReviewByStudyRoomIdHavingImagesOnly(studyRoomId, pageable);
         } else {
-            pagedReviews = reviewRepository.findPagedReviewWithUserByStudyRoomId(studyRoomId, pageable);
+            pagedReviews = reviewRepository.findPagedReviewByStudyRoomIdWithUser(studyRoomId, pageable);
         }
 
         // 추후, 본인 글 수정 가능 표시 추가 가능

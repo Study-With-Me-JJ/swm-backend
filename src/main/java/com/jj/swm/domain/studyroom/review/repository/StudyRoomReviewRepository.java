@@ -35,14 +35,14 @@ public interface StudyRoomReviewRepository extends JpaRepository<StudyRoomReview
             @Param("userId") UUID userId);
 
     @Query("select s from StudyRoomReview s join fetch s.user where s.studyRoom.id = ?1")
-    Page<StudyRoomReview> findPagedReviewWithUserByStudyRoomId(Long studyRoomId, Pageable pageable);
+    Page<StudyRoomReview> findPagedReviewByStudyRoomIdWithUser(Long studyRoomId, Pageable pageable);
 
     @Query("""
                 select s from StudyRoomReview s join fetch s.user
                 where s.studyRoom.id = ?1 and
                 exists (select 1 from StudyRoomReviewImage sri where sri.studyRoomReview.id = s.id)
            """)
-    Page<StudyRoomReview> findPagedReviewWithOnlyImageAndUserByStudyRoomId(Long studyRoomId, Pageable pageable);
+    Page<StudyRoomReview> findPagedReviewByStudyRoomIdHavingImagesOnly(Long studyRoomId, Pageable pageable);
 
     @Modifying
     @Query("update StudyRoomReview s set s.deletedAt = CURRENT_TIMESTAMP where s.id in (?1)")

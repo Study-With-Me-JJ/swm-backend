@@ -42,7 +42,7 @@ public class StudyRoomReviewCommandService {
             UUID userId
     ) {
         // 이용 내역 검증 로직 필요
-        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
+        StudyRoom studyRoom = findByStudyRoomIdWithLockOrThrow(studyRoomId);
         User user = userRepository.getReferenceById(userId);
 
         StudyRoomReview studyRoomReview = StudyRoomReview.of(
@@ -57,7 +57,7 @@ public class StudyRoomReviewCommandService {
         if(request.getImageUrls() != null)
             reviewImageRepository.batchInsert(request.getImageUrls(), studyRoomReview);
 
-        studyRoom.addReviewStudyRoom(request.getRating());
+        studyRoom.addReview(request.getRating());
 
         return CreateStudyRoomReviewResponse.of(studyRoomReview, request.getImageUrls());
     }
@@ -69,8 +69,8 @@ public class StudyRoomReviewCommandService {
             Long studyRoomReviewId,
             UUID userId
     ) {
-        StudyRoomReview studyRoomReview = validateReviewWithUserId(studyRoomReviewId, userId);
-        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
+        StudyRoomReview studyRoomReview = findByReviewIdAndUserIdOrThrow(studyRoomReviewId, userId);
+        StudyRoom studyRoom = findByStudyRoomIdWithLockOrThrow(studyRoomId);
 
         studyRoom.updateAverageRating(studyRoomReview.getRating(), request.getRating());
 
@@ -85,10 +85,10 @@ public class StudyRoomReviewCommandService {
             Long studyRoomReviewId,
             UUID userId
     ) {
-        StudyRoomReview studyRoomReview = validateReviewWithUserId(studyRoomReviewId, userId);
-        StudyRoom studyRoom = validateStudyRoomWithLock(studyRoomId);
+        StudyRoomReview studyRoomReview = findByReviewIdAndUserIdOrThrow(studyRoomReviewId, userId);
+        StudyRoom studyRoom = findByStudyRoomIdWithLockOrThrow(studyRoomId);
 
-        studyRoom.deleteReviewStudyRoom(studyRoomReview.getRating());
+        studyRoom.deleteReview(studyRoomReview.getRating());
 
         reviewReplyRepository.deleteAllByStudyRoomReviewId(studyRoomReviewId);
         reviewImageRepository.deleteAllByStudyRoomReviewId(studyRoomReviewId);
@@ -104,7 +104,8 @@ public class StudyRoomReviewCommandService {
             Long studyRoomReviewId,
             UUID userId
     ){
-        StudyRoomReview studyRoomReview = validateReviewAndGetStudyRoomAndUser(studyRoomReviewId, userId);
+        StudyRoomReview studyRoomReview = reviewRepository.findByStudyRoomReviewWithNativeQuery(studyRoomReviewId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReview Not Found"));
 
         User user = userRepository.getReferenceById(userId);
 
@@ -122,34 +123,29 @@ public class StudyRoomReviewCommandService {
             UUID userId
     ) {
         StudyRoomReviewReply studyRoomReviewReply
-                = validateReviewReplyWithUserId(studyRoomReviewReplyId, userId);
+                = findByReviewReplyIdAndUserIdOrThrow(studyRoomReviewReplyId, userId);
 
         studyRoomReviewReply.modifyReply(request.getReply());
     }
 
     @Transactional
     public void deleteReviewReply(Long studyRoomReviewReplyId, UUID userId) {
-        StudyRoomReviewReply studyRoomReviewReply = validateReviewReplyWithUserId(studyRoomReviewReplyId, userId);
+        StudyRoomReviewReply studyRoomReviewReply = findByReviewReplyIdAndUserIdOrThrow(studyRoomReviewReplyId, userId);
 
         reviewReplyRepository.delete(studyRoomReviewReply);
     }
 
-    private StudyRoom validateStudyRoomWithLock(Long studyRoomId) {
+    private StudyRoom findByStudyRoomIdWithLockOrThrow(Long studyRoomId) {
         return studyRoomRepository.findByIdWithLock(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
     }
 
-    private StudyRoomReview validateReviewWithUserId(Long studyRoomReviewId, UUID userId) {
+    private StudyRoomReview findByReviewIdAndUserIdOrThrow(Long studyRoomReviewId, UUID userId) {
         return reviewRepository.findByIdAndUserId(studyRoomReviewId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReview Not Found"));
     }
 
-    private StudyRoomReview validateReviewAndGetStudyRoomAndUser(Long studyRoomReviewId, UUID userId) {
-        return reviewRepository.findByStudyRoomReviewWithNativeQuery(studyRoomReviewId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReview Not Found"));
-    }
-
-    private StudyRoomReviewReply validateReviewReplyWithUserId(Long studyRoomReviewReplyId, UUID userId) {
+    private StudyRoomReviewReply findByReviewReplyIdAndUserIdOrThrow(Long studyRoomReviewReplyId, UUID userId) {
         return reviewReplyRepository.findByIdAndUserId(studyRoomReviewReplyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReviewReply Not Found"));
     }
