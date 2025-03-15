@@ -25,42 +25,47 @@ public class RecruitmentPositionCommandService {
     private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional
-    public CreateRecruitmentPositionResponse addRecruitmentPosition(
-            UUID userId,
+    public CreateRecruitmentPositionResponse createRecruitmentPosition(
+            CreateRecruitmentPositionRequest request,
             Long studyId,
-            CreateRecruitmentPositionRequest request
+            UUID userId
     ) {
-        verifyRecruitmentPositionSizeLimit(studyId);
+        validateRecruitmentPositionSizeLimit(studyId);
 
         Study study = studyRepository.findByIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
-        StudyRecruitmentPosition recruitmentPosition = StudyRecruitmentPosition.of(study, request);
+        StudyRecruitmentPosition recruitmentPosition = StudyRecruitmentPosition.of(request, study);
         recruitmentPositionRepository.save(recruitmentPosition);
 
         return CreateRecruitmentPositionResponse.from(recruitmentPosition);
     }
 
-    private void verifyRecruitmentPositionSizeLimit(Long studyId) {
-        int recruitmentPositionSize = recruitmentPositionRepository.countByStudyId(studyId);
-        if (recruitmentPositionSize + 1 > RECRUITMENT_POSITION_LIMIT) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment Position Limit Exceeded");
-        }
-    }
-
     @Transactional
-    public void modifyRecruitmentPosition(
-            UUID userId,
+    public void updateRecruitmentPosition(
+            UpdateRecruitmentPositionRequest request,
             Long recruitmentPositionId,
-            UpdateRecruitmentPositionRequest request
+            UUID userId
     ) {
-        StudyRecruitmentPosition recruitmentPosition =
-                recruitmentPositionRepository.findByIdAndStudyUserId(recruitmentPositionId, userId)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
+        StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
 
         validateAcceptedCount(request);
 
         recruitmentPosition.modify(request);
+    }
+
+    @Transactional
+    public void deleteRecruitmentPosition(Long recruitmentPositionId, UUID userId) {
+        StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
+
+        recruitmentPositionRepository.delete(recruitmentPosition);
+    }
+
+    private void validateRecruitmentPositionSizeLimit(Long studyId) {
+        int recruitmentPositionSize = recruitmentPositionRepository.countByStudyId(studyId);
+        if (recruitmentPositionSize + 1 > RECRUITMENT_POSITION_LIMIT) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment Position Limit Exceeded");
+        }
     }
 
     private void validateAcceptedCount(UpdateRecruitmentPositionRequest request) {
@@ -69,9 +74,9 @@ public class RecruitmentPositionCommandService {
         }
     }
 
-    @Transactional
-    public void removeRecruitmentPosition(UUID userId, Long recruitmentPositionId) {
-        recruitmentPositionRepository.deleteByIdAndStudyUserId(recruitmentPositionId, userId);
+    private StudyRecruitmentPosition findByIdAndUserIdOrThrow(Long recruitmentPositionId, UUID userId) {
+        return recruitmentPositionRepository.findByIdAndStudyUserId(recruitmentPositionId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
     }
 
 //    @Transactional

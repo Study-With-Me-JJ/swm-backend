@@ -28,17 +28,17 @@ public class CommentCommandController {
             description = "스터디 댓글을 생성합니다. 대댓글도 같은 API를 사용합니다."
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
-    public ApiResponse<CreateCommentResponse> commentAdd(
-            Principal principal,
+    public ApiResponse<CreateCommentResponse> createComment(
+            @Valid @RequestBody UpsertCommentRequest createRequest,
             @PathVariable("studyId") Long studyId,
             @PathVariable(value = "parentId", required = false) Long parentId,
-            @Valid @RequestBody UpsertCommentRequest createRequest
+            Principal principal
     ) {
-        CreateCommentResponse response = commentCommandService.addComment(
-                UUID.fromString(principal.getName()),
+        CreateCommentResponse response = commentCommandService.createComment(
+                createRequest,
                 studyId,
                 parentId,
-                createRequest
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.created(response);
@@ -46,15 +46,15 @@ public class CommentCommandController {
 
     @PatchMapping("/v1/study/comment/{commentId}")
     @Operation(summary = "스터디 댓글 수정", description = "스터디 댓글을 수정합니다.")
-    public ApiResponse<UpdateCommentResponse> commentModify(
-            Principal principal,
+    public ApiResponse<UpdateCommentResponse> updateComment(
+            @Valid @RequestBody UpsertCommentRequest updateRequest,
             @PathVariable("commentId") Long commentId,
-            @Valid @RequestBody UpsertCommentRequest modifyRequest
+            Principal principal
     ) {
-        UpdateCommentResponse response = commentCommandService.modifyComment(
-                UUID.fromString(principal.getName()),
+        UpdateCommentResponse response = commentCommandService.updateComment(
+                updateRequest,
                 commentId,
-                modifyRequest
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(response);
@@ -62,15 +62,15 @@ public class CommentCommandController {
 
     @DeleteMapping("/v1/study/{studyId}/comment/{commentId}")
     @Operation(summary = "스터디 댓글 삭제", description = "스터디 댓글을 삭제합니다.")
-    public ApiResponse<Void> commentRemove(
-            Principal principal,
+    public ApiResponse<Void> deleteComment(
             @PathVariable("studyId") Long studyId,
-            @PathVariable("commentId") Long commentId
+            @PathVariable("commentId") Long commentId,
+            Principal principal
     ) {
-        commentCommandService.removeComment(
-                UUID.fromString(principal.getName()),
+        commentCommandService.deleteComment(
                 studyId,
-                commentId
+                commentId,
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);

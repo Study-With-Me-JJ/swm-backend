@@ -20,17 +20,17 @@ public interface StudyRepository extends JpaRepository<Study, Long>, CustomStudy
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Study s where s.id = ?1")
-    Optional<Study> findByIdUsingPessimisticLock(Long studyId);
+    Optional<Study> findByIdUsingLock(Long studyId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Study s join fetch s.user where s.id = ?1")
-    Optional<Study> findByIdWithUserUsingPessimisticLock(Long studyId);
+    Optional<Study> findByIdWithUserUsingLock(Long studyId);
 
-    long countByIdInAndUserId(List<Long> studyIdList, UUID userId);
+    long countByIdInAndUserId(List<Long> studyIds, UUID userId);
 
     @Modifying
     @Query("update Study s set s.deletedAt = CURRENT_TIMESTAMP where s.id in ?1")
-    void deleteAllByStudyIdList(List<Long> studyIdList);
+    void deleteAllByStudyIds(List<Long> studyIds);
 
     @Query("select s.id from Study s where s.user.id = ?1")
     List<Long> findIdsByUserId(UUID userId);

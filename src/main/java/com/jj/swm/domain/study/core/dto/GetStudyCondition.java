@@ -20,7 +20,7 @@ public class GetStudyCondition {
 
     private StudyStatus status;
 
-    private List<RecruitmentPositionTitle> recruitmentPositionTitleList = new ArrayList<>();
+    private List<RecruitmentPositionTitle> recruitmentPositionTitles = new ArrayList<>();
 
     private Long lastStudyId;
 

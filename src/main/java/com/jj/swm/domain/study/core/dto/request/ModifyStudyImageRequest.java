@@ -12,11 +12,11 @@ import static com.jj.swm.domain.study.constants.StudyConstants.IMAGE_LIMIT;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SaveStudyImageRequest {
+public class ModifyStudyImageRequest {
 
     @Size(max = IMAGE_LIMIT)
-    private List<String> imageUrlListToAdd;
+    private List<String> imageUrlsToAdd;
 
     @Size(max = IMAGE_LIMIT)
-    private List<Long> imageIdListToRemove;
+    private List<Long> imageIdsToRemove;
 }

@@ -28,15 +28,15 @@ public class RecruitmentPositionCommandController {
             description = "스터디 모집 포지션을 추가합니다. 모집 포지션 개수가 10개를 초과하면 예외가 발생합니다."
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
-    public ApiResponse<CreateRecruitmentPositionResponse> recruitmentPositionAdd(
-            Principal principal,
+    public ApiResponse<CreateRecruitmentPositionResponse> createRecruitmentPosition(
+            @Valid @RequestBody CreateRecruitmentPositionRequest request,
             @PathVariable("studyId") Long studyId,
-            @Valid @RequestBody CreateRecruitmentPositionRequest request
+            Principal principal
     ) {
-        CreateRecruitmentPositionResponse response = recruitmentPositionCommandService.addRecruitmentPosition(
-                UUID.fromString(principal.getName()),
+        CreateRecruitmentPositionResponse response = recruitmentPositionCommandService.createRecruitmentPosition(
+                request,
                 studyId,
-                request
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.created(response);
@@ -44,15 +44,15 @@ public class RecruitmentPositionCommandController {
 
     @PatchMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
     @Operation(summary = "스터디 모집 포지션 수정", description = "스터디 모집 포지션을 수정합니다.")
-    public ApiResponse<Void> recruitmentPositionModify(
-            Principal principal,
+    public ApiResponse<Void> updateRecruitmentPosition(
+            @Valid @RequestBody UpdateRecruitmentPositionRequest request,
             @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
-            @Valid @RequestBody UpdateRecruitmentPositionRequest request
+            Principal principal
     ) {
-        recruitmentPositionCommandService.modifyRecruitmentPosition(
-                UUID.fromString(principal.getName()),
+        recruitmentPositionCommandService.updateRecruitmentPosition(
+                request,
                 recruitmentPositionId,
-                request
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);
@@ -60,11 +60,11 @@ public class RecruitmentPositionCommandController {
 
     @DeleteMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
     @Operation(summary = "스터디 모집 포지션 삭제", description = "스터디 모집 포지션을 삭제합니다.")
-    public ApiResponse<Void> recruitmentPositionRemove(
-            Principal principal, @PathVariable("recruitmentPositionId") Long recruitmentPositionId
+    public ApiResponse<Void> deleteRecruitmentPosition(
+            @PathVariable("recruitmentPositionId") Long recruitmentPositionId, Principal principal
     ) {
-        recruitmentPositionCommandService.removeRecruitmentPosition(
-                UUID.fromString(principal.getName()), recruitmentPositionId
+        recruitmentPositionCommandService.deleteRecruitmentPosition(
+                recruitmentPositionId, UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);

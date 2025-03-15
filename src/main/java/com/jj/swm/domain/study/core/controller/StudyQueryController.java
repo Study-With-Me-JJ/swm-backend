@@ -34,8 +34,8 @@ public class StudyQueryController {
                      res -> likeCount, commentCount
                     """
     )
-    public ApiResponse<PageResponse<GetStudyResponse>> studyList(Principal principal, GetStudyCondition condition) {
-        PageResponse<GetStudyResponse> pageResponse = studyQueryService.findStudyList(
+    public ApiResponse<PageResponse<GetStudyResponse>> getStudies(Principal principal, GetStudyCondition condition) {
+        PageResponse<GetStudyResponse> pageResponse = studyQueryService.getStudies(
                 principal != null ? UUID.fromString(principal.getName()) : null, condition
         );
 
@@ -44,11 +44,11 @@ public class StudyQueryController {
 
     @GetMapping("/v1/study/{studyId}")
     @Operation(summary = "스터디 상세 조회", description = "스터디를 상세 조회합니다.")
-    public ApiResponse<GetStudyDetailsResponse> studyDetails(
-            Principal principal, @PathVariable("studyId") Long studyId
+    public ApiResponse<GetStudyDetailsResponse> getStudyDetails(
+            @PathVariable("studyId") Long studyId, Principal principal
     ) {
-        GetStudyDetailsResponse response = studyQueryService.findStudy(
-                principal != null ? UUID.fromString(principal.getName()) : null, studyId
+        GetStudyDetailsResponse response = studyQueryService.getStudyDetails(
+                studyId, principal != null ? UUID.fromString(principal.getName()) : null
         );
 
         return ApiResponse.ok(response);
@@ -60,10 +60,10 @@ public class StudyQueryController {
             description = "특정 유저가 좋아요한 스터디를 페이징 조회합니다.<br>" +
                     "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
     )
-    public ApiResponse<PageResponse<GetStudyResponse>> userLikedStudyList(
+    public ApiResponse<PageResponse<GetStudyResponse>> getUserLikedStudies(
             Principal principal, @RequestParam(value = "pageNo") int pageNo
     ) {
-        PageResponse<GetStudyResponse> pageResponse = studyQueryService.findUserLikedStudyList(
+        PageResponse<GetStudyResponse> pageResponse = studyQueryService.getUserLikedStudies(
                 UUID.fromString(principal.getName()), pageNo
         );
 
@@ -76,10 +76,10 @@ public class StudyQueryController {
             description = "특정 유저가 북마크한 스터디를 페이징 조회합니다.<br>" +
                     "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
     )
-    public ApiResponse<PageResponse<GetStudyResponse>> userBookmarkedStudyList(
+    public ApiResponse<PageResponse<GetStudyResponse>> getUserBookmarkedStudies(
             Principal principal, @RequestParam(value = "pageNo") int pageNo
     ) {
-        PageResponse<GetStudyResponse> pageResponse = studyQueryService.findUserBookmarkedStudyList(
+        PageResponse<GetStudyResponse> pageResponse = studyQueryService.getUserBookmarkedStudies(
                 UUID.fromString(principal.getName()), pageNo
         );
 
@@ -92,10 +92,10 @@ public class StudyQueryController {
             description = "특정 유저가 작성한 스터디를 페이징 조회합니다.<br>" +
                     "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
     )
-    public ApiResponse<PageResponse<GetStudyResponse>> userStudyList(
+    public ApiResponse<PageResponse<GetStudyResponse>> getUserStudies(
             Principal principal, @RequestParam(value = "pageNo") int pageNo
     ) {
-        PageResponse<GetStudyResponse> pageResponse = studyQueryService.findUserStudyList(
+        PageResponse<GetStudyResponse> pageResponse = studyQueryService.getUserStudies(
                 UUID.fromString(principal.getName()), pageNo
         );
 

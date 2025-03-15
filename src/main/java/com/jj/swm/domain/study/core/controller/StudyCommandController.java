@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.core.controller;
 
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
-import com.jj.swm.domain.study.core.dto.request.DeleteStudyListRequest;
+import com.jj.swm.domain.study.core.dto.request.DeleteStudiesRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
@@ -27,8 +27,8 @@ public class StudyCommandController {
     @PostMapping("/v1/study")
     @Operation(summary = "스터디 생성", description = "로그인한 유저가 스터디를 생성합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
-    public ApiResponse<Void> studyAdd(Principal principal, @Valid @RequestBody CreateStudyRequest request) {
-        studyCommandService.addStudy(UUID.fromString(principal.getName()), request);
+    public ApiResponse<Void> createStudy(@Valid @RequestBody CreateStudyRequest request, Principal principal) {
+        studyCommandService.createStudy(request, UUID.fromString(principal.getName()));
 
         return ApiResponse.created(null);
     }
@@ -42,15 +42,15 @@ public class StudyCommandController {
                     태그, 이미지의 최대 개수는 10개입니다.
                     """
     )
-    public ApiResponse<Void> studyModify(
-            Principal principal,
+    public ApiResponse<Void> updateStudy(
+            @Valid @RequestBody UpdateStudyRequest request,
             @PathVariable("studyId") Long studyId,
-            @Valid @RequestBody UpdateStudyRequest request
+            Principal principal
     ) {
-        studyCommandService.modifyStudy(
-                UUID.fromString(principal.getName()),
+        studyCommandService.updateStudy(
+                request,
                 studyId,
-                request
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);
@@ -65,15 +65,15 @@ public class StudyCommandController {
                     태그, 이미지, 모집 포지션의 최대 개수는 10개입니다.
                     """
     )
-    public ApiResponse<Void> studyStatusModify(
-            Principal principal,
+    public ApiResponse<Void> updateStudyStatus(
+            @Valid @RequestBody UpdateStudyStatusRequest request,
             @PathVariable("studyId") Long studyId,
-            @Valid @RequestBody UpdateStudyStatusRequest request
+            Principal principal
     ) {
-        studyCommandService.modifyStudyStatus(
-                UUID.fromString(principal.getName()),
+        studyCommandService.updateStudyStatus(
+                request,
                 studyId,
-                request
+                UUID.fromString(principal.getName())
         );
 
         return ApiResponse.ok(null);
@@ -84,8 +84,8 @@ public class StudyCommandController {
             summary = "스터디 삭제",
             description = "로그인한, 해당 글을 작성한 유저가 스터디를 삭제합니다. 관련된 모든 정보가 삭제됩니다."
     )
-    public ApiResponse<Void> studyRemove(Principal principal, @PathVariable("studyId") Long studyId) {
-        studyCommandService.removeStudy(UUID.fromString(principal.getName()), studyId);
+    public ApiResponse<Void> deleteStudy(@PathVariable("studyId") Long studyId, Principal principal) {
+        studyCommandService.deleteStudy(studyId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -99,8 +99,8 @@ public class StudyCommandController {
                     즉, 페이지 내에서 최대로 보이는 개수만큼 최대로 삭제할 수 있습니다.
                     """
     )
-    public ApiResponse<Void> studyListRemove(Principal principal, @RequestBody @Valid DeleteStudyListRequest request) {
-        studyCommandService.removeStudyList(UUID.fromString(principal.getName()), request);
+    public ApiResponse<Void> deleteStudies(@RequestBody @Valid DeleteStudiesRequest request, Principal principal) {
+        studyCommandService.deleteStudies(request, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -111,11 +111,11 @@ public class StudyCommandController {
             description = "스터디 북마크 등록입니다. 유저마다 북마크는 한 번만 등록할 수 있습니다.")
 
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
-    public ApiResponse<CreateStudyBookmarkResponse> StudyBookmarkAdd(
-            Principal principal, @PathVariable("studyId") Long studyId
+    public ApiResponse<CreateStudyBookmarkResponse> createStudyBookmark(
+            @PathVariable("studyId") Long studyId, Principal principal
     ) {
-        CreateStudyBookmarkResponse response = studyCommandService.addStudyBookmark(
-                UUID.fromString(principal.getName()), studyId
+        CreateStudyBookmarkResponse response = studyCommandService.createStudyBookmark(
+                studyId, UUID.fromString(principal.getName())
         );
 
         return ApiResponse.created(response);
@@ -123,8 +123,8 @@ public class StudyCommandController {
 
     @DeleteMapping("/v1/study/bookmark/{bookmarkId}")
     @Operation(summary = "스터디 북마크 취소", description = "스터디 북마크 취소입니다.")
-    public ApiResponse<Void> StudyBookmarkRemove(Principal principal, @PathVariable("bookmarkId") Long bookmarkId) {
-        studyCommandService.removeStudyBookmark(UUID.fromString(principal.getName()), bookmarkId);
+    public ApiResponse<Void> deleteStudyBookmark(@PathVariable("bookmarkId") Long bookmarkId, Principal principal) {
+        studyCommandService.deleteStudyBookmark(bookmarkId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -135,16 +135,16 @@ public class StudyCommandController {
             description = "스터디 좋아요 등록입니다. 유저마다 좋아요는 한 번만 누를 수 있습니다."
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
-    public ApiResponse<Void> studyLikeAdd(Principal principal, @PathVariable("studyId") Long studyId) {
-        studyCommandService.addStudyLike(UUID.fromString(principal.getName()), studyId);
+    public ApiResponse<Void> createStudyLike(@PathVariable("studyId") Long studyId, Principal principal) {
+        studyCommandService.createStudyLike(studyId, UUID.fromString(principal.getName()));
 
         return ApiResponse.created(null);
     }
 
     @DeleteMapping("/v1/study/{studyId}/like")
     @Operation(summary = "스터디 좋아요 취소", description = "스터디 좋아요 취소입니다.")
-    public ApiResponse<Void> studyLikeRemove(Principal principal, @PathVariable("studyId") Long studyId) {
-        studyCommandService.removeStudyLike(UUID.fromString(principal.getName()), studyId);
+    public ApiResponse<Void> deleteStudyLike(@PathVariable("studyId") Long studyId, Principal principal) {
+        studyCommandService.deleteStudyLike(studyId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

@@ -13,14 +13,7 @@ import java.util.UUID;
 public interface RecruitmentPositionRepository extends
         JpaRepository<StudyRecruitmentPosition, Long>, JdbcRecruitmentPositionRepository {
 
-    List<StudyRecruitmentPosition> findAllByStudyId(Long studyId);
-
     Optional<StudyRecruitmentPosition> findByIdAndStudyUserId(Long recruitmentPositionId, UUID userId);
-
-    @Modifying
-    @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP " +
-            "where rp.id = ?1 and rp.study.user.id = ?2")
-    void deleteByIdAndStudyUserId(Long recruitmentPositionId, UUID userId);
 
     @Modifying
     @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP where rp.study.id = ?1")
@@ -28,7 +21,7 @@ public interface RecruitmentPositionRepository extends
 
     @Modifying
     @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP where rp.study.id in ?1")
-    void deleteAllByStudyIdList(List<Long> studyIdList);
+    void deleteAllByStudyIds(List<Long> studyIds);
 
     int countByStudyId(Long studyId);
 }
