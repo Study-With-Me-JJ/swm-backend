@@ -2,7 +2,7 @@ package com.jj.swm.domain.studyroom.core.controller;
 
 
 import com.jj.swm.domain.studyroom.core.dto.GetStudyRoomCondition;
-import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomDetailResponse;
+import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomDetailsResponse;
 import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomResponse;
 import com.jj.swm.domain.studyroom.core.service.StudyRoomQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
@@ -54,10 +54,10 @@ public class StudyRoomQueryController {
             responseCode = "200", description = "성공"
     )
     @GetMapping("/v1/studyroom/{studyRoomId}")
-    public ApiResponse<GetStudyRoomDetailResponse> getStudyRoomDetails(
+    public ApiResponse<GetStudyRoomDetailsResponse> getStudyRoomDetails(
             @PathVariable("studyRoomId") Long studyRoomId, Principal principal
     ) {
-        GetStudyRoomDetailResponse response = queryService.getStudyRoomDetails(
+        GetStudyRoomDetailsResponse response = queryService.getStudyRoomDetails(
                 studyRoomId, principal != null ? UUID.fromString(principal.getName()) : null);
 
         return ApiResponse.ok(response);

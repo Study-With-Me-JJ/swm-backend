@@ -66,7 +66,7 @@ public class StudyRoomQueryService {
     }
 
     @Transactional(readOnly = true)
-    public GetStudyRoomDetailResponse getStudyRoomDetails(Long studyRoomId, UUID userId) {
+    public GetStudyRoomDetailsResponse getStudyRoomDetails(Long studyRoomId, UUID userId) {
         StudyRoom studyRoom = studyRoomRepository.findByIdWithTags(studyRoomId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
 
@@ -122,7 +122,7 @@ public class StudyRoomQueryService {
         return PageResponse.of(pagedStudyRoom, GetStudyRoomResponse::of);
     }
 
-    private GetStudyRoomDetailResponse buildGetStudyRoomDetailsResponse(
+    private GetStudyRoomDetailsResponse buildGetStudyRoomDetailsResponse(
             boolean likeStatus,
             Long bookmarkId,
             StudyRoom studyRoom
@@ -150,7 +150,7 @@ public class StudyRoomQueryService {
                 .map(GetStudyRoomTypeInfoResponse::from)
                 .toList();
 
-        return GetStudyRoomDetailResponse.of(
+        return GetStudyRoomDetailsResponse.of(
                 studyRoom,
                 likeStatus,
                 bookmarkId,

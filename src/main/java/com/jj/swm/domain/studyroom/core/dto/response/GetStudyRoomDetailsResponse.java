@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class GetStudyRoomDetailResponse {
+public class GetStudyRoomDetailsResponse {
 
     private Long studyRoomId;
     private boolean liked;
@@ -47,7 +47,7 @@ public class GetStudyRoomDetailResponse {
     private List<GetStudyRoomOptionInfoResponse> optionInfos;
     private List<GetStudyRoomTypeInfoResponse> typeInfos;
 
-    public static GetStudyRoomDetailResponse of(
+    public static GetStudyRoomDetailsResponse of(
             StudyRoom studyRoom,
             boolean liked,
             Long bookmarkId,
@@ -57,7 +57,7 @@ public class GetStudyRoomDetailResponse {
             List<GetStudyRoomOptionInfoResponse> optionInfoResponses,
             List<GetStudyRoomTypeInfoResponse> typeInfoResponses
     ) {
-        return GetStudyRoomDetailResponse.builder()
+        return GetStudyRoomDetailsResponse.builder()
                 .studyRoomId(studyRoom.getId())
                 .liked(liked)
                 .bookmarkId(bookmarkId)

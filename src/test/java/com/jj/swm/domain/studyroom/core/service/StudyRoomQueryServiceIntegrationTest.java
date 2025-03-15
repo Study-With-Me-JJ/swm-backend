@@ -12,7 +12,7 @@ import com.jj.swm.domain.studyroom.core.repository.StudyRoomOptionInfoRepository
 import com.jj.swm.domain.studyroom.core.repository.StudyRoomRepository;
 import com.jj.swm.domain.studyroom.core.dto.GetStudyRoomCondition;
 import com.jj.swm.domain.studyroom.core.dto.SortCriteria;
-import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomDetailResponse;
+import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomDetailsResponse;
 import com.jj.swm.domain.studyroom.core.dto.response.GetStudyRoomResponse;
 import com.jj.swm.domain.studyroom.review.entity.StudyRoomReview;
 import com.jj.swm.domain.studyroom.review.fixture.StudyRoomReviewFixture;
@@ -282,7 +282,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
     @Transactional
     void getStudyRoomDetails_Success() {
         //when
-        GetStudyRoomDetailResponse response
+        GetStudyRoomDetailsResponse response
                 = queryService.getStudyRoomDetails(studyRooms.getFirst().getId(), null);
 
         //then
@@ -305,7 +305,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
         User user = users.getFirst();
 
         //when
-        GetStudyRoomDetailResponse response
+        GetStudyRoomDetailsResponse response
                 = queryService.getStudyRoomDetails(studyRooms.getFirst().getId(), user.getId());
 
         //then
@@ -321,7 +321,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
         bookmarkRepository.save(StudyRoomBookmark.of(studyRooms.getFirst(), user));
 
         //when
-        GetStudyRoomDetailResponse response
+        GetStudyRoomDetailsResponse response
                 = queryService.getStudyRoomDetails(studyRooms.getFirst().getId(), user.getId());
 
         //then
