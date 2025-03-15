@@ -36,7 +36,7 @@ class DiscordNotificationServiceTest {
 
     @Test
     @DisplayName("사업자 검수 요청 알림 전송에 성공한다.")
-    void sendBusinessVerificationNotification_send_success() {
+    void sendBusinessVerificationNotification_Success() {
         //given
         BusinessVerificationRequestEvent event = BusinessVerificationRequestEvent.builder()
                 .userId(UUID.randomUUID())
@@ -61,7 +61,7 @@ class DiscordNotificationServiceTest {
 
     @Test
     @DisplayName("사업자 검수 요청 알림 전송 상태값이 204가 아니라면 실패한다.")
-    void sendBusinessVerificationNotification_whenStatusIsNot204_thenFail() {
+    void sendBusinessVerificationNotification_WhenStatusIsNot204_ThenFail() {
         //given
         BusinessVerificationRequestEvent event = BusinessVerificationRequestEvent.builder()
                 .userId(UUID.randomUUID())
@@ -86,7 +86,7 @@ class DiscordNotificationServiceTest {
 
     @Test
     @DisplayName("사업자 검수 요청 알림 전송에 실패한다.")
-    void sendBusinessVerificationNotification_send_Fail() {
+    void sendBusinessVerificationNotification_WhenRespondBadRequest_ThenFail() {
         //given
         BusinessVerificationRequestEvent event = BusinessVerificationRequestEvent.builder()
                 .userId(UUID.randomUUID())

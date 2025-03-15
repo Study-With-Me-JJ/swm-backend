@@ -51,7 +51,7 @@ class StudyRoomQnaCommandServiceIntegrationTest extends IntegrationContainerSupp
 
     @Test
     @DisplayName("스터디 룸 Qna Parent가 없는 댓글 생성에 성공한다.")
-    void createQnaNotExistsParent_Success(){
+    void createQna_WhenNotExistsParent_Success(){
         //given
         UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("test")
@@ -72,7 +72,7 @@ class StudyRoomQnaCommandServiceIntegrationTest extends IntegrationContainerSupp
 
     @Test
     @DisplayName("스터디 룸 Qna Parent가 있는 경우 본인 댓글의 대댓글 생성에 성공한다.")
-    void createQnaExistsParent_Success(){
+    void createQna_WhenExistsParentAndQnaAuthor_Success(){
         //given
         UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("test2")
@@ -89,7 +89,7 @@ class StudyRoomQnaCommandServiceIntegrationTest extends IntegrationContainerSupp
 
     @Test
     @DisplayName("스터디 룸 Qna Parent가 있는 경우 룸 관리자가 대댓글 생성에 성공한다.")
-    void createQnaExistsParentWithRoomAdmin_Success(){
+    void createQna_WhenExistsParentAndRoomAdmin_Success(){
         //given
         UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("test2")
@@ -109,7 +109,7 @@ class StudyRoomQnaCommandServiceIntegrationTest extends IntegrationContainerSupp
 
     @Test
     @DisplayName("스터디 룸 Qna Parent가 있는 경우 룸 관리자나 본인 댓글의 아닌 경우 대댓글 생성에 실패한다.")
-    void createQnaExistsParentWithRoomAdmin_Fail(){
+    void createQna_WhenExistsParent_NotRoomAdminAndNotQnaAuthor_ThenFail(){
         //given
         UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("test2")
@@ -143,7 +143,7 @@ class StudyRoomQnaCommandServiceIntegrationTest extends IntegrationContainerSupp
 
     @Test
     @DisplayName("스터디 룸 Qna 작성한 사람이 아닌 경우 수정에 실패한다.")
-    void updateQna_FailWhenNotAuthor(){
+    void updateQna_WhenNotAuthor_ThenFail(){
         //given
         UpsertStudyRoomQnaRequest request = UpsertStudyRoomQnaRequest.builder()
                 .comment("update_test")

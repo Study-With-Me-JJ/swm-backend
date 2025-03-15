@@ -74,7 +74,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("저장되지 않은 유저라면 로그인에 실패한다.")
-    void login_whenInValidUser_thenFail() {
+    void login_WhenNotValidUser_ThenFail() {
         //given
         LoginRequest loginRequest = LoginRequest.builder()
                 .loginId("test@example.com")
@@ -89,7 +89,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("비밀번호가 매치되지 않는다면 로그인에 실패한다.")
-    void login_whenNotMatchPassword_thenFail() {
+    void login_WhenNotMatchPassword_ThenFail() {
         //given
         User user = UserFixture.createUser();
         userRepository.save(user);
@@ -178,7 +178,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("쿠키 값이 없다면 리이슈에 실패한다.")
-    void reissue_whenEmptyCookie_thenFail() {
+    void reissue_WhenEmptyCookie_ThenFail() {
         //when & then
         Assertions.assertThrows(TokenException.class, () -> authService.reissue(null));
     }

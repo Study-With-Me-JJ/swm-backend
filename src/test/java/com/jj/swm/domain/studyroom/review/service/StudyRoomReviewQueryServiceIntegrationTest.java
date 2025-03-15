@@ -86,7 +86,7 @@ public class StudyRoomReviewQueryServiceIntegrationTest extends IntegrationConta
 
     @Test
     @DisplayName("스터디 룸 이용후기 목록 조회에 성공한다.")
-    public void studyRoomReview_getStudyRoomReviews_Success() {
+    public void getStudyRoomReviews_Success() {
         // when
         PageResponse<GetStudyRoomReviewResponse> response
                 = queryService.getStudyRoomReviews(studyRoom.getId(), false, 0);
@@ -100,7 +100,7 @@ public class StudyRoomReviewQueryServiceIntegrationTest extends IntegrationConta
 
     @Test
     @DisplayName("스터디 룸 이용후기 이미지만 있는 목록 조회에 성공한다.")
-    public void studyRoomReview_getStudyRoomReviews_thenReturnOnlyImageReviews_Success() {
+    public void getStudyRoomReviews_WhenHavingOnlyImageReviews_Success() {
         // when
         PageResponse<GetStudyRoomReviewResponse> response
                 = queryService.getStudyRoomReviews(1L, true, 0);

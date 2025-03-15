@@ -52,7 +52,7 @@ public class UserQueryServiceIntegrationTest extends IntegrationContainerSupport
 
     @Test
     @DisplayName("스터디 윗 미 어드민의 사업자 검수 요청 조회에 성공한다.")
-    void user_getBusinessVerificationRequests_Success(){
+    void getBusinessVerificationRequests_Success(){
         //given
         BusinessVerificationRequest businessVerificationRequest = BusinessVerificationRequest.builder()
                 .businessName("test")
@@ -84,7 +84,7 @@ public class UserQueryServiceIntegrationTest extends IntegrationContainerSupport
 
     @Test
     @DisplayName("유저 로그인 아이디 중복 조회 시 중복됨을 반환한다.")
-    void user_validateLoginId_whenDuplicated_Success(){
+    void validateLoginId_WhenDuplicated_Success(){
         //given
         String loginId = userCredential.getLoginId();
 
@@ -97,7 +97,7 @@ public class UserQueryServiceIntegrationTest extends IntegrationContainerSupport
 
     @Test
     @DisplayName("유저 로그인 아이디 중복 조회 시 중복되지 않음을 반환한다.")
-    void user_validateLoginId_whenNotDuplicated_Success(){
+    void validateLoginId_WhenNotDuplicated_Success(){
         //given
         String loginId = userCredential.getLoginId().concat("notDuplicated");
 
@@ -110,7 +110,7 @@ public class UserQueryServiceIntegrationTest extends IntegrationContainerSupport
 
     @Test
     @DisplayName("유저 닉네임 중복 조회 시 중복됨을 반환한다.")
-    void user_validateNickname_whenDuplicated_Success(){
+    void validateNickname_WhenDuplicated_Success(){
         //given
         String nickname = user.getNickname();
 
@@ -123,7 +123,7 @@ public class UserQueryServiceIntegrationTest extends IntegrationContainerSupport
 
     @Test
     @DisplayName("유저 닉네임 중복 조회 시 중복되지 않음을 반환한다.")
-    void user_validateNickname_whenNotDuplicated_Success(){
+    void validateNickname_WhenNotDuplicated_Success(){
         //given
         String nickname = user.getNickname().concat("notDuplicated");
 
@@ -136,7 +136,7 @@ public class UserQueryServiceIntegrationTest extends IntegrationContainerSupport
 
     @Test
     @DisplayName("유저 정보 조회에 성공한다.")
-    void user_getUserInfo_Success(){
+    void getUserInfo_Success(){
         //when
         GetUserInfoResponse response = userQueryService.getUserInfo(user.getId());
 
@@ -148,7 +148,7 @@ public class UserQueryServiceIntegrationTest extends IntegrationContainerSupport
 
     @Test
     @DisplayName("유저가 존재하지 않는다면 정보 조회에 실패한다.")
-    void user_getUserInfo_whenNotExistsUser_thenFail(){
+    void getUserInfo_WhenNotExistsUser_ThenFail(){
         //when & then
         Assertions.assertThrows(GlobalException.class,
                 () -> userQueryService.getUserInfo(UUID.randomUUID()));

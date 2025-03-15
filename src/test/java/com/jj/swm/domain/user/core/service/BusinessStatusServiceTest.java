@@ -33,7 +33,7 @@ class BusinessStatusServiceTest {
 
     @Test
     @DisplayName("사업자 정보 조회에 성공하면, valid 01을 반환하고 성공한다.")
-    void validateBusinessStatus_whenSuccess_thenReturnValid01_Success() {
+    void validateBusinessStatus_WhenValidationSuccess_ThenReturnValid01_Success() {
         //given
         UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
                 .businessName("test")
@@ -53,7 +53,7 @@ class BusinessStatusServiceTest {
 
     @Test
     @DisplayName("사업자 정보 조회에 실패하면, valid 02를 반환하고 실패한다.")
-    void validateBusinessStatus_whenValidationFail_thenFail() {
+    void validateBusinessStatus_WhenValidationFail_ThenFail() {
         //given
         UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
                 .businessName("test")
@@ -73,7 +73,7 @@ class BusinessStatusServiceTest {
 
     @Test
     @DisplayName("사업자 정보 조회 응답값이 없다면 실패한다.")
-    void validateBusinessStatus_whenEmptyResponse_thenFail() {
+    void validateBusinessStatus_WhenEmptyResponse_ThenFail() {
         //given
         UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
                 .businessName("test")
@@ -93,7 +93,7 @@ class BusinessStatusServiceTest {
 
     @Test
     @DisplayName("사업자 정보 API 작업 간 오류가 발생하면, 실패한다.")
-    void validateBusinessStatus_whenExternalApiError_thenFail() {
+    void validateBusinessStatus_WhenExternalApiError_ThenFail() {
         //given
         UpgradeRoomAdminRequest request = UpgradeRoomAdminRequest.builder()
                 .businessName("test")
