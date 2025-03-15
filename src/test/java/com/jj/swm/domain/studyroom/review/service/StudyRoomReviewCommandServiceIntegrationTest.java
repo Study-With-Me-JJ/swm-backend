@@ -37,8 +37,8 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     private static final int THREAD_COUNT = 50;
     private static final List<String> ignoreBeforeEachMethod = List.of(
-            "studyRoom_review_concurrency_test_Success",
-            "studyRoom_deleteReview_concurrency_test_Success");
+            "createReview_ConcurrencyTest_Success",
+            "deleteReview_ConcurrencyTest_Success");
 
     // Target Service Bean
     @Autowired private StudyRoomReviewCommandService commandService;
