@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface JdbcStudyTagRepository {
 
-    void batchInsert(Study study, List<String> tagList);
+    void batchInsert(List<String> tags, Study study);
 }

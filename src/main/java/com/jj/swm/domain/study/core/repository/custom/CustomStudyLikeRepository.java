@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface CustomStudyLikeRepository {
 
-    List<StudyLikeInfo> findAllByUserIdAndStudyIdList(UUID userId, List<Long> studyIdList);
+    List<StudyLikeInfo> findAllByUserIdAndStudyIds(List<Long> studyIds, UUID userId);
 }

@@ -10,11 +10,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SaveStudyTagRequest {
+public class ModifyStudyTagRequest {
 
     @Size(max = StudyConstants.TAG_LIMIT)
-    private List<String> tagListToAdd;
+    private List<String> tagsToAdd;
 
     @Size(max = StudyConstants.TAG_LIMIT)
-    private List<Long> tagIdListToRemove;
+    private List<Long> tagIdsToRemove;
 }

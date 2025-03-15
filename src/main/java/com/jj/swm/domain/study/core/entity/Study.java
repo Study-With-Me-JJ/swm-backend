@@ -67,12 +67,12 @@ public class Study extends BaseTimeEntity {
     private User user;
 
     @OneToMany(mappedBy = "study")
-    private List<StudyTag> studyTagList = new ArrayList<>();
+    private List<StudyTag> studyTags = new ArrayList<>();
 
     @OneToMany(mappedBy = "study")
-    private List<StudyRecruitmentPosition> studyRecruitmentPositionList = new ArrayList<>();
+    private List<StudyRecruitmentPosition> studyRecruitmentPositions = new ArrayList<>();
 
-    public static Study of(User user, CreateStudyRequest request) {
+    public static Study of(CreateStudyRequest request, User user) {
         return Study.builder()
                 .title(request.getTitle())
                 .content(request.getContent())

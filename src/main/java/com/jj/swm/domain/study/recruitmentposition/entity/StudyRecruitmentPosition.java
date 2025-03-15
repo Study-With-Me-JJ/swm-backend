@@ -44,7 +44,7 @@ public class StudyRecruitmentPosition {
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    public static StudyRecruitmentPosition of(Study study, CreateRecruitmentPositionRequest request) {
+    public static StudyRecruitmentPosition of(CreateRecruitmentPositionRequest request, Study study) {
         return StudyRecruitmentPosition.builder()
                 .title(request.getTitle())
                 .headcount(request.getHeadcount())

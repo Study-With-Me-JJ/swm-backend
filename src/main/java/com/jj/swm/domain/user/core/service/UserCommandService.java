@@ -142,9 +142,9 @@ public class UserCommandService {
 
         studyRoomCommandService.deleteStudyRooms(studyRoomIds, user.getId());
 
-        List<Long> studyIdList = studyRepository.findIdsByUserId(userId);
-        Lists.partition(studyIdList, batchSize)
-                .forEach(studyCommandService::deleteStudyListAndAssociations);
+        List<Long> studyIds = studyRepository.findIdsByUserId(userId);
+        Lists.partition(studyIds, batchSize)
+                .forEach(studyCommandService::deleteStudiesAndAssociations);
 
         userRepository.delete(user);
     }

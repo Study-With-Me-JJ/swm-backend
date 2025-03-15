@@ -17,10 +17,10 @@ public class CustomStudyBookmarkRepositoryImpl implements CustomStudyBookmarkRep
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<StudyBookmarkInfo> findAllByUserIdAndStudyIdList(UUID userId, List<Long> studyIdList) {
+    public List<StudyBookmarkInfo> findAllByUserIdAndStudyIds(UUID userId, List<Long> studyIds) {
         return jpaQueryFactory.select(new QStudyBookmarkInfo(studyBookmark.id, study.id))
                 .from(studyBookmark)
-                .where(studyBookmark.user.id.eq(userId), studyBookmark.study.id.in(studyIdList))
+                .where(studyBookmark.user.id.eq(userId), studyBookmark.study.id.in(studyIds))
                 .fetch();
     }
 }

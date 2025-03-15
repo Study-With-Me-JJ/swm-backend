@@ -16,9 +16,9 @@ import java.util.UUID;
 
 public interface StudyLikeRepository extends JpaRepository<StudyLike, Long>, CustomStudyLikeRepository {
 
-    Optional<StudyLike> findByUserIdAndStudyId(UUID userId, Long studyId);
+    Optional<StudyLike> findByStudyIdAndUserId(Long studyId, UUID userId);
 
-    boolean existsByUserIdAndStudyId(UUID userId, Long studyId);
+    boolean existsByStudyIdAndUserId(Long studyId, UUID userId);
 
     @Modifying
     @Query("delete from StudyLike l where l.study.id = ?1")
@@ -26,7 +26,7 @@ public interface StudyLikeRepository extends JpaRepository<StudyLike, Long>, Cus
 
     @Modifying
     @Query("delete from StudyLike l where l.study.id in ?1")
-    void deleteAllByStudyIdList(List<Long> studyIdList);
+    void deleteAllByStudyIds(List<Long> studyId);
 
     @Query("select l.study from StudyLike l where l.user.id = ?1")
     Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);

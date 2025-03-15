@@ -25,8 +25,8 @@ public class UpdateStudyRequest {
     private StudyCategory category;
 
     @Valid
-    private SaveStudyTagRequest saveTagRequest;
+    private ModifyStudyTagRequest modifyTagRequest;
 
     @Valid
-    private SaveStudyImageRequest saveImageRequest;
+    private ModifyStudyImageRequest modifyImageRequest;
 }

@@ -50,27 +50,27 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.createUser());
-        studyCommandService.addStudy(user.getId(), StudyRequestFixture.createStudyRequest());
-        commentId = commentCommandService.addComment(
-                user.getId(),
+        studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
+        commentId = commentCommandService.createComment(
+                CommentRequestFixture.createCommentRequest(),
                 studyId,
                 null,
-                CommentRequestFixture.createCommentRequest()
+                user.getId()
         ).getCommentId();
     }
 
     @Test
     @DisplayName("스터디 모집 댓글 생성에 성공한다.")
-    void addComment_Success() {
+    void createComment_Success() {
         //given
         UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
 
         //when
-        Long newCommentId = commentCommandService.addComment(
-                user.getId(),
+        Long newCommentId = commentCommandService.createComment(
+                createRequest,
                 studyId,
                 null,
-                createRequest
+                user.getId()
         ).getCommentId();
 
         //then
@@ -86,13 +86,13 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 모집 대댓글 생성에 성공한다.")
-    void addComment_WithParentId_Success() {
+    void createComment_WithParentId_Success() {
         //when
-        Long replyId = commentCommandService.addComment(
-                user.getId(),
+        Long replyId = commentCommandService.createComment(
+                CommentRequestFixture.createCommentRequest(),
                 studyId,
                 commentId,
-                CommentRequestFixture.createCommentRequest()
+                user.getId()
         ).getCommentId();
 
         //then
@@ -105,22 +105,22 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 모집 대댓글 id에 대해 대댓글을 생성해도 성공한다.")
-    void addComment_WithReplyIdForParent_Success() {
+    void createComment_WithReplyIdForParent_Success() {
         //given
         UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
-        Long replyId = commentCommandService.addComment(
-                user.getId(),
+        Long replyId = commentCommandService.createComment(
+                createRequest,
                 studyId,
                 commentId,
-                createRequest
+                user.getId()
         ).getCommentId();
 
         //when
-        Long reRePlyId = commentCommandService.addComment(
-                user.getId(),
+        Long reRePlyId = commentCommandService.createComment(
+                createRequest,
                 studyId,
                 replyId,
-                createRequest
+                user.getId()
         ).getCommentId();
 
         //then
@@ -130,15 +130,15 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 모집 댓글 수정에 성공한다.")
-    void modifyComment_Success() {
+    void updateComment_Success() {
         //given
         UpsertCommentRequest updateRequest = CommentRequestFixture.updateCommentRequest();
 
         //when
-        UpdateCommentResponse response = commentCommandService.modifyComment(
-                user.getId(),
+        UpdateCommentResponse response = commentCommandService.updateComment(
+                updateRequest,
                 commentId,
-                updateRequest
+                user.getId()
         );
 
         //then
@@ -150,12 +150,12 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 모집 댓글 삭제에 성공한다.")
-    void removeComment_Success() {
+    void deleteComment_Success() {
         //when
-        commentCommandService.removeComment(
-                user.getId(),
+        commentCommandService.deleteComment(
                 studyId,
-                commentId
+                commentId,
+                user.getId()
         );
 
         //then
@@ -167,19 +167,19 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("대댓글이 있어도 스터디 모집 댓글 삭제에 성공한다.")
-    void removeComment_WithReply_Success() {
-        commentCommandService.addComment(
-                user.getId(),
+    void deleteComment_WithReply_Success() {
+        commentCommandService.createComment(
+                CommentRequestFixture.createCommentRequest(),
                 studyId,
                 commentId,
-                CommentRequestFixture.createCommentRequest()
+                user.getId()
         );
 
         //when
-        commentCommandService.removeComment(
-                user.getId(),
+        commentCommandService.deleteComment(
                 studyId,
-                commentId
+                commentId,
+                user.getId()
         );
 
         //then
@@ -191,20 +191,20 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
     @Test
     @DisplayName("스터디 모집 대댓글 삭제에 성공한다.")
-    void removeComment_WithReplyId_Success() {
+    void deleteComment_WithReplyId_Success() {
         //given
-        Long replyId = commentCommandService.addComment(
-                user.getId(),
+        Long replyId = commentCommandService.createComment(
+                CommentRequestFixture.createCommentRequest(),
                 studyId,
                 commentId,
-                CommentRequestFixture.createCommentRequest()
+                user.getId()
         ).getCommentId();
 
         //when
-        commentCommandService.removeComment(
-                user.getId(),
+        commentCommandService.deleteComment(
                 studyId,
-                replyId
+                replyId,
+                user.getId()
         );
 
         //then
