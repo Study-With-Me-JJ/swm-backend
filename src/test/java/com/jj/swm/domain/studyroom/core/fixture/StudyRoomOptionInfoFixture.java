@@ -6,7 +6,7 @@ import com.jj.swm.domain.studyroom.core.entity.StudyRoomOptionInfo;
 
 public class StudyRoomOptionInfoFixture {
 
-    public static StudyRoomOptionInfo createOptionInfo(StudyRoom studyRoom){
+    public static StudyRoomOptionInfo create(StudyRoom studyRoom){
         return StudyRoomOptionInfo.builder()
                 .option(StudyRoomOption.ELECTRICAL)
                 .studyRoom(studyRoom)

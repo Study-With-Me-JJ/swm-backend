@@ -39,7 +39,7 @@ public class UserQueryServiceIntegrationTest extends IntegrationContainerSupport
 
     @BeforeEach
     void setUp(){
-        user = UserFixture.createUser();
+        user = UserFixture.create();
         userRepository.save(user);
 
         userCredential = UserCredential.builder()

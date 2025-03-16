@@ -2,8 +2,8 @@ package com.jj.swm.domain.studyroom.core.controller;
 
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.DeleteStudyRoomsRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomSettingRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomSettingsRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomAssociationsRequest;
 import com.jj.swm.domain.studyroom.core.dto.response.CreateStudyRoomBookmarkResponse;
 import com.jj.swm.domain.studyroom.core.dto.response.CreateStudyRoomLikeResponse;
 import com.jj.swm.domain.studyroom.core.service.StudyRoomCommandService;
@@ -54,7 +54,7 @@ public class StudyRoomCommandController {
     @Secured("ROLE_ROOM_ADMIN")
     @PatchMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> updateStudyRoomSettings(
-            @Valid @RequestBody UpdateStudyRoomRequest request,
+            @Valid @RequestBody UpdateStudyRoomSettingsRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {
@@ -78,7 +78,7 @@ public class StudyRoomCommandController {
     @Secured("ROLE_ROOM_ADMIN")
     @PatchMapping("/v1/studyroom/settings/{studyRoomId}")
     public ApiResponse<Void> updateStudyRoomAssociations(
-            @Valid @RequestBody UpdateStudyRoomSettingRequest request,
+            @Valid @RequestBody UpdateStudyRoomAssociationsRequest request,
             @PathVariable("studyRoomId") Long studyRoomId,
             Principal principal
     ) {

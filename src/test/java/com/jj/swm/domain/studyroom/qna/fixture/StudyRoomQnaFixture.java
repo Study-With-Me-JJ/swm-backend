@@ -6,7 +6,7 @@ import com.jj.swm.domain.user.core.entity.User;
 
 public class StudyRoomQnaFixture {
 
-    public static StudyRoomQna createStudyRoomQna(StudyRoom studyRoom, User user){
+    public static StudyRoomQna create(StudyRoom studyRoom, User user){
         return StudyRoomQna.builder()
                 .comment("test")
                 .studyRoom(studyRoom)

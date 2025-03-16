@@ -79,7 +79,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @BeforeEach
     void setUp() {
-        user = userRepository.save(UserFixture.createUser());
+        user = userRepository.save(UserFixture.create());
 
         studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
     }

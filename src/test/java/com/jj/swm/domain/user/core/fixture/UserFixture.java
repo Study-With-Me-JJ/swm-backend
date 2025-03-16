@@ -22,18 +22,7 @@ public class UserFixture {
                 .build();
     }
 
-    public static User createAdmin() {
-        return User.builder()
-                .id(uuid)
-                .nickname("test")
-                .name("test")
-                .profileImageUrl("http://test.png")
-                .userRole(RoleType.ADMIN)
-                .studyRooms(new ArrayList<>())
-                .build();
-    }
-
-    public static User createUser() {
+    public static User create() {
         return User.builder()
                 .id(UUID.randomUUID())
                 .nickname(UUID.randomUUID().toString())
@@ -47,7 +36,7 @@ public class UserFixture {
     public static List<User> multiUser(int size) {
         List<User> users = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            User user = UserFixture.createUser();
+            User user = UserFixture.create();
             users.add(user);
         }
         return users;

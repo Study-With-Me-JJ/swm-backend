@@ -47,7 +47,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
     @DisplayName("유저 로그인에 성공한다.")
     void login_Success() {
         //given
-        User user = UserFixture.createUser();
+        User user = UserFixture.create();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -91,7 +91,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
     @DisplayName("비밀번호가 매치되지 않는다면 로그인에 실패한다.")
     void login_WhenNotMatchPassword_ThenFail() {
         //given
-        User user = UserFixture.createUser();
+        User user = UserFixture.create();
         userRepository.save(user);
 
         UserCredential userCredential = UserCredential.builder()
@@ -117,7 +117,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
     @DisplayName("유저 로그아웃에 성공한다.")
     void logout_Success() {
         //given
-        User user = UserFixture.createUser();
+        User user = UserFixture.create();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user.getId(),
@@ -144,7 +144,7 @@ class AuthServiceTest extends IntegrationContainerSupporter {
     @DisplayName("유저 리이슈에 성공한다.")
     void reissue_Success() {
         //given
-        User user = UserFixture.createUser();
+        User user = UserFixture.create();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user.getId(),
