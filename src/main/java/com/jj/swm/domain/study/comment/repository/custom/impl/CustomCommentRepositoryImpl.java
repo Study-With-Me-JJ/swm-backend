@@ -3,13 +3,12 @@ package com.jj.swm.domain.study.comment.repository.custom.impl;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.custom.CustomCommentRepository;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.function.Supplier;
 
+import static com.jj.swm.domain.common.utils.QueryDSLBooleanUtils.nullSafeBuilder;
 import static com.jj.swm.domain.study.comment.entity.QStudyComment.studyComment;
 
 @RequiredArgsConstructor
@@ -32,14 +31,6 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
     }
 
     private BooleanBuilder lastReplyIdLt(Long lastReplyId) {
-        return this.nullSafeBuilder(() -> studyComment.id.lt(lastReplyId));
-    }
-
-    private BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
-        try {
-            return new BooleanBuilder(f.get());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            return null;
-        }
+        return nullSafeBuilder(() -> studyComment.id.lt(lastReplyId));
     }
 }
