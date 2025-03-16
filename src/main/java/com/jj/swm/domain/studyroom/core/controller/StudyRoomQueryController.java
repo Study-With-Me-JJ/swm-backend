@@ -63,6 +63,16 @@ public class StudyRoomQueryController {
         return ApiResponse.ok(response);
     }
 
+    @Operation(
+            summary = "특정 스터디 룸 어드민이 생성한 스터디 룸 목록 조회",
+            description = "특정 스터디 룸 어드민이 생성한 스터디 룸을 페이징 조회합니다." +
+                    "스터디 룸 어드민 권한이 있는 유저만 접근할 수 있습니다." +
+                    "pageNo는 필수값은 아니지만, 기본값인 0으로 고정됩니다.<br>" +
+                    "그 이후 페이지 번호에 관해서는 Query Param으로 전달 부탁드립니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200", description = "성공"
+    )
     @Secured("ROLE_ROOM_ADMIN")
     @GetMapping("/v1/studyroom/user/studyrooms")
     public ApiResponse<PageResponse<GetStudyRoomResponse>> getUserStudyRooms(
