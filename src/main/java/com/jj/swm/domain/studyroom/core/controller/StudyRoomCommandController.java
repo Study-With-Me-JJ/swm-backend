@@ -101,7 +101,7 @@ public class StudyRoomCommandController {
     @Secured("ROLE_ROOM_ADMIN")
     @DeleteMapping("/v1/studyroom/{studyRoomId}")
     public ApiResponse<Void> deleteStudyRoom(@PathVariable("studyRoomId") Long studyRoomId, Principal principal) {
-        commandService.deleteStudyRoom(studyRoomId, UUID.fromString(principal.getName()));
+        commandService.deleteStudyRoomAndAssociations(studyRoomId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }
@@ -118,7 +118,7 @@ public class StudyRoomCommandController {
     public ApiResponse<Void> deleteStudyRooms(
             @RequestBody @Valid DeleteStudyRoomsRequest request, Principal principal)
     {
-        commandService.deleteStudyRooms(request.getStudyRoomIds(), UUID.fromString(principal.getName()));
+        commandService.deleteStudyRoomsAndAssociations(request.getStudyRoomIds(), UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

@@ -285,9 +285,9 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 삭제에 성공한다.")
-    void deleteStudyRoom_Success() {
+    void deleteStudyRoomAndAssociations_AndAssociations_Success() {
         //when
-        commandService.deleteStudyRoom(studyRoom.getId(), roomAdmin.getId());
+        commandService.deleteStudyRoomAndAssociations(studyRoom.getId(), roomAdmin.getId());
 
         //then
         Optional<StudyRoom> findStudyRoom = studyRoomRepository.findById(studyRoom.getId());
@@ -296,18 +296,18 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 삭제 시 관련 스터디 룸이 존재하지 않는다면 삭제에 실패한다.")
-    void deleteStudyRoom_WhenNotRelatedStudyRoom_ThenFail() {
+    void deleteStudyRoomAndAssociations_WhenNotRelatedStudyRoom_AndAssociations_ThenFail() {
         //when & then
         Assertions.assertThrows(GlobalException.class,
-                () -> commandService.deleteStudyRoom(100L, roomAdmin.getId())
+                () -> commandService.deleteStudyRoomAndAssociations(100L, roomAdmin.getId())
         );
     }
 
     @Test
     @DisplayName("스터디 룸 다중 삭제에 성공한다.")
-    void deleteStudyRooms_Success() {
+    void deleteStudyRoomsAndAssociations_AndAssociations_SuccessAndAssociations() {
         //when
-        commandService.deleteStudyRooms(List.of(studyRoom.getId()), roomAdmin.getId());
+        commandService.deleteStudyRoomsAndAssociations(List.of(studyRoom.getId()), roomAdmin.getId());
 
         //then
         Optional<StudyRoom> findStudyRoom = studyRoomRepository.findById(studyRoom.getId());
@@ -316,10 +316,10 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 다중 삭제 시 관련 스터디 룸이 존재하지 않는다면 삭제에 실패한다.")
-    void deleteStudyRooms_WhenNotRelatedSomeStudyRoom_ThenFail() {
+    void deleteStudyRoomsAndAssociations_WhenNotRelatedSomeStudyRoom_AndAssociations_ThenFailAndAssociations() {
         //when & then
         Assertions.assertThrows(GlobalException.class,
-                () -> commandService.deleteStudyRooms(List.of(100L), roomAdmin.getId())
+                () -> commandService.deleteStudyRoomsAndAssociations(List.of(100L), roomAdmin.getId())
         );
     }
 

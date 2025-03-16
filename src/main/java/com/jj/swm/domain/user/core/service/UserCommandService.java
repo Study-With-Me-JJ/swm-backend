@@ -139,8 +139,8 @@ public class UserCommandService {
         businessVerificationRequestRepository.deleteAllByUserId(user.getId());
 
         List<Long> studyRoomIds = studyRoomRepository.findStudyRoomIdsByUserId(user.getId());
-
-        studyRoomCommandService.deleteStudyRooms(studyRoomIds, user.getId());
+        Lists.partition(studyRoomIds, batchSize)
+                .forEach(ids -> studyRoomCommandService.deleteStudyRoomsAndAssociations(ids, userId));
 
         List<Long> studyIds = studyRepository.findIdsByUserId(userId);
         Lists.partition(studyIds, batchSize)
