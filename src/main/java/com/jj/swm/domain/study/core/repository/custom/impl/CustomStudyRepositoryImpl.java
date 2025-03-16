@@ -10,13 +10,12 @@ import com.jj.swm.domain.study.recruitmentposition.entity.RecruitmentPositionTit
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.function.Supplier;
 
+import static com.jj.swm.domain.common.utils.QueryDSLBooleanUtils.nullSafeBuilder;
 import static com.jj.swm.domain.study.core.entity.QStudy.study;
 
 
@@ -41,30 +40,23 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     }
 
     private BooleanBuilder studyTitleContains(String title) {
-        return this.nullSafeBuilder(() -> study.title.contains(title));
+        return nullSafeBuilder(() -> study.title.contains(title));
     }
 
     private BooleanBuilder studyCategoryEq(StudyCategory category) {
-        return this.nullSafeBuilder(() -> study.category.eq(category));
+        return nullSafeBuilder(() -> study.category.eq(category));
     }
 
     private BooleanBuilder studyStatusEq(StudyStatus status) {
-        return this.nullSafeBuilder(() -> study.status.eq(status));
+        return nullSafeBuilder(() -> study.status.eq(status));
     }
 
     private BooleanBuilder recruitmentPositionTitleExists(List<RecruitmentPositionTitle> titles) {
         return titles == null || titles.isEmpty()
                 ? null
-                : this.nullSafeBuilder(() -> study.studyRecruitmentPositions.any().title.in(titles));
+                : nullSafeBuilder(() -> study.studyRecruitmentPositions.any().title.in(titles));
     }
 
-    private BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
-        try {
-            return new BooleanBuilder(f.get());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            return null;
-        }
-    }
 
     private OrderSpecifier<?>[] createOrderSpecifier(SortCriteria sortCriteria) {
         return switch (sortCriteria) {
@@ -88,11 +80,11 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
         Long lastStudyId = condition.getLastStudyId();
 
         return switch (sortCriteria) {
-            case LIKE -> this.nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
+            case LIKE -> nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
                     .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
-            case COMMENT -> this.nullSafeBuilder(() -> study.commentCount.lt(lastSortValue)
+            case COMMENT -> nullSafeBuilder(() -> study.commentCount.lt(lastSortValue)
                     .or(study.commentCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
-            default -> this.nullSafeBuilder(() -> study.id.lt(lastStudyId));
+            default -> nullSafeBuilder(() -> study.id.lt(lastStudyId));
         };
     }
 }
