@@ -6,7 +6,7 @@ import com.jj.swm.domain.user.core.entity.User;
 
 public class StudyRoomReviewFixture {
 
-    public static StudyRoomReview createReview(
+    public static StudyRoomReview create(
             StudyRoom studyRoom,
             int rate,
             User user

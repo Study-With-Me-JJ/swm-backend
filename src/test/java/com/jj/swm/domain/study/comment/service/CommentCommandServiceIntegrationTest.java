@@ -49,7 +49,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
     @BeforeEach
     void setUp() {
-        user = userRepository.save(UserFixture.createUser());
+        user = userRepository.save(UserFixture.create());
         studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
         commentId = commentCommandService.createComment(
                 CommentRequestFixture.createCommentRequest(),

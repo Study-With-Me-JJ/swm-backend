@@ -64,7 +64,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void updateStudyRoomSettings(
-            UpdateStudyRoomRequest request,
+            UpdateStudyRoomSettingsRequest request,
             Long studyRoomId,
             UUID userId
     ){
@@ -79,7 +79,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void updateStudyRoomAssociations(
-            UpdateStudyRoomSettingRequest request,
+            UpdateStudyRoomAssociationsRequest request,
             Long studyRoomId,
             UUID userId
     ) {

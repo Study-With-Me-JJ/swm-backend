@@ -45,7 +45,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @BeforeEach
     void setUp() {
-        user = userRepository.save(UserFixture.createUser());
+        user = userRepository.save(UserFixture.create());
         studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
     }
 

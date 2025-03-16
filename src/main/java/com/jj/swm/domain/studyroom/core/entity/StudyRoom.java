@@ -1,7 +1,7 @@
 package com.jj.swm.domain.studyroom.core.entity;
 
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomSettingsRequest;
 import com.jj.swm.domain.studyroom.core.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.core.entity.embeddable.Coordinates;
 import com.jj.swm.domain.user.core.entity.User;
@@ -131,7 +131,7 @@ public class StudyRoom extends BaseTimeEntity {
         user.addStudyRoom(this);
     }
 
-    public void modifyStudyRoom(UpdateStudyRoomRequest request) {
+    public void modifyStudyRoom(UpdateStudyRoomSettingsRequest request) {
         this.title = request.getTitle();
         this.subtitle = request.getSubtitle();
         this.introduce = request.getIntroduce();

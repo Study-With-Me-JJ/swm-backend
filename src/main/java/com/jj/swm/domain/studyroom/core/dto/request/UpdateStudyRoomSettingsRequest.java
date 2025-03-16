@@ -15,7 +15,7 @@ import java.time.LocalTime;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UpdateStudyRoomRequest {
+public class UpdateStudyRoomSettingsRequest {
 
     @NotBlank
     private String title;

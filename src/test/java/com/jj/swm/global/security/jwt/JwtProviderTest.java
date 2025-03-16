@@ -66,7 +66,7 @@ class JwtProviderTest {
     @DisplayName("토큰 생성에 성공한다.")
     void generateTokens_Success() {
         //given
-        User user = UserFixture.createUser();
+        User user = UserFixture.create();
         doNothing().when(tokenRedisService).saveRefreshToken(any(String.class), any(String.class));
 
         //when
