@@ -78,43 +78,4 @@ public class RecruitmentPositionCommandService {
         return recruitmentPositionRepository.findByIdAndStudyUserId(recruitmentPositionId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
     }
-
-//    @Transactional
-//    public RecruitmentPositionApplyResponse apply(UUID userId, Long recruitPositionId) {
-//        User user = userRepository.getReferenceById(userId);
-//
-//        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitPositionId)
-//                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
-//
-//        Optional<StudyParticipant> optionalStudyParticipant =
-//                participantRepository.findByUserIdAndStudyRecruitmentPositionId(userId, recruitPositionId);
-//
-//        if (optionalStudyParticipant.isPresent()) {
-//            return RecruitmentPositionApplyResponse.from(optionalStudyParticipant.get());
-//        }
-//
-//        Integer acceptedCount = participantRepository.countAcceptedByRecruitmentPositionId(recruitmentPosition);
-//        if (acceptedCount >= recruitmentPosition.getHeadcount()) {
-//            throw new GlobalException(ErrorCode.NOT_VALID, "It is already full");
-//        }
-//
-//        StudyParticipant participant = StudyParticipant.of(recruitmentPosition, user);
-//        participantRepository.save(participant);
-//
-//        return RecruitmentPositionApplyResponse.from(participant);
-
-//    }
-
-//    @Transactional
-//    public void withdraw(UUID userId, Long participantId) {
-//        StudyParticipant studyParticipant =
-//                participantRepository.findByIdAndStudyUserId(participantId, userId)
-//                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
-//
-//        if (studyParticipant.getStatus() != StudyParticipantStatus.PENDING) {
-//            throw new GlobalException(ErrorCode.NOT_VALID, "application status is not pending");
-//        }
-//
-//        participantRepository.deleteStudyRoom(studyParticipant);
-//    }
 }
