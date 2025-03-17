@@ -6,17 +6,17 @@ import lombok.*;
 @Getter
 @Entity
 @Builder
-@Table(name = "study_participant_attachment")
+@Table(name = "study_participant_link")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyParticipantAttachment {
+public class StudyParticipantLink {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "file_url", length = 300, nullable = false)
-    private String fileUrl;
+    @Column(name = "link", length = 300, nullable = false)
+    private String link;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_participant_id", nullable = false)
