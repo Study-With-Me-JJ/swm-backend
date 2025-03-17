@@ -1,12 +1,13 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
-import com.jj.swm.domain.study.core.fixture.StudyRequestFixture;
+import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.recruitmentposition.fixture.RecruitmentPositionRequestFixture;
+import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateRecruitmentPositionRequestFixture;
+import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpdateRecruitmentPositionRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
@@ -46,15 +47,14 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.create());
-        studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
+        studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
     }
 
     @Test
     @DisplayName("모집 포지션 생성에 성공한다.")
     void createRecruitmentPosition_Success() {
         //given
-        CreateRecruitmentPositionRequest request =
-                RecruitmentPositionRequestFixture.createRecruitmentPositionRequest();
+        CreateRecruitmentPositionRequest request = CreateRecruitmentPositionRequestFixture.create();
 
         //when
         Long newRecruitmentPositionId = recruitmentPositionCommandService.createRecruitmentPosition(
@@ -76,8 +76,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("모집 포지션 최대 개수에 도달하면 생성에 실패한다.")
     void createRecruitmentPosition_WhenExceedLimit_ThenFail() {
         //given
-        CreateRecruitmentPositionRequest request =
-                RecruitmentPositionRequestFixture.createRecruitmentPositionRequest();
+        CreateRecruitmentPositionRequest request = CreateRecruitmentPositionRequestFixture.create();
 
         for (int i = 1; i <= 8; i++) {
             recruitmentPositionCommandService.createRecruitmentPosition(
@@ -99,8 +98,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("모집 포지션 수정에 성공한다.")
     void updateRecruitmentPosition_Success() {
         //given
-        UpdateRecruitmentPositionRequest request =
-                RecruitmentPositionRequestFixture.updateRecruitmentPositionRequest();
+        UpdateRecruitmentPositionRequest request = UpdateRecruitmentPositionRequestFixture.create();
 
         //when
         recruitmentPositionCommandService.updateRecruitmentPosition(
@@ -123,7 +121,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     void updateRecruitmentPosition_WhenAcceptedMoreThanHeadcount_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateRecruitmentPosition(
-                RecruitmentPositionRequestFixture.updateRecruitmentPositionRequestAcceptedMoreThanHeadcount(),
+                UpdateRecruitmentPositionRequestFixture.createForAcceptedCountMoreThanHeadcountFail(),
                 recruitmentPositionId,
                 user.getId()
         ));

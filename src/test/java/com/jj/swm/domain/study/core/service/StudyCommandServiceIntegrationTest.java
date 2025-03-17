@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.core.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
-import com.jj.swm.domain.study.comment.fixture.CommentRequestFixture;
+import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertCommentRequestFixture;
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.domain.study.comment.service.CommentCommandService;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
@@ -10,7 +10,10 @@ import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyBookmark;
-import com.jj.swm.domain.study.core.fixture.StudyRequestFixture;
+import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
+import com.jj.swm.domain.study.core.fixture.dto.request.DeleteStudiesRequestFixture;
+import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyRequestFixture;
+import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyStatusRequestFixture;
 import com.jj.swm.domain.study.core.repository.*;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.user.core.entity.User;
@@ -81,14 +84,14 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void setUp() {
         user = userRepository.save(UserFixture.create());
 
-        studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
+        studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
     }
 
     @Test
     @DisplayName("스터디 모집 생성에 성공한다.")
     void createStudy_Success() {
         //given
-        CreateStudyRequest request = StudyRequestFixture.createStudyRequest();
+        CreateStudyRequest request = CreateStudyRequestFixture.create();
 
         //when
         studyCommandService.createStudy(request, user.getId());
@@ -113,7 +116,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("tags&imageUrls가 없어도 스터디 모집 생성에 성공한다.")
     void createStudy_WithoutTagAndImages_Success() {
         //when
-        studyCommandService.createStudy(StudyRequestFixture.createStudyRequestWithoutTagAndImages(), user.getId());
+        studyCommandService.createStudy(CreateStudyRequestFixture.createForNoTagImagesSuccess(), user.getId());
         Long newStudyId = 2L;
 
         //then
@@ -126,7 +129,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 모집 수정에 성공한다")
     void updateStudy_Success() {
         //given
-        UpdateStudyRequest request = StudyRequestFixture.updateStudyRequest();
+        UpdateStudyRequest request = UpdateStudyRequestFixture.create();
 
         //when
         studyCommandService.updateStudy(
@@ -148,7 +151,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void updateStudy_WithoutSaveTagAndImageRequest_Success() {
         //when
         studyCommandService.updateStudy(
-                StudyRequestFixture.updateStudyRequestWithoutModifyTagAndImageRequest(),
+                UpdateStudyRequestFixture.createForNoModifyTagAndImageRequestSuccess(),
                 studyId,
                 user.getId()
         );
@@ -163,7 +166,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void updateStudy_WithoutTagAndImagesToAdd_Success() {
         //when
         studyCommandService.updateStudy(
-                StudyRequestFixture.updateStudyRequestWithoutTagAndImagesToAdd(),
+                UpdateStudyRequestFixture.createForNoTagAndImagesToAddSuccess(),
                 studyId,
                 user.getId()
         );
@@ -178,7 +181,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void updateStudy_WithoutTagAndImageIdsToRemove_Success() {
         //when
         studyCommandService.updateStudy(
-                StudyRequestFixture.updateStudyRequestWithoutTagAndImageIdsToRemove(),
+                UpdateStudyRequestFixture.createFroNoTagAndImageIdsToRemoveSuccess(),
                 studyId,
                 user.getId()
         );
@@ -193,7 +196,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void updateStudy_WhenUnderTagLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
-                StudyRequestFixture.updateStudyRequestWithUnderTagLimit(),
+                UpdateStudyRequestFixture.createForUnderTagLimitFail(),
                 studyId,
                 user.getId()
         ));
@@ -204,7 +207,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void updateStudy_WhenExceedTagLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
-                StudyRequestFixture.updateStudyRequestWithExceedTagLimit(),
+                UpdateStudyRequestFixture.createForExceedTagLimitFail(),
                 studyId,
                 user.getId()
         ));
@@ -215,7 +218,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void updateStudy_WhenUnderImageLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
-                StudyRequestFixture.updateStudyRequestWithUnderImageLimit(),
+                UpdateStudyRequestFixture.createForUnderImageLimitFail(),
                 studyId,
                 user.getId()
         ));
@@ -226,7 +229,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void updateStudy_WhenExceedImageLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
-                StudyRequestFixture.updateStudyRequestWithExceedImageLimit(),
+                UpdateStudyRequestFixture.createForExceedImageLimitFail(),
                 studyId,
                 user.getId()
         ));
@@ -236,7 +239,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 모집 상태 수정에 성공한다.")
     void updateStudyStatus_Success() {
         //given
-        UpdateStudyStatusRequest request = StudyRequestFixture.updateStudyStatusRequest();
+        UpdateStudyStatusRequest request = UpdateStudyStatusRequestFixture.create();
 
         //when
         studyCommandService.updateStudyStatus(
@@ -415,7 +418,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.createStudyLike(studyId, user.getId());
         studyCommandService.createStudyBookmark(studyId, user.getId());
 
-        UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
+        UpsertCommentRequest createRequest = UpsertCommentRequestFixture.create();
         Long parentId = commentCommandService.createComment(
                 createRequest,
                 studyId,
@@ -446,7 +449,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("스터디 모집 다중 삭제에 성공한다.")
     void deleteStudies_Success() {
         //given
-        studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
+        studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
         Long newStudyId = 2L;
 
         studyCommandService.createStudyLike(studyId, user.getId());
@@ -455,7 +458,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.createStudyLike(newStudyId, user.getId());
         studyCommandService.createStudyBookmark(newStudyId, user.getId());
 
-        UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
+        UpsertCommentRequest createRequest = UpsertCommentRequestFixture.create();
         Long parentId1 = commentCommandService.createComment(
                 createRequest,
                 studyId,
@@ -484,7 +487,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
         //when
         studyCommandService.deleteStudies(
-                StudyRequestFixture.deleteStudiesRequest(List.of(studyId, newStudyId)), user.getId()
+                DeleteStudiesRequestFixture.create(List.of(studyId, newStudyId)), user.getId()
         );
 
         //then
@@ -502,8 +505,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void deleteStudies_WhenNotExist_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.deleteStudies(
-                        StudyRequestFixture.deleteStudiesRequest(List.of(studyId, 123456789L)), user.getId()
-                )
-        );
+                DeleteStudiesRequestFixture.create(List.of(studyId, 123456789L)), user.getId()
+        ));
     }
 }

@@ -4,10 +4,10 @@ import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
 import com.jj.swm.domain.study.comment.dto.response.UpdateCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.study.comment.fixture.CommentRequestFixture;
+import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertCommentRequestFixture;
 import com.jj.swm.domain.study.comment.repository.CommentRepository;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.fixture.StudyRequestFixture;
+import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.user.core.entity.User;
@@ -50,9 +50,9 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.create());
-        studyCommandService.createStudy(StudyRequestFixture.createStudyRequest(), user.getId());
+        studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
         commentId = commentCommandService.createComment(
-                CommentRequestFixture.createCommentRequest(),
+                UpsertCommentRequestFixture.create(),
                 studyId,
                 null,
                 user.getId()
@@ -63,7 +63,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 댓글 생성에 성공한다.")
     void createComment_Success() {
         //given
-        UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
+        UpsertCommentRequest createRequest = UpsertCommentRequestFixture.create();
 
         //when
         Long newCommentId = commentCommandService.createComment(
@@ -89,7 +89,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     void createComment_WithParentId_Success() {
         //when
         Long replyId = commentCommandService.createComment(
-                CommentRequestFixture.createCommentRequest(),
+                UpsertCommentRequestFixture.create(),
                 studyId,
                 commentId,
                 user.getId()
@@ -107,7 +107,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 대댓글 id에 대해 대댓글을 생성해도 성공한다.")
     void createComment_WithReplyIdForParent_Success() {
         //given
-        UpsertCommentRequest createRequest = CommentRequestFixture.createCommentRequest();
+        UpsertCommentRequest createRequest = UpsertCommentRequestFixture.create();
         Long replyId = commentCommandService.createComment(
                 createRequest,
                 studyId,
@@ -132,7 +132,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 댓글 수정에 성공한다.")
     void updateComment_Success() {
         //given
-        UpsertCommentRequest updateRequest = CommentRequestFixture.updateCommentRequest();
+        UpsertCommentRequest updateRequest = UpsertCommentRequestFixture.update();
 
         //when
         UpdateCommentResponse response = commentCommandService.updateComment(
@@ -169,7 +169,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("대댓글이 있어도 스터디 모집 댓글 삭제에 성공한다.")
     void deleteComment_WithReply_Success() {
         commentCommandService.createComment(
-                CommentRequestFixture.createCommentRequest(),
+                UpsertCommentRequestFixture.create(),
                 studyId,
                 commentId,
                 user.getId()
@@ -194,7 +194,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     void deleteComment_WithReplyId_Success() {
         //given
         Long replyId = commentCommandService.createComment(
-                CommentRequestFixture.createCommentRequest(),
+                UpsertCommentRequestFixture.create(),
                 studyId,
                 commentId,
                 user.getId()
