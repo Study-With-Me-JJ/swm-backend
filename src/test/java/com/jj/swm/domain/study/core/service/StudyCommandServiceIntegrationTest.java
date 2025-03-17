@@ -364,7 +364,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         boolean result = studyLikeRepository.existsByStudyIdAndUserId(studyId, user.getId());
         assertFalse(result);
 
-        Study study = studyRepository.findById(1L).get();
+        Study study = studyRepository.findById(studyId).get();
         assertEquals(0, study.getLikeCount());
     }
 
@@ -407,7 +407,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //then
         assertEquals(0, studyLikeRepository.count());
 
-        Study study = studyRepository.findById(1L).get();
+        Study study = studyRepository.findById(studyId).get();
         assertEquals(0, study.getLikeCount());
     }
 
@@ -433,7 +433,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //when
-        studyCommandService.deleteStudy(1L, user.getId());
+        studyCommandService.deleteStudy(studyId, user.getId());
 
         //then
         assertEquals(0, studyTagRepository.count());
