@@ -18,11 +18,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CommentCommandServiceIntegrationTest extends IntegrationContainerSupporter {
+
+    private static final int THREAD_COUNT = 100;
 
     // target service
     @Autowired
@@ -46,6 +53,9 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     private User user;
     private Long commentId;
     private final Long studyId = 1L;
+
+    private ExecutorService executorService;
+    private CountDownLatch countDownLatch;
 
     @BeforeEach
     void setUp() {
@@ -126,6 +136,41 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         //then
         StudyComment reReply = commentRepository.findById(reRePlyId).get();
         assertEquals(commentId, reReply.getParent().getId());
+    }
+
+    @Test
+    @DisplayName("댓글 생성 시 스터디 모집 댓글 수 동시성 제어에 성공한다.")
+    void createComment_Concurrency_Success() throws InterruptedException {
+        //given
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
+
+        //when
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            executorService.submit(() -> {
+                try {
+                    commentCommandService.createComment(
+                            UpsertCommentRequestFixture.create(),
+                            studyId,
+                            null,
+                            user.getId()
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+
+        countDownLatch.await();
+        executorService.shutdown();
+
+        //then
+        assertEquals(THREAD_COUNT + 1, commentRepository.count()); // setUp에서 기본 생성에 의해 +1 설정
+
+        Study study = studyRepository.findById(studyId).get();
+        assertEquals(THREAD_COUNT + 1, study.getCommentCount());
     }
 
     @Test
@@ -213,5 +258,51 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
         Optional<StudyComment> optionalComment = commentRepository.findById(replyId);
         assertFalse(optionalComment.isPresent());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 시 스터디 모집 댓글 수 동시성 제어에 성공한다.")
+    void deleteStudyLike_Concurrency_Success() throws InterruptedException {
+        //given
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
+
+        List<Long> commentIds = new ArrayList<>();
+
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            commentIds.add(commentCommandService.createComment(
+                    UpsertCommentRequestFixture.create(),
+                    studyId,
+                    null,
+                    user.getId()
+            ).getCommentId());
+        }
+
+        //when
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            Long commentId = commentIds.get(i);
+            executorService.submit(() -> {
+                try {
+                    commentCommandService.deleteComment(
+                            studyId,
+                            commentId,
+                            user.getId()
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+
+        countDownLatch.await();
+        executorService.shutdown();
+
+        //then
+        assertEquals(1, commentRepository.count()); // setUp에서 기본 생성에 의해 1 설정
+
+        Study study = studyRepository.findById(studyId).get();
+        assertEquals(1, study.getCommentCount());
     }
 }
