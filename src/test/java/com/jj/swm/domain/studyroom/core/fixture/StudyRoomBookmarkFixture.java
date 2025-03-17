@@ -6,7 +6,7 @@ import com.jj.swm.domain.user.core.entity.User;
 
 public class StudyRoomBookmarkFixture {
 
-    public static StudyRoomBookmark createBookmark(StudyRoom studyRoom, User user){
+    public static StudyRoomBookmark create(StudyRoom studyRoom, User user){
         return StudyRoomBookmark.builder()
                 .studyRoom(studyRoom)
                 .user(user)

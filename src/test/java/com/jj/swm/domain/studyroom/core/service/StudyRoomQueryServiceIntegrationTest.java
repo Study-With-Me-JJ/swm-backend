@@ -64,21 +64,21 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
         studyRooms = new ArrayList<>();
 
         for(int i = 5; i >= 1; i--){
-            StudyRoom studyRoom = StudyRoomFixture.createStudyRoom(roomAdmin);
+            StudyRoom studyRoom = StudyRoomFixture.create(roomAdmin);
             studyRoom = studyRoomRepository.save(studyRoom);
 
-            StudyRoomOptionInfo optionInfo = StudyRoomOptionInfoFixture.createOptionInfo(studyRoom);
+            StudyRoomOptionInfo optionInfo = StudyRoomOptionInfoFixture.create(studyRoom);
             optionInfoRepository.save(optionInfo);
 
             for(int j = i; j >= 1; j--){
-                StudyRoomReview review = StudyRoomReviewFixture.createReview(studyRoom, i, users.get(j - 1));
+                StudyRoomReview review = StudyRoomReviewFixture.create(studyRoom, i, users.get(j - 1));
                 studyRoom.addReview(i);
 
                 reviewRepository.save(review);
             }
 
             for(int j = 1; j <= i; j++){
-                StudyRoomLike like = StudyRoomLikeFixture.createLike(studyRoom, users.get(j - 1));
+                StudyRoomLike like = StudyRoomLikeFixture.create(studyRoom, users.get(j - 1));
                 studyRoom.addLike();
 
                 likeRepository.save(like);
@@ -245,7 +245,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
         User user = users.getFirst();
 
         StudyRoomBookmark bookmark
-                = StudyRoomBookmarkFixture.createBookmark(studyRooms.getFirst(), user);
+                = StudyRoomBookmarkFixture.create(studyRooms.getFirst(), user);
 
         bookmarkRepository.save(bookmark);
 
@@ -363,7 +363,7 @@ public class StudyRoomQueryServiceIntegrationTest extends IntegrationContainerSu
         User user = users.getFirst();
 
         StudyRoomBookmark studyRoomBookmark
-                = StudyRoomBookmarkFixture.createBookmark(studyRooms.getFirst(), user);
+                = StudyRoomBookmarkFixture.create(studyRooms.getFirst(), user);
 
         bookmarkRepository.save(studyRoomBookmark);
 

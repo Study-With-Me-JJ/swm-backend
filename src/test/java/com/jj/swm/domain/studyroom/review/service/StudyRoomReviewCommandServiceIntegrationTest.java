@@ -59,14 +59,14 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     @BeforeEach
     void setUp(TestInfo testInfo) {
         User roomAdmin = userRepository.save(UserFixture.createRoomAdmin());
-        studyRoom = studyRoomRepository.save(StudyRoomFixture.createStudyRoom(roomAdmin));
+        studyRoom = studyRoomRepository.save(StudyRoomFixture.create(roomAdmin));
 
         if(ignoreBeforeEachMethod.contains(testInfo.getTestMethod().orElseThrow().getName())) {
             return;
         }
 
-        createReviewUser = userRepository.save(UserFixture.createUser());
-        studyRoomReview = StudyRoomReviewFixture.createReview(studyRoom, 5, createReviewUser);
+        createReviewUser = userRepository.save(UserFixture.create());
+        studyRoomReview = StudyRoomReviewFixture.create(studyRoom, 5, createReviewUser);
 
         reviewRepository.save(studyRoomReview);
     }
@@ -394,7 +394,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
                 .rating(5)
                 .build();
 
-        createReviewUser = userRepository.save(UserFixture.createUser());
+        createReviewUser = userRepository.save(UserFixture.create());
 
         CreateStudyRoomReviewResponse response
                 = commandService.createReview(request, studyRoom.getId(), createReviewUser.getId());

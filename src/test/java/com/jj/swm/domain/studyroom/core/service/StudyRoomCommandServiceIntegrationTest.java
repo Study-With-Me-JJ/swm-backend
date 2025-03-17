@@ -1,12 +1,14 @@
 package com.jj.swm.domain.studyroom.core.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
+import com.jj.swm.domain.studyroom.core.fixture.dto.request.CreateStudyRoomRequestFixture;
+import com.jj.swm.domain.studyroom.core.fixture.dto.request.UpdateStudyRoomAssociationsRequestFixture;
+import com.jj.swm.domain.studyroom.core.fixture.dto.request.UpdateStudyRoomSettingsRequestFixture;
 import com.jj.swm.domain.studyroom.core.repository.*;
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomSettingRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomSettingsRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomAssociationsRequest;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomReserveType;
-import com.jj.swm.domain.studyroom.core.fixture.StudyRoomFixture;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.entity.User;
@@ -48,7 +50,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @BeforeEach
     void setUp(){
         roomAdmin = userRepository.saveAndFlush(UserFixture.createRoomAdmin());
-        commandService.createStudyRoom(StudyRoomFixture.createStudyRoomRequestFixture(), roomAdmin.getId());
+        commandService.createStudyRoom(CreateStudyRoomRequestFixture.create(), roomAdmin.getId());
 
         studyRoom = studyRoomRepository.findById(1L).get();
     }
@@ -58,7 +60,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     void createStudyRoom_Success() {
         //given
         User user = UserFixture.createRoomAdmin();
-        CreateStudyRoomRequest request =  StudyRoomFixture.createStudyRoomRequestFixture();
+        CreateStudyRoomRequest request = CreateStudyRoomRequestFixture.create();
 
         //when
         commandService.createStudyRoom(request, user.getId());
@@ -73,7 +75,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정에 성공한다.")
     void updateStudyRoomSettings_Success() {
         //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequest();
+        UpdateStudyRoomSettingsRequest request = UpdateStudyRoomSettingsRequestFixture.create();
 
         //when
         commandService.updateStudyRoomSettings(request, studyRoom.getId(), roomAdmin.getId());
@@ -96,7 +98,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸의 어드민이 아닌 경우 수정에 실패한다.")
     void updateStudyRoomSettings_WhenNotRoomAdmin_ThenFail() {
         //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequest();
+        UpdateStudyRoomSettingsRequest request = UpdateStudyRoomSettingsRequestFixture.create();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -108,7 +110,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 이미지 제한 개수를 초과했을 경우 실패한다.")
     void updateStudyRoomSettings_WhenExceedImageTagLimit_ThenFail() {
         //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForImageLimitFail();
+        UpdateStudyRoomSettingsRequest request = UpdateStudyRoomSettingsRequestFixture.createForImageLimitFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -120,7 +122,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 잘못된 태그 ID값을 전달했을 경우 실패한다.")
     void updateStudyRoomSettings_WhenNotValidTagId_ThenFail() {
         //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTagFail();
+        UpdateStudyRoomSettingsRequest request = UpdateStudyRoomSettingsRequestFixture.createForTagFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -132,7 +134,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 태그 제한 개수를 초과했을 경우 실패한다.")
     void updateStudyRoomSettings_WhenExceedTagLimit_ThenFail() {
         //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTagLimitFail();
+        UpdateStudyRoomSettingsRequest request = UpdateStudyRoomSettingsRequestFixture.createForTagLimitFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -144,7 +146,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 잘못된 휴무일 ID값을 전달했을 경우 실패한다.")
     void updateStudyRoomSettings_WhenNotValidDayOffId_ThenFail() {
         //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForDayOffFail();
+        UpdateStudyRoomSettingsRequest request = UpdateStudyRoomSettingsRequestFixture.createForDayOffFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -156,7 +158,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 휴무일 제한 개수를 초과했을 경우 실패한다.")
     void updateStudyRoomSettings_WhenExceedDayOffLimit_ThenFail() {
         //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForDayOffLimitFail();
+        UpdateStudyRoomSettingsRequest request = UpdateStudyRoomSettingsRequestFixture.createForDayOffLimitFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -168,7 +170,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 중복된 휴무일을 추가했을 경우 실패한다.")
     void updateStudyRoomSettings_WhenDuplicatedDayOff_ThenFail(){
         //given
-        UpdateStudyRoomRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForDayOffDuplicatedFail();
+        UpdateStudyRoomSettingsRequest request = UpdateStudyRoomSettingsRequestFixture.createForDayOffDuplicatedFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -180,7 +182,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 설정 수정에 성공한다.")
     void updateStudyRoomAssociations_Success() {
         //given
-        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomSettingRequest();
+        UpdateStudyRoomAssociationsRequest request = UpdateStudyRoomAssociationsRequestFixture.create();
 
         //when
         commandService.updateStudyRoomAssociations(request, studyRoom.getId(), roomAdmin.getId());
@@ -210,7 +212,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 잘못된 옵션 정보 ID값을 전달했을 경우 실패한다.")
     void updateStudyRoomAssociations_WhenNotValidOptionInfoId_ThenFail() {
         //given
-        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomSettingRequestForOptionInfoFail();
+        UpdateStudyRoomAssociationsRequest request = UpdateStudyRoomAssociationsRequestFixture.createForOptionInfoFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -222,7 +224,8 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 중복된 옵션을 추가했을 경우 실패한다.")
     void updateStudyRoomAssociations_WhenDuplicatedOption_ThenFail(){
         //given
-        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForOptionDuplicatedFail();
+        UpdateStudyRoomAssociationsRequest request
+                = UpdateStudyRoomAssociationsRequestFixture.createForOptionDuplicatedFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -234,7 +237,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 잘못된 타입 정보 ID값을 전달했을 경우 실패한다.")
     void updateStudyRoomAssociations_WhenNotValidTypeInfoId_ThenFail() {
         //given
-        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomSettingRequestForTypeInfoFail();
+        UpdateStudyRoomAssociationsRequest request = UpdateStudyRoomAssociationsRequestFixture.createForTypeInfoFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -246,7 +249,7 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 스터디 룸 타입 제한 개수를 초과했을 경우 실패한다.")
     void updateStudyRoomAssociations_WhenExceedTypeLimit_ThenFail() {
         //given
-        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTypeLimitFail();
+        UpdateStudyRoomAssociationsRequest request = UpdateStudyRoomAssociationsRequestFixture.createForTypeLimitFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -258,7 +261,8 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 중복된 스터디 룸 타입을 추가했을 경우 실패한다.")
     void updateStudyRoomAssociations_WhenDuplicatedType_ThenFail(){
         //given
-        UpdateStudyRoomSettingRequest request = StudyRoomFixture.createUpdateStudyRoomRequestForTypeDuplicatedFail();
+        UpdateStudyRoomAssociationsRequest request
+                = UpdateStudyRoomAssociationsRequestFixture.createForTypeDuplicatedFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -270,8 +274,8 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
     @DisplayName("스터디 룸 수정 시 잘못된 예약 타입 ID값을 전달했을 경우 실패한다.")
     void updateStudyRoomAssociations_WhenNotValidReserveTypeId_ThenFail() {
         //given
-        UpdateStudyRoomSettingRequest request
-                = StudyRoomFixture.createUpdateStudyRoomSettingRequestForReserveTypeFail();
+        UpdateStudyRoomAssociationsRequest request
+                = UpdateStudyRoomAssociationsRequestFixture.createForReserveTypeFail();
 
         //when & then
         Assertions.assertThrows(GlobalException.class,
@@ -281,9 +285,9 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 삭제에 성공한다.")
-    void deleteStudyRoom_Success() {
+    void deleteStudyRoomAndAssociations_AndAssociations_Success() {
         //when
-        commandService.deleteStudyRoom(studyRoom.getId(), roomAdmin.getId());
+        commandService.deleteStudyRoomAndAssociations(studyRoom.getId(), roomAdmin.getId());
 
         //then
         Optional<StudyRoom> findStudyRoom = studyRoomRepository.findById(studyRoom.getId());
@@ -292,18 +296,18 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 삭제 시 관련 스터디 룸이 존재하지 않는다면 삭제에 실패한다.")
-    void deleteStudyRoom_WhenNotRelatedStudyRoom_ThenFail() {
+    void deleteStudyRoomAndAssociations_WhenNotRelatedStudyRoom_AndAssociations_ThenFail() {
         //when & then
         Assertions.assertThrows(GlobalException.class,
-                () -> commandService.deleteStudyRoom(100L, roomAdmin.getId())
+                () -> commandService.deleteStudyRoomAndAssociations(100L, roomAdmin.getId())
         );
     }
 
     @Test
     @DisplayName("스터디 룸 다중 삭제에 성공한다.")
-    void deleteStudyRooms_Success() {
+    void deleteStudyRoomsAndAssociations_AndAssociations_SuccessAndAssociations() {
         //when
-        commandService.deleteStudyRooms(List.of(studyRoom.getId()), roomAdmin.getId());
+        commandService.deleteStudyRoomsAndAssociations(List.of(studyRoom.getId()), roomAdmin.getId());
 
         //then
         Optional<StudyRoom> findStudyRoom = studyRoomRepository.findById(studyRoom.getId());
@@ -312,10 +316,10 @@ public class StudyRoomCommandServiceIntegrationTest extends IntegrationContainer
 
     @Test
     @DisplayName("스터디 룸 다중 삭제 시 관련 스터디 룸이 존재하지 않는다면 삭제에 실패한다.")
-    void deleteStudyRooms_WhenNotRelatedSomeStudyRoom_ThenFail() {
+    void deleteStudyRoomsAndAssociations_WhenNotRelatedSomeStudyRoom_AndAssociations_ThenFailAndAssociations() {
         //when & then
         Assertions.assertThrows(GlobalException.class,
-                () -> commandService.deleteStudyRooms(List.of(100L), roomAdmin.getId())
+                () -> commandService.deleteStudyRoomsAndAssociations(List.of(100L), roomAdmin.getId())
         );
     }
 

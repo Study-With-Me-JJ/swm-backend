@@ -16,10 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE users SET deleted_at = NOW(), nickname = CONCAT('deleted_', gen_random_uuid()) WHERE id = ?")
+@SQLDelete(sql =
+        """
+            UPDATE users 
+            SET deleted_at = NOW(), nickname = CONCAT('deleted_', gen_random_uuid(), '_', nickname) 
+            WHERE id = ?
+        """
+)
 @SQLRestriction("deleted_at is null")
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -31,7 +36,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "id", nullable = false)
     private UUID id = UUID.randomUUID();
 
-    @Column(name = "nickname", nullable = false, length = 50, unique = true)
+    @Column(name = "nickname", nullable = false, length = 100, unique = true)
     private String nickname;
 
     @Column(name = "profile_image_url", length = 300)

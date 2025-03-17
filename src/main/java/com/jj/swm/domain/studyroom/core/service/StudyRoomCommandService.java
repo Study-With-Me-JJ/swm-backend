@@ -64,7 +64,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void updateStudyRoomSettings(
-            UpdateStudyRoomRequest request,
+            UpdateStudyRoomSettingsRequest request,
             Long studyRoomId,
             UUID userId
     ){
@@ -79,7 +79,7 @@ public class StudyRoomCommandService {
 
     @Transactional
     public void updateStudyRoomAssociations(
-            UpdateStudyRoomSettingRequest request,
+            UpdateStudyRoomAssociationsRequest request,
             Long studyRoomId,
             UUID userId
     ) {
@@ -91,7 +91,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void deleteStudyRoom(Long studyRoomId, UUID userId) {
+    public void deleteStudyRoomAndAssociations(Long studyRoomId, UUID userId) {
         if(!studyRoomRepository.existsByIdAndUserId(studyRoomId, userId))
             throw new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found");
 
@@ -99,7 +99,7 @@ public class StudyRoomCommandService {
     }
 
     @Transactional
-    public void deleteStudyRooms(List<Long> studyRoomIds, UUID userId) {
+    public void deleteStudyRoomsAndAssociations(List<Long> studyRoomIds, UUID userId) {
         if(!studyRoomRepository.validateAllExistsByIdsAndUserId(studyRoomIds, userId, studyRoomIds.size()))
             throw new GlobalException(ErrorCode.NOT_FOUND, "Some StudyRoom Not Found");
 
@@ -408,5 +408,4 @@ public class StudyRoomCommandService {
         else
             return storedSize + aboutAdd.size();
     }
-
 }

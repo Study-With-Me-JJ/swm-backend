@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UpdateStudyRoomSettingRequest {
+public class UpdateStudyRoomAssociationsRequest {
 
     @NotNull
     @Positive

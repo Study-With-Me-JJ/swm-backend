@@ -40,7 +40,7 @@ public class StudyRoomQnaQueryServiceIntegrationTest extends IntegrationContaine
     void setUp() {
         roomAdmin = UserFixture.createRoomAdmin();
         userRepository.save(roomAdmin);
-        studyRoom = studyRoomRepository.save(StudyRoomFixture.createStudyRoom(roomAdmin));
+        studyRoom = studyRoomRepository.save(StudyRoomFixture.create(roomAdmin));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class StudyRoomQnaQueryServiceIntegrationTest extends IntegrationContaine
     void getStudyRoomQnas_Success() {
         //given
         for(int i = 0; i < PageSize.StudyRoomQna; i++){
-            User user = UserFixture.createUser();
+            User user = UserFixture.create();
             user = userRepository.save(user);
 
             StudyRoomQna studyRoomQna = StudyRoomQna.builder()
@@ -75,7 +75,7 @@ public class StudyRoomQnaQueryServiceIntegrationTest extends IntegrationContaine
     @DisplayName("스터디 룸 QnA의 자식 조회에 성공한다.")
     void getStudyRoomQnas_AboutRetrieveChild_Success() {
         //given
-        User user = UserFixture.createUser();
+        User user = UserFixture.create();
         userRepository.save(user);
 
         StudyRoomQna qna = StudyRoomQna.builder()
