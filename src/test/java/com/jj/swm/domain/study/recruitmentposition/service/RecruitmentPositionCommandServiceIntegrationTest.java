@@ -4,11 +4,17 @@ import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipation;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateRecruitmentPositionRequestFixture;
+import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpdateRecruitmentPositionRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
+import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationAttachmentRepository;
+import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
+import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -38,6 +44,15 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Autowired
     private RecruitmentPositionRepository recruitmentPositionRepository;
+
+    @Autowired
+    private StudyParticipationRepository participationRepository;
+
+    @Autowired
+    private StudyParticipationLinkRepository participationLinkRepository;
+
+    @Autowired
+    private StudyParticipationAttachmentRepository participationAttachmentRepository;
 
     // entity
     private User user;
@@ -145,4 +160,52 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 GlobalException.class,
                 () -> recruitmentPositionCommandService.deleteRecruitmentPosition(123456789L, user.getId()));
     }
+
+    @Test
+    @DisplayName("스터디 참여 생성에 성공한다.")
+    void createStudyParticipation_Success() {
+        //given
+        CreateStudyParticipationRequest request = CreateStudyParticipationRequestFixture.create();
+
+        //when
+        recruitmentPositionCommandService.createStudyParticipation(
+                request,
+                recruitmentPositionId,
+                user.getId()
+        );
+        Long newParticipationId = 1L;
+
+        //then
+        Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
+        assertTrue(optionalParticipation.isPresent());
+
+        StudyParticipation participation = optionalParticipation.get();
+        assertEquals(request.getCoverLetter(), participation.getCoverLetter());
+
+        assertEquals(request.getLinks().size(), participationLinkRepository.count());
+        assertEquals(request.getFileUrls().size(), participationAttachmentRepository.count());
+    }
+
+    @Test
+    @DisplayName("links&fileUrls가 없어도 스터디 참여 생성에 성공한다.")
+    void createStudyParticipation_WithoutLinksAndFileUrls_Success() {
+        //when
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                recruitmentPositionId,
+                user.getId()
+        );
+        Long newParticipationId = 1L;
+
+        //then
+        Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
+        assertTrue(optionalParticipation.isPresent());
+    }
+
+    //TODO 승인 api 구현되면 테스트 하기
+//    @Test
+//    @DisplayName("이미 모집 인원 수만큼 승인 수가 채워졌으면 참여 생성에 실패한다.")
+//    void createStudyParticipation_WhenAcceptedCountEqualHeadcount_ThenFail() {
+//
+//    }
 }
