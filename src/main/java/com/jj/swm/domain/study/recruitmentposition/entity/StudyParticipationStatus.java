@@ -1,5 +1,5 @@
 package com.jj.swm.domain.study.recruitmentposition.entity;
 
-public enum StudyParticipantStatus {
+public enum StudyParticipationStatus {
     PENDING, REJECTED, ACCEPTED
 }

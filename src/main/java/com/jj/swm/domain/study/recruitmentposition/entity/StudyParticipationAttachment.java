@@ -6,10 +6,10 @@ import lombok.*;
 @Getter
 @Entity
 @Builder
-@Table(name = "study_participant_attachment")
+@Table(name = "study_participation_attachment")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class StudyParticipantAttachment {
+public class StudyParticipationAttachment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +20,5 @@ public class StudyParticipantAttachment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_participant_id", nullable = false)
-    private StudyParticipant participant;
+    private StudyParticipation participation;
 }

@@ -13,12 +13,12 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Builder
-@Table(name = "study_participant")
+@Table(name = "study_participation")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "update study_participant set deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "update study_participation set deleted_at = NOW() WHERE id = ?")
 @SQLRestriction("deleted_at is null")
-public class StudyParticipant {
+public class StudyParticipation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class StudyParticipant {
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "status", nullable = false)
-    private StudyParticipantStatus status;
+    private StudyParticipationStatus status;
 
     @Column(name = "kakao_id", length = 50, nullable = false)
     private String kakaoId;
