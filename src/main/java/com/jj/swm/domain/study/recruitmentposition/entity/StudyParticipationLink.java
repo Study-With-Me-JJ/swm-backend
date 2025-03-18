@@ -19,6 +19,6 @@ public class StudyParticipationLink {
     private String link;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "study_participant_id", nullable = false)
+    @JoinColumn(name = "study_participation_id", nullable = false)
     private StudyParticipation participation;
 }
