@@ -79,7 +79,7 @@ public class CreateStudyRoomRequest {
     private List<StudyRoomOption> options;
 
     @NotEmpty
-    private List<CreateStudyRoomReservationTypeRequest> reservationTypes;
+    private List<CreateStudyRoomReserveTypeRequest> reserveTypes;
 
     @NotNull
     @Positive

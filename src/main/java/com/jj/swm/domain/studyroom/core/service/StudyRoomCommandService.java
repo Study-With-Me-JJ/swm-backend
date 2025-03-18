@@ -7,8 +7,8 @@ import com.jj.swm.domain.studyroom.core.repository.*;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomDayOffRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomImageRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomOptionInfoRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomReservationTypeRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.update.UpdateStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomReserveTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.UpdateStudyRoomReserveTypeRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomTagRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomTypeInfoRequest;
 import com.jj.swm.domain.studyroom.core.dto.response.CreateStudyRoomBookmarkResponse;
@@ -87,7 +87,7 @@ public class StudyRoomCommandService {
 
         modifyOptions(request.getOptionInfoModification(), studyRoom);
         modifyTypes(request.getTypeInfoModification(), studyRoom);
-        modifyReserveTypes(request.getReservationTypeModification(), studyRoom);
+        modifyReserveTypes(request.getReserveTypeModification(), studyRoom);
     }
 
     @Transactional
@@ -160,7 +160,7 @@ public class StudyRoomCommandService {
         imageRepository.batchInsert(request.getImageUrls(), studyRoom);
         optionInfoRepository.batchInsert(request.getOptions(), studyRoom);
         typeInfoRepository.batchInsert(request.getTypes(), studyRoom);
-        reserveTypeRepository.batchInsert(request.getReservationTypes(), studyRoom);
+        reserveTypeRepository.batchInsert(request.getReserveTypes(), studyRoom);
     }
 
     private void modifyImages(ModifyStudyRoomImageRequest request, StudyRoom studyRoom) {
@@ -291,32 +291,32 @@ public class StudyRoomCommandService {
         }
     }
 
-    private void modifyReserveTypes(ModifyStudyRoomReservationTypeRequest request, StudyRoom studyRoom) {
+    private void modifyReserveTypes(ModifyStudyRoomReserveTypeRequest request, StudyRoom studyRoom) {
         if(request != null){
-            if (isListNotNull(request.getReservationTypesToAdd()))
-                reserveTypeRepository.batchInsert(request.getReservationTypesToAdd(), studyRoom);
-            if (isListPresent(request.getReservationTypesToUpdate()))
-                updateReserveTypes(request.getReservationTypesToUpdate(), studyRoom);
-            if (isListPresent(request.getReservationTypeIdsToRemove()))
-                removeReserveTypes(request.getReservationTypeIdsToRemove(), studyRoom);
+            if (isListNotNull(request.getReserveTypesToAdd()))
+                reserveTypeRepository.batchInsert(request.getReserveTypesToAdd(), studyRoom);
+            if (isListPresent(request.getReserveTypesToUpdate()))
+                updateReserveTypes(request.getReserveTypesToUpdate(), studyRoom);
+            if (isListPresent(request.getReserveTypeIdsToRemove()))
+                removeReserveTypes(request.getReserveTypeIdsToRemove(), studyRoom);
         }
     }
 
     private void updateReserveTypes(
-            List<UpdateStudyRoomReservationTypeRequest> reservationTypesToUpdate, StudyRoom studyRoom
+            List<UpdateStudyRoomReserveTypeRequest> reserveTypesToUpdate, StudyRoom studyRoom
     ) {
-        Map<Long, CreateStudyRoomReservationTypeRequest> reserveTypeMap = new HashMap<>();
+        Map<Long, CreateStudyRoomReserveTypeRequest> reserveTypeMap = new HashMap<>();
         List<Long> reserveTypeIds = new ArrayList<>();
 
-        for (UpdateStudyRoomReservationTypeRequest reserveTypeToUpdate : reservationTypesToUpdate) {
-            reserveTypeMap.put(reserveTypeToUpdate.getReservationTypeId(), reserveTypeToUpdate.getReservationType());
-            reserveTypeIds.add(reserveTypeToUpdate.getReservationTypeId());
+        for (UpdateStudyRoomReserveTypeRequest reserveTypeToUpdate : reserveTypesToUpdate) {
+            reserveTypeMap.put(reserveTypeToUpdate.getReserveTypeId(), reserveTypeToUpdate.getReserveType());
+            reserveTypeIds.add(reserveTypeToUpdate.getReserveTypeId());
         }
 
         List<StudyRoomReserveType> reserveTypes =
                 reserveTypeRepository.findAllByIdInAndStudyRoom(reserveTypeIds, studyRoom);
 
-        if (reserveTypes.size() != reservationTypesToUpdate.size()) {
+        if (reserveTypes.size() != reserveTypesToUpdate.size()) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Some reserve type not matching StudyRoom.");
         }
 
@@ -325,12 +325,12 @@ public class StudyRoomCommandService {
         );
     }
 
-    private void removeReserveTypes(List<Long> reservationTypeIdsToRemove, StudyRoom studyRoom) {
+    private void removeReserveTypes(List<Long> reserveTypeIdsToRemove, StudyRoom studyRoom) {
         int size = reserveTypeRepository.countStudyRoomReserveTypeByIdInAndStudyRoom(
-                reservationTypeIdsToRemove, studyRoom);
+                reserveTypeIdsToRemove, studyRoom);
 
-        if (size == reservationTypeIdsToRemove.size()) {
-            reserveTypeRepository.deleteByIds(reservationTypeIdsToRemove);
+        if (size == reserveTypeIdsToRemove.size()) {
+            reserveTypeRepository.deleteByIds(reserveTypeIdsToRemove);
         } else {
             throw new GlobalException(ErrorCode.NOT_VALID, "Some reserve type not matching StudyRoom.");
         }

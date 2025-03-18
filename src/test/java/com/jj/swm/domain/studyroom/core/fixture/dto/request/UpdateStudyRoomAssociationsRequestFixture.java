@@ -1,11 +1,11 @@
 package com.jj.swm.domain.studyroom.core.fixture.dto.request;
 
-import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomReserveTypeRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.UpdateStudyRoomAssociationsRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomOptionInfoRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomReserveTypeRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomTypeInfoRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.update.UpdateStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.UpdateStudyRoomReserveTypeRequest;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomType;
 
@@ -26,11 +26,11 @@ public class UpdateStudyRoomAssociationsRequestFixture {
                         .typesToAdd(List.of(StudyRoomType.PARTY))
                         .build()
                 )
-                .reservationTypeModification(ModifyStudyRoomReservationTypeRequest.builder()
-                        .reservationTypesToUpdate(List.of(
-                                UpdateStudyRoomReservationTypeRequest.builder()
-                                        .reservationTypeId(1L)
-                                        .reservationType(CreateStudyRoomReservationTypeRequest.builder()
+                .reserveTypeModification(ModifyStudyRoomReserveTypeRequest.builder()
+                        .reserveTypesToUpdate(List.of(
+                                UpdateStudyRoomReserveTypeRequest.builder()
+                                        .reserveTypeId(1L)
+                                        .reserveType(CreateStudyRoomReserveTypeRequest.builder()
                                                 .reservationOption("99인실")
                                                 .pricePerHour(10000)
                                                 .maxHeadcount(99)
@@ -63,8 +63,8 @@ public class UpdateStudyRoomAssociationsRequestFixture {
 
     public static UpdateStudyRoomAssociationsRequest createForReserveTypeFail() {
         return UpdateStudyRoomAssociationsRequest.builder()
-                .reservationTypeModification(ModifyStudyRoomReservationTypeRequest.builder()
-                        .reservationTypeIdsToRemove(List.of(100L))
+                .reserveTypeModification(ModifyStudyRoomReserveTypeRequest.builder()
+                        .reserveTypeIdsToRemove(List.of(100L))
                         .build()
                 )
                 .build();

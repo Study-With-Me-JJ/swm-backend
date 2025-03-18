@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreateStudyRoomReservationTypeRequest {
+public class CreateStudyRoomReserveTypeRequest {
 
     @Min(1)
     @NotNull
