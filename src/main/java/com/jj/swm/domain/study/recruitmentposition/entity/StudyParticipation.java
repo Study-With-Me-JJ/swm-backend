@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.recruitmentposition.entity;
 
+import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.user.core.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -45,4 +46,18 @@ public class StudyParticipation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public static StudyParticipation of(
+            CreateStudyParticipationRequest request,
+            StudyRecruitmentPosition recruitmentPosition,
+            User user
+    ) {
+        return StudyParticipation.builder()
+                .status(StudyParticipationStatus.PENDING)
+                .kakaoId(request.getKakaoId())
+                .coverLetter(request.getCoverLetter())
+                .recruitmentPosition(recruitmentPosition)
+                .user(user)
+                .build();
+    }
 }
