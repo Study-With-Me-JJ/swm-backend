@@ -23,6 +23,7 @@ public class CreateStudyParticipationRequest {
     @NotBlank
     private String coverLetter;
 
+    @Valid
     @Size(max = LINK_LIMIT)
     private List<@Size(max = 300) String> links;
 
