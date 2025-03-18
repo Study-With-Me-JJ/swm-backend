@@ -40,7 +40,7 @@ public class CreateStudyRoomRequestFixture {
                 .imageUrls(List.of("http://test1.png", "http://test2.png"))
                 .types(List.of(StudyRoomType.STUDY, StudyRoomType.MEETING))
                 .options(List.of(StudyRoomOption.MIKE, StudyRoomOption.NO_SMOKE))
-                .reservationTypes(
+                .reserveTypes(
                         List.of(createStudyRoomReservationTypeRequest())
                 )
                 .minReserveTime(2)
