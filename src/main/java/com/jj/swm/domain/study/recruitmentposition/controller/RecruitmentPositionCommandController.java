@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.recruitmentposition.controller;
 
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.CreateRecruitmentPositionResponse;
 import com.jj.swm.domain.study.recruitmentposition.service.RecruitmentPositionCommandService;
@@ -69,4 +70,24 @@ public class RecruitmentPositionCommandController {
 
         return ApiResponse.ok(null);
     }
+
+    @PostMapping("/v1/recruitment-position/{recruitmentPositionId}/participation")
+    @Operation(
+            summary = "스터디 참여 생성",
+            description = "스터디 참여를 생성합니다. 생성된 것에 대해 id값을 안 주므로 새로고침을 해서 조회해야 합니다."
+    )
+    public ApiResponse<Void> createStudyParticipation(
+            @Valid @RequestBody CreateStudyParticipationRequest request,
+            @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
+            Principal principal
+    ) {
+        recruitmentPositionCommandService.createStudyParticipation(
+                request,
+                recruitmentPositionId,
+                UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.created(null);
+    }
+
 }
