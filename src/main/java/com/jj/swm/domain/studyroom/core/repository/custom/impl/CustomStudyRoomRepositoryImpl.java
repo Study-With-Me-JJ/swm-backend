@@ -1,5 +1,6 @@
 package com.jj.swm.domain.studyroom.core.repository.custom.impl;
 
+import com.jj.swm.domain.common.utils.QueryDSLBooleanUtils;
 import com.jj.swm.domain.studyroom.core.dto.GetStudyRoomCondition;
 import com.jj.swm.domain.studyroom.core.dto.SortCriteria;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import static com.jj.swm.domain.studyroom.core.entity.QStudyRoom.studyRoom;
+import static com.jj.swm.domain.common.utils.QueryDSLBooleanUtils.nullSafeBuilder; 
 
 @RequiredArgsConstructor
 public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository {
@@ -42,25 +44,25 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
     }
 
     private BooleanBuilder studyRoomTitleContains(String title) {
-        return this.nullSafeBuilder(() -> studyRoom.title.contains(title));
+        return nullSafeBuilder(() -> studyRoom.title.contains(title));
     }
 
     private BooleanBuilder studyRoomHeadcountGoe(int headCount) {
-        return this.nullSafeBuilder(() -> studyRoom.entireMaxHeadcount.goe(headCount));
+        return nullSafeBuilder(() -> studyRoom.entireMaxHeadcount.goe(headCount));
     }
 
     private BooleanBuilder studyRoomPriceBetween(int minPricePerHour, int maxPricePerHour) {
-        return this.nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.between(minPricePerHour, maxPricePerHour));
+        return nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.between(minPricePerHour, maxPricePerHour));
     }
 
     private BooleanBuilder studyRoomLocalityExists(String locality) {
-        return this.nullSafeBuilder(() -> studyRoom.address.locality.eq(locality));
+        return nullSafeBuilder(() -> studyRoom.address.locality.eq(locality));
     }
 
     private BooleanBuilder studyRoomOptionsContains(List<StudyRoomOption> options) {
         return options == null || options.isEmpty()
                 ? null
-                : this.nullSafeBuilder(() -> studyRoom.optionInfos.any().option.in(options));
+                : nullSafeBuilder(() -> studyRoom.optionInfos.any().option.in(options));
     }
 
     private BooleanBuilder createSortPredicate(GetStudyRoomCondition condition) {
@@ -70,15 +72,15 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
         Double lastAverageRating = condition.getLastAverageRatingValue();
 
         return switch (sortCriteria) {
-            case STAR -> this.nullSafeBuilder(() -> studyRoom.averageRating.lt(lastAverageRating)
+            case STAR -> nullSafeBuilder(() -> studyRoom.averageRating.lt(lastAverageRating)
                     .or(studyRoom.averageRating.eq(lastAverageRating).and(studyRoom.id.lt(lastStudyRoomId))));
-            case LIKE -> this.nullSafeBuilder(() -> studyRoom.likeCount.lt(lastSortValue)
+            case LIKE -> nullSafeBuilder(() -> studyRoom.likeCount.lt(lastSortValue)
                     .or(studyRoom.likeCount.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
-            case REVIEW -> this.nullSafeBuilder(() -> studyRoom.reviewCount.lt(lastSortValue)
+            case REVIEW -> nullSafeBuilder(() -> studyRoom.reviewCount.lt(lastSortValue)
                     .or(studyRoom.reviewCount.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
-            case PRICE_ASC -> this.nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.gt(lastSortValue)
+            case PRICE_ASC -> nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.gt(lastSortValue)
                     .or(studyRoom.entireMinPricePerHour.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
-            case PRICE_DESC -> this.nullSafeBuilder(() -> studyRoom.entireMaxPricePerHour.lt(lastSortValue)
+            case PRICE_DESC -> nullSafeBuilder(() -> studyRoom.entireMaxPricePerHour.lt(lastSortValue)
                     .or(studyRoom.entireMaxPricePerHour.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
             case DISTANCE -> {
                 NumberExpression<Double> distanceExpression = calculateDistance(
@@ -145,14 +147,6 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
                     new OrderSpecifier<>(Order.DESC, studyRoom.id)
             };
         };
-    }
-
-    private BooleanBuilder nullSafeBuilder(Supplier<BooleanExpression> f) {
-        try {
-            return new BooleanBuilder(f.get());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            return null;
-        }
     }
 
     private NumberExpression<Double> calculateDistance(Double latitude, Double longitude) {
