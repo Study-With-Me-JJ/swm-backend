@@ -1,8 +1,9 @@
 package com.jj.swm.domain.study.recruitmentposition.dto.request;
 
+import com.jj.swm.domain.study.recruitmentposition.entity.RecruitmentPositionTitle;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,10 +16,13 @@ import static com.jj.swm.domain.study.constants.StudyConstants.RECRUITMENT_POSIT
 @SuperBuilder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UpdateRecruitmentPositionRequest extends CreateRecruitmentPositionRequest {
+public class UpsertRecruitmentPositionRequest {
 
     @NotNull
-    @PositiveOrZero
+    private RecruitmentPositionTitle title;
+
+    @NotNull
+    @Positive
     @Max(RECRUITMENT_POSITION_COUNT_MAX)
-    private Integer acceptedCount;
+    private Integer headcount;
 }

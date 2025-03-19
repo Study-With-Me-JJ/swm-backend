@@ -9,15 +9,15 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class CreateCommentResponse {
+public class CreateStudyCommentResponse {
 
     private Long commentId;
 
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime createdAt;
 
-    public static CreateCommentResponse from(StudyComment comment) {
-        return CreateCommentResponse.builder()
+    public static CreateStudyCommentResponse from(StudyComment comment) {
+        return CreateStudyCommentResponse.builder()
                 .commentId(comment.getId())
                 .createdAt(comment.getCreatedAt())
                 .build();

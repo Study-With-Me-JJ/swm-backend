@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.comment.controller;
 
-import com.jj.swm.domain.study.comment.dto.response.GetCommentResponse;
-import com.jj.swm.domain.study.comment.dto.response.GetParentCommentResponse;
-import com.jj.swm.domain.study.comment.service.CommentQueryService;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @Tag(name = "StudyComment", description = "<b>[스터디 댓글]</b> API")
-public class CommentQueryController {
+public class StudyCommentQueryController {
 
-    private final CommentQueryService commentQueryService;
+    private final StudyCommentQueryService commentQueryService;
 
     @GetMapping("/v1/study/{studyId}/comment")
     @Operation(
@@ -24,10 +24,10 @@ public class CommentQueryController {
             description = "스터디 댓글을 페이지 기반으로 조회합니다. 대댓글 개수도 조회합니다.<br>" +
                     "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
     )
-    public ApiResponse<PageResponse<GetParentCommentResponse>> getComments(
+    public ApiResponse<PageResponse<GetParentStudyCommentResponse>> getComments(
             @PathVariable("studyId") Long studyId, @RequestParam("pageNo") int pageNo
     ) {
-        PageResponse<GetParentCommentResponse> pageResponse = commentQueryService.getComments(studyId, pageNo);
+        PageResponse<GetParentStudyCommentResponse> pageResponse = commentQueryService.getComments(studyId, pageNo);
 
         return ApiResponse.ok(pageResponse);
     }
@@ -38,11 +38,11 @@ public class CommentQueryController {
             description = "스터디 대댓글을 무한 스크롤 기반으로 조회합니다.<br>" +
                     "lastReplyId는 필수 값이 아닙니다. lastReplyId를 보내면 이 다음 대댓글을 불러옵니다."
     )
-    public ApiResponse<PageResponse<GetCommentResponse>> getReplies(
+    public ApiResponse<PageResponse<GetStudyCommentResponse>> getReplies(
             @PathVariable("parentId") Long parentId,
             @PathVariable(value = "lastReplyId", required = false) Long lastReplyId
     ) {
-        PageResponse<GetCommentResponse> pageResponse = commentQueryService.getReplies(parentId, lastReplyId);
+        PageResponse<GetStudyCommentResponse> pageResponse = commentQueryService.getReplies(parentId, lastReplyId);
 
         return ApiResponse.ok(pageResponse);
     }

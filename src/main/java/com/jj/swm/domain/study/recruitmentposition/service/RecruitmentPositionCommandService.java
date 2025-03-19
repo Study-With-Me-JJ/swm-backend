@@ -2,9 +2,8 @@ package com.jj.swm.domain.study.recruitmentposition.service;
 
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.CreateRecruitmentPositionResponse;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipation;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
@@ -39,7 +38,7 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public CreateRecruitmentPositionResponse createRecruitmentPosition(
-            CreateRecruitmentPositionRequest request,
+            UpsertRecruitmentPositionRequest request,
             Long studyId,
             UUID userId
     ) {
@@ -56,13 +55,13 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public void updateRecruitmentPosition(
-            UpdateRecruitmentPositionRequest request,
+            UpsertRecruitmentPositionRequest request,
             Long recruitmentPositionId,
             UUID userId
     ) {
         StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
 
-        validateAcceptedCount(request);
+        validateAcceptedCountLessThanHeadcount(request, recruitmentPosition);
 
         recruitmentPosition.modify(request);
     }
@@ -106,9 +105,11 @@ public class RecruitmentPositionCommandService {
         }
     }
 
-    private void validateAcceptedCount(UpdateRecruitmentPositionRequest request) {
-        if (request.getHeadcount() < request.getAcceptedCount()) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "The number of accepted exceeds the recruitment limit.");
+    private void validateAcceptedCountLessThanHeadcount(
+            UpsertRecruitmentPositionRequest request, StudyRecruitmentPosition recruitmentPosition
+    ) {
+        if (recruitmentPosition.getAcceptedCount() > request.getHeadcount()) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
         }
     }
 

@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.comment.entity;
 
-import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
+import com.jj.swm.domain.study.comment.dto.request.UpsertStudyCommentRequest;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
@@ -49,7 +49,7 @@ public class StudyComment extends BaseTimeEntity {
     private List<StudyComment> children = new ArrayList<>();
 
     public static StudyComment of(
-            UpsertCommentRequest createRequest,
+            UpsertStudyCommentRequest createRequest,
             Study study,
             User user
     ) {
@@ -65,7 +65,7 @@ public class StudyComment extends BaseTimeEntity {
         this.parent = parent;
     }
 
-    public void modify(UpsertCommentRequest updateRequest) {
+    public void modify(UpsertStudyCommentRequest updateRequest) {
         this.content = updateRequest.getContent();
     }
 }

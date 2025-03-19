@@ -1,8 +1,7 @@
 package com.jj.swm.domain.study.recruitmentposition.controller;
 
-import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.CreateRecruitmentPositionResponse;
 import com.jj.swm.domain.study.recruitmentposition.service.RecruitmentPositionCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
@@ -26,11 +25,15 @@ public class RecruitmentPositionCommandController {
     @PostMapping("/v1/study/{studyId}/recruitment-position")
     @Operation(
             summary = "스터디 모집 포지션 추가",
-            description = "스터디 모집 포지션을 추가합니다. 모집 포지션 개수가 10개를 초과하면 예외가 발생합니다."
+            description = """
+                    스터디 모집 포지션을 추가합니다.
+                    모집 포지션 개수가 10개를 초과하면 예외가 발생합니다.
+                    생성 후 바로 화면에 띄울 시 acceptedCount는 바로 0으로 설정해주시면 됩니다.
+                    """
     )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
     public ApiResponse<CreateRecruitmentPositionResponse> createRecruitmentPosition(
-            @Valid @RequestBody CreateRecruitmentPositionRequest request,
+            @Valid @RequestBody UpsertRecruitmentPositionRequest request,
             @PathVariable("studyId") Long studyId,
             Principal principal
     ) {
@@ -46,7 +49,7 @@ public class RecruitmentPositionCommandController {
     @PatchMapping("/v1/study/recruitment-position/{recruitmentPositionId}")
     @Operation(summary = "스터디 모집 포지션 수정", description = "스터디 모집 포지션을 수정합니다.")
     public ApiResponse<Void> updateRecruitmentPosition(
-            @Valid @RequestBody UpdateRecruitmentPositionRequest request,
+            @Valid @RequestBody UpsertRecruitmentPositionRequest request,
             @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
             Principal principal
     ) {

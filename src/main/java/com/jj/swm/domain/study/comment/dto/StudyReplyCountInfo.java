@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.comment.dto;
 
-public interface ReplyCountInfo {
+public interface StudyReplyCountInfo {
 
     Long getParentId();
 

@@ -1,11 +1,11 @@
 package com.jj.swm.domain.study.comment.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
-import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
-import com.jj.swm.domain.study.comment.dto.response.UpdateCommentResponse;
+import com.jj.swm.domain.study.comment.dto.request.UpsertStudyCommentRequest;
+import com.jj.swm.domain.study.comment.dto.response.UpdateStudyCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertCommentRequestFixture;
-import com.jj.swm.domain.study.comment.repository.CommentRepository;
+import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertStudyCommentRequestFixture;
+import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
@@ -27,13 +27,13 @@ import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CommentCommandServiceIntegrationTest extends IntegrationContainerSupporter {
+public class StudyCommentCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     private static final int THREAD_COUNT = 100;
 
     // target service
     @Autowired
-    private CommentCommandService commentCommandService;
+    private StudyCommentCommandService commentCommandService;
 
     // service
     @Autowired
@@ -44,7 +44,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     private UserRepository userRepository;
 
     @Autowired
-    private CommentRepository commentRepository;
+    private StudyStudyCommentRepository commentRepository;
 
     @Autowired
     private StudyRepository studyRepository;
@@ -62,7 +62,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
         user = userRepository.save(UserFixture.create());
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
         commentId = commentCommandService.createComment(
-                UpsertCommentRequestFixture.create(),
+                UpsertStudyCommentRequestFixture.create(),
                 studyId,
                 null,
                 user.getId()
@@ -73,7 +73,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 댓글 생성에 성공한다.")
     void createComment_Success() {
         //given
-        UpsertCommentRequest createRequest = UpsertCommentRequestFixture.create();
+        UpsertStudyCommentRequest createRequest = UpsertStudyCommentRequestFixture.create();
 
         //when
         Long newCommentId = commentCommandService.createComment(
@@ -99,7 +99,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     void createComment_WithParentId_Success() {
         //when
         Long replyId = commentCommandService.createComment(
-                UpsertCommentRequestFixture.create(),
+                UpsertStudyCommentRequestFixture.create(),
                 studyId,
                 commentId,
                 user.getId()
@@ -117,7 +117,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 대댓글 id에 대해 대댓글을 생성해도 성공한다.")
     void createComment_WithReplyIdForParent_Success() {
         //given
-        UpsertCommentRequest createRequest = UpsertCommentRequestFixture.create();
+        UpsertStudyCommentRequest createRequest = UpsertStudyCommentRequestFixture.create();
         Long replyId = commentCommandService.createComment(
                 createRequest,
                 studyId,
@@ -150,7 +150,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
             executorService.submit(() -> {
                 try {
                     commentCommandService.createComment(
-                            UpsertCommentRequestFixture.create(),
+                            UpsertStudyCommentRequestFixture.create(),
                             studyId,
                             null,
                             user.getId()
@@ -177,10 +177,10 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("스터디 모집 댓글 수정에 성공한다.")
     void updateComment_Success() {
         //given
-        UpsertCommentRequest updateRequest = UpsertCommentRequestFixture.update();
+        UpsertStudyCommentRequest updateRequest = UpsertStudyCommentRequestFixture.update();
 
         //when
-        UpdateCommentResponse response = commentCommandService.updateComment(
+        UpdateStudyCommentResponse response = commentCommandService.updateComment(
                 updateRequest,
                 commentId,
                 user.getId()
@@ -214,7 +214,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     @DisplayName("대댓글이 있어도 스터디 모집 댓글 삭제에 성공한다.")
     void deleteComment_WithReply_Success() {
         commentCommandService.createComment(
-                UpsertCommentRequestFixture.create(),
+                UpsertStudyCommentRequestFixture.create(),
                 studyId,
                 commentId,
                 user.getId()
@@ -239,7 +239,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
     void deleteComment_WithReplyId_Success() {
         //given
         Long replyId = commentCommandService.createComment(
-                UpsertCommentRequestFixture.create(),
+                UpsertStudyCommentRequestFixture.create(),
                 studyId,
                 commentId,
                 user.getId()
@@ -271,7 +271,7 @@ public class CommentCommandServiceIntegrationTest extends IntegrationContainerSu
 
         for (int i = 0; i < THREAD_COUNT; i++) {
             commentIds.add(commentCommandService.createComment(
-                    UpsertCommentRequestFixture.create(),
+                    UpsertStudyCommentRequestFixture.create(),
                     studyId,
                     null,
                     user.getId()
