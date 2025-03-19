@@ -1,10 +1,10 @@
 package com.jj.swm.domain.study.comment.service;
 
-import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
-import com.jj.swm.domain.study.comment.dto.response.CreateCommentResponse;
-import com.jj.swm.domain.study.comment.dto.response.UpdateCommentResponse;
+import com.jj.swm.domain.study.comment.dto.request.UpsertStudyCommentRequest;
+import com.jj.swm.domain.study.comment.dto.response.CreateStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.UpdateStudyCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.study.comment.repository.CommentRepository;
+import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.user.core.entity.User;
@@ -19,15 +19,15 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class CommentCommandService {
+public class StudyCommentCommandService {
 
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
-    private final CommentRepository commentRepository;
+    private final StudyStudyCommentRepository commentRepository;
 
     @Transactional
-    public CreateCommentResponse createComment(
-            UpsertCommentRequest createRequest,
+    public CreateStudyCommentResponse createComment(
+            UpsertStudyCommentRequest createRequest,
             Long studyId,
             Long parentId,
             UUID userId
@@ -47,12 +47,12 @@ public class CommentCommandService {
 
         commentRepository.save(comment);
 
-        return CreateCommentResponse.from(comment);
+        return CreateStudyCommentResponse.from(comment);
     }
 
     @Transactional
-    public UpdateCommentResponse updateComment(
-            UpsertCommentRequest updateRequest,
+    public UpdateStudyCommentResponse updateComment(
+            UpsertStudyCommentRequest updateRequest,
             Long commentId,
             UUID userId
     ) {
@@ -60,7 +60,7 @@ public class CommentCommandService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
         comment.modify(updateRequest);
 
-        return UpdateCommentResponse.from();
+        return UpdateStudyCommentResponse.from();
     }
 
     @Transactional
@@ -112,7 +112,7 @@ public class CommentCommandService {
     }
 
     private StudyComment buildComment(
-            UpsertCommentRequest createRequest,
+            UpsertStudyCommentRequest createRequest,
             StudyAndParentComment studyAndParentComment,
             User user
     ) {

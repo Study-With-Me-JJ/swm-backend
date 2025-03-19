@@ -4,7 +4,7 @@ import com.jj.swm.domain.study.comment.entity.StudyComment;
 
 import java.util.List;
 
-public interface CustomCommentRepository {
+public interface CustomStudyCommentRepository {
 
     List<StudyComment> findPagedReplyByParentIdWithUser(
             Long parentId,
