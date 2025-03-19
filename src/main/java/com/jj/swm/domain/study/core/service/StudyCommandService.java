@@ -49,7 +49,7 @@ public class StudyCommandService {
 
         insertImagesIfPresent(request.getImageUrls(), study);
 
-        recruitmentPositionRepository.batchInsert(request.getCreateRecruitmentPositionRequests(), study);
+        recruitmentPositionRepository.batchInsert(request.getUpsertRecruitmentPositionRequests(), study);
     }
 
     @Transactional

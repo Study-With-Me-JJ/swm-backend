@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.recruitmentposition.repository.jdbc.impl;
 
-import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.recruitmentposition.repository.jdbc.JdbcRecruitmentPositionRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void batchInsert(List<CreateRecruitmentPositionRequest> requests, Study study) {
+    public void batchInsert(List<UpsertRecruitmentPositionRequest> requests, Study study) {
         String sql = "insert into study_recruitment_position(study_id, title, headcount, accepted_count) " +
                 " VALUES(?,?,?,?)";
 
@@ -27,7 +27,7 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                CreateRecruitmentPositionRequest request = requests.get(i);
+                UpsertRecruitmentPositionRequest request = requests.get(i);
 
                 ps.setLong(1, study.getId());
                 ps.setObject(2, request.getTitle().name(), Types.OTHER);
