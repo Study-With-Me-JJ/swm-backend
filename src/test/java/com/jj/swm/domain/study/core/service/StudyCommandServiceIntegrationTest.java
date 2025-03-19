@@ -107,7 +107,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(request.getTags().size(), studyTagRepository.countByStudyId(newStudyId));
         assertEquals(request.getImageUrls().size(), studyImageRepository.countByStudyId(newStudyId));
         assertEquals(
-                request.getCreateRecruitmentPositionRequests().size(),
+                request.getUpsertRecruitmentPositionRequests().size(),
                 recruitmentPositionRepository.countByStudyId(newStudyId)
         );
     }

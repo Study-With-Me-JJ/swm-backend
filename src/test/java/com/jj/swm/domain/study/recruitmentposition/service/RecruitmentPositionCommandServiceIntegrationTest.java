@@ -3,11 +3,9 @@ package com.jj.swm.domain.study.recruitmentposition.service;
 import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateRecruitmentPositionRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateRecruitmentPositionRequestFixture;
-import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpdateRecruitmentPositionRequestFixture;
+import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpsertRecruitmentPositionRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
@@ -54,7 +52,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("모집 포지션 생성에 성공한다.")
     void createRecruitmentPosition_Success() {
         //given
-        CreateRecruitmentPositionRequest request = CreateRecruitmentPositionRequestFixture.create();
+        UpsertRecruitmentPositionRequest request = UpsertRecruitmentPositionRequestFixture.create();
 
         //when
         Long newRecruitmentPositionId = recruitmentPositionCommandService.createRecruitmentPosition(
@@ -76,7 +74,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("모집 포지션 최대 개수에 도달하면 생성에 실패한다.")
     void createRecruitmentPosition_WhenExceedLimit_ThenFail() {
         //given
-        CreateRecruitmentPositionRequest request = CreateRecruitmentPositionRequestFixture.create();
+        UpsertRecruitmentPositionRequest request = UpsertRecruitmentPositionRequestFixture.create();
 
         for (int i = 1; i <= 8; i++) {
             recruitmentPositionCommandService.createRecruitmentPosition(
@@ -98,7 +96,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("모집 포지션 수정에 성공한다.")
     void updateRecruitmentPosition_Success() {
         //given
-        UpdateRecruitmentPositionRequest request = UpdateRecruitmentPositionRequestFixture.create();
+        UpsertRecruitmentPositionRequest request = UpsertRecruitmentPositionRequestFixture.update();
 
         //when
         recruitmentPositionCommandService.updateRecruitmentPosition(
@@ -112,20 +110,10 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 recruitmentPositionRepository.findById(recruitmentPositionId).get();
 
         assertEquals(request.getHeadcount(), recruitmentPosition.getHeadcount());
-        assertEquals(request.getAcceptedCount(), recruitmentPosition.getAcceptedCount());
         assertEquals(request.getTitle(), recruitmentPosition.getTitle());
     }
 
-    @Test
-    @DisplayName("모집 인원보다 수락 인원이 많으면 모집 포지션 수정에 실패한다.")
-    void updateRecruitmentPosition_WhenAcceptedMoreThanHeadcount_ThenFail() {
-        //when & then
-        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateRecruitmentPosition(
-                UpdateRecruitmentPositionRequestFixture.createForAcceptedCountMoreThanHeadcountFail(),
-                recruitmentPositionId,
-                user.getId()
-        ));
-    }
+    //TODO 승인 로직 하면 수정 실패 테스트 하기
 
     @Test
     @DisplayName("모집 포지션 삭제에 성공한다.")
