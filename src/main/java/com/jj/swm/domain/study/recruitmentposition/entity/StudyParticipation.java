@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.recruitmentposition.entity;
 
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
+import com.jj.swm.domain.study.recruitmentposition.entity.embeddable.FileInfo;
 import com.jj.swm.domain.user.core.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,6 +40,9 @@ public class StudyParticipation {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Embedded
+    private FileInfo fileInfo;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_recruitment_position_id", nullable = false)
     private StudyRecruitmentPosition recruitmentPosition;
@@ -56,6 +60,7 @@ public class StudyParticipation {
                 .status(StudyParticipationStatus.PENDING)
                 .kakaoId(request.getKakaoId())
                 .coverLetter(request.getCoverLetter())
+                .fileInfo(request.getFileInfo())
                 .recruitmentPosition(recruitmentPosition)
                 .user(user)
                 .build();

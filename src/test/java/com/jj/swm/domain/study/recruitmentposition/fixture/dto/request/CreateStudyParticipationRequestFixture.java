@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.recruitmentposition.fixture.dto.request;
 
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
+import com.jj.swm.domain.study.recruitmentposition.entity.embeddable.FileInfo;
 
 import java.util.List;
 
@@ -10,8 +11,11 @@ public class CreateStudyParticipationRequestFixture {
         return CreateStudyParticipationRequest.builder()
                 .kakaoId("test_kakao_id")
                 .coverLetter("test_cover_letter")
-                .links(List.of("test_link1","test_link2"))
-                .fileUrls(List.of("test_file_url1", "test_file_url2"))
+                .links(List.of("test_link1", "test_link2"))
+                .fileInfo(FileInfo.builder()
+                        .fileUrl("test_file_url")
+                        .fileName("test_file_name")
+                        .build())
                 .build();
     }
 
