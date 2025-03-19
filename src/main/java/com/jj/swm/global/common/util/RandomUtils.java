@@ -7,11 +7,14 @@ import java.security.SecureRandom;
 @UtilityClass
 public class RandomUtils {
 
-    private final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final String NUMBERS = "0123456789012345678901234567890123456789012345678901234567890";
 
     public String generateRandomCode() {
-        int randomNumber = 100000 + SECURE_RANDOM.nextInt(900000);
-
-        return String.valueOf(randomNumber);
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < 6; i++) {
+            builder.append(NUMBERS.charAt(SECURE_RANDOM.nextInt(NUMBERS.length())));
+        }
+        return builder.toString();
     }
 }
