@@ -79,10 +79,11 @@ public class S3ClientWrapper {
         s3Client.putObject(putObjectRequest, file.toPath());
     }
 
-    public String getPresignedURL(boolean isPublic, String key) {
+    public String getPresignedURL(boolean isPublic, String key, long fileSize) {
         String bucketName = isPublic ? publicBucketName : privateBucketName;
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
+                .contentLength(fileSize)
                 .key(key)
                 .build();
 
