@@ -6,7 +6,7 @@ import com.jj.swm.global.common.service.DiscordNotificationService;
 import com.jj.swm.global.common.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class BusinessVerificationEventHandler {
 
