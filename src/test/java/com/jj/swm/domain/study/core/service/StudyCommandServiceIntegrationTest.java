@@ -1,10 +1,10 @@
 package com.jj.swm.domain.study.core.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
-import com.jj.swm.domain.study.comment.dto.request.UpsertCommentRequest;
-import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertCommentRequestFixture;
-import com.jj.swm.domain.study.comment.repository.CommentRepository;
-import com.jj.swm.domain.study.comment.service.CommentCommandService;
+import com.jj.swm.domain.study.comment.dto.request.UpsertStudyCommentRequest;
+import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertStudyCommentRequestFixture;
+import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
+import com.jj.swm.domain.study.comment.service.StudyCommentCommandService;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
@@ -45,7 +45,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     // service
     @Autowired
-    private CommentCommandService commentCommandService;
+    private StudyCommentCommandService commentCommandService;
 
     // repository
     @Autowired
@@ -70,7 +70,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     private RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Autowired
-    private CommentRepository commentRepository;
+    private StudyStudyCommentRepository commentRepository;
 
     // entity
     private User user;
@@ -418,7 +418,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.createStudyLike(studyId, user.getId());
         studyCommandService.createStudyBookmark(studyId, user.getId());
 
-        UpsertCommentRequest createRequest = UpsertCommentRequestFixture.create();
+        UpsertStudyCommentRequest createRequest = UpsertStudyCommentRequestFixture.create();
         Long parentId = commentCommandService.createComment(
                 createRequest,
                 studyId,
@@ -458,7 +458,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.createStudyLike(newStudyId, user.getId());
         studyCommandService.createStudyBookmark(newStudyId, user.getId());
 
-        UpsertCommentRequest createRequest = UpsertCommentRequestFixture.create();
+        UpsertStudyCommentRequest createRequest = UpsertStudyCommentRequestFixture.create();
         Long parentId1 = commentCommandService.createComment(
                 createRequest,
                 studyId,

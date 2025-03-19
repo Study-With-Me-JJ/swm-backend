@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.service;
 
-import com.jj.swm.domain.study.comment.repository.CommentRepository;
+import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
 import com.jj.swm.domain.study.constants.StudyConstants;
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
@@ -31,11 +31,11 @@ public class StudyCommandService {
 
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
-    private final CommentRepository commentRepository;
     private final StudyTagRepository studyTagRepository;
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
+    private final StudyStudyCommentRepository studyCommentRepository;
     private final RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Transactional
@@ -217,7 +217,7 @@ public class StudyCommandService {
         studyImageRepository.deleteAllByStudyId(studyId);
         recruitmentPositionRepository.deleteAllByStudyId(studyId);
         studyLikeRepository.deleteAllByStudyId(studyId);
-        commentRepository.deleteAllByStudyId(studyId);
+        studyCommentRepository.deleteAllByStudyId(studyId);
         studyBookmarkRepository.deleteAllByStudyId(studyId);
         studyRepository.delete(study);
     }
@@ -227,7 +227,7 @@ public class StudyCommandService {
         studyImageRepository.deleteAllByStudyIds(studyIds);
         recruitmentPositionRepository.deleteAllByStudyIds(studyIds);
         studyLikeRepository.deleteAllByStudyIds(studyIds);
-        commentRepository.deleteAllByStudyIds(studyIds);
+        studyCommentRepository.deleteAllByStudyIds(studyIds);
         studyBookmarkRepository.deleteAllByStudyIds(studyIds);
         studyRepository.deleteAllByStudyIds(studyIds);
     }

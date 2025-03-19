@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UpsertCommentRequest {
+public class UpsertStudyCommentRequest {
 
     @NotBlank
     @Size(max = 255)

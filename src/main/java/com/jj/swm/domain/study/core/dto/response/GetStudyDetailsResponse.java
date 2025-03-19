@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.core.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jj.swm.domain.study.comment.dto.response.GetParentCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.GetRecruitmentPositionResponse;
@@ -52,7 +52,7 @@ public class GetStudyDetailsResponse {
 
     private List<GetRecruitmentPositionResponse> getRecruitmentPositionResponses;
 
-    private PageResponse<GetParentCommentResponse> pageCommentResponse;
+    private PageResponse<GetParentStudyCommentResponse> pageCommentResponse;
 
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime createdAt;
@@ -65,7 +65,7 @@ public class GetStudyDetailsResponse {
             boolean likeStatus,
             Long studyBookmarkId,
             List<GetStudyImageResponse> getImageResponses,
-            PageResponse<GetParentCommentResponse> pageCommentResponse
+            PageResponse<GetParentStudyCommentResponse> pageCommentResponse
     ) {
         return GetStudyDetailsResponse.builder()
                 .studyId(study.getId())

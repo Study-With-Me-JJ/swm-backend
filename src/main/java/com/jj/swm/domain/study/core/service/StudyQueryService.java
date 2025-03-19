@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.core.service;
 
-import com.jj.swm.domain.study.comment.dto.response.GetParentCommentResponse;
-import com.jj.swm.domain.study.comment.service.CommentQueryService;
+import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.domain.study.core.dto.GetStudyCondition;
 import com.jj.swm.domain.study.core.dto.StudyBookmarkInfo;
 import com.jj.swm.domain.study.core.dto.StudyLikeInfo;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 public class StudyQueryService {
 
     private final StudyRepository studyRepository;
-    private final CommentQueryService commentQueryService;
+    private final StudyCommentQueryService commentQueryService;
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
@@ -86,7 +86,7 @@ public class StudyQueryService {
                 PageSize.StudyComment,
                 Sort.by("id").descending()
         );
-        PageResponse<GetParentCommentResponse> pageCommentResponse =
+        PageResponse<GetParentStudyCommentResponse> pageCommentResponse =
                 commentQueryService.getPageParentAndReplyCountResponse(studyId, pageable);
 
         return GetStudyDetailsResponse.of(

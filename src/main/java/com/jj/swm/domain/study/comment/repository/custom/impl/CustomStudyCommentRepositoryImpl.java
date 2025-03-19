@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.comment.repository.custom.impl;
 
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.study.comment.repository.custom.CustomCommentRepository;
+import com.jj.swm.domain.study.comment.repository.custom.CustomStudyCommentRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ import static com.jj.swm.domain.common.utils.QueryDSLBooleanUtils.nullSafeBuilde
 import static com.jj.swm.domain.study.comment.entity.QStudyComment.studyComment;
 
 @RequiredArgsConstructor
-public class CustomCommentRepositoryImpl implements CustomCommentRepository {
+public class CustomStudyCommentRepositoryImpl implements CustomStudyCommentRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 
