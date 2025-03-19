@@ -10,7 +10,6 @@ import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPositi
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpsertRecruitmentPositionRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
-import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationAttachmentRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
@@ -48,9 +47,6 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Autowired
     private StudyParticipationLinkRepository participationLinkRepository;
-
-    @Autowired
-    private StudyParticipationAttachmentRepository participationAttachmentRepository;
 
     // entity
     private User user;
@@ -171,7 +167,6 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertEquals(request.getCoverLetter(), participation.getCoverLetter());
 
         assertEquals(request.getLinks().size(), participationLinkRepository.count());
-        assertEquals(request.getFileUrls().size(), participationAttachmentRepository.count());
     }
 
     @Test

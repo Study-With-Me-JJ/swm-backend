@@ -8,7 +8,6 @@ import com.jj.swm.domain.study.recruitmentposition.dto.response.CreateRecruitmen
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipation;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
-import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationAttachmentRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
@@ -34,7 +33,6 @@ public class RecruitmentPositionCommandService {
     private final StudyParticipationRepository participationRepository;
     private final RecruitmentPositionRepository recruitmentPositionRepository;
     private final StudyParticipationLinkRepository participationLinkRepository;
-    private final StudyParticipationAttachmentRepository participationAttachmentRepository;
 
     @Transactional
     public CreateRecruitmentPositionResponse createRecruitmentPosition(
@@ -94,8 +92,6 @@ public class RecruitmentPositionCommandService {
         participationRepository.save(participation);
 
         insertLinksIfPresent(request.getLinks(), participation);
-
-        insertFileUrlsIfPresent(request.getFileUrls(), participation);
     }
 
     private void validateRecruitmentPositionSizeLimit(Long studyId) {
@@ -121,12 +117,6 @@ public class RecruitmentPositionCommandService {
     private void insertLinksIfPresent(List<String> links, StudyParticipation participation) {
         if (isListPresent(links)) {
             participationLinkRepository.batchInsert(links, participation);
-        }
-    }
-
-    private void insertFileUrlsIfPresent(List<String> fileUrls, StudyParticipation participation) {
-        if (isListPresent(fileUrls)) {
-            participationAttachmentRepository.batchInsert(fileUrls, participation);
         }
     }
 
