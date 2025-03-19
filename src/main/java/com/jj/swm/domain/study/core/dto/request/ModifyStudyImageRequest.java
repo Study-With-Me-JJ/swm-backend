@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.core.dto.request;
 
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -14,8 +15,9 @@ import static com.jj.swm.domain.study.constants.StudyConstants.IMAGE_LIMIT;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ModifyStudyImageRequest {
 
+    @Valid
     @Size(max = IMAGE_LIMIT)
-    private List<String> imageUrlsToAdd;
+    private List<@Size(max = 300) String> imageUrlsToAdd;
 
     @Size(max = IMAGE_LIMIT)
     private List<Long> imageIdsToRemove;
