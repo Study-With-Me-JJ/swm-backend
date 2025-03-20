@@ -79,6 +79,7 @@ public class RecruitmentPositionCommandController {
             summary = "스터디 참여 생성",
             description = "스터디 참여를 생성합니다. 생성된 것에 대해 id값을 안 주므로 새로고침을 해서 조회해야 합니다."
     )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201")
     public ApiResponse<Void> createStudyParticipation(
             @Valid @RequestBody CreateStudyParticipationRequest request,
             @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
