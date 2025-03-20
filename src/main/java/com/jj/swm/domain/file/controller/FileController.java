@@ -19,8 +19,8 @@ public class FileController {
     @Operation(summary = "파일 업로드를 위한 PresignedUrl 가져오기", description = "용량 15MB 제한 및 파일 확장자 제한. jpg ,jpeg, png, gif, bmp, webp, pdf")
     @GetMapping("/presigned-url")
     public ApiResponse<GetPresignedUrlResponse> getPresignedUrl(
-            @Parameter(name = "파일 이름") @RequestParam String fileName,
-            @Parameter(name = "파일 크기(byte)")@RequestParam long fileSize
+            @Parameter(description = "파일명") @RequestParam String fileName,
+            @Parameter(description = "파일 크기(byte)") @RequestParam long fileSize
     ) {
         return ApiResponse.ok(fileService.getPresignedUrl(fileName, fileSize));
     }
