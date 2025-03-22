@@ -1,12 +1,12 @@
 package com.jj.swm.domain.study.comment.service;
 
 import com.jj.swm.domain.study.comment.dto.StudyReplyCountInfo;
-import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
 import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
-import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.constants.PageSize;
+import com.jj.swm.global.common.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -66,13 +66,16 @@ public class StudyCommentQueryService {
                 .map(StudyComment::getId)
                 .toList();
 
-        Map<Long, Integer> replyCountByParentId = commentRepository.countByParentIdsGroupByParentId(parentIds)
+        Map<Long, Integer> replyCountByParentId = commentRepository.countByParentIds(parentIds)
                 .stream()
                 .collect(Collectors.toMap(StudyReplyCountInfo::getParentId, StudyReplyCountInfo::getReplyCount));
 
         return PageResponse.of(
                 pagedComment,
-                (comment) -> GetParentStudyCommentResponse.of(comment, replyCountByParentId.getOrDefault(comment.getId(), 0))
+                (comment) -> GetParentStudyCommentResponse.of(
+                        comment,
+                        replyCountByParentId.getOrDefault(comment.getId(), 0)
+                )
         );
     }
 }

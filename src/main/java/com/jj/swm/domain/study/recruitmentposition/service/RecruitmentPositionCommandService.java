@@ -59,7 +59,9 @@ public class RecruitmentPositionCommandService {
     ) {
         StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
 
-        validateAcceptedCountLessThanHeadcount(request, recruitmentPosition);
+        validateAcceptedCountLessThanHeadcount(
+                request, participationRepository.countByRecruitmentPositionIdAndAcceptedStatus(recruitmentPositionId)
+        );
 
         recruitmentPosition.modify(request);
     }
@@ -80,7 +82,10 @@ public class RecruitmentPositionCommandService {
         StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
 
-        validateAcceptedCountNotEqualHeadcount(recruitmentPosition);
+        validateAcceptedCountNotEqualHeadcount(
+                recruitmentPosition,
+                participationRepository.countByRecruitmentPositionIdAndAcceptedStatus(recruitmentPositionId)
+        );
 
         User user = userRepository.getReferenceById(userId);
 
@@ -101,10 +106,8 @@ public class RecruitmentPositionCommandService {
         }
     }
 
-    private void validateAcceptedCountLessThanHeadcount(
-            UpsertRecruitmentPositionRequest request, StudyRecruitmentPosition recruitmentPosition
-    ) {
-        if (recruitmentPosition.getAcceptedCount() > request.getHeadcount()) {
+    private void validateAcceptedCountLessThanHeadcount(UpsertRecruitmentPositionRequest request, int acceptedCount) {
+        if (acceptedCount > request.getHeadcount()) {
             throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
         }
     }
@@ -120,8 +123,11 @@ public class RecruitmentPositionCommandService {
         }
     }
 
-    private static void validateAcceptedCountNotEqualHeadcount(StudyRecruitmentPosition recruitmentPosition) {
-        if (recruitmentPosition.getHeadcount() == recruitmentPosition.getAcceptedCount()) {
+    private static void validateAcceptedCountNotEqualHeadcount(
+            StudyRecruitmentPosition recruitmentPosition,
+            int acceptedCount
+    ) {
+        if (recruitmentPosition.getHeadcount() == acceptedCount) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment Position already full");
         }
     }
