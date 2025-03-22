@@ -2,6 +2,7 @@ package com.jj.swm.domain.studyroom.reservation.entity;
 
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomReserveType;
+import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -63,4 +64,25 @@ public class StudyRoomReservationInfo extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public static StudyRoomReservationInfo of(
+            CreateStudyRoomReservationRequest request,
+            StudyRoom studyRoom,
+            StudyRoomReserveType studyRoomReserveType,
+            User user
+    ) {
+        return StudyRoomReservationInfo.builder()
+                .reserverName(request.getReserverName())
+                .reserverPhoneNumber(request.getReserverPhoneNumber())
+                .headcount(request.getHeadcount())
+                .memo(request.getMemo())
+                .checkInTime(request.getCheckInTime())
+                .checkOutTime(request.getCheckInTime().plusHours(request.getUsageTime()))
+                .usageTime(request.getUsageTime())
+                .approvalStatus(ApprovalStatus.WAITING)
+                .user(user)
+                .studyRoomReserveType(studyRoomReserveType)
+                .studyRoom(studyRoom)
+                .build();
+    }
 }
