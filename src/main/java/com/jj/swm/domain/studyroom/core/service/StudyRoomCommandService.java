@@ -375,17 +375,17 @@ public class StudyRoomCommandService {
 
     private StudyRoom findByStudyRoomIdAndUserIdOrThrow(Long studyRoomId, UUID userId) {
         return studyRoomRepository.findByIdAndUserIdWithUser(studyRoomId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "StudyRoom Not Found"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
     }
 
     private StudyRoom findByStudyRoomIdOrThrow(Long studyRoomId) {
         return studyRoomRepository.findById(studyRoomId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "StudyRoom Not Found"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
     }
 
     private StudyRoom findByStudyRoomIdWithLockOrThrow(Long studyRoomId) {
         return studyRoomRepository.findByIdWithLock(studyRoomId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "StudyRoom Not Found"));
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
     }
 
     private void throwIfAlreadyLiked(Long studyRoomId, UUID userId) {
