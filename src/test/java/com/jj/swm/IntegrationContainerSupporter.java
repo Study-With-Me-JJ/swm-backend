@@ -4,6 +4,7 @@ import com.jj.swm.config.TestConfig;
 import com.jj.swm.domain.user.core.service.BusinessStatusService;
 import com.jj.swm.global.common.service.DiscordNotificationService;
 import com.jj.swm.global.common.service.EmailService;
+import com.jj.swm.global.common.service.KakaoNotificationService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ public abstract class IntegrationContainerSupporter {
     @MockitoBean protected EmailService emailService;
     @MockitoBean protected BusinessStatusService businessStatusService;
     @MockitoBean protected DiscordNotificationService discordNotificationService;
+    @MockitoBean protected KakaoNotificationService kakaoNotificationService;
 
     @BeforeAll
     public static void beforeAll(){

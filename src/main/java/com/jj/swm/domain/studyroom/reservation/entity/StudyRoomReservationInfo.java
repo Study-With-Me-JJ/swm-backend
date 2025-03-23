@@ -2,12 +2,15 @@ package com.jj.swm.domain.studyroom.reservation.entity;
 
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomReserveType;
+import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 
@@ -40,13 +43,15 @@ public class StudyRoomReservationInfo extends BaseTimeEntity {
     @Column(name = "check_in_time", nullable = false)
     private LocalDateTime checkInTime;
 
-    @Column(name = "check_in_time", nullable = false)
+    @Column(name = "check_out_time", nullable = false)
     private LocalDateTime checkOutTime;
 
     @Column(name = "usage_time", nullable = false)
     private Integer usageTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "approval_status", nullable = false)
+    @JdbcType(value = PostgreSQLEnumJdbcType.class)
     private ApprovalStatus approvalStatus;
 
     @Column(name = "deleted_at")
@@ -63,4 +68,25 @@ public class StudyRoomReservationInfo extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
+
+    public static StudyRoomReservationInfo of(
+            CreateStudyRoomReservationRequest request,
+            StudyRoom studyRoom,
+            StudyRoomReserveType studyRoomReserveType,
+            User user
+    ) {
+        return StudyRoomReservationInfo.builder()
+                .reserverName(request.getReserverName())
+                .reserverPhoneNumber(request.getReserverPhoneNumber())
+                .headcount(request.getHeadcount())
+                .memo(request.getMemo())
+                .checkInTime(request.getCheckInTime())
+                .checkOutTime(request.getCheckInTime().plusHours(request.getUsageTime()))
+                .usageTime(request.getUsageTime())
+                .approvalStatus(ApprovalStatus.WAITING)
+                .user(user)
+                .studyRoomReserveType(studyRoomReserveType)
+                .studyRoom(studyRoom)
+                .build();
+    }
 }
