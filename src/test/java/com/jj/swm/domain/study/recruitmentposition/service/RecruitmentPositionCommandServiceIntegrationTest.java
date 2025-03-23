@@ -5,9 +5,12 @@ import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixtur
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipation;
+import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipationStatus;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateStudyParticipationRequestFixture;
+import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpdateStudyParticipationStatusRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpsertRecruitmentPositionRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
@@ -51,12 +54,18 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     // entity
     private User user;
     private final Long studyId = 1L;
+    private final Long participationId = 1L;
     private final Long recruitmentPositionId = 1L; // addStudy 할 시에 모집 포지션 2개 삽입
 
     @BeforeEach
     void setUp() {
         user = userRepository.save(UserFixture.create());
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.create(),
+                recruitmentPositionId,
+                user.getId()
+        );
     }
 
     @Test
@@ -124,8 +133,6 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertEquals(request.getTitle(), recruitmentPosition.getTitle());
     }
 
-    //TODO 승인 로직 하면 수정 실패 테스트 하기
-
     @Test
     @DisplayName("모집 포지션 삭제에 성공한다.")
     void deleteRecruitmentPosition_Success() {
@@ -157,7 +164,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 recruitmentPositionId,
                 user.getId()
         );
-        Long newParticipationId = 1L;
+        Long newParticipationId = 2L;
 
         //then
         Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
@@ -166,7 +173,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         StudyParticipation participation = optionalParticipation.get();
         assertEquals(request.getCoverLetter(), participation.getCoverLetter());
 
-        assertEquals(request.getLinks().size(), participationLinkRepository.count());
+        assertEquals(request.getLinks().size(), participationLinkRepository.count() / 2); // setUp에 의해 /2 진행
     }
 
     @Test
@@ -178,17 +185,114 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 recruitmentPositionId,
                 user.getId()
         );
-        Long newParticipationId = 1L;
+        Long newParticipationId = 2L;
 
         //then
         Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
         assertTrue(optionalParticipation.isPresent());
     }
 
-    //TODO 승인 api 구현되면 테스트 하기
-//    @Test
-//    @DisplayName("이미 모집 인원 수만큼 승인 수가 채워졌으면 참여 생성에 실패한다.")
-//    void createStudyParticipation_WhenAcceptedCountEqualHeadcount_ThenFail() {
-//
-//    }
+    @Test
+    @DisplayName("스터디 참여 승인 상태 수정에 성공한다.")
+    void updateStudyParticipationStatus_ToAcceptedStatus_Success() {
+        //when
+        UpdateStudyParticipationStatusResponse response =
+                recruitmentPositionCommandService.updateStudyParticipationStatus(
+                        UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                        participationId,
+                        user.getId()
+                );
+
+        //then
+        StudyParticipation participation = participationRepository.findById(participationId).get();
+
+        assertEquals(response.getKakaoId(), participation.getKakaoId());
+        assertEquals(StudyParticipationStatus.ACCEPTED, participation.getStatus());
+    }
+
+    @Test
+    @DisplayName("스터디 참여 거절 상태 수정에 성공한다.")
+    void updateStudyParticipationStatus_ToRejectedStatus_Success() {
+        //when
+        UpdateStudyParticipationStatusResponse response =
+                recruitmentPositionCommandService.updateStudyParticipationStatus(
+                        UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
+                        participationId,
+                        user.getId()
+                );
+
+        //then
+        StudyParticipation participation = participationRepository.findById(participationId).get();
+
+        assertNull(response);
+        assertEquals(StudyParticipationStatus.REJECTED, participation.getStatus());
+    }
+
+    @Test
+    @DisplayName("승인 수가 모집 인원이랑 같으면 스터디 참여 승인 상태 수정에 실패한다.")
+    void updateStudyParticipationStatus_WhenAcceptedCountEqualsHeadcount_ThenFail() {
+        //given
+        for (int i = 1; i <= 3; i++) {
+            recruitmentPositionCommandService.createStudyParticipation(
+                    CreateStudyParticipationRequestFixture.create(),
+                    recruitmentPositionId,
+                    user.getId()
+            );
+
+            Long newParticipationId = participationId + i;
+
+            recruitmentPositionCommandService.updateStudyParticipationStatus(
+                    UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                    newParticipationId,
+                    user.getId()
+            );
+        }
+
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                participationId,
+                user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("스터디 작성자가 아니면 스터디 참여 상태 수정에 실패한다.")
+    void updateStudyParticipationStatus_WhenNotStudyWriter_ThenFail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                participationId,
+                UserFixture.uuid
+        ));
+    }
+
+    @Test
+    @DisplayName("기존 참여 상태가 대기가 아니면 스터디 참여 상태 수정에 실패한다.")
+    void updateStudyParticipationStatus_WhenStatusNotPending_ThenFail() {
+        //given
+        recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                participationId,
+                user.getId()
+        );
+
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
+                participationId,
+                user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("수정할 상태가 대기 상태면 스터디 참여 승인 상태 수정에 실패한다.")
+    void updateStudyParticipationStatus_WhenNewStatusPending_ThenFail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.PENDING),
+                participationId,
+                user.getId()
+        ));
+    }
 }
