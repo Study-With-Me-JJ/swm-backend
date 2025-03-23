@@ -156,7 +156,6 @@ public class RecruitmentPositionCommandService {
         if (!participation.getRecruitmentPosition().getStudy().getUser().getId().equals(userId)) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
         }
-        ;
     }
 
     private void validateOldStatusMustPending(StudyParticipation participation) {
