@@ -65,4 +65,8 @@ public class StudyParticipation {
                 .user(user)
                 .build();
     }
+
+    public void modifyStatus(StudyParticipationStatus status) {
+        this.status = status;
+    }
 }

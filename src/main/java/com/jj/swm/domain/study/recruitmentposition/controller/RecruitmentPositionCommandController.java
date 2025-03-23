@@ -1,8 +1,10 @@
 package com.jj.swm.domain.study.recruitmentposition.controller;
 
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationStatusRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.CreateRecruitmentPositionResponse;
+import com.jj.swm.domain.study.recruitmentposition.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.recruitmentposition.service.RecruitmentPositionCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -94,4 +96,23 @@ public class RecruitmentPositionCommandController {
         return ApiResponse.created(null);
     }
 
+    @PatchMapping("/v1/recruitment-position/participation/{participationId}/status")
+    @Operation(
+            summary = "스터디 참여 상태 수정",
+            description = "스터디 참여 상태를 수정합니다. 승인 시 kakaoId를 전송해줍니다."
+    )
+    public ApiResponse<UpdateStudyParticipationStatusResponse> updateStudyParticipationStatus(
+            @Valid @RequestBody UpdateStudyParticipationStatusRequest request,
+            @PathVariable("participationId") Long participationId,
+            Principal principal
+    ) {
+        UpdateStudyParticipationStatusResponse response =
+                recruitmentPositionCommandService.updateStudyParticipationStatus(
+                        request,
+                        participationId,
+                        UUID.fromString(principal.getName())
+                );
+
+        return ApiResponse.ok(response);
+    }
 }
