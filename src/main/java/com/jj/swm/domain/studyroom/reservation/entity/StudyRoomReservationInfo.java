@@ -7,8 +7,10 @@ import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 
@@ -41,13 +43,15 @@ public class StudyRoomReservationInfo extends BaseTimeEntity {
     @Column(name = "check_in_time", nullable = false)
     private LocalDateTime checkInTime;
 
-    @Column(name = "check_in_time", nullable = false)
+    @Column(name = "check_out_time", nullable = false)
     private LocalDateTime checkOutTime;
 
     @Column(name = "usage_time", nullable = false)
     private Integer usageTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "approval_status", nullable = false)
+    @JdbcType(value = PostgreSQLEnumJdbcType.class)
     private ApprovalStatus approvalStatus;
 
     @Column(name = "deleted_at")

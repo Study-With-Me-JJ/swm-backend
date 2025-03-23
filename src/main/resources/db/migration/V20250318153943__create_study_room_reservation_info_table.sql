@@ -1,4 +1,4 @@
-create type approval_status as enum ('PENDING', 'APPROVED', 'REJECTED');
+create type approval_status as enum ('WAITING', 'APPROVED', 'REJECTED');
 
 create table if not exists study_room_reservation_info (
        id bigserial primary key,
