@@ -2,10 +2,10 @@ package com.jj.swm.domain.study.core.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
-import com.jj.swm.domain.study.recruitmentposition.dto.response.GetRecruitmentPositionResponse;
-import com.jj.swm.domain.study.core.entity.Study;
+import com.jj.swm.domain.study.recruitmentposition.dto.response.GetRecruitmentPositionDetailsResponse;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,7 +50,7 @@ public class GetStudyDetailsResponse {
 
     private List<GetStudyImageResponse> getImageResponses;
 
-    private List<GetRecruitmentPositionResponse> getRecruitmentPositionResponses;
+    private List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionResponses;
 
     private PageResponse<GetParentStudyCommentResponse> pageCommentResponse;
 
@@ -64,6 +64,7 @@ public class GetStudyDetailsResponse {
             Study study,
             boolean likeStatus,
             Long studyBookmarkId,
+            List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses,
             List<GetStudyImageResponse> getImageResponses,
             PageResponse<GetParentStudyCommentResponse> pageCommentResponse
     ) {
@@ -86,10 +87,7 @@ public class GetStudyDetailsResponse {
                         .map(GetStudyTagResponse::from)
                         .toList())
                 .getImageResponses(getImageResponses)
-                .getRecruitmentPositionResponses(study.getStudyRecruitmentPositions().stream()
-                        .map(GetRecruitmentPositionResponse::from)
-                        .toList()
-                )
+                .getRecruitmentPositionResponses(getRecruitmentPositionDetailsResponses)
                 .pageCommentResponse(pageCommentResponse)
                 .createdAt(study.getCreatedAt())
                 .updatedAt(study.getUpdatedAt())

@@ -14,6 +14,10 @@ import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
 import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
+import com.jj.swm.domain.study.recruitmentposition.dto.AcceptedStudyParticipationCountInfo;
+import com.jj.swm.domain.study.recruitmentposition.dto.response.GetRecruitmentPositionDetailsResponse;
+import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
 import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
@@ -36,10 +40,11 @@ import java.util.stream.Collectors;
 public class StudyQueryService {
 
     private final StudyRepository studyRepository;
-    private final StudyCommentQueryService commentQueryService;
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
+    private final StudyCommentQueryService commentQueryService;
     private final StudyBookmarkRepository studyBookmarkRepository;
+    private final StudyParticipationRepository participationRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<GetStudyResponse> getStudies(UUID userId, GetStudyCondition condition) {
@@ -81,11 +86,31 @@ public class StudyQueryService {
                 .map(GetStudyImageResponse::from)
                 .toList();
 
+        List<StudyRecruitmentPosition> recruitmentPositions = study.getStudyRecruitmentPositions();
+
+        List<Long> recruitmentPositionIds = recruitmentPositions.stream()
+                .map(StudyRecruitmentPosition::getId)
+                .toList();
+
+        Map<Long, Integer> acceptedStudyParticipationCountByRecruitmentId =
+                participationRepository.countByRecruitmentPositionIdsAndAcceptedStatus(recruitmentPositionIds).stream()
+                        .collect(Collectors.toMap(
+                                AcceptedStudyParticipationCountInfo::getRecruitmentPositionId,
+                                AcceptedStudyParticipationCountInfo::getAcceptedStudyParticipationCount
+                        ));
+
+        List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses =
+                recruitmentPositions.stream().map(recruitmentPosition -> GetRecruitmentPositionDetailsResponse.of(
+                        recruitmentPosition,
+                        acceptedStudyParticipationCountByRecruitmentId.getOrDefault(recruitmentPosition.getId(), 0)
+                )).toList();
+
         Pageable pageable = PageRequest.of(
                 0,
                 PageSize.StudyComment,
                 Sort.by("id").descending()
         );
+
         PageResponse<GetParentStudyCommentResponse> pageCommentResponse =
                 commentQueryService.getPageParentAndReplyCountResponse(studyId, pageable);
 
@@ -93,6 +118,7 @@ public class StudyQueryService {
                 study,
                 likeStatusAndBookmarkId.likeStatus(),
                 likeStatusAndBookmarkId.bookmarkId(),
+                getRecruitmentPositionDetailsResponses,
                 getImageResponses,
                 pageCommentResponse
         );

@@ -3,9 +3,12 @@ package com.jj.swm.domain.study.recruitmentposition.service;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationStatusRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.CreateRecruitmentPositionResponse;
+import com.jj.swm.domain.study.recruitmentposition.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipation;
+import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipationStatus;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
@@ -59,7 +62,9 @@ public class RecruitmentPositionCommandService {
     ) {
         StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
 
-        validateAcceptedCountLessThanHeadcount(request, recruitmentPosition);
+        validateAcceptedCountLessThanHeadcount(
+                request, participationRepository.countByRecruitmentPositionIdAndAcceptedStatus(recruitmentPositionId)
+        );
 
         recruitmentPosition.modify(request);
     }
@@ -80,7 +85,10 @@ public class RecruitmentPositionCommandService {
         StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
 
-        validateAcceptedCountNotEqualHeadcount(recruitmentPosition);
+        validateAcceptedCountNotEqualHeadcount(
+                recruitmentPosition,
+                participationRepository.countByRecruitmentPositionIdAndAcceptedStatus(recruitmentPositionId)
+        );
 
         User user = userRepository.getReferenceById(userId);
 
@@ -94,6 +102,74 @@ public class RecruitmentPositionCommandService {
         insertLinksIfPresent(request.getLinks(), participation);
     }
 
+    @Transactional
+    public UpdateStudyParticipationStatusResponse updateStudyParticipationStatus(
+            UpdateStudyParticipationStatusRequest request,
+            Long participationId,
+            UUID userId
+    ) {
+        StudyParticipationStatus newStatus = request.getStatus();
+
+        validateNewStatusNotPending(newStatus);
+
+        StudyParticipation participation = participationRepository.findByIdWithRecruitmentAndStudy(participationId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+
+        validateOldStatusMustPending(participation);
+
+        validateStudyWriter(participation, userId);
+
+        validateAcceptedCountNotEqualsHeadcountIfAcceptedStatus(participation, newStatus);
+
+        participation.modifyStatus(newStatus);
+
+        return buildUpdateStudyParticipationStatusResponse(participation);
+    }
+
+    private UpdateStudyParticipationStatusResponse buildUpdateStudyParticipationStatusResponse(
+            StudyParticipation participation
+    ) {
+        if (participation.getStatus() == StudyParticipationStatus.ACCEPTED) {
+            return UpdateStudyParticipationStatusResponse.from(participation);
+        }
+
+        return null;
+    }
+
+    private void validateAcceptedCountNotEqualsHeadcountIfAcceptedStatus(
+            StudyParticipation participation,
+            StudyParticipationStatus status
+    ) {
+        if (status == StudyParticipationStatus.ACCEPTED) {
+            StudyRecruitmentPosition recruitmentPosition = participation.getRecruitmentPosition();
+
+            int acceptedCount =
+                    participationRepository.countByRecruitmentPositionIdAndAcceptedStatus(recruitmentPosition.getId());
+
+            if (acceptedCount == recruitmentPosition.getHeadcount()) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment Position already full");
+            }
+        }
+    }
+
+    private void validateStudyWriter(StudyParticipation participation, UUID userId) {
+        if (!participation.getRecruitmentPosition().getStudy().getUser().getId().equals(userId)) {
+            throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
+        }
+    }
+
+    private void validateOldStatusMustPending(StudyParticipation participation) {
+        if (participation.getStatus() != StudyParticipationStatus.PENDING) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "already changed status");
+        }
+    }
+
+    private void validateNewStatusNotPending(StudyParticipationStatus status) {
+        if (status == StudyParticipationStatus.PENDING) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Invalid status value");
+        }
+    }
+
     private void validateRecruitmentPositionSizeLimit(Long studyId) {
         int recruitmentPositionSize = recruitmentPositionRepository.countByStudyId(studyId);
         if (recruitmentPositionSize + 1 > RECRUITMENT_POSITION_LIMIT) {
@@ -101,10 +177,8 @@ public class RecruitmentPositionCommandService {
         }
     }
 
-    private void validateAcceptedCountLessThanHeadcount(
-            UpsertRecruitmentPositionRequest request, StudyRecruitmentPosition recruitmentPosition
-    ) {
-        if (recruitmentPosition.getAcceptedCount() > request.getHeadcount()) {
+    private void validateAcceptedCountLessThanHeadcount(UpsertRecruitmentPositionRequest request, int acceptedCount) {
+        if (acceptedCount > request.getHeadcount()) {
             throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
         }
     }
@@ -120,8 +194,11 @@ public class RecruitmentPositionCommandService {
         }
     }
 
-    private static void validateAcceptedCountNotEqualHeadcount(StudyRecruitmentPosition recruitmentPosition) {
-        if (recruitmentPosition.getHeadcount() == recruitmentPosition.getAcceptedCount()) {
+    private static void validateAcceptedCountNotEqualHeadcount(
+            StudyRecruitmentPosition recruitmentPosition,
+            int acceptedCount
+    ) {
+        if (recruitmentPosition.getHeadcount() == acceptedCount) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment Position already full");
         }
     }

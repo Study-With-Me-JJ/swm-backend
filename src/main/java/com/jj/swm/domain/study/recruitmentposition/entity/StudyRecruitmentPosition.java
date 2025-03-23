@@ -33,9 +33,6 @@ public class StudyRecruitmentPosition {
     @Column(name = "headcount", nullable = false)
     private Integer headcount;
 
-    @Column(name = "accepted_count", nullable = false)
-    private int acceptedCount;
-
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -47,7 +44,6 @@ public class StudyRecruitmentPosition {
         return StudyRecruitmentPosition.builder()
                 .title(request.getTitle())
                 .headcount(request.getHeadcount())
-                .acceptedCount(0)
                 .study(study)
                 .build();
     }
