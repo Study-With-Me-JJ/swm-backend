@@ -295,4 +295,64 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 user.getId()
         ));
     }
+
+    @Test
+    @DisplayName("이미 모집 인원 수만큼 승인 수가 채워졌으면 참여 생성에 실패한다.")
+    void createStudyParticipation_WhenAcceptedCountEqualHeadcount_ThenFail() {
+        //given
+        for (int i = 0; i <= 2; i++) {
+            recruitmentPositionCommandService.createStudyParticipation(
+                    CreateStudyParticipationRequestFixture.create(),
+                    recruitmentPositionId,
+                    user.getId()
+            );
+
+            Long newParticipationId = participationId + i;
+
+            recruitmentPositionCommandService.updateStudyParticipationStatus(
+                    UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                    newParticipationId,
+                    user.getId()
+            );
+        }
+
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.create(),
+                recruitmentPositionId,
+                user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("승인 수보다 모집 인원 수를 더 작게 변경하면 모집 포지션 수정에 실패한다.")
+    void updateRecruitmentPosition_WhenAcceptedCountLessThanHeadcount_ThenFail() {
+        //given
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.create(),
+                recruitmentPositionId,
+                user.getId()
+        );
+
+        Long newParticipationId = 2L;
+
+        recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                participationId,
+                user.getId()
+        );
+
+        recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                newParticipationId,
+                user.getId()
+        );
+
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateRecruitmentPosition(
+                UpsertRecruitmentPositionRequestFixture.updateForAcceptedCountLessThanHeadcountFail(),
+                recruitmentPositionId,
+                user.getId()
+        ));
+    }
 }
