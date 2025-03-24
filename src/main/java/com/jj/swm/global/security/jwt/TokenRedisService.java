@@ -2,6 +2,7 @@ package com.jj.swm.global.security.jwt;
 
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.common.enums.ExpirationTime;
+import com.jj.swm.global.exception.GlobalException;
 import com.jj.swm.global.exception.auth.TokenException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -23,6 +24,20 @@ public class TokenRedisService {
     public void saveAccessTokenForLogout(String accessToken){
         stringRedisTemplate.opsForValue()
                 .set(accessToken, "logout", Duration.ofMillis(ExpirationTime.ACCESS_TOKEN.getValue()));
+    }
+
+    public void saveReservationToken(String reservationId, String reservationToken) {
+        stringRedisTemplate.opsForValue()
+                .set(reservationId, reservationToken, Duration.ofMillis(ExpirationTime.STUDYROOM_RESERVATION_TOKEN.getValue()));
+    }
+
+    public Long findReservationIdByReservationToken(String reservationToken) {
+        String reservationId = stringRedisTemplate.opsForValue().get(reservationToken);
+
+        if(reservationId == null)
+            throw new GlobalException(ErrorCode.NOT_FOUND, "Reservation Token Not Found");
+
+        return Long.parseLong(reservationId);
     }
 
     public String findByUserIdOrThrow(String userId) {
