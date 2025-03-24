@@ -1,13 +1,13 @@
 package com.jj.swm.domain.studyroom.reservation.controller;
 
 import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
+import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationApprovalStatusRequest;
 import com.jj.swm.domain.studyroom.reservation.service.StudyRoomReservationCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.UUID;
@@ -21,8 +21,20 @@ public class StudyRoomReservationCommandController {
     private final StudyRoomReservationCommandService commandService;
 
     @PostMapping("/v1/studyroom/reservation")
-    public ApiResponse<Void> createStudyRoomReservation(CreateStudyRoomReservationRequest request, Principal principal){
+    public ApiResponse<Void> createStudyRoomReservation(
+            @Valid @RequestBody CreateStudyRoomReservationRequest request, Principal principal
+    ) {
         commandService.createStudyRoomReservationAndSendSms(request, UUID.fromString(principal.getName()));
+
+        return ApiResponse.created(null);
+    }
+
+    @PatchMapping("/v1/studyroom/reservation/owner/{studyRoomReservationInfoId}")
+    public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
+            @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
+            @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId
+    ) {
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, studyRoomReservationInfoId);
 
         return ApiResponse.created(null);
     }
