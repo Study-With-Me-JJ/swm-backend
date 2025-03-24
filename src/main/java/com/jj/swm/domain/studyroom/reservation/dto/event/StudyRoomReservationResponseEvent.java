@@ -9,33 +9,33 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class StudyRoomReservationRequestEvent {
+public class StudyRoomReservationResponseEvent {
 
+    private String title;
+    private String reservationOption;
     private String reserverName;
     private String reserverPhoneNumber;
+    private String roomAdminPhoneNumber;
     private Integer headcount;
     private String memo;
     private LocalDateTime checkInTime;
+    private LocalDateTime checkOutTime;
     private Integer usageTime;
-    private int maxHeadcount;
-    private String reservationOption;
-    private int pricePerHour;
-    private String reservationToken;
+    private int totalPrice;
 
-    public static StudyRoomReservationRequestEvent of(
-            StudyRoomReservationInfo studyRoomReservationInfo, String reservationToken
-    ) {
-        return StudyRoomReservationRequestEvent.builder()
+    public static StudyRoomReservationResponseEvent from(StudyRoomReservationInfo studyRoomReservationInfo) {
+        return StudyRoomReservationResponseEvent.builder()
+                .title(studyRoomReservationInfo.getStudyRoom().getTitle())
+                .reservationOption(studyRoomReservationInfo.getStudyRoomReserveType().getReservationOption())
                 .reserverName(studyRoomReservationInfo.getReserverName())
                 .reserverPhoneNumber(studyRoomReservationInfo.getReserverPhoneNumber())
+                .roomAdminPhoneNumber(studyRoomReservationInfo.getStudyRoom().getPhoneNumber())
                 .headcount(studyRoomReservationInfo.getHeadcount())
                 .memo(studyRoomReservationInfo.getMemo())
                 .checkInTime(studyRoomReservationInfo.getCheckInTime())
+                .checkOutTime(studyRoomReservationInfo.getCheckOutTime())
                 .usageTime(studyRoomReservationInfo.getUsageTime())
-                .maxHeadcount(studyRoomReservationInfo.getStudyRoomReserveType().getMaxHeadcount())
-                .reservationOption(studyRoomReservationInfo.getStudyRoomReserveType().getReservationOption())
-                .pricePerHour(studyRoomReservationInfo.getStudyRoomReserveType().getPricePerHour())
-                .reservationToken(reservationToken)
+                .totalPrice(studyRoomReservationInfo.getTotalPrice())
                 .build();
     }
 }

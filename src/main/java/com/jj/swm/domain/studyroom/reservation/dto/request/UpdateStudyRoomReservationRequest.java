@@ -12,10 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreateStudyRoomReservationRequest {
-
-    @NotNull
-    private Long studyRoomReserveTypeId;
+public class UpdateStudyRoomReservationRequest {
 
     @NotBlank
     private String reserverName;

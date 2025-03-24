@@ -60,11 +60,11 @@ public class SecurityConfig {
                         .requestMatchers(AllowedPaths.getAllowedPaths()).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/studyroom/user/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/studyroom/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/studyroom/reservation/status/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/study/user/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/study/**", "/api/v1/comment/**").permitAll()
                         .requestMatchers("/api/v1/files/**").authenticated()
                         .anyRequest().authenticated()
-
                 )
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
