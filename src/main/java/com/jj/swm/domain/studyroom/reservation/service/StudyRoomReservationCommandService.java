@@ -8,6 +8,7 @@ import com.jj.swm.domain.studyroom.reservation.dto.event.StudyRoomReservationReq
 import com.jj.swm.domain.studyroom.reservation.dto.event.StudyRoomReservationResponseEvent;
 import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
 import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationApprovalStatusRequest;
+import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationRequest;
 import com.jj.swm.domain.studyroom.reservation.entity.StudyRoomReservationInfo;
 import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationInfoRepository;
 import com.jj.swm.domain.user.core.entity.User;
@@ -67,13 +68,25 @@ public class StudyRoomReservationCommandService {
     public void updateStudyRoomReservationApprovalStatusAndSendSms(
             UpdateStudyRoomReservationApprovalStatusRequest request, Long studyRoomReservationInfoId
     ){
-        StudyRoomReservationInfo studyRoomReservationInfo = reservationInfoRepository.findByIdWithStudyRoom(studyRoomReservationInfoId)
+        StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdWithStudyRoom(studyRoomReservationInfoId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
 
-        studyRoomReservationInfo.modifyApprovalStatus(request.getApprovalStatus());
+        reservationInfo.modifyApprovalStatus(request.getApprovalStatus());
 
-        Events.send(StudyRoomReservationResponseEvent.from(studyRoomReservationInfo));
+        Events.send(StudyRoomReservationResponseEvent.from(reservationInfo));
         // TODO: 알림톡 전송 작업
+    }
+
+    @Transactional
+    public void updateStudyRoomReservation(
+            UpdateStudyRoomReservationRequest request,
+            Long studyRoomReservationInfoId,
+            UUID userId
+    ) {
+        StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdAndUserId(studyRoomReservationInfoId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
+
+        reservationInfo.modifyStudyRoomReservationInfo(request);
     }
 
     private String insertReservationToken(Long studyRoomReservationInfoId) {
