@@ -69,6 +69,10 @@ public class StudyRoomReservationInfo extends BaseTimeEntity {
     @JoinColumn(name = "study_room_id", nullable = false)
     private StudyRoom studyRoom;
 
+    public void modifyApprovalStatus(ApprovalStatus approvalStatus) {
+        this.approvalStatus = approvalStatus;
+    }
+
     public static StudyRoomReservationInfo of(
             CreateStudyRoomReservationRequest request,
             StudyRoom studyRoom,
