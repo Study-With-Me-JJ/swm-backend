@@ -10,6 +10,7 @@ import com.jj.swm.domain.studyroom.core.repository.StudyRoomReserveTypeRepositor
 import com.jj.swm.domain.studyroom.reservation.dto.event.StudyRoomReservationRequestEvent;
 import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
 import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationApprovalStatusRequest;
+import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationRequest;
 import com.jj.swm.domain.studyroom.reservation.entity.ApprovalStatus;
 import com.jj.swm.domain.studyroom.reservation.entity.StudyRoomReservationInfo;
 import com.jj.swm.domain.studyroom.reservation.fixture.StudyRoomReservationInfoFixture;
@@ -17,12 +18,14 @@ import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationIn
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
+import com.jj.swm.global.exception.GlobalException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -131,5 +134,65 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
         //then
         reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
         assertEquals(ApprovalStatus.REJECTED, reservationInfo.getApprovalStatus());
+    }
+
+    @Test
+    @DisplayName("스터디 룸 예약 신청 수정에 성공한다.")
+    public void updateStudyRoomReservation_Success() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationRequest request = UpdateStudyRoomReservationRequest.builder()
+                .reserverName("tester2")
+                .reserverPhoneNumber("010-4567-8899")
+                .headcount(2)
+                .checkInTime(LocalDateTime.now())
+                .usageTime(2)
+                .build();
+
+        //when
+        commandService.updateStudyRoomReservation(request, reservationInfo.getId(), createReservationUser.getId());
+
+        //then
+        reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
+        assertEquals("tester2", reservationInfo.getReserverName());
+        assertEquals("010-4567-8899", reservationInfo.getReserverPhoneNumber());
+        assertEquals(2, reservationInfo.getHeadcount());
+        assertEquals(2, reservationInfo.getUsageTime());
+    }
+
+    @Test
+    @DisplayName("스터디 룸 예약 신청자가 아니라면 수정에 실패한다.")
+    public void updateStudyRoomReservation_WhenNotReservationUser_ThenFail() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationRequest request = UpdateStudyRoomReservationRequest.builder()
+                .reserverName("tester2")
+                .reserverPhoneNumber("010-4567-8899")
+                .headcount(2)
+                .checkInTime(LocalDateTime.now())
+                .usageTime(2)
+                .build();
+
+        //when & then
+        StudyRoomReservationInfo finalReservationInfo = reservationInfo;
+        assertThrows(GlobalException.class, () -> commandService.updateStudyRoomReservation(
+                request,
+                finalReservationInfo.getId(),
+                UUID.randomUUID())
+        );
     }
 }
