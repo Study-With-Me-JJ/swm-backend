@@ -2,6 +2,7 @@ package com.jj.swm.domain.studyroom.reservation.controller;
 
 import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
 import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationApprovalStatusRequest;
+import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationRequest;
 import com.jj.swm.domain.studyroom.reservation.service.StudyRoomReservationCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,12 +30,27 @@ public class StudyRoomReservationCommandController {
         return ApiResponse.created(null);
     }
 
-    @PatchMapping("/v1/studyroom/reservation/owner/{studyRoomReservationInfoId}")
+    @PatchMapping("/v1/studyroom/reservation/status/{studyRoomReservationInfoId}")
     public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
             @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
             @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId
     ) {
         commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, studyRoomReservationInfoId);
+
+        return ApiResponse.created(null);
+    }
+
+    @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}")
+    public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
+            @Valid @RequestBody UpdateStudyRoomReservationRequest request,
+            @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId,
+            Principal principal
+    ) {
+        commandService.updateStudyRoomReservation(
+                request,
+                studyRoomReservationInfoId,
+                UUID.fromString(principal.getName())
+        );
 
         return ApiResponse.created(null);
     }
