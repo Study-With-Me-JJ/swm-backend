@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreateStudyRoomReservationRequest {
 
+    @NotNull
+    private Long studyRoomReserveTypeId;
+
     @NotBlank
     private String reserverName;
 
@@ -33,7 +36,4 @@ public class CreateStudyRoomReservationRequest {
     @NotNull
     @Positive
     private Integer usageTime;
-
-    @NotNull
-    private Long studyRoomReserveTypeId;
 }
