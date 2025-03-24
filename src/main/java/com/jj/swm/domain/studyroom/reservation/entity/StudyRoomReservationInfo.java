@@ -54,6 +54,9 @@ public class StudyRoomReservationInfo extends BaseTimeEntity {
     @JdbcType(value = PostgreSQLEnumJdbcType.class)
     private ApprovalStatus approvalStatus;
 
+    @Column(name = "total_price", nullable = false)
+    private Integer totalPrice;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
@@ -87,6 +90,7 @@ public class StudyRoomReservationInfo extends BaseTimeEntity {
                 .checkInTime(request.getCheckInTime())
                 .checkOutTime(request.getCheckInTime().plusHours(request.getUsageTime()))
                 .usageTime(request.getUsageTime())
+                .totalPrice(studyRoomReserveType.getPricePerHour() * request.getUsageTime())
                 .approvalStatus(ApprovalStatus.WAITING)
                 .user(user)
                 .studyRoomReserveType(studyRoomReserveType)
