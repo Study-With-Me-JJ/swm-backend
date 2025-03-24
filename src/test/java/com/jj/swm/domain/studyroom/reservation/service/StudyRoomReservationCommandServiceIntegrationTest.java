@@ -9,12 +9,16 @@ import com.jj.swm.domain.studyroom.core.repository.StudyRoomRepository;
 import com.jj.swm.domain.studyroom.core.repository.StudyRoomReserveTypeRepository;
 import com.jj.swm.domain.studyroom.reservation.dto.event.StudyRoomReservationRequestEvent;
 import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
+import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationApprovalStatusRequest;
+import com.jj.swm.domain.studyroom.reservation.entity.ApprovalStatus;
 import com.jj.swm.domain.studyroom.reservation.entity.StudyRoomReservationInfo;
+import com.jj.swm.domain.studyroom.reservation.fixture.StudyRoomReservationInfoFixture;
 import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationInfoRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -52,7 +56,8 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
     }
 
     @Test
-    public void createStudyRoomReservationAndSendSms() throws Exception{
+    @DisplayName("스터디 룸 예약 신청을 생성하고 카카오톡 알림을 전달한다.")
+    public void createStudyRoomReservationAndSendSms_Success() throws Exception{
         //given
         LocalDateTime now = LocalDateTime.now();
 
@@ -78,5 +83,53 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
         assertEquals(now.plusHours(3), studyRoomReservationInfo.getCheckOutTime());
         verify(kakaoNotificationService, times(1))
                 .sendStudyRoomReservationRequestNotification(any(StudyRoomReservationRequestEvent.class));
+    }
+
+    @Test
+    @DisplayName("스터디 룸 예약 신청을 승인한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenApprove_Success() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationApprovalStatusRequest request = UpdateStudyRoomReservationApprovalStatusRequest.builder()
+                .approvalStatus(ApprovalStatus.APPROVED)
+                .build();
+
+        //when
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationInfo.getId());
+
+        //then
+        reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
+        assertEquals(ApprovalStatus.APPROVED, reservationInfo.getApprovalStatus());
+    }
+
+    @Test
+    @DisplayName("스터디 룸 예약 신청을 거부한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenRejected_Success() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationApprovalStatusRequest request = UpdateStudyRoomReservationApprovalStatusRequest.builder()
+                .approvalStatus(ApprovalStatus.REJECTED)
+                .build();
+
+        //when
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationInfo.getId());
+
+        //then
+        reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
+        assertEquals(ApprovalStatus.REJECTED, reservationInfo.getApprovalStatus());
     }
 }
