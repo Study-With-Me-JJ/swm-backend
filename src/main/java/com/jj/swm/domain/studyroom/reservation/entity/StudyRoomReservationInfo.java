@@ -3,6 +3,7 @@ package com.jj.swm.domain.studyroom.reservation.entity;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomReserveType;
 import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
+import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationRequest;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -74,6 +75,17 @@ public class StudyRoomReservationInfo extends BaseTimeEntity {
 
     public void modifyApprovalStatus(ApprovalStatus approvalStatus) {
         this.approvalStatus = approvalStatus;
+    }
+
+    public void modifyStudyRoomReservationInfo(UpdateStudyRoomReservationRequest request) {
+        this.reserverName = request.getReserverName();
+        this.reserverPhoneNumber = request.getReserverPhoneNumber();
+        this.headcount = request.getHeadcount();
+        this.memo = request.getMemo();
+        this.checkInTime = request.getCheckInTime();
+        this.checkOutTime = request.getCheckInTime().plusHours(request.getUsageTime());
+        this.usageTime = request.getUsageTime();
+        this.totalPrice = studyRoomReserveType.getPricePerHour() * request.getUsageTime();
     }
 
     public static StudyRoomReservationInfo of(
