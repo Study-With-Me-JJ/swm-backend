@@ -9,6 +9,7 @@ import com.jj.swm.domain.studyroom.reservation.dto.event.StudyRoomReservationRes
 import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
 import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationApprovalStatusRequest;
 import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationRequest;
+import com.jj.swm.domain.studyroom.reservation.entity.ApprovalStatus;
 import com.jj.swm.domain.studyroom.reservation.entity.StudyRoomReservationInfo;
 import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationInfoRepository;
 import com.jj.swm.domain.user.core.entity.User;
@@ -71,6 +72,9 @@ public class StudyRoomReservationCommandService {
         StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdWithStudyRoom(studyRoomReservationInfoId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
 
+        if(reservationInfo.getApprovalStatus().equals(ApprovalStatus.CANCELED))
+            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Canceled");
+
         reservationInfo.modifyApprovalStatus(request.getApprovalStatus());
 
         Events.send(StudyRoomReservationResponseEvent.from(reservationInfo));
@@ -83,10 +87,16 @@ public class StudyRoomReservationCommandService {
             Long studyRoomReservationInfoId,
             UUID userId
     ) {
-        StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdAndUserId(studyRoomReservationInfoId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
+        StudyRoomReservationInfo reservationInfo = findByIdAndUserIdOrThrow(studyRoomReservationInfoId, userId);
 
         reservationInfo.modifyStudyRoomReservationInfo(request);
+    }
+
+    @Transactional
+    public void cancelStudyRoomReservation(Long studyRoomReservationInfoId, UUID userId) {
+        StudyRoomReservationInfo reservationInfo = findByIdAndUserIdOrThrow(studyRoomReservationInfoId, userId);
+
+        reservationInfo.modifyApprovalStatus(ApprovalStatus.CANCELED);
     }
 
     private String insertReservationToken(Long studyRoomReservationInfoId) {
@@ -100,5 +110,12 @@ public class StudyRoomReservationCommandService {
         );
 
         return reservationToken;
+    }
+
+    private StudyRoomReservationInfo findByIdAndUserIdOrThrow(Long studyRoomReservationInfoId, UUID userId) {
+        StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdAndUserId(studyRoomReservationInfoId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
+
+        return reservationInfo;
     }
 }
