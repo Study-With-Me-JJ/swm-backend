@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface StudyParticipationRepository extends JpaRepository<StudyParticipation, Long> {
 
@@ -26,4 +27,6 @@ public interface StudyParticipationRepository extends JpaRepository<StudyPartici
 
     @Query("select p from StudyParticipation p join fetch p.recruitmentPosition rp join fetch rp.study where p.id = ?1")
     Optional<StudyParticipation> findByIdWithRecruitmentAndStudy(Long id);
+
+    Optional<StudyParticipation> findByIdAndUserId(Long id, UUID userId);
 }

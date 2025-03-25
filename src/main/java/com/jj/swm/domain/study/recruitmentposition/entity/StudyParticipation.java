@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.recruitmentposition.entity;
 
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.entity.embeddable.FileInfo;
 import com.jj.swm.domain.user.core.entity.User;
 import jakarta.persistence.*;
@@ -68,5 +69,11 @@ public class StudyParticipation {
 
     public void modifyStatus(StudyParticipationStatus status) {
         this.status = status;
+    }
+
+    public void modify(UpdateStudyParticipationRequest request) {
+        this.kakaoId = request.getKakaoId();
+        this.coverLetter = request.getCoverLetter();
+        this.fileInfo = request.getFileInfo();
     }
 }
