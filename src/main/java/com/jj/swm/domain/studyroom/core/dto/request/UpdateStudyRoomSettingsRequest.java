@@ -6,6 +6,7 @@ import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomImageR
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomTagRequest;
 import com.jj.swm.domain.studyroom.core.entity.embeddable.Address;
 import com.jj.swm.domain.studyroom.core.entity.embeddable.Coordinates;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -39,6 +40,7 @@ public class UpdateStudyRoomSettingsRequest {
     @JsonFormat(pattern = "HH:mm")
     private LocalTime closingTime;
 
+    @Valid
     @NotNull
     private Address address;
 
