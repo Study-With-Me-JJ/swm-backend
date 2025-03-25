@@ -30,18 +30,18 @@ public class StudyRoomReservationCommandController {
         return ApiResponse.created(null);
     }
 
-    @PatchMapping("/v1/studyroom/reservation/status/{studyRoomReservationInfoId}")
+    @PatchMapping("/v1/studyroom/reservation/{reservationToken}/status")
     public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
             @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
-            @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId
+            @PathVariable("reservationToken") String reservationToken
     ) {
-        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, studyRoomReservationInfoId);
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationToken);
 
         return ApiResponse.created(null);
     }
 
     @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}")
-    public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
+    public ApiResponse<Void> updateStudyRoomReservation(
             @Valid @RequestBody UpdateStudyRoomReservationRequest request,
             @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId,
             Principal principal
@@ -53,5 +53,14 @@ public class StudyRoomReservationCommandController {
         );
 
         return ApiResponse.created(null);
+    }
+
+    @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}/cancel")
+    public ApiResponse<Void> cancelStudyRoomReservation(
+            @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId, Principal principal
+    ) {
+      commandService.cancelStudyRoomReservation(studyRoomReservationInfoId, UUID.fromString(principal.getName()));
+
+      return ApiResponse.ok(null);
     }
 }
