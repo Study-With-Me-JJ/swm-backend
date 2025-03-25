@@ -30,12 +30,12 @@ public class StudyRoomReservationCommandController {
         return ApiResponse.created(null);
     }
 
-    @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}/status")
+    @PatchMapping("/v1/studyroom/reservation/{reservationToken}/status")
     public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
             @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
-            @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId
+            @PathVariable("reservationToken") String reservationToken
     ) {
-        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, studyRoomReservationInfoId);
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationToken);
 
         return ApiResponse.created(null);
     }

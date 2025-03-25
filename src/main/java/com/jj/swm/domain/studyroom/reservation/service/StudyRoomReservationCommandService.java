@@ -67,8 +67,9 @@ public class StudyRoomReservationCommandService {
 
     @Transactional
     public void updateStudyRoomReservationApprovalStatusAndSendSms(
-            UpdateStudyRoomReservationApprovalStatusRequest request, Long studyRoomReservationInfoId
+            UpdateStudyRoomReservationApprovalStatusRequest request, String reservationToken
     ){
+        Long studyRoomReservationInfoId = tokenRedisService.findReservationIdByReservationTokenOrThrow(reservationToken);
         StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdWithStudyRoom(studyRoomReservationInfoId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
 
