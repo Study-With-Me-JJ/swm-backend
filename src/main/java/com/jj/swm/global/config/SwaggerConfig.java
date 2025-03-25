@@ -15,7 +15,7 @@ public class SwaggerConfig {
     public GroupedOpenApi v1OpenAPI() {
         return GroupedOpenApi.builder()
                 .group("v1")
-                .pathsToMatch("/api/v1/**")
+                .pathsToMatch("/api/v1/**", "/api/auth/**")
                 .addOpenApiCustomizer(openApi -> openApi.info(v1Info()))
                 .build();
     }
