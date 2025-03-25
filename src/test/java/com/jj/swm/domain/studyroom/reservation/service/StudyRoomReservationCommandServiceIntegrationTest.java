@@ -18,7 +18,11 @@ import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationIn
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
+import com.jj.swm.global.common.enums.ExpirationTime;
+import com.jj.swm.global.common.enums.RedisPrefix;
 import com.jj.swm.global.exception.GlobalException;
+import com.jj.swm.global.security.jwt.JwtProvider;
+import com.jj.swm.global.security.jwt.TokenRedisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +42,10 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
 
     // Target Service Bean
     @Autowired private StudyRoomReservationCommandService commandService;
+
+    // Service Bean
+    @Autowired private TokenRedisService tokenRedisService;
+    @Autowired private JwtProvider jwtProvider;
 
     // Repository Bean
     @Autowired private StudyRoomReservationInfoRepository reservationInfoRepository;
@@ -104,8 +112,10 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
                 .approvalStatus(ApprovalStatus.APPROVED)
                 .build();
 
+        String reservationToken = insertReservationToken(reservationInfo.getId());
+
         //when
-        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationInfo.getId());
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationToken);
 
         //then
         reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
@@ -128,12 +138,63 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
                 .approvalStatus(ApprovalStatus.REJECTED)
                 .build();
 
+        String reservationToken = insertReservationToken(reservationInfo.getId());
+
         //when
-        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationInfo.getId());
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationToken);
 
         //then
         reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
         assertEquals(ApprovalStatus.REJECTED, reservationInfo.getApprovalStatus());
+    }
+
+    @Test
+    @DisplayName("저장된 예약 토큰 값이 없다면 스터디 룸 승인/거부에 실패한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenNotFoundReservationToken_ThenFail() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationApprovalStatusRequest request = UpdateStudyRoomReservationApprovalStatusRequest.builder()
+                .approvalStatus(ApprovalStatus.REJECTED)
+                .build();
+
+        //when & then
+        assertThrows(GlobalException.class,
+                () -> commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, null)
+        );
+    }
+
+    @Test
+    @DisplayName("스터디 룸 예약 승인 상태 값이 CANCELED라면 실패한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenStatusCanceled_ThenFail() throws Exception{
+        //given
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo.modifyApprovalStatus(ApprovalStatus.CANCELED);
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationApprovalStatusRequest request = UpdateStudyRoomReservationApprovalStatusRequest.builder()
+                .approvalStatus(ApprovalStatus.APPROVED)
+                .build();
+
+        String reservationToken = insertReservationToken(reservationInfo.getId());
+
+        //when & then
+        assertThrows(GlobalException.class,
+                () -> commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationToken)
+        );
     }
 
     @Test
@@ -194,5 +255,18 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
                 finalReservationInfo.getId(),
                 UUID.randomUUID())
         );
+    }
+
+    private String insertReservationToken(Long reservationId) {
+        String reservationToken = jwtProvider.generateTokenForReservation(
+                reservationId, ExpirationTime.STUDYROOM_RESERVATION_TOKEN.getValue()
+        );
+
+        tokenRedisService.saveReservationToken(
+                RedisPrefix.STUDYROOM_RESERVATION_TOKEN.getValue() + reservationToken,
+                reservationId.toString()
+        );
+
+        return reservationToken;
     }
 }
