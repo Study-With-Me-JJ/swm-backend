@@ -178,7 +178,7 @@ public class StudyCommandService {
             int newTagSize = oldTagSize + tagsToAdd.size() - tagIdsToRemove.size();
 
             if (newTagSize < 0 || newTagSize > StudyConstants.TAG_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Exceeded");
+                throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Deviation");
             }
 
             if (isListNotEmpty(tagsToAdd))
@@ -200,7 +200,7 @@ public class StudyCommandService {
             int newImageSize = oldTagSize + imageUrlsToAdd.size() - imageIdsToRemove.size();
 
             if (newImageSize < 0 || newImageSize > StudyConstants.IMAGE_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
+                throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Deviation");
             }
 
             if (isListNotEmpty(imageUrlsToAdd))

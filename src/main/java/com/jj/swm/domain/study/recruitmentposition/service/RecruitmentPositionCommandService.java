@@ -152,7 +152,7 @@ public class RecruitmentPositionCommandService {
             int newLinkSize = oldLinkSize + linksToAdd.size() - linkIdsToRemove.size();
 
             if (newLinkSize < 0 || newLinkSize > StudyParticipationConstants.LINK_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Link Limit Exceeded");
+                throw new GlobalException(ErrorCode.NOT_VALID, "Link Limit Deviation");
             }
 
             if (isListNotEmpty(linksToAdd))
