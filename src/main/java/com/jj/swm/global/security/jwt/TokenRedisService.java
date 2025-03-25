@@ -2,6 +2,7 @@ package com.jj.swm.global.security.jwt;
 
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.common.enums.ExpirationTime;
+import com.jj.swm.global.common.enums.RedisPrefix;
 import com.jj.swm.global.exception.GlobalException;
 import com.jj.swm.global.exception.auth.TokenException;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +32,12 @@ public class TokenRedisService {
                 .set(reservationId, reservationToken, Duration.ofMillis(ExpirationTime.STUDYROOM_RESERVATION_TOKEN.getValue()));
     }
 
-    public Long findReservationIdByReservationToken(String reservationToken) {
-        String reservationId = stringRedisTemplate.opsForValue().get(reservationToken);
+    public Long findReservationIdByReservationTokenOrThrow(String reservationToken) {
+        String reservationId = stringRedisTemplate.opsForValue()
+                .get(RedisPrefix.STUDYROOM_RESERVATION_TOKEN.getValue() + reservationToken);
 
         if(reservationId == null)
-            throw new GlobalException(ErrorCode.NOT_FOUND, "Reservation Token Not Found");
+            throw new GlobalException(ErrorCode.NOT_VALID, "Reservation Token Not Valid");
 
         return Long.parseLong(reservationId);
     }
