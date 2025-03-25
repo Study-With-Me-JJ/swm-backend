@@ -2,9 +2,8 @@ package com.jj.swm.domain.study.recruitmentposition.service;
 
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationStatusRequest;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
+import com.jj.swm.domain.study.recruitmentposition.constants.StudyParticipationConstants;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.*;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.CreateRecruitmentPositionResponse;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipation;
@@ -21,11 +20,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.jj.swm.domain.study.constants.StudyConstants.RECRUITMENT_POSITION_LIMIT;
-import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
+import static com.jj.swm.global.common.util.ListCheckUtils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -124,6 +125,44 @@ public class RecruitmentPositionCommandService {
         participation.modifyStatus(newStatus);
 
         return buildUpdateStudyParticipationStatusResponse(participation);
+    }
+
+    @Transactional
+    public void updateStudyParticipation(
+            UpdateStudyParticipationRequest request,
+            Long participationId,
+            UUID userId
+    ) {
+        StudyParticipation participation = participationRepository.findByIdAndUserId(participationId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+
+        modifyLink(request.getModifyLinkRequest(), participation);
+
+        participation.modify(request);
+    }
+
+    private void modifyLink(ModifyStudyParticipationLinkRequest request, StudyParticipation participation) {
+        if (request != null) {
+            List<String> linksToAdd = Optional.ofNullable(request.getLinksToAdd())
+                    .orElse(Collections.emptyList());
+            List<Long> linkIdsToRemove = Optional.ofNullable(request.getLinkIdsToRemove())
+                    .orElse(Collections.emptyList());
+
+            int oldLinkSize = participationLinkRepository.countByParticipationId(participation.getId());
+            int newLinkSize = oldLinkSize + linksToAdd.size() - linkIdsToRemove.size();
+
+            if (newLinkSize < 0 || newLinkSize > StudyParticipationConstants.LINK_LIMIT) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Link Limit Deviation");
+            }
+
+            if (isListNotEmpty(linksToAdd))
+                participationLinkRepository.batchInsert(linksToAdd, participation);
+
+            if (isListNotEmpty(linkIdsToRemove))
+                participationLinkRepository.deleteAllByIdsAndParticipationId(
+                        linkIdsToRemove, participation.getId()
+                );
+        }
     }
 
     private UpdateStudyParticipationStatusResponse buildUpdateStudyParticipationStatusResponse(

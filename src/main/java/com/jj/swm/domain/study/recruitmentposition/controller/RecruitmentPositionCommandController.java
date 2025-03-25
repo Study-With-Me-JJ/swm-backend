@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.recruitmentposition.controller;
 
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
+import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationStatusRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.CreateRecruitmentPositionResponse;
@@ -114,5 +115,24 @@ public class RecruitmentPositionCommandController {
                 );
 
         return ApiResponse.ok(response);
+    }
+
+    @PatchMapping("/v1/recruitment-position/participation/{participationId}")
+    @Operation(
+            summary = "스터디 참여 수정",
+            description = "스터디 참여를 수정합니다. 새 링크에 대해 id값을 안 주므로 새로고침을 해야 합니다."
+    )
+    public ApiResponse<Void> updateStudyParticipation(
+            @Valid @RequestBody UpdateStudyParticipationRequest request,
+            @PathVariable("participationId") Long participationId,
+            Principal principal
+    ) {
+        recruitmentPositionCommandService.updateStudyParticipation(
+                request,
+                participationId,
+                UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.ok(null);
     }
 }
