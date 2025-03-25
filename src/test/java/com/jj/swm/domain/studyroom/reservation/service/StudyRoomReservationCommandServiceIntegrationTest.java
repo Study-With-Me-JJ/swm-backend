@@ -174,7 +174,6 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
     @DisplayName("스터디 룸 예약 승인 상태 값이 CANCELED라면 실패한다.")
     public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenStatusCanceled_ThenFail() throws Exception{
         //given
-        //given
         StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
                 createReservationUser,
                 studyRoom,
