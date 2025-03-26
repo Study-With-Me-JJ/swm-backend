@@ -256,6 +256,37 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
         );
     }
 
+    @Test
+    @DisplayName("스터디 룸 예약 신청이 승인/거부 상태라면 수정에 실패한다.")
+    public void updateStudyRoomReservation_WhenStatusApprovedOrRejected_ThenFail() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo.modifyApprovalStatus(ApprovalStatus.APPROVED);
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationRequest request = UpdateStudyRoomReservationRequest.builder()
+                .reserverName("tester2")
+                .reserverPhoneNumber("010-4567-8899")
+                .headcount(2)
+                .checkInTime(LocalDateTime.now())
+                .usageTime(2)
+                .build();
+
+        //when & then
+        StudyRoomReservationInfo finalReservationInfo = reservationInfo;
+        assertThrows(GlobalException.class, () -> commandService.updateStudyRoomReservation(
+                request,
+                finalReservationInfo.getId(),
+                createReservationUser.getId())
+        );
+    }
+
     private String insertReservationToken(Long reservationId) {
         String reservationToken = jwtProvider.generateTokenForReservation(
                 reservationId, ExpirationTime.STUDYROOM_RESERVATION_TOKEN.getValue()
