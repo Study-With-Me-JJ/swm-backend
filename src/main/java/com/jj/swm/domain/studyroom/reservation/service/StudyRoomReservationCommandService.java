@@ -15,11 +15,8 @@ import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationIn
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
-import com.jj.swm.global.common.enums.ExpirationTime;
-import com.jj.swm.global.common.enums.RedisPrefix;
 import com.jj.swm.global.event.Events;
 import com.jj.swm.global.exception.GlobalException;
-import com.jj.swm.global.security.jwt.JwtProvider;
 import com.jj.swm.global.security.jwt.TokenRedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,6 @@ import java.util.UUID;
 public class StudyRoomReservationCommandService {
 
     private final TokenRedisService tokenRedisService;
-    private final JwtProvider jwtProvider;
 
     private final StudyRoomReservationInfoRepository reservationInfoRepository;
     private final StudyRoomRepository studyRoomRepository;
@@ -59,9 +55,7 @@ public class StudyRoomReservationCommandService {
 
         studyRoomReservationInfo = reservationInfoRepository.save(studyRoomReservationInfo);
 
-        String reservationToken = insertReservationToken(studyRoomReservationInfo.getId());
-
-        Events.send(StudyRoomReservationRequestEvent.of(studyRoomReservationInfo, reservationToken));
+        Events.send(StudyRoomReservationRequestEvent.from(studyRoomReservationInfo));
         // TODO: 알림톡 전송 작업
     }
 
@@ -78,7 +72,7 @@ public class StudyRoomReservationCommandService {
 
         reservationInfo.modifyApprovalStatus(request.getApprovalStatus());
 
-        Events.send(StudyRoomReservationResponseEvent.from(reservationInfo));
+        Events.send(StudyRoomReservationResponseEvent.of(reservationInfo, reservationToken));
         // TODO: 알림톡 전송 작업
     }
 
@@ -103,19 +97,7 @@ public class StudyRoomReservationCommandService {
         StudyRoomReservationInfo reservationInfo = findByIdAndUserIdOrThrow(studyRoomReservationInfoId, userId);
 
         reservationInfo.modifyApprovalStatus(ApprovalStatus.CANCELED);
-    }
-
-    private String insertReservationToken(Long studyRoomReservationInfoId) {
-        String reservationToken = jwtProvider.generateTokenForReservation(
-                studyRoomReservationInfoId, ExpirationTime.STUDYROOM_RESERVATION_TOKEN.getValue()
-        );
-
-        tokenRedisService.saveReservationToken(
-                RedisPrefix.STUDYROOM_RESERVATION_TOKEN.getValue() + reservationToken,
-                studyRoomReservationInfoId.toString()
-        );
-
-        return reservationToken;
+        // TODO: 유저의 요청의 CANCEL 톡 전송 여부, Redis 토큰 삭제 여부(경우에 따라 소유자가 승인/거부를 위해 접속 시 삭제(updateSendSms 메서드에서))
     }
 
     private StudyRoomReservationInfo findByIdAndUserIdOrThrow(Long studyRoomReservationInfoId, UUID userId) {
