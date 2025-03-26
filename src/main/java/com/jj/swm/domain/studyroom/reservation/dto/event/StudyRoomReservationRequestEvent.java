@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class StudyRoomReservationRequestEvent {
 
+    private Long studyRoomReservationInfoId;
     private String reserverName;
     private String reserverPhoneNumber;
     private Integer headcount;
@@ -20,12 +21,12 @@ public class StudyRoomReservationRequestEvent {
     private int maxHeadcount;
     private String reservationOption;
     private int pricePerHour;
-    private String reservationToken;
 
-    public static StudyRoomReservationRequestEvent of(
-            StudyRoomReservationInfo studyRoomReservationInfo, String reservationToken
+    public static StudyRoomReservationRequestEvent from(
+            StudyRoomReservationInfo studyRoomReservationInfo
     ) {
         return StudyRoomReservationRequestEvent.builder()
+                .studyRoomReservationInfoId(studyRoomReservationInfo.getId())
                 .reserverName(studyRoomReservationInfo.getReserverName())
                 .reserverPhoneNumber(studyRoomReservationInfo.getReserverPhoneNumber())
                 .headcount(studyRoomReservationInfo.getHeadcount())
@@ -35,7 +36,6 @@ public class StudyRoomReservationRequestEvent {
                 .maxHeadcount(studyRoomReservationInfo.getStudyRoomReserveType().getMaxHeadcount())
                 .reservationOption(studyRoomReservationInfo.getStudyRoomReserveType().getReservationOption())
                 .pricePerHour(studyRoomReservationInfo.getStudyRoomReserveType().getPricePerHour())
-                .reservationToken(reservationToken)
                 .build();
     }
 }
