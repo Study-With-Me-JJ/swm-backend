@@ -90,6 +90,11 @@ public class StudyRoomReservationCommandService {
     ) {
         StudyRoomReservationInfo reservationInfo = findByIdAndUserIdOrThrow(studyRoomReservationInfoId, userId);
 
+        ApprovalStatus approvalStatus = reservationInfo.getApprovalStatus();
+
+        if(approvalStatus.equals(ApprovalStatus.APPROVED) || approvalStatus.equals(ApprovalStatus.REJECTED))
+            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Approved or Rejected");
+
         reservationInfo.modifyStudyRoomReservationInfo(request);
     }
 
@@ -114,9 +119,7 @@ public class StudyRoomReservationCommandService {
     }
 
     private StudyRoomReservationInfo findByIdAndUserIdOrThrow(Long studyRoomReservationInfoId, UUID userId) {
-        StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdAndUserId(studyRoomReservationInfoId, userId)
+        return reservationInfoRepository.findByIdAndUserId(studyRoomReservationInfoId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
-
-        return reservationInfo;
     }
 }
