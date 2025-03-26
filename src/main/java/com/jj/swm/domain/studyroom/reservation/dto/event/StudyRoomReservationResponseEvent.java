@@ -22,8 +22,11 @@ public class StudyRoomReservationResponseEvent {
     private LocalDateTime checkOutTime;
     private Integer usageTime;
     private int totalPrice;
+    private String reservationToken;
 
-    public static StudyRoomReservationResponseEvent from(StudyRoomReservationInfo studyRoomReservationInfo) {
+    public static StudyRoomReservationResponseEvent of(
+            StudyRoomReservationInfo studyRoomReservationInfo, String reservationToken
+    ) {
         return StudyRoomReservationResponseEvent.builder()
                 .title(studyRoomReservationInfo.getStudyRoom().getTitle())
                 .reservationOption(studyRoomReservationInfo.getStudyRoomReserveType().getReservationOption())
@@ -36,6 +39,7 @@ public class StudyRoomReservationResponseEvent {
                 .checkOutTime(studyRoomReservationInfo.getCheckOutTime())
                 .usageTime(studyRoomReservationInfo.getUsageTime())
                 .totalPrice(studyRoomReservationInfo.getTotalPrice())
+                .reservationToken(reservationToken)
                 .build();
     }
 }

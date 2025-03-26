@@ -8,6 +8,7 @@ import com.jj.swm.domain.studyroom.core.fixture.StudyRoomReserveTypeFixture;
 import com.jj.swm.domain.studyroom.core.repository.StudyRoomRepository;
 import com.jj.swm.domain.studyroom.core.repository.StudyRoomReserveTypeRepository;
 import com.jj.swm.domain.studyroom.reservation.dto.event.StudyRoomReservationRequestEvent;
+import com.jj.swm.domain.studyroom.reservation.dto.event.StudyRoomReservationResponseEvent;
 import com.jj.swm.domain.studyroom.reservation.dto.request.CreateStudyRoomReservationRequest;
 import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationApprovalStatusRequest;
 import com.jj.swm.domain.studyroom.reservation.dto.request.UpdateStudyRoomReservationRequest;
@@ -18,6 +19,7 @@ import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationIn
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
+import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.common.enums.ExpirationTime;
 import com.jj.swm.global.common.enums.RedisPrefix;
 import com.jj.swm.global.exception.GlobalException;
@@ -32,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -70,6 +73,9 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
     @DisplayName("스터디 룸 예약 신청을 생성하고 카카오톡 알림을 전달한다.")
     public void createStudyRoomReservationAndSendSms_Success() throws Exception{
         //given
+        given(kakaoNotificationService.sendStudyRoomReservationRequestNotification(
+                any(StudyRoomReservationRequestEvent.class), any(String.class))).willReturn(CompletableFuture.completedFuture(true));
+
         LocalDateTime now = LocalDateTime.now();
 
         CreateStudyRoomReservationRequest request = CreateStudyRoomReservationRequest.builder()
@@ -81,9 +87,6 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
                 .studyRoomReserveTypeId(studyRoomReserveType.getId())
                 .build();
 
-        given(kakaoNotificationService.sendStudyRoomReservationRequestNotification(
-                any(StudyRoomReservationRequestEvent.class))).willReturn(CompletableFuture.completedFuture(true));
-
         //when
         commandService.createStudyRoomReservationAndSendSms(request, createReservationUser.getId());
 
@@ -93,13 +96,16 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
         assertEquals(3, studyRoomReservationInfo.getHeadcount());
         assertEquals(now.plusHours(3), studyRoomReservationInfo.getCheckOutTime());
         verify(kakaoNotificationService, times(1))
-                .sendStudyRoomReservationRequestNotification(any(StudyRoomReservationRequestEvent.class));
+                .sendStudyRoomReservationRequestNotification(any(StudyRoomReservationRequestEvent.class), any(String.class));
     }
 
     @Test
     @DisplayName("스터디 룸 예약 신청을 승인한다.")
     public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenApprove_Success() throws Exception{
         //given
+        given(kakaoNotificationService.sendStudyRoomReservationResponseNotification(
+                any(StudyRoomReservationResponseEvent.class))).willReturn(CompletableFuture.completedFuture(true));
+
         StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
                 createReservationUser,
                 studyRoom,
@@ -120,12 +126,18 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
         //then
         reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
         assertEquals(ApprovalStatus.APPROVED, reservationInfo.getApprovalStatus());
+        assertThrows(GlobalException.class,
+                () -> tokenRedisService.findReservationIdByReservationTokenOrThrow(reservationToken)
+        );
     }
 
     @Test
     @DisplayName("스터디 룸 예약 신청을 거부한다.")
     public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenRejected_Success() throws Exception{
         //given
+        given(kakaoNotificationService.sendStudyRoomReservationResponseNotification(
+                any(StudyRoomReservationResponseEvent.class))).willReturn(CompletableFuture.completedFuture(true));
+
         StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
                 createReservationUser,
                 studyRoom,
@@ -146,6 +158,9 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
         //then
         reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
         assertEquals(ApprovalStatus.REJECTED, reservationInfo.getApprovalStatus());
+        assertThrows(GlobalException.class,
+                () -> tokenRedisService.findReservationIdByReservationTokenOrThrow(reservationToken)
+        );
     }
 
     @Test
@@ -171,7 +186,7 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
     }
 
     @Test
-    @DisplayName("스터디 룸 예약 승인 상태 값이 CANCELED라면 실패한다.")
+    @DisplayName("스터디 룸 예약 승인 상태 값이 CANCELED라면 승인/거부에 실패한다.")
     public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenStatusCanceled_ThenFail() throws Exception{
         //given
         StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
@@ -253,6 +268,37 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
                 request,
                 finalReservationInfo.getId(),
                 UUID.randomUUID())
+        );
+    }
+
+    @Test
+    @DisplayName("스터디 룸 예약 신청이 승인/거부 상태라면 수정에 실패한다.")
+    public void updateStudyRoomReservation_WhenStatusApprovedOrRejected_ThenFail() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo.modifyApprovalStatus(ApprovalStatus.APPROVED);
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationRequest request = UpdateStudyRoomReservationRequest.builder()
+                .reserverName("tester2")
+                .reserverPhoneNumber("010-4567-8899")
+                .headcount(2)
+                .checkInTime(LocalDateTime.now())
+                .usageTime(2)
+                .build();
+
+        //when & then
+        StudyRoomReservationInfo finalReservationInfo = reservationInfo;
+        assertThrows(GlobalException.class, () -> commandService.updateStudyRoomReservation(
+                request,
+                finalReservationInfo.getId(),
+                createReservationUser.getId())
         );
     }
 

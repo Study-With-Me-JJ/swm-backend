@@ -14,7 +14,9 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 public class KakaoNotificationService {
-    public CompletableFuture<Boolean> sendStudyRoomReservationRequestNotification(StudyRoomReservationRequestEvent event) {
+    public CompletableFuture<Boolean> sendStudyRoomReservationRequestNotification(
+            StudyRoomReservationRequestEvent event, String reservationToken
+    ) {
         log.info("카카오 알림 전송 성공, time: {}", LocalDateTime.now(ZoneId.of("Asia/Seoul")));
         return CompletableFuture.completedFuture(true);
     }

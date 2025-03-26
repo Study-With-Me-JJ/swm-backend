@@ -27,21 +27,6 @@ public class TokenRedisService {
                 .set(accessToken, "logout", Duration.ofMillis(ExpirationTime.ACCESS_TOKEN.getValue()));
     }
 
-    public void saveReservationToken(String reservationId, String reservationToken) {
-        stringRedisTemplate.opsForValue()
-                .set(reservationId, reservationToken, Duration.ofMillis(ExpirationTime.STUDYROOM_RESERVATION_TOKEN.getValue()));
-    }
-
-    public Long findReservationIdByReservationTokenOrThrow(String reservationToken) {
-        String reservationId = stringRedisTemplate.opsForValue()
-                .get(RedisPrefix.STUDYROOM_RESERVATION_TOKEN.getValue() + reservationToken);
-
-        if(reservationId == null)
-            throw new GlobalException(ErrorCode.NOT_VALID, "Reservation Token Not Valid");
-
-        return Long.parseLong(reservationId);
-    }
-
     public String findByUserIdOrThrow(String userId) {
         String refreshToken = stringRedisTemplate.opsForValue().get(userId);
 
@@ -57,5 +42,24 @@ public class TokenRedisService {
 
     public String findByAccessToken(String accessToken) {
         return stringRedisTemplate.opsForValue().get(accessToken);
+    }
+
+    public void saveReservationToken(String reservationId, String reservationToken) {
+        stringRedisTemplate.opsForValue()
+                .set(reservationId, reservationToken, Duration.ofMillis(ExpirationTime.STUDYROOM_RESERVATION_TOKEN.getValue()));
+    }
+
+    public Long findReservationIdByReservationTokenOrThrow(String reservationToken) {
+        String reservationId = stringRedisTemplate.opsForValue()
+                .get(RedisPrefix.STUDYROOM_RESERVATION_TOKEN.getValue() + reservationToken);
+
+        if(reservationId == null)
+            throw new GlobalException(ErrorCode.NOT_VALID, "Reservation Token Not Valid");
+
+        return Long.parseLong(reservationId);
+    }
+
+    public void deleteReservationToken(String reservationToken) {
+        stringRedisTemplate.delete(RedisPrefix.STUDYROOM_RESERVATION_TOKEN.getValue() + reservationToken);
     }
 }
