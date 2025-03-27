@@ -196,8 +196,8 @@ public class StudyCommandService {
             List<Long> imageIdsToRemove = Optional.ofNullable(request.getImageIdsToRemove())
                     .orElse(Collections.emptyList());
 
-            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
-            int newImageSize = oldTagSize + imageUrlsToAdd.size() - imageIdsToRemove.size();
+            int oldImageSize = studyImageRepository.countByStudyId(study.getId());
+            int newImageSize = oldImageSize + imageUrlsToAdd.size() - imageIdsToRemove.size();
 
             if (newImageSize < 0 || newImageSize > StudyConstants.IMAGE_LIMIT) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Exceeded");
