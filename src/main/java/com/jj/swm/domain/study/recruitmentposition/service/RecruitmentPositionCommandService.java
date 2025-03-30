@@ -134,7 +134,9 @@ public class RecruitmentPositionCommandService {
             Long participationId,
             UUID userId
     ) {
-        StudyParticipation participation = findStudyParticipationByIdAndUserIdOrThrow(participationId, userId);
+        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+                participationId, userId
+        );
 
         modifyLink(request.getModifyLinkRequest(), participation);
 
@@ -143,23 +145,25 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public void deleteStudyParticipation(Long participationId, UUID userId) {
-        StudyParticipation participation = findStudyParticipationByIdAndUserIdOrThrow(participationId, userId);
-
-        validateStatusNotAccepted(participation);
+        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+                participationId, userId
+        );
 
         participationLinkRepository.deleteAllByParticipationId(participation.getId());
         participationRepository.delete(participation);
     }
 
-    private void validateStatusNotAccepted(StudyParticipation participation) {
+    private StudyParticipation findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+            Long participationId, UUID userId
+    ) {
+        StudyParticipation participation = participationRepository.findByIdAndUserId(participationId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+
         if (participation.getStatus() == StudyParticipationStatus.ACCEPTED) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Already accepted study participation");
         }
-    }
 
-    private StudyParticipation findStudyParticipationByIdAndUserIdOrThrow(Long participationId, UUID userId) {
-        return participationRepository.findByIdAndUserId(participationId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+        return participation;
     }
 
     private void modifyLink(ModifyStudyParticipationLinkRequest request, StudyParticipation participation) {
