@@ -460,6 +460,24 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     }
 
     @Test
+    @DisplayName("이미 승인된 스터디 참여이면 수정에 실패한다.")
+    void updateStudyParticipation_WhenAlreadyAccepted_Success() {
+        //given
+        recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                participationId,
+                user.getId()
+        );
+
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipation(
+                UpdateStudyParticipationRequestFixture.create(),
+                participationId,
+                user.getId()
+        ));
+    }
+
+    @Test
     @DisplayName("스터디 참여 삭제에 성공한다.")
     void deleteStudyParticipation_Success() {
         //when
