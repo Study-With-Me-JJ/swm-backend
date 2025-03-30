@@ -135,4 +135,19 @@ public class RecruitmentPositionCommandController {
 
         return ApiResponse.ok(null);
     }
+
+    @DeleteMapping("/v1/recruitment-position/participation/{participationId}")
+    @Operation(
+            summary = "스터디 참여 삭제",
+            description = "스터디 참여를 삭제합니다. 승인된 참여 신청은 삭제가 불가능합니다. "
+    )
+    public ApiResponse<Void> deleteStudyParticipation(
+            @PathVariable("participationId") Long participationId, Principal principal
+    ) {
+        recruitmentPositionCommandService.deleteStudyParticipation(
+                participationId, UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.ok(null);
+    }
 }
