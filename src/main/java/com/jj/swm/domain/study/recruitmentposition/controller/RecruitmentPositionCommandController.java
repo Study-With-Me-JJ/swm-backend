@@ -120,7 +120,10 @@ public class RecruitmentPositionCommandController {
     @PatchMapping("/v1/recruitment-position/participation/{participationId}")
     @Operation(
             summary = "스터디 참여 수정",
-            description = "스터디 참여를 수정합니다. 새 링크에 대해 id값을 안 주므로 새로고침을 해야 합니다."
+            description = """
+                    스터디 참여를 수정합니다. 새 링크에 대해 id값을 안 주므로 새로고침을 해야 합니다.
+                    승인된 참여 신청은 수정이 불가능합니다.
+                    """
     )
     public ApiResponse<Void> updateStudyParticipation(
             @Valid @RequestBody UpdateStudyParticipationRequest request,
@@ -139,7 +142,7 @@ public class RecruitmentPositionCommandController {
     @DeleteMapping("/v1/recruitment-position/participation/{participationId}")
     @Operation(
             summary = "스터디 참여 삭제",
-            description = "스터디 참여를 삭제합니다. 승인된 참여 신청은 삭제가 불가능합니다. "
+            description = "스터디 참여를 삭제합니다. 승인된 참여 신청은 삭제가 불가능합니다."
     )
     public ApiResponse<Void> deleteStudyParticipation(
             @PathVariable("participationId") Long participationId, Principal principal
