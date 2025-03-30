@@ -26,7 +26,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.jj.swm.domain.study.constants.StudyConstants.RECRUITMENT_POSITION_LIMIT;
-import static com.jj.swm.global.common.util.ListCheckUtils.*;
+import static com.jj.swm.global.common.util.ListCheckUtils.isListNotEmpty;
+import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 
 @Service
 @RequiredArgsConstructor
@@ -133,12 +134,32 @@ public class RecruitmentPositionCommandService {
             Long participationId,
             UUID userId
     ) {
-        StudyParticipation participation = participationRepository.findByIdAndUserId(participationId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+        StudyParticipation participation = findStudyParticipationByIdAndUserIdOrThrow(participationId, userId);
 
         modifyLink(request.getModifyLinkRequest(), participation);
 
         participation.modify(request);
+    }
+
+    @Transactional
+    public void deleteStudyParticipation(Long participationId, UUID userId) {
+        StudyParticipation participation = findStudyParticipationByIdAndUserIdOrThrow(participationId, userId);
+
+        validateStatusNotAccepted(participation);
+
+        participationLinkRepository.deleteAllByParticipationId(participation.getId());
+        participationRepository.delete(participation);
+    }
+
+    private void validateStatusNotAccepted(StudyParticipation participation) {
+        if (participation.getStatus() == StudyParticipationStatus.ACCEPTED) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Already accepted study participation");
+        }
+    }
+
+    private StudyParticipation findStudyParticipationByIdAndUserIdOrThrow(Long participationId, UUID userId) {
+        return participationRepository.findByIdAndUserId(participationId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
     }
 
     private void modifyLink(ModifyStudyParticipationLinkRequest request, StudyParticipation participation) {

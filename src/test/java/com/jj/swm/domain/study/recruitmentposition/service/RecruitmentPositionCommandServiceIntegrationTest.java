@@ -458,4 +458,32 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 user.getId()
         ));
     }
+
+    @Test
+    @DisplayName("스터디 참여 삭제에 성공한다.")
+    void deleteStudyParticipation_Success() {
+        //when
+        recruitmentPositionCommandService.deleteStudyParticipation(participationId, user.getId());
+
+        //then
+        Optional<StudyParticipation> optionalParticipation = participationRepository.findById(participationId);
+        assertFalse(optionalParticipation.isPresent());
+    }
+
+    @Test
+    @DisplayName("이미 승인된 스터디 참여이면 삭제에 실패한다.")
+    void deleteStudyParticipation_WhenAlreadyAccepted_ThenFail() {
+        //given
+        recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                participationId,
+                user.getId()
+        );
+
+        //when & then
+        assertThrows(
+                GlobalException.class,
+                () -> recruitmentPositionCommandService.deleteStudyParticipation(participationId, user.getId())
+        );
+    }
 }

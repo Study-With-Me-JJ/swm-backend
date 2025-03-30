@@ -16,4 +16,8 @@ public interface StudyParticipationLinkRepository extends
     @Modifying
     @Query("delete from StudyParticipationLink pl where pl.id in ?1 and pl.participation.id = ?2")
     void deleteAllByIdsAndParticipationId(List<Long> ids, Long participationId);
+
+    @Modifying
+    @Query("delete from StudyParticipationLink pl where pl.participation.id = ?1")
+    void deleteAllByParticipationId(Long participationId);
 }
