@@ -37,7 +37,8 @@ public class GetStudyParticipationDetailsResponse {
     ) {
         return GetStudyParticipationDetailsResponse.builder()
                 .participationId(participation.getId())
-                .kakaoId(participation.getKakaoId())
+                .kakaoId(participation.getStatus() ==
+                        StudyParticipationStatus.ACCEPTED ? participation.getKakaoId() : null)
                 .status(participation.getStatus())
                 .coverLetter(participation.getCoverLetter())
                 .fileInfo(participation.getFileInfo())
