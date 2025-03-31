@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CustomStudyParticipationRepository {
 
-    List<StudyParticipation> findPagedStudyParticipationByCondition(
+    List<StudyParticipation> findPagedStudyParticipationByConditionWithUser(
             Long recruitmentPositionId,
             GetStudyParticipationCondition condition,
             int pageSize

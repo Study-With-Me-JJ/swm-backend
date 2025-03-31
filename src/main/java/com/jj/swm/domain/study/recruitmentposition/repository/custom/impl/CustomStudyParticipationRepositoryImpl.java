@@ -18,7 +18,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<StudyParticipation> findPagedStudyParticipationByCondition(
+    public List<StudyParticipation> findPagedStudyParticipationByConditionWithUser(
             Long recruitmentPositionId,
             GetStudyParticipationCondition condition,
             int pageSize
