@@ -12,4 +12,5 @@ public class PageSize {
     public static final int Study = 20;
     public static final int StudyComment = 10;
     public static final int StudyReply = 5;
+    public static final int StudyParticipation = 10;
 }
