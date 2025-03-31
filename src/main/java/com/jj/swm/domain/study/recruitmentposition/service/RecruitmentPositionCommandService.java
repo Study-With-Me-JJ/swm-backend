@@ -88,6 +88,10 @@ public class RecruitmentPositionCommandService {
                 recruitmentPositionRepository.findByIdWithStudy(recruitmentPositionId)
                         .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
 
+        Study study = recruitmentPosition.getStudy();
+
+        validateAlreadyExists(userId, study);
+
         validateAcceptedCountNotEqualHeadcount(
                 recruitmentPosition,
                 participationRepository.countByRecruitmentPositionIdAndAcceptedStatus(recruitmentPositionId)
@@ -97,7 +101,7 @@ public class RecruitmentPositionCommandService {
 
         StudyParticipation participation = StudyParticipation.of(
                 request,
-                recruitmentPosition.getStudy(),
+                study,
                 recruitmentPosition,
                 user
         );
@@ -153,6 +157,12 @@ public class RecruitmentPositionCommandService {
 
         participationLinkRepository.deleteAllByParticipationId(participation.getId());
         participationRepository.delete(participation);
+    }
+
+    private void validateAlreadyExists(UUID userId, Study study) {
+        if (participationRepository.existsByStudyIdAndUserId(study.getId(), userId)) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Already Exists");
+        }
     }
 
     private StudyParticipation findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(

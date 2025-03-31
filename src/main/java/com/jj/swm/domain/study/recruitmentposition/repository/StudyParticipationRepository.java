@@ -34,4 +34,6 @@ public interface StudyParticipationRepository extends
     Optional<StudyParticipation> findByIdWithUserAndStudy(Long id);
 
     Optional<StudyParticipation> findByIdAndUserId(Long id, UUID userId);
+
+    boolean existsByStudyIdAndUserId(Long studyId, UUID userId);
 }
