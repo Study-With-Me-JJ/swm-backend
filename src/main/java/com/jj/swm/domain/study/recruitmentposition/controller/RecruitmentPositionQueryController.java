@@ -25,20 +25,18 @@ public class RecruitmentPositionQueryController {
 
     private final RecruitmentPositionQueryService recruitmentPositionQueryService;
 
-    @GetMapping("/v1/study/{studyId}/recruitment-position/{recruitmentPositionId}")
+    @GetMapping("/v1/recruitment-position/{recruitmentPositionId}/participation")
     @Operation(
             summary = "스터디 참여 조회",
             description = "스터디 참여 목록을 조회합니다. 스터디 작성자 전용입니다. "
     )
     public ApiResponse<PageResponse<GetStudyParticipationResponse>> getStudyParticipations(
-            @PathVariable("studyId") Long studyId,
             @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
             Principal principal,
             GetStudyParticipationCondition condition
     ) {
         PageResponse<GetStudyParticipationResponse> pageResponse =
                 recruitmentPositionQueryService.getStudyParticipations(
-                        studyId,
                         recruitmentPositionId,
                         UUID.fromString(principal.getName()),
                         condition

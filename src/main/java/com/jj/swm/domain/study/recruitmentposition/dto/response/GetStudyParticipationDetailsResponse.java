@@ -33,12 +33,14 @@ public class GetStudyParticipationDetailsResponse {
     private String nickname;
 
     public static GetStudyParticipationDetailsResponse of(
-            StudyParticipation participation, List<StudyParticipationLink> participationLinks
+            StudyParticipation participation,
+            List<StudyParticipationLink> participationLinks,
+            boolean isStudyWriter
     ) {
         return GetStudyParticipationDetailsResponse.builder()
                 .participationId(participation.getId())
-                .kakaoId(participation.getStatus() ==
-                        StudyParticipationStatus.ACCEPTED ? participation.getKakaoId() : null)
+                .kakaoId(!isStudyWriter || (participation.getStatus() == StudyParticipationStatus.ACCEPTED)
+                        ? participation.getKakaoId() : null)
                 .status(participation.getStatus())
                 .coverLetter(participation.getCoverLetter())
                 .fileInfo(participation.getFileInfo())

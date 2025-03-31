@@ -1,11 +1,12 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
-import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.recruitmentposition.dto.GetStudyParticipationCondition;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.GetStudyParticipationDetailsResponse;
 import com.jj.swm.domain.study.recruitmentposition.dto.response.GetStudyParticipationResponse;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipation;
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipationLink;
+import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
 import com.jj.swm.global.common.constants.PageSize;
@@ -23,19 +24,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RecruitmentPositionQueryService {
 
-    private final StudyRepository studyRepository;
+    private final RecruitmentPositionRepository recruitmentPositionRepository;
     private final StudyParticipationRepository participationRepository;
     private final StudyParticipationLinkRepository participationLinkRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<GetStudyParticipationResponse> getStudyParticipations(
-            Long studyId,
             Long recruitmentPositionId,
             UUID userId,
             GetStudyParticipationCondition condition
     ) {
-        studyRepository.findByIdAndUserId(studyId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+        StudyRecruitmentPosition recruitmentPosition =
+                recruitmentPositionRepository.findByIdWithStudy(recruitmentPositionId)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
+
+        validateStudyWriter(recruitmentPosition, userId);
 
         List<StudyParticipation> participations =
                 participationRepository.findPagedStudyParticipationByConditionWithUser(
@@ -65,17 +68,31 @@ public class RecruitmentPositionQueryService {
             Long participationId, UUID userId
     ) {
         StudyParticipation participation =
-                participationRepository.findByIdWithUserAndRecruitmentAndStudy(participationId)
+                participationRepository.findByIdWithUserAndStudy(participationId)
                         .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
 
-        if (!participation.getUser().getId().equals(userId) &&
-                !participation.getRecruitmentPosition().getStudy().getUser().getId().equals(userId)) {
+        boolean isStudyWriter;
+        if (participation.getUser().getId().equals(userId)) {
+            isStudyWriter = false;
+        } else if (participation.getStudy().getUser().getId().equals(userId)) {
+            isStudyWriter = true;
+        } else {
             throw new GlobalException(ErrorCode.FORBIDDEN, "No Authorization");
         }
 
         List<StudyParticipationLink> participationLinks =
                 participationLinkRepository.findAllByParticipationId(participationId);
 
-        return GetStudyParticipationDetailsResponse.of(participation, participationLinks);
+        return GetStudyParticipationDetailsResponse.of(
+                participation,
+                participationLinks,
+                isStudyWriter
+        );
+    }
+
+    private void validateStudyWriter(StudyRecruitmentPosition recruitmentPosition, UUID userId) {
+        if (!recruitmentPosition.getStudy().getUser().getId().equals(userId)) {
+            throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
+        }
     }
 }

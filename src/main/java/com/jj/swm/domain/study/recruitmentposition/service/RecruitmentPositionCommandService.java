@@ -84,8 +84,9 @@ public class RecruitmentPositionCommandService {
             Long recruitmentPositionId,
             UUID userId
     ) {
-        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
+        StudyRecruitmentPosition recruitmentPosition =
+                recruitmentPositionRepository.findByIdWithStudy(recruitmentPositionId)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
 
         validateAcceptedCountNotEqualHeadcount(
                 recruitmentPosition,
@@ -96,6 +97,7 @@ public class RecruitmentPositionCommandService {
 
         StudyParticipation participation = StudyParticipation.of(
                 request,
+                recruitmentPosition.getStudy(),
                 recruitmentPosition,
                 user
         );
@@ -114,7 +116,7 @@ public class RecruitmentPositionCommandService {
 
         validateNewStatusNotPending(newStatus);
 
-        StudyParticipation participation = participationRepository.findByIdWithRecruitmentAndStudy(participationId)
+        StudyParticipation participation = participationRepository.findByIdWithStudy(participationId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
 
         validateOldStatusMustPending(participation);
@@ -134,7 +136,7 @@ public class RecruitmentPositionCommandService {
             Long participationId,
             UUID userId
     ) {
-        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(
                 participationId, userId
         );
 
@@ -145,7 +147,7 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public void deleteStudyParticipation(Long participationId, UUID userId) {
-        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(
                 participationId, userId
         );
 
@@ -153,7 +155,7 @@ public class RecruitmentPositionCommandService {
         participationRepository.delete(participation);
     }
 
-    private StudyParticipation findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+    private StudyParticipation findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(
             Long participationId, UUID userId
     ) {
         StudyParticipation participation = participationRepository.findByIdAndUserId(participationId, userId)
@@ -217,7 +219,7 @@ public class RecruitmentPositionCommandService {
     }
 
     private void validateStudyWriter(StudyParticipation participation, UUID userId) {
-        if (!participation.getRecruitmentPosition().getStudy().getUser().getId().equals(userId)) {
+        if (!participation.getStudy().getUser().getId().equals(userId)) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
         }
     }

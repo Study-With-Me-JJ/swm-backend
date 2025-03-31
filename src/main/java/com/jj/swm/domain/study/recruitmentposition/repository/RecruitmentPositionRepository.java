@@ -24,4 +24,7 @@ public interface RecruitmentPositionRepository extends
     void deleteAllByStudyIds(List<Long> studyIds);
 
     int countByStudyId(Long studyId);
+
+    @Query("select rp from StudyRecruitmentPosition rp join fetch rp.study where rp.id = ?1")
+    Optional<StudyRecruitmentPosition> findByIdWithStudy(Long recruitmentPositionId);
 }

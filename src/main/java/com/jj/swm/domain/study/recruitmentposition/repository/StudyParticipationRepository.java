@@ -27,15 +27,11 @@ public interface StudyParticipationRepository extends
             List<Long> recruitmentPositionIds
     );
 
-    @Query("select p from StudyParticipation p join fetch p.recruitmentPosition rp join fetch rp.study where p.id = ?1")
-    Optional<StudyParticipation> findByIdWithRecruitmentAndStudy(Long id);
+    @Query("select p from StudyParticipation p join fetch p.study where p.id = ?1")
+    Optional<StudyParticipation> findByIdWithStudy(Long id);
 
-    @Query("""
-        select p
-        from StudyParticipation p join fetch p.user join fetch p.recruitmentPosition rp join fetch rp.study
-        where p.id = ?1
-        """)
-    Optional<StudyParticipation> findByIdWithUserAndRecruitmentAndStudy(Long id);
+    @Query("select p from StudyParticipation p join fetch p.user join fetch p.study where p.id = ?1")
+    Optional<StudyParticipation> findByIdWithUserAndStudy(Long id);
 
     Optional<StudyParticipation> findByIdAndUserId(Long id, UUID userId);
 }
