@@ -20,4 +20,6 @@ public interface StudyParticipationLinkRepository extends
     @Modifying
     @Query("delete from StudyParticipationLink pl where pl.participation.id = ?1")
     void deleteAllByParticipationId(Long participationId);
+
+    List<StudyParticipationLink> findAllByParticipationId(Long participationId);
 }
