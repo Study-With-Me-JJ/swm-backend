@@ -1,7 +1,9 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
+import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
+import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationRequest;
@@ -15,6 +17,7 @@ import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateStu
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpdateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpdateStudyParticipationStatusRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpsertRecruitmentPositionRequestFixture;
+import com.jj.swm.domain.study.recruitmentposition.fixture.entity.StudyParticipationFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
@@ -53,6 +56,9 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Autowired
     private StudyParticipationLinkRepository participationLinkRepository;
+
+    @Autowired
+    private StudyRepository studyRepository;
 
     // entity
     private User user1;
@@ -208,7 +214,68 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
 
     @Test
     @DisplayName("이미 스터디 참여를 생성했으면 실패한다.")
-    void createStudyParticipation_WhenAlreadyExists_Success() {
+    void createStudyParticipation_WhenAlreadyExists_ThenFail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                recruitmentPositionId,
+                user1.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("거절 상태가 아닌 참여 신청은 지우고 3일 이내에 참여를 생성해도 성공한다.")
+    void createStudyParticipation_WhenDeletedNotRejectedParticipation_Success() {
+        //given
+        recruitmentPositionCommandService.deleteStudyParticipation(recruitmentPositionId, user1.getId());
+
+        //when & then
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                recruitmentPositionId,
+                user1.getId()
+        );
+        Long newParticipationId = 2L;
+
+        Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
+        assertTrue(optionalParticipation.isPresent());
+    }
+
+    @Test
+    @DisplayName("거절 상태 참여 신청은 지우고 3일 이후에 참여를 생성하면 성공한다.")
+    void createStudyParticipation_WhenDeletedRejectedParticipationAfterThreeDays_Success() {
+        //given
+        Study study = studyRepository.findById(studyId).get();
+        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId).get();
+        participationRepository.save(StudyParticipationFixture.createForDeletedAtAfterThreeDaysSuccess(
+                study,
+                recruitmentPosition,
+                user2
+        ));
+
+        //when & then
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                recruitmentPositionId,
+                user2.getId()
+        );
+        Long newParticipationId = 3L; // 위에서 하나 들어갔으므로 id가 3일 차례
+
+        Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
+        assertTrue(optionalParticipation.isPresent());
+    }
+
+    @Test
+    @DisplayName("거절 상태의 참여 신청을 지우고 3일이 지나기 전에 참여를 생성하면 실패한다.")
+    void createStudyParticipation_WhenDeletedRejectedParticipationWithinThreeDays_ThenFail() {
+        //given
+        recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
+                participationId,
+                user1.getId()
+        );
+        recruitmentPositionCommandService.deleteStudyParticipation(recruitmentPositionId, user1.getId());
+
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
