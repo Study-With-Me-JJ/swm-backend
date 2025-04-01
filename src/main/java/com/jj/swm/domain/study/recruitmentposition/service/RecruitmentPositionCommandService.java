@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -99,7 +100,7 @@ public class RecruitmentPositionCommandService {
 
         Study study = recruitmentPosition.getStudy();
 
-        validateAlreadyExists(userId, study);
+        validateAlreadyExistsAndBeforeThreeDays(study, userId);
 
         validateAcceptedCountNotEqualHeadcount(
                 recruitmentPosition,
@@ -168,10 +169,16 @@ public class RecruitmentPositionCommandService {
         participationRepository.delete(participation);
     }
 
-    private void validateAlreadyExists(UUID userId, Study study) {
-        if (participationRepository.existsByStudyIdAndUserId(study.getId(), userId)) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Already Exists");
-        }
+    private void validateAlreadyExistsAndBeforeThreeDays(Study study, UUID userId) {
+        Optional<StudyParticipation> optionalParticipation =
+                participationRepository.findByStudyIdAndUserId(study.getId(), userId);
+        optionalParticipation.ifPresent(participation -> {
+            if (participation.getDeletedAt() == null) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Already Exists");
+            } else if (LocalDateTime.now().isBefore(participation.getDeletedAt().plusDays(3))) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Three days have not passed yet.");
+            }
+        });
     }
 
     private StudyParticipation findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(

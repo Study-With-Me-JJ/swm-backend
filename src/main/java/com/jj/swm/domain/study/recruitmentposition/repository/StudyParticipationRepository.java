@@ -58,4 +58,10 @@ public interface StudyParticipationRepository extends
 
     @Query("select p.id from StudyParticipation p where p.study.id in (?1)")
     List<Long> findIdsByStudyIds(List<Long> studyIds);
+
+    @Query(
+            value = "select * from study_participation where study_id = ?1 and user_id = ?2 order by id desc limit 1",
+            nativeQuery = true
+    )
+    Optional<StudyParticipation> findByStudyIdAndUserId(Long studyId, UUID userId);
 }
