@@ -15,7 +15,11 @@ import com.jj.swm.domain.study.core.fixture.dto.request.DeleteStudiesRequestFixt
 import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyRequestFixture;
 import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyStatusRequestFixture;
 import com.jj.swm.domain.study.core.repository.*;
+import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
+import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
+import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
+import com.jj.swm.domain.study.recruitmentposition.service.RecruitmentPositionCommandService;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -47,6 +51,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @Autowired
     private StudyCommentCommandService commentCommandService;
 
+    @Autowired
+    private RecruitmentPositionCommandService recruitmentPositionCommandService;
+
     // repository
     @Autowired
     private UserRepository userRepository;
@@ -72,10 +79,16 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @Autowired
     private StudyStudyCommentRepository commentRepository;
 
+    @Autowired
+    private StudyParticipationRepository participationRepository;
+
+    @Autowired
+    private StudyParticipationLinkRepository participationLinkRepository;
+
     // entity
     private User user;
-
     private final Long studyId = 1L; // setUp 시 생성된 스터디 모집의 id값
+    private final Long recruitmentPositionId = 1L; // setUp 시 생성된 모집 포지션의 id 값
 
     private ExecutorService executorService;
     private CountDownLatch countDownLatch;
@@ -432,6 +445,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
                 user.getId()
         );
 
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.create(),
+                recruitmentPositionId,
+                user.getId()
+        );
+
         //when
         studyCommandService.deleteStudy(studyId, user.getId());
 
@@ -443,6 +462,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(0, commentRepository.count());
         assertEquals(0, studyBookmarkRepository.count());
         assertEquals(0, studyRepository.count());
+        assertEquals(0, participationRepository.count());
+        assertEquals(0, participationLinkRepository.count());
     }
 
     @Test
@@ -451,6 +472,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
         Long newStudyId = 2L;
+        Long newRecruitmentPositionId = 3L; // setUp에서 2개 생성했으므로 새로 생성된 모집 포지션 ID는 3부터 시작
 
         studyCommandService.createStudyLike(studyId, user.getId());
         studyCommandService.createStudyBookmark(studyId, user.getId());
@@ -485,6 +507,18 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
                 user.getId()
         );
 
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.create(),
+                recruitmentPositionId,
+                user.getId()
+        );
+
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.create(),
+                newRecruitmentPositionId,
+                user.getId()
+        );
+
         //when
         studyCommandService.deleteStudies(
                 DeleteStudiesRequestFixture.create(List.of(studyId, newStudyId)), user.getId()
@@ -498,6 +532,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(0, commentRepository.count());
         assertEquals(0, studyBookmarkRepository.count());
         assertEquals(0, studyRepository.count());
+        assertEquals(0, participationRepository.count());
+        assertEquals(0, participationLinkRepository.count());
     }
 
     @Test
