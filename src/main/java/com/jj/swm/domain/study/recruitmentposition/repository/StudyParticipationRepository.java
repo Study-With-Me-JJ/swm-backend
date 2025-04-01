@@ -4,6 +4,7 @@ import com.jj.swm.domain.study.recruitmentposition.dto.AcceptedStudyParticipatio
 import com.jj.swm.domain.study.recruitmentposition.entity.StudyParticipation;
 import com.jj.swm.domain.study.recruitmentposition.repository.custom.CustomStudyParticipationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -36,4 +37,25 @@ public interface StudyParticipationRepository extends
     Optional<StudyParticipation> findByIdAndUserId(Long id, UUID userId);
 
     boolean existsByStudyIdAndUserId(Long studyId, UUID userId);
+
+    @Modifying
+    @Query("update StudyParticipation p set p.deletedAt = CURRENT_TIMESTAMP where p.recruitmentPosition.id = ?1")
+    void deleteAllByRecruitmentPositionId(Long recruitmentPositionId);
+
+    @Modifying
+    @Query("update StudyParticipation p set p.deletedAt = CURRENT_TIMESTAMP where p.study.id = ?1")
+    void deleteAllByStudyId(Long studyId);
+
+    @Modifying
+    @Query("update StudyParticipation p set p.deletedAt = CURRENT_TIMESTAMP where p.study.id in (?1)")
+    void deleteAllByStudyIds(List<Long> studyIds);
+
+    @Query("select p.id from StudyParticipation p where p.recruitmentPosition.id = ?1")
+    List<Long> findIdsByRecruitmentPositionId(Long recruitmentPositionId);
+
+    @Query("select p.id from StudyParticipation p where p.study.id = ?1")
+    List<Long> findIdsByStudyId(Long studyId);
+
+    @Query("select p.id from StudyParticipation p where p.study.id in (?1)")
+    List<Long> findIdsByStudyIds(List<Long> studyIds);
 }

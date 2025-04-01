@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
+import com.google.common.collect.Lists;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.recruitmentposition.constants.StudyParticipationConstants;
@@ -18,6 +19,7 @@ import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -32,6 +34,9 @@ import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 @Service
 @RequiredArgsConstructor
 public class RecruitmentPositionCommandService {
+
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int batchSize;
 
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
@@ -75,6 +80,10 @@ public class RecruitmentPositionCommandService {
     public void deleteRecruitmentPosition(Long recruitmentPositionId, UUID userId) {
         StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
 
+        List<Long> participationIds = participationRepository.findIdsByRecruitmentPositionId(recruitmentPositionId);
+        Lists.partition(participationIds, batchSize)
+                .forEach(participationLinkRepository::deleteAllByParticipationIds);
+        participationRepository.deleteAllByRecruitmentPositionId(recruitmentPositionId);
         recruitmentPositionRepository.delete(recruitmentPosition);
     }
 
