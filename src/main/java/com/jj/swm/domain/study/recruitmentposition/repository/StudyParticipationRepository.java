@@ -36,8 +36,6 @@ public interface StudyParticipationRepository extends
 
     Optional<StudyParticipation> findByIdAndUserId(Long id, UUID userId);
 
-    boolean existsByStudyIdAndUserId(Long studyId, UUID userId);
-
     @Modifying
     @Query("update StudyParticipation p set p.deletedAt = CURRENT_TIMESTAMP where p.recruitmentPosition.id = ?1")
     void deleteAllByRecruitmentPositionId(Long recruitmentPositionId);
