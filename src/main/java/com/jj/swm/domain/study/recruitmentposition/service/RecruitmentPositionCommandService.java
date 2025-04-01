@@ -175,7 +175,8 @@ public class RecruitmentPositionCommandService {
         optionalParticipation.ifPresent(participation -> {
             if (participation.getDeletedAt() == null) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Already Exists");
-            } else if (LocalDateTime.now().isBefore(participation.getDeletedAt().plusDays(3))) {
+            } else if (participation.getStatus() == StudyParticipationStatus.REJECTED
+                    && LocalDateTime.now().isBefore(participation.getDeletedAt().plusDays(3))) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Three days have not passed yet.");
             }
         });
