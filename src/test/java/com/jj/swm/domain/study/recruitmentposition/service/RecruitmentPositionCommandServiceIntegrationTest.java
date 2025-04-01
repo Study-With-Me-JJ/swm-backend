@@ -1,7 +1,9 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
+import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
+import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationRequest;
@@ -15,6 +17,7 @@ import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateStu
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpdateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpdateStudyParticipationStatusRequestFixture;
 import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.UpsertRecruitmentPositionRequestFixture;
+import com.jj.swm.domain.study.recruitmentposition.fixture.entity.StudyParticipationFixture;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
@@ -54,20 +57,25 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @Autowired
     private StudyParticipationLinkRepository participationLinkRepository;
 
+    @Autowired
+    private StudyRepository studyRepository;
+
     // entity
-    private User user;
+    private User user1;
+    private User user2;
     private final Long studyId = 1L;
     private final Long participationId = 1L;
     private final Long recruitmentPositionId = 1L; // addStudy 할 시에 모집 포지션 2개 삽입
 
     @BeforeEach
     void setUp() {
-        user = userRepository.save(UserFixture.create());
-        studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
+        user1 = userRepository.save(UserFixture.create());
+        user2 = userRepository.save(UserFixture.create());
+        studyCommandService.createStudy(CreateStudyRequestFixture.create(), user1.getId());
         recruitmentPositionCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
-                user.getId()
+                user1.getId()
         );
     }
 
@@ -81,7 +89,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         Long newRecruitmentPositionId = recruitmentPositionCommandService.createRecruitmentPosition(
                 request,
                 studyId,
-                user.getId()
+                user1.getId()
         ).getRecruitmentPositionId();
 
         //then
@@ -103,7 +111,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
             recruitmentPositionCommandService.createRecruitmentPosition(
                     request,
                     studyId,
-                    user.getId()
+                    user1.getId()
             );
         }
 
@@ -111,7 +119,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createRecruitmentPosition(
                 request,
                 studyId,
-                user.getId()
+                user1.getId()
         ));
     }
 
@@ -125,7 +133,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateRecruitmentPosition(
                 request,
                 recruitmentPositionId,
-                user.getId()
+                user1.getId()
         );
 
         //then
@@ -139,11 +147,20 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @Test
     @DisplayName("모집 포지션 삭제에 성공한다.")
     void deleteRecruitmentPosition_Success() {
+        //given
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.create(),
+                recruitmentPositionId,
+                user2.getId()
+        );
+
         //when
-        recruitmentPositionCommandService.deleteRecruitmentPosition(recruitmentPositionId, user.getId());
+        recruitmentPositionCommandService.deleteRecruitmentPosition(recruitmentPositionId, user1.getId());
 
         //then
         assertEquals(1, recruitmentPositionRepository.count());
+        assertEquals(0, participationRepository.count());
+        assertEquals(0, participationLinkRepository.count());
     }
 
     @Test
@@ -152,7 +169,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         //when & then
         assertThrows(
                 GlobalException.class,
-                () -> recruitmentPositionCommandService.deleteRecruitmentPosition(123456789L, user.getId()));
+                () -> recruitmentPositionCommandService.deleteRecruitmentPosition(123456789L, user1.getId()));
     }
 
     @Test
@@ -165,7 +182,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.createStudyParticipation(
                 request,
                 recruitmentPositionId,
-                user.getId()
+                user2.getId()
         );
         Long newParticipationId = 2L;
 
@@ -186,13 +203,85 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
                 recruitmentPositionId,
-                user.getId()
+                user2.getId()
         );
         Long newParticipationId = 2L;
 
         //then
         Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
         assertTrue(optionalParticipation.isPresent());
+    }
+
+    @Test
+    @DisplayName("이미 스터디 참여를 생성했으면 실패한다.")
+    void createStudyParticipation_WhenAlreadyExists_ThenFail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                recruitmentPositionId,
+                user1.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("거절 상태가 아닌 참여 신청은 지우고 3일 이내에 참여를 생성해도 성공한다.")
+    void createStudyParticipation_WhenDeletedNotRejectedParticipation_Success() {
+        //given
+        recruitmentPositionCommandService.deleteStudyParticipation(recruitmentPositionId, user1.getId());
+
+        //when & then
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                recruitmentPositionId,
+                user1.getId()
+        );
+        Long newParticipationId = 2L;
+
+        Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
+        assertTrue(optionalParticipation.isPresent());
+    }
+
+    @Test
+    @DisplayName("거절 상태 참여 신청은 지우고 3일 이후에 참여를 생성하면 성공한다.")
+    void createStudyParticipation_WhenDeletedRejectedParticipationAfterThreeDays_Success() {
+        //given
+        Study study = studyRepository.findById(studyId).get();
+        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId).get();
+        participationRepository.save(StudyParticipationFixture.createForDeletedAtAfterThreeDaysSuccess(
+                study,
+                recruitmentPosition,
+                user2
+        ));
+
+        //when & then
+        recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                recruitmentPositionId,
+                user2.getId()
+        );
+        Long newParticipationId = 3L; // 위에서 하나 들어갔으므로 id가 3일 차례
+
+        Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
+        assertTrue(optionalParticipation.isPresent());
+    }
+
+    @Test
+    @DisplayName("거절 상태의 참여 신청을 지우고 3일이 지나기 전에 참여를 생성하면 실패한다.")
+    void createStudyParticipation_WhenDeletedRejectedParticipationWithinThreeDays_ThenFail() {
+        //given
+        recruitmentPositionCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
+                participationId,
+                user1.getId()
+        );
+        recruitmentPositionCommandService.deleteStudyParticipation(recruitmentPositionId, user1.getId());
+
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createStudyParticipation(
+                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                recruitmentPositionId,
+                user1.getId()
+        ));
     }
 
     @Test
@@ -203,7 +292,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 recruitmentPositionCommandService.updateStudyParticipationStatus(
                         UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                         participationId,
-                        user.getId()
+                        user1.getId()
                 );
 
         //then
@@ -221,7 +310,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 recruitmentPositionCommandService.updateStudyParticipationStatus(
                         UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
                         participationId,
-                        user.getId()
+                        user1.getId()
                 );
 
         //then
@@ -236,6 +325,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     void updateStudyParticipationStatus_WhenAcceptedCountEqualsHeadcount_ThenFail() {
         //given
         for (int i = 1; i <= 3; i++) {
+            User user = userRepository.save(UserFixture.create());
             recruitmentPositionCommandService.createStudyParticipation(
                     CreateStudyParticipationRequestFixture.create(),
                     recruitmentPositionId,
@@ -247,7 +337,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
             recruitmentPositionCommandService.updateStudyParticipationStatus(
                     UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                     newParticipationId,
-                    user.getId()
+                    user1.getId()
             );
         }
 
@@ -255,7 +345,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                 participationId,
-                user.getId()
+                user1.getId()
         ));
     }
 
@@ -277,14 +367,14 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                 participationId,
-                user.getId()
+                user1.getId()
         );
 
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
                 participationId,
-                user.getId()
+                user1.getId()
         ));
     }
 
@@ -295,7 +385,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.PENDING),
                 participationId,
-                user.getId()
+                user1.getId()
         ));
     }
 
@@ -304,6 +394,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     void createStudyParticipation_WhenAcceptedCountEqualHeadcount_ThenFail() {
         //given
         for (int i = 0; i <= 2; i++) {
+            User user = userRepository.save(UserFixture.create());
             recruitmentPositionCommandService.createStudyParticipation(
                     CreateStudyParticipationRequestFixture.create(),
                     recruitmentPositionId,
@@ -315,7 +406,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
             recruitmentPositionCommandService.updateStudyParticipationStatus(
                     UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                     newParticipationId,
-                    user.getId()
+                    user1.getId()
             );
         }
 
@@ -323,7 +414,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
-                user.getId()
+                user2.getId()
         ));
     }
 
@@ -334,7 +425,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
-                user.getId()
+                user2.getId()
         );
 
         Long newParticipationId = 2L;
@@ -342,20 +433,20 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                 participationId,
-                user.getId()
+                user1.getId()
         );
 
         recruitmentPositionCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                 newParticipationId,
-                user.getId()
+                user1.getId()
         );
 
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateRecruitmentPosition(
                 UpsertRecruitmentPositionRequestFixture.updateForAcceptedCountLessThanHeadcountFail(),
                 recruitmentPositionId,
-                user.getId()
+                user1.getId()
         ));
     }
 
@@ -369,7 +460,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateStudyParticipation(
                 request,
                 participationId,
-                user.getId()
+                user1.getId()
         );
 
         //then
@@ -396,7 +487,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateStudyParticipation(
                 UpdateStudyParticipationRequestFixture.createForModifyLinkRequestNullSuccess(),
                 participationId,
-                user.getId()
+                user1.getId()
         );
 
         //then
@@ -416,7 +507,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateStudyParticipation(
                 UpdateStudyParticipationRequestFixture.createForLinksToAddNullSuccess(),
                 participationId,
-                user.getId()
+                user1.getId()
         );
 
         //then
@@ -430,7 +521,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateStudyParticipation(
                 UpdateStudyParticipationRequestFixture.createForLinkIdsToRemoveNullSuccess(),
                 participationId,
-                user.getId()
+                user1.getId()
         );
 
         //then
@@ -444,7 +535,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipation(
                 UpdateStudyParticipationRequestFixture.createForExceedLinkLimitFail(),
                 participationId,
-                user.getId()
+                user1.getId()
         ));
     }
 
@@ -455,7 +546,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipation(
                 UpdateStudyParticipationRequestFixture.createForUnderLinkLimitFail(),
                 participationId,
-                user.getId()
+                user1.getId()
         ));
     }
 
@@ -466,14 +557,14 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                 participationId,
-                user.getId()
+                user1.getId()
         );
 
         //when & then
         assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipation(
                 UpdateStudyParticipationRequestFixture.create(),
                 participationId,
-                user.getId()
+                user1.getId()
         ));
     }
 
@@ -481,7 +572,7 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
     @DisplayName("스터디 참여 삭제에 성공한다.")
     void deleteStudyParticipation_Success() {
         //when
-        recruitmentPositionCommandService.deleteStudyParticipation(participationId, user.getId());
+        recruitmentPositionCommandService.deleteStudyParticipation(participationId, user1.getId());
 
         //then
         Optional<StudyParticipation> optionalParticipation = participationRepository.findById(participationId);
@@ -495,13 +586,13 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
                 participationId,
-                user.getId()
+                user1.getId()
         );
 
         //when & then
         assertThrows(
                 GlobalException.class,
-                () -> recruitmentPositionCommandService.deleteStudyParticipation(participationId, user.getId())
+                () -> recruitmentPositionCommandService.deleteStudyParticipation(participationId, user1.getId())
         );
     }
 }

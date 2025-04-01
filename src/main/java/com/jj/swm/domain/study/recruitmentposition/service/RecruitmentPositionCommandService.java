@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.recruitmentposition.service;
 
+import com.google.common.collect.Lists;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.recruitmentposition.constants.StudyParticipationConstants;
@@ -18,8 +19,10 @@ import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +35,9 @@ import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 @Service
 @RequiredArgsConstructor
 public class RecruitmentPositionCommandService {
+
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int batchSize;
 
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
@@ -75,6 +81,10 @@ public class RecruitmentPositionCommandService {
     public void deleteRecruitmentPosition(Long recruitmentPositionId, UUID userId) {
         StudyRecruitmentPosition recruitmentPosition = findByIdAndUserIdOrThrow(recruitmentPositionId, userId);
 
+        List<Long> participationIds = participationRepository.findIdsByRecruitmentPositionId(recruitmentPositionId);
+        Lists.partition(participationIds, batchSize)
+                .forEach(participationLinkRepository::deleteAllByParticipationIds);
+        participationRepository.deleteAllByRecruitmentPositionId(recruitmentPositionId);
         recruitmentPositionRepository.delete(recruitmentPosition);
     }
 
@@ -84,8 +94,13 @@ public class RecruitmentPositionCommandService {
             Long recruitmentPositionId,
             UUID userId
     ) {
-        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
+        StudyRecruitmentPosition recruitmentPosition =
+                recruitmentPositionRepository.findByIdWithStudy(recruitmentPositionId)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
+
+        Study study = recruitmentPosition.getStudy();
+
+        validateAlreadyExistsAndBeforeThreeDays(study, userId);
 
         validateAcceptedCountNotEqualHeadcount(
                 recruitmentPosition,
@@ -96,6 +111,7 @@ public class RecruitmentPositionCommandService {
 
         StudyParticipation participation = StudyParticipation.of(
                 request,
+                study,
                 recruitmentPosition,
                 user
         );
@@ -114,7 +130,7 @@ public class RecruitmentPositionCommandService {
 
         validateNewStatusNotPending(newStatus);
 
-        StudyParticipation participation = participationRepository.findByIdWithRecruitmentAndStudy(participationId)
+        StudyParticipation participation = participationRepository.findByIdWithStudy(participationId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
 
         validateOldStatusMustPending(participation);
@@ -134,7 +150,7 @@ public class RecruitmentPositionCommandService {
             Long participationId,
             UUID userId
     ) {
-        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(
                 participationId, userId
         );
 
@@ -145,7 +161,7 @@ public class RecruitmentPositionCommandService {
 
     @Transactional
     public void deleteStudyParticipation(Long participationId, UUID userId) {
-        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+        StudyParticipation participation = findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(
                 participationId, userId
         );
 
@@ -153,7 +169,20 @@ public class RecruitmentPositionCommandService {
         participationRepository.delete(participation);
     }
 
-    private StudyParticipation findParticipationByIdAndUserIdOrThrowAndValidateStatusNotAccepted(
+    private void validateAlreadyExistsAndBeforeThreeDays(Study study, UUID userId) {
+        Optional<StudyParticipation> optionalParticipation =
+                participationRepository.findByStudyIdAndUserId(study.getId(), userId);
+        optionalParticipation.ifPresent(participation -> {
+            if (participation.getDeletedAt() == null) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Already Exists");
+            } else if (participation.getStatus() == StudyParticipationStatus.REJECTED
+                    && LocalDateTime.now().isBefore(participation.getDeletedAt().plusDays(3))) {
+                throw new GlobalException(ErrorCode.NOT_VALID, "Three days have not passed yet.");
+            }
+        });
+    }
+
+    private StudyParticipation findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(
             Long participationId, UUID userId
     ) {
         StudyParticipation participation = participationRepository.findByIdAndUserId(participationId, userId)
@@ -217,7 +246,7 @@ public class RecruitmentPositionCommandService {
     }
 
     private void validateStudyWriter(StudyParticipation participation, UUID userId) {
-        if (!participation.getRecruitmentPosition().getStudy().getUser().getId().equals(userId)) {
+        if (!participation.getStudy().getUser().getId().equals(userId)) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
         }
     }

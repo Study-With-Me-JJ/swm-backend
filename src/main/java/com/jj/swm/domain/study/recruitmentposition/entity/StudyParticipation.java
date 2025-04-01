@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.recruitmentposition.entity;
 
+import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.dto.request.UpdateStudyParticipationRequest;
 import com.jj.swm.domain.study.recruitmentposition.entity.embeddable.FileInfo;
@@ -45,6 +46,10 @@ public class StudyParticipation {
     private FileInfo fileInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_id", nullable = false)
+    private Study study;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_recruitment_position_id", nullable = false)
     private StudyRecruitmentPosition recruitmentPosition;
 
@@ -54,7 +59,9 @@ public class StudyParticipation {
 
     public static StudyParticipation of(
             CreateStudyParticipationRequest request,
+            Study study,
             StudyRecruitmentPosition recruitmentPosition,
+
             User user
     ) {
         return StudyParticipation.builder()
@@ -62,6 +69,7 @@ public class StudyParticipation {
                 .kakaoId(request.getKakaoId())
                 .coverLetter(request.getCoverLetter())
                 .fileInfo(request.getFileInfo())
+                .study(study)
                 .recruitmentPosition(recruitmentPosition)
                 .user(user)
                 .build();

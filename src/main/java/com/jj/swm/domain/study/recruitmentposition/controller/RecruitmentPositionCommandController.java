@@ -100,7 +100,7 @@ public class RecruitmentPositionCommandController {
     @PatchMapping("/v1/recruitment-position/participation/{participationId}/status")
     @Operation(
             summary = "스터디 참여 상태 수정",
-            description = "스터디 참여 상태를 수정합니다. 승인 시 kakaoId를 전송해줍니다."
+            description = "스터디 참여 상태를 수정합니다. 승인 시에만 kakaoId를 전송해줍니다."
     )
     public ApiResponse<UpdateStudyParticipationStatusResponse> updateStudyParticipationStatus(
             @Valid @RequestBody UpdateStudyParticipationStatusRequest request,
@@ -142,7 +142,11 @@ public class RecruitmentPositionCommandController {
     @DeleteMapping("/v1/recruitment-position/participation/{participationId}")
     @Operation(
             summary = "스터디 참여 삭제",
-            description = "스터디 참여를 삭제합니다. 승인된 참여 신청은 삭제가 불가능합니다."
+            description = """
+                    스터디 참여를 삭제합니다.
+                    승인된 참여 신청은 삭제가 불가능합니다.
+                    거절된 참여 신청을 삭제하면 3일 뒤에 재생성할 수 있습니다.
+                    """
     )
     public ApiResponse<Void> deleteStudyParticipation(
             @PathVariable("participationId") Long participationId, Principal principal

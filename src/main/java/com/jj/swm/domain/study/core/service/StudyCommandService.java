@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.core.service;
 
+import com.google.common.collect.Lists;
 import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
 import com.jj.swm.domain.study.constants.StudyConstants;
 import com.jj.swm.domain.study.core.dto.request.*;
@@ -9,12 +10,15 @@ import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyLike;
 import com.jj.swm.domain.study.core.repository.*;
 import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
+import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
+import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -29,6 +33,9 @@ import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 @RequiredArgsConstructor
 public class StudyCommandService {
 
+    @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
+    private int batchSize;
+
     private final UserRepository userRepository;
     private final StudyRepository studyRepository;
     private final StudyTagRepository studyTagRepository;
@@ -36,7 +43,9 @@ public class StudyCommandService {
     private final StudyImageRepository studyImageRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
     private final StudyStudyCommentRepository studyCommentRepository;
+    private final StudyParticipationRepository participationRepository;
     private final RecruitmentPositionRepository recruitmentPositionRepository;
+    private final StudyParticipationLinkRepository participationLinkRepository;
 
     @Transactional
     public void createStudy(CreateStudyRequest request, UUID userId) {
@@ -215,20 +224,32 @@ public class StudyCommandService {
     private void deleteStudyAndAssociations(Long studyId, Study study) {
         studyTagRepository.deleteAllByStudyId(studyId);
         studyImageRepository.deleteAllByStudyId(studyId);
-        recruitmentPositionRepository.deleteAllByStudyId(studyId);
         studyLikeRepository.deleteAllByStudyId(studyId);
         studyCommentRepository.deleteAllByStudyId(studyId);
         studyBookmarkRepository.deleteAllByStudyId(studyId);
+
+        List<Long> participationIds = participationRepository.findIdsByStudyId(studyId);
+        Lists.partition(participationIds, batchSize)
+                .forEach(participationLinkRepository::deleteAllByParticipationIds);
+        participationRepository.deleteAllByStudyId(studyId);
+        recruitmentPositionRepository.deleteAllByStudyId(studyId);
+
         studyRepository.delete(study);
     }
 
     public void deleteStudiesAndAssociations(List<Long> studyIds) {
         studyTagRepository.deleteAllByStudyIds(studyIds);
         studyImageRepository.deleteAllByStudyIds(studyIds);
-        recruitmentPositionRepository.deleteAllByStudyIds(studyIds);
         studyLikeRepository.deleteAllByStudyIds(studyIds);
         studyCommentRepository.deleteAllByStudyIds(studyIds);
         studyBookmarkRepository.deleteAllByStudyIds(studyIds);
+
+        List<Long> participationIds = participationRepository.findIdsByStudyIds(studyIds);
+        Lists.partition(participationIds, batchSize)
+                .forEach(participationLinkRepository::deleteAllByParticipationIds);
+        participationRepository.deleteAllByStudyIds(studyIds);
+        recruitmentPositionRepository.deleteAllByStudyIds(studyIds);
+
         studyRepository.deleteAllByStudyIds(studyIds);
     }
 
