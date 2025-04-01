@@ -145,12 +145,6 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
         recruitmentPositionCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
-                user1.getId()
-        );
-
-        recruitmentPositionCommandService.createStudyParticipation(
-                CreateStudyParticipationRequestFixture.create(),
-                recruitmentPositionId,
                 user2.getId()
         );
 
