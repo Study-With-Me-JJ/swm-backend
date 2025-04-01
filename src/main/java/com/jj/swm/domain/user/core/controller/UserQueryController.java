@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -81,7 +81,7 @@ public class UserQueryController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공"
     )
-    @PreAuthorize("hasRole('ADMIN')")
+    @Secured("ADMIN")
     @GetMapping("/v1/user/business/verification/requests")
     public ApiResponse<PageResponse<GetBusinessVerificationRequestResponse>> getBusinessVerificationRequests(
             @RequestParam(
