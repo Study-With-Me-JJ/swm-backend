@@ -13,4 +13,7 @@ public interface StudyRoomReservationInfoRepository extends JpaRepository<StudyR
     Optional<StudyRoomReservationInfo> findByIdWithStudyRoom(Long studyRoomReservationInfoId);
 
     Optional<StudyRoomReservationInfo> findByIdAndUserId(Long studyRoomReservationInfoId, UUID userId);
+
+    @Query("select s from StudyRoomReservationInfo s left join fetch s.studyRoomReserveType where s.id = ?1")
+    Optional<StudyRoomReservationInfo> findByIdWithReserveType(Long studyRoomReservationInfoId);
 }
