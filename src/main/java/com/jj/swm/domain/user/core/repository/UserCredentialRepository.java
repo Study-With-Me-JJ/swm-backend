@@ -31,4 +31,7 @@ public interface UserCredentialRepository extends JpaRepository<UserCredential, 
             ORDER BY uc.created_at DESC LIMIT 1
     """, nativeQuery = true)
     Optional<UserCredential> findRecentByUserId(UUID userId);
+
+    @Query("select uc from UserCredential uc join fetch uc.user u where uc.user.id = ?1")
+    Optional<UserCredential> findByUserIdWithUser(UUID userId);
 }

@@ -5,6 +5,7 @@ import com.jj.swm.domain.user.core.dto.response.GetUserInfoResponse;
 import com.jj.swm.domain.user.core.entity.BusinessVerificationRequest;
 import com.jj.swm.domain.user.core.entity.InspectionStatus;
 import com.jj.swm.domain.user.core.entity.User;
+import com.jj.swm.domain.user.core.entity.UserCredential;
 import com.jj.swm.domain.user.core.repository.BusinessVerificationRequestRepository;
 import com.jj.swm.domain.user.core.repository.UserCredentialRepository;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -49,10 +50,10 @@ public class UserQueryService {
 
     @Transactional(readOnly = true)
     public GetUserInfoResponse getUserInfo(UUID userId) {
-        User user = userRepository.findById(userId)
+        UserCredential userCredential = userCredentialRepository.findByUserIdWithUser(userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_VALID, "User Not Found"));
 
-        return GetUserInfoResponse.from(user);
+        return GetUserInfoResponse.from(userCredential);
     }
 
     public boolean validateLoginId(String loginId) {
