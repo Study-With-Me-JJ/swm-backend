@@ -67,12 +67,22 @@ public class StudyRoomReservationCommandService {
         StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdWithStudyRoom(studyRoomReservationInfoId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
 
-        if(reservationInfo.getApprovalStatus().equals(ApprovalStatus.CANCELED))
-            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Canceled");
-
-        reservationInfo.modifyApprovalStatus(request.getApprovalStatus());
+        modifyStudyRoomReservationApprovalStatus(request, reservationInfo);
 
         Events.send(StudyRoomReservationResponseEvent.of(reservationInfo, reservationToken));
+        // TODO: 알림톡 전송 작업
+    }
+
+    @Transactional
+    public void updateStudyRoomReservationApprovalStatusAndSendSms(
+            UpdateStudyRoomReservationApprovalStatusRequest request, Long studyRoomReservationInfoId
+    ){
+        StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdWithStudyRoom(studyRoomReservationInfoId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
+
+        modifyStudyRoomReservationApprovalStatus(request, reservationInfo);
+
+        Events.send(StudyRoomReservationResponseEvent.of(reservationInfo, null));
         // TODO: 알림톡 전송 작업
     }
 
@@ -103,5 +113,14 @@ public class StudyRoomReservationCommandService {
     private StudyRoomReservationInfo findByIdAndUserIdOrThrow(Long studyRoomReservationInfoId, UUID userId) {
         return reservationInfoRepository.findByIdAndUserId(studyRoomReservationInfoId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
+    }
+
+    private void modifyStudyRoomReservationApprovalStatus(
+            UpdateStudyRoomReservationApprovalStatusRequest request, StudyRoomReservationInfo reservationInfo
+    ) {
+        if(reservationInfo.getApprovalStatus().equals(ApprovalStatus.CANCELED))
+            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Canceled");
+
+        reservationInfo.modifyApprovalStatus(request.getApprovalStatus());
     }
 }

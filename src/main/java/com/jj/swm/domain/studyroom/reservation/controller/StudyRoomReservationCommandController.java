@@ -8,6 +8,7 @@ import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -36,6 +37,17 @@ public class StudyRoomReservationCommandController {
             @PathVariable("reservationToken") String reservationToken
     ) {
         commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationToken);
+
+        return ApiResponse.created(null);
+    }
+
+    @Secured("ROOM_ADMIN")
+    @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}/status")
+    public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
+            @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
+            @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId
+    ) {
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, studyRoomReservationInfoId);
 
         return ApiResponse.created(null);
     }
