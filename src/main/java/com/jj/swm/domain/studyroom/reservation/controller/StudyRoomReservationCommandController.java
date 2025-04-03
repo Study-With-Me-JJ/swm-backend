@@ -31,7 +31,7 @@ public class StudyRoomReservationCommandController {
         return ApiResponse.created(null);
     }
 
-    @PatchMapping("/v1/studyroom/reservation/{reservationToken}/status")
+    @PatchMapping("/v1/studyroom/reservation/token/{reservationToken}/status")
     public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
             @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
             @PathVariable("reservationToken") String reservationToken
@@ -41,7 +41,7 @@ public class StudyRoomReservationCommandController {
         return ApiResponse.created(null);
     }
 
-    @Secured("ROOM_ADMIN")
+    @Secured("ROLE_ROOM_ADMIN")
     @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}/status")
     public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
             @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
@@ -49,7 +49,7 @@ public class StudyRoomReservationCommandController {
     ) {
         commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, studyRoomReservationInfoId);
 
-        return ApiResponse.created(null);
+        return ApiResponse.ok(null);
     }
 
     @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}")
@@ -64,7 +64,7 @@ public class StudyRoomReservationCommandController {
                 UUID.fromString(principal.getName())
         );
 
-        return ApiResponse.created(null);
+        return ApiResponse.ok(null);
     }
 
     @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}/cancel")
