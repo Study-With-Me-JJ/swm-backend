@@ -79,6 +79,10 @@ public class StudyParticipation {
         this.status = status;
     }
 
+    public void modifyPosition(StudyRecruitmentPosition recruitmentPosition) {
+        this.recruitmentPosition = recruitmentPosition;
+    }
+
     public void modify(UpdateStudyParticipationRequest request) {
         this.kakaoId = request.getKakaoId();
         this.coverLetter = request.getCoverLetter();
