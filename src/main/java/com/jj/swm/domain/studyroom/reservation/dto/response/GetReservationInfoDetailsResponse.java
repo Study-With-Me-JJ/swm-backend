@@ -43,6 +43,7 @@ public class GetReservationInfoDetailsResponse {
                 .reserverName(studyRoomReservationInfo.getReserverName())
                 .reserverPhoneNumber(studyRoomReservationInfo.getReserverPhoneNumber())
                 .headcount(studyRoomReservationInfo.getHeadcount())
+                .maxHeadcount(studyRoomReservationInfo.getStudyRoomReserveType().getMaxHeadcount())
                 .memo(studyRoomReservationInfo.getMemo())
                 .checkInTime(studyRoomReservationInfo.getCheckInTime())
                 .usageTime(studyRoomReservationInfo.getUsageTime())
