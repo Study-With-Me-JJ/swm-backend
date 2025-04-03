@@ -595,4 +595,48 @@ public class RecruitmentPositionCommandServiceIntegrationTest extends Integratio
                 () -> recruitmentPositionCommandService.deleteStudyParticipation(participationId, user1.getId())
         );
     }
+
+    @Test
+    @DisplayName("스터디 참여의 모집 포지션 수정에 성공한다.")
+    void updateStudyParticipationPosition_Success() {
+        //given
+        Long anotherRecruitmentPositionId = 2L; // setUp에서 스터디 생성시 생성된 모집 포지션
+
+        //when
+        recruitmentPositionCommandService.updateStudyParticipationPosition(
+                anotherRecruitmentPositionId,
+                participationId,
+                user1.getId()
+        );
+
+        //then
+        StudyParticipation participation = participationRepository.findById(participationId).get();
+        assertEquals(anotherRecruitmentPositionId, participation.getRecruitmentPosition().getId());
+    }
+
+    @Test
+    @DisplayName("동일하지 않은 스터디의 모집 포지션이면 스터디 참여 모집 포지션 수정에 실패한다.")
+    void updateStudyParticipationPosition_WhenNewRecruitmentPositionWithAnotherStudy_ThenFail() {
+        //given
+        studyCommandService.createStudy(CreateStudyRequestFixture.create(), user1.getId());
+        Long newRecruitmentPositionId = 3L;
+
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationPosition(
+                newRecruitmentPositionId,
+                participationId,
+                user1.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("기존과 동일한 모집 포지션으로 수정하려고 하면 스터디 참여 모집 포지션 수정에 실패한다.")
+    void updateStudyParticipationPosition_WhenSameRecruitmentPosition_ThenFail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> recruitmentPositionCommandService.updateStudyParticipationPosition(
+                recruitmentPositionId,
+                participationId,
+                user1.getId()
+        ));
+    }
 }
