@@ -81,7 +81,7 @@ public class UserQueryController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공"
     )
-    @Secured("ADMIN")
+    @Secured("ROLE_ADMIN")
     @GetMapping("/v1/user/business/verification/requests")
     public ApiResponse<PageResponse<GetBusinessVerificationRequestResponse>> getBusinessVerificationRequests(
             @RequestParam(

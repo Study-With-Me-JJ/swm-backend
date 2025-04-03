@@ -185,7 +185,7 @@ public class UserCommandController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공"
     )
-    @Secured("ADMIN")
+    @Secured("ROLE_ADMIN")
     @PatchMapping("/v1/user/business/verification/requests/approval")
     public ApiResponse<Void> updateInspectionStatusApproval(
         @Valid @RequestBody UpdateInspectionStatusRequest request
@@ -202,7 +202,7 @@ public class UserCommandController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공"
     )
-    @Secured("ADMIN")
+    @Secured("ROLE_ADMIN")
     @PatchMapping("/v1/user/business/verification/requests/rejection")
     public ApiResponse<Void> updateInspectionStatusRejection(
             @Valid @RequestBody UpdateInspectionStatusRequest request
