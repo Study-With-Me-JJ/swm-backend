@@ -100,8 +100,8 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
     }
 
     @Test
-    @DisplayName("스터디 룸 예약 신청을 승인한다.")
-    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenApprove_Success() throws Exception{
+    @DisplayName("예약 토큰으로 스터디 룸 예약 신청을 승인한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenApproveWithReservationToken_Success() throws Exception{
         //given
         given(kakaoNotificationService.sendStudyRoomReservationResponseNotification(
                 any(StudyRoomReservationResponseEvent.class))).willReturn(CompletableFuture.completedFuture(true));
@@ -132,8 +132,8 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
     }
 
     @Test
-    @DisplayName("스터디 룸 예약 신청을 거부한다.")
-    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenRejected_Success() throws Exception{
+    @DisplayName("예약 토큰으로 스터디 룸 예약 신청을 거부한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenRejectWithReservationToken_Success() throws Exception{
         //given
         given(kakaoNotificationService.sendStudyRoomReservationResponseNotification(
                 any(StudyRoomReservationResponseEvent.class))).willReturn(CompletableFuture.completedFuture(true));
@@ -181,7 +181,75 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
 
         //when & then
         assertThrows(GlobalException.class,
-                () -> commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, null)
+                () -> commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, "emptyToken")
+        );
+    }
+
+    @Test
+    @DisplayName("예약 정보 ID로 스터디 룸 예약 신청을 승인한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenApproveWithReservationInfoId_Success() throws Exception{
+        //given
+        given(kakaoNotificationService.sendStudyRoomReservationResponseNotification(
+                any(StudyRoomReservationResponseEvent.class))).willReturn(CompletableFuture.completedFuture(true));
+
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationApprovalStatusRequest request = UpdateStudyRoomReservationApprovalStatusRequest.builder()
+                .approvalStatus(ApprovalStatus.APPROVED)
+                .build();
+
+        //when
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationInfo.getId());
+
+        //then
+        reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
+        assertEquals(ApprovalStatus.APPROVED, reservationInfo.getApprovalStatus());
+    }
+
+    @Test
+    @DisplayName("예약 정보 ID로 스터디 룸 예약 신청을 거부한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenRejectWithReservationInfoId_Success() throws Exception{
+        //given
+        given(kakaoNotificationService.sendStudyRoomReservationResponseNotification(
+                any(StudyRoomReservationResponseEvent.class))).willReturn(CompletableFuture.completedFuture(true));
+
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        UpdateStudyRoomReservationApprovalStatusRequest request = UpdateStudyRoomReservationApprovalStatusRequest.builder()
+                .approvalStatus(ApprovalStatus.REJECTED)
+                .build();
+
+        //when
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationInfo.getId());
+
+        //then
+        reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
+        assertEquals(ApprovalStatus.REJECTED, reservationInfo.getApprovalStatus());
+    }
+
+    @Test
+    @DisplayName("스터디 룸 예약 정보가 존재하지 않는다면, 예약 신청 승인/거부에 실패한다.")
+    public void updateStudyRoomReservationApprovalStatusAndSendSms_WhenNotFoundReservationInfo_ThenFail() throws Exception{
+        //given
+        UpdateStudyRoomReservationApprovalStatusRequest request = UpdateStudyRoomReservationApprovalStatusRequest.builder()
+                .approvalStatus(ApprovalStatus.APPROVED)
+                .build();
+
+        //when & then
+        assertThrows(GlobalException.class,
+                () -> commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, 100L)
         );
     }
 
