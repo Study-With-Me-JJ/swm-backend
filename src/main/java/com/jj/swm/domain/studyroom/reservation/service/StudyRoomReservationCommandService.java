@@ -94,10 +94,7 @@ public class StudyRoomReservationCommandService {
     ) {
         StudyRoomReservationInfo reservationInfo = findByIdAndUserIdOrThrow(studyRoomReservationInfoId, userId);
 
-        ApprovalStatus approvalStatus = reservationInfo.getApprovalStatus();
-
-        if(approvalStatus.equals(ApprovalStatus.APPROVED) || approvalStatus.equals(ApprovalStatus.REJECTED))
-            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Approved or Rejected");
+        throwIfApprovedOrRejected(reservationInfo.getApprovalStatus());
 
         reservationInfo.modifyStudyRoomReservationInfo(request);
     }
@@ -105,6 +102,8 @@ public class StudyRoomReservationCommandService {
     @Transactional
     public void cancelStudyRoomReservation(Long studyRoomReservationInfoId, UUID userId) {
         StudyRoomReservationInfo reservationInfo = findByIdAndUserIdOrThrow(studyRoomReservationInfoId, userId);
+
+        throwIfApprovedOrRejected(reservationInfo.getApprovalStatus());
 
         reservationInfo.modifyApprovalStatus(ApprovalStatus.CANCELED);
         // TODO: 유저의 요청의 CANCEL 톡 전송 여부, Redis 토큰 삭제 여부(경우에 따라 소유자가 승인/거부를 위해 접속 시 삭제(updateSendSms 메서드에서))
@@ -122,5 +121,10 @@ public class StudyRoomReservationCommandService {
             throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Canceled");
 
         reservationInfo.modifyApprovalStatus(request.getApprovalStatus());
+    }
+
+    private void throwIfApprovedOrRejected(ApprovalStatus approvalStatus) {
+        if(approvalStatus.equals(ApprovalStatus.APPROVED) || approvalStatus.equals(ApprovalStatus.REJECTED))
+            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Approved or Rejected");
     }
 }
