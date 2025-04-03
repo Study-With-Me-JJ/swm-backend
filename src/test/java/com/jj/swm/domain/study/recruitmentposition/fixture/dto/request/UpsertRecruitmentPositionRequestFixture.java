@@ -18,4 +18,11 @@ public class UpsertRecruitmentPositionRequestFixture {
                 .headcount(5)
                 .build();
     }
+
+    public static UpsertRecruitmentPositionRequest updateForAcceptedCountLessThanHeadcountFail() {
+        return UpsertRecruitmentPositionRequest.builder()
+                .title(RecruitmentPositionTitle.FRONTEND)
+                .headcount(1)
+                .build();
+    }
 }

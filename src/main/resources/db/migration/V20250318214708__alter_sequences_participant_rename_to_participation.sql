@@ -1,0 +1,3 @@
+ALTER SEQUENCE if exists study_participant_id_seq RENAME TO study_participation_id_seq;
+ALTER SEQUENCE if exists study_participant_link_id_seq RENAME TO study_participation_link_id_seq;
+ALTER SEQUENCE if exists study_participant_attachment_id_seq RENAME TO study_participation_attachment_id_seq;

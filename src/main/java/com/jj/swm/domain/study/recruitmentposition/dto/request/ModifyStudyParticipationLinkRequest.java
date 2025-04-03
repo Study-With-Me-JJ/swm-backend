@@ -1,0 +1,23 @@
+package com.jj.swm.domain.study.recruitmentposition.dto.request;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+
+import java.util.List;
+
+import static com.jj.swm.domain.study.recruitmentposition.constants.StudyParticipationConstants.LINK_LIMIT;
+
+@Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ModifyStudyParticipationLinkRequest {
+
+    @Valid
+    @Size(max = LINK_LIMIT)
+    private List<@Size(max = 300) String> linksToAdd;
+
+    @Size(max = LINK_LIMIT)
+    private List<Long> linkIdsToRemove;
+}
