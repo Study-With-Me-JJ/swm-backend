@@ -117,6 +117,22 @@ public class RecruitmentPositionCommandController {
         return ApiResponse.ok(response);
     }
 
+    @PatchMapping("/v1/recruitment-position/{recruitmentPositionId}/participation/{participationId}/position")
+    @Operation(summary = "스터디 참여의 모집 포지션 수정", description = "스터디 참여의 모집 포지션을 수정합니다.")
+    public ApiResponse<Void> updateStudyParticipationPosition(
+            @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
+            @PathVariable("participationId") Long participationId,
+            Principal principal
+    ) {
+        recruitmentPositionCommandService.updateStudyParticipationPosition(
+                recruitmentPositionId,
+                participationId,
+                UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.ok(null);
+    }
+
     @PatchMapping("/v1/recruitment-position/participation/{participationId}")
     @Operation(
             summary = "스터디 참여 수정",
