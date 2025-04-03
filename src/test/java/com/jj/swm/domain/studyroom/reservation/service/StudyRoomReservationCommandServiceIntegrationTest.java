@@ -370,6 +370,48 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
         );
     }
 
+    @Test
+    @DisplayName("스터디 룸 예약 신청 취소에 성공한다.")
+    public void cancelStudyRoomReservation_Success() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        //when
+        commandService.cancelStudyRoomReservation(reservationInfo.getId(), createReservationUser.getId());
+
+        //then
+        reservationInfo = reservationInfoRepository.findById(reservationInfo.getId()).get();
+        assertEquals(ApprovalStatus.CANCELED, reservationInfo.getApprovalStatus());
+    }
+
+    @Test
+    @DisplayName("스터디 룸 예약 신청이 이미 승인/거부 되었다면, 취소에 실패한다.")
+    public void cancelStudyRoomReservation_WhenStatusApprovedOrRejected_ThenFail() throws Exception{
+        //given
+        StudyRoomReservationInfo reservationInfo = StudyRoomReservationInfoFixture.create(
+                createReservationUser,
+                studyRoom,
+                studyRoomReserveType
+        );
+
+        reservationInfo.modifyApprovalStatus(ApprovalStatus.APPROVED);
+
+        reservationInfo = reservationInfoRepository.save(reservationInfo);
+
+        //when & then
+        StudyRoomReservationInfo finalReservationInfo = reservationInfo;
+        assertThrows(GlobalException.class, () -> commandService.cancelStudyRoomReservation(
+                finalReservationInfo.getId(),
+                createReservationUser.getId())
+        );
+    }
+
     private String insertReservationToken(Long reservationId) {
         String reservationToken = jwtProvider.generateTokenForReservation(
                 reservationId, ExpirationTime.STUDYROOM_RESERVATION_TOKEN.getValue()
