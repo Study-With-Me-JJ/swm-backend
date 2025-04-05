@@ -3,7 +3,6 @@ package com.jj.swm.domain.study.core.dto.response;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
-import com.jj.swm.domain.study.recruitmentposition.dto.response.GetRecruitmentPositionResponse;
 import lombok.Builder;
 import lombok.Getter;
 

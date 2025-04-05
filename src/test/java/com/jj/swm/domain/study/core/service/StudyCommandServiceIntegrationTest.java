@@ -15,11 +15,11 @@ import com.jj.swm.domain.study.core.fixture.dto.request.DeleteStudiesRequestFixt
 import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyRequestFixture;
 import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyStatusRequestFixture;
 import com.jj.swm.domain.study.core.repository.*;
-import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateStudyParticipationRequestFixture;
-import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
-import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
-import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
-import com.jj.swm.domain.study.recruitmentposition.service.RecruitmentPositionCommandService;
+import com.jj.swm.domain.study.participation.fixture.dto.request.CreateStudyParticipationRequestFixture;
+import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
+import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
+import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
+import com.jj.swm.domain.study.participation.service.StudyParticipationCommandService;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -52,7 +52,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     private StudyCommentCommandService commentCommandService;
 
     @Autowired
-    private RecruitmentPositionCommandService recruitmentPositionCommandService;
+    private StudyParticipationCommandService participationCommandService;
 
     // repository
     @Autowired
@@ -120,7 +120,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(request.getTags().size(), studyTagRepository.countByStudyId(newStudyId));
         assertEquals(request.getImageUrls().size(), studyImageRepository.countByStudyId(newStudyId));
         assertEquals(
-                request.getUpsertRecruitmentPositionRequests().size(),
+                request.getCreateRecruitmentPositionRequests().size(),
                 recruitmentPositionRepository.countByStudyId(newStudyId)
         );
     }
@@ -445,7 +445,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
                 user.getId()
         );
 
-        recruitmentPositionCommandService.createStudyParticipation(
+        participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
                 user.getId()
@@ -507,13 +507,13 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
                 user.getId()
         );
 
-        recruitmentPositionCommandService.createStudyParticipation(
+        participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
                 user.getId()
         );
 
-        recruitmentPositionCommandService.createStudyParticipation(
+        participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 newRecruitmentPositionId,
                 user.getId()

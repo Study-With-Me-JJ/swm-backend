@@ -3,7 +3,6 @@ package com.jj.swm.domain.study.core.entity;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
-import com.jj.swm.domain.study.recruitmentposition.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.global.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;

@@ -1,7 +1,6 @@
 package com.jj.swm.domain.study.core.dto.request;
 
 import com.jj.swm.domain.study.core.entity.StudyCategory;
-import com.jj.swm.domain.study.recruitmentposition.dto.request.UpsertRecruitmentPositionRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -44,5 +43,5 @@ public class CreateStudyRequest {
     @Valid
     @NotEmpty
     @Size(max = RECRUITMENT_POSITION_LIMIT)
-    private List<UpsertRecruitmentPositionRequest> upsertRecruitmentPositionRequests;
+    private List<CreateRecruitmentPositionRequest> createRecruitmentPositionRequests;
 }

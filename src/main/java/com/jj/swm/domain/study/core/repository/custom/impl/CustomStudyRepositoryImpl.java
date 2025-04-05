@@ -6,7 +6,7 @@ import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.core.repository.custom.CustomStudyRepository;
-import com.jj.swm.domain.study.recruitmentposition.entity.RecruitmentPositionTitle;
+import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
