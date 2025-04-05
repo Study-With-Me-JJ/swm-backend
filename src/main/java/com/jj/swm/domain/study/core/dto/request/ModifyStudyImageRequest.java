@@ -7,7 +7,7 @@ import lombok.*;
 
 import java.util.List;
 
-import static com.jj.swm.domain.study.constants.StudyConstants.IMAGE_LIMIT;
+import static com.jj.swm.domain.study.core.constants.StudyConstants.IMAGE_LIMIT;
 
 @Getter
 @Builder

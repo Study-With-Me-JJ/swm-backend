@@ -1,4 +1,4 @@
-package com.jj.swm.domain.study.constants;
+package com.jj.swm.domain.study.core.constants;
 
 public class StudyConstants {
     public static final int TAG_LIMIT = 10;

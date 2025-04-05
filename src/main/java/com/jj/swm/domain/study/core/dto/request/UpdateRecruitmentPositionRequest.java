@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
-import static com.jj.swm.domain.study.constants.StudyConstants.RECRUITMENT_POSITION_COUNT_MAX;
+import static com.jj.swm.domain.study.core.constants.StudyConstants.RECRUITMENT_POSITION_COUNT_MAX;
 
 @Getter
 @Builder

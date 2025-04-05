@@ -10,8 +10,6 @@ import lombok.*;
 
 import java.util.List;
 
-import static com.jj.swm.domain.study.constants.StudyConstants.*;
-
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

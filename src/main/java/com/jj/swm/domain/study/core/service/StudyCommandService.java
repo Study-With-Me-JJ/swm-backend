@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.core.service;
 
 import com.google.common.collect.Lists;
 import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
-import com.jj.swm.domain.study.constants.StudyConstants;
+import com.jj.swm.domain.study.core.constants.StudyConstants;
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.entity.Study;

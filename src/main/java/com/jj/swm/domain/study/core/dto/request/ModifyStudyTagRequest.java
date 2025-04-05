@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.dto.request;
 
-import com.jj.swm.domain.study.constants.StudyConstants;
+import com.jj.swm.domain.study.core.constants.StudyConstants;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.*;

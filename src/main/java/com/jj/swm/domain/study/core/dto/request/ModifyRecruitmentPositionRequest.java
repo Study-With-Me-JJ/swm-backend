@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-import static com.jj.swm.domain.study.constants.StudyConstants.RECRUITMENT_POSITION_LIMIT;
+import static com.jj.swm.domain.study.core.constants.StudyConstants.RECRUITMENT_POSITION_LIMIT;
 
 @Getter
 @SuperBuilder
