@@ -16,7 +16,6 @@ import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyRequestFixtur
 import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyStatusRequestFixture;
 import com.jj.swm.domain.study.core.repository.*;
 import com.jj.swm.domain.study.participation.fixture.dto.request.CreateStudyParticipationRequestFixture;
-import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.domain.study.participation.service.StudyParticipationCommandService;
@@ -88,7 +87,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     // entity
     private User user;
     private final Long studyId = 1L; // setUp 시 생성된 스터디 모집의 id값
-    private final Long recruitmentPositionId = 1L; // setUp 시 생성된 모집 포지션의 id 값
+    private final Long recruitmentPositionId = 1L; // setUp 시 생성된 4개의 모집 포지션 중 하나의 id 값
 
     private ExecutorService executorService;
     private CountDownLatch countDownLatch;
@@ -472,7 +471,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
         Long newStudyId = 2L;
-        Long newRecruitmentPositionId = 3L; // setUp에서 2개 생성했으므로 새로 생성된 모집 포지션 ID는 3부터 시작
+        Long newRecruitmentPositionId = 5L; // setUp에서 2개 생성했으므로 새로 생성된 모집 포지션 ID는 5부터 시작
 
         studyCommandService.createStudyLike(studyId, user.getId());
         studyCommandService.createStudyBookmark(studyId, user.getId());
@@ -544,4 +543,20 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
                 DeleteStudiesRequestFixture.create(List.of(studyId, 123456789L)), user.getId()
         ));
     }
+
+//    @Test
+//    @DisplayName("스터디 모집 포지션 변경에 성공한다.")
+//    void modifyRecruitmentPosition_Success() {
+//        //given
+//        ModifyRecruitmentPositionRequest request = ModifyRecruitmentPositionRequestFixture.create();
+//
+//        //when
+//        studyCommandService.modifyRecruitmentPosition(
+//                request,
+//                studyId,
+//                user.getId()
+//        );
+//
+//        Optional<Study>
+//    }
 }

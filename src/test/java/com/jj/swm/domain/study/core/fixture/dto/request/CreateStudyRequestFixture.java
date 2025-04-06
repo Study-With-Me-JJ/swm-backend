@@ -17,6 +17,8 @@ public class CreateStudyRequestFixture {
                 .imageUrls(List.of("http://test_image1.png", "http://test_image2.png"))
                 .createRecruitmentPositionRequests(List.of(
                         CreateRecruitmentPositionRequestFixture.create(),
+                        CreateRecruitmentPositionRequestFixture.create(),
+                        CreateRecruitmentPositionRequestFixture.create(),
                         CreateRecruitmentPositionRequestFixture.create()
                 )).build();
     }

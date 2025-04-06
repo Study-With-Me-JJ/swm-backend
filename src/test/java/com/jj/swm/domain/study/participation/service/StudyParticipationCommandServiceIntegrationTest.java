@@ -63,7 +63,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     private User user2;
     private final Long studyId = 1L;
     private final Long participationId = 1L;
-    private final Long recruitmentPositionId = 1L; // addStudy 할 시에 모집 포지션 2개 삽입
+    private final Long recruitmentPositionId = 1L; // addStudy 할 시에 모집 포지션 4개 삽입
 
     @BeforeEach
     void setUp() {
@@ -492,7 +492,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void updateStudyParticipationPosition_WhenNewRecruitmentPositionWithAnotherStudy_ThenFail() {
         //given
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user1.getId());
-        Long newRecruitmentPositionId = 3L;
+        Long newRecruitmentPositionId = 5L;
 
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationPosition(
