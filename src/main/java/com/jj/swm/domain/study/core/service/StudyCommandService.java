@@ -5,17 +5,13 @@ import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
 import com.jj.swm.domain.study.core.constants.StudyConstants;
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
+import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyBookmark;
 import com.jj.swm.domain.study.core.entity.StudyLike;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.repository.*;
 import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
-import com.jj.swm.domain.study.core.dto.request.CreateRecruitmentPositionRequest;
-import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest;
-import com.jj.swm.domain.study.core.dto.request.UpdateRecruitmentPositionRequest;
-import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionResponse;
-import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
@@ -179,17 +175,15 @@ public class StudyCommandService {
                 userId
         );
 
-        insertRecruitmentPositionsIfNotEmpty(createRequests, studyId);
-
         deleteRecruitmentPositionsIfNotEmpty(recruitmentPositionIdsToRemove);
 
         List<UpdateRecruitmentPositionRequest> updateRequests = request.getUpdateRecruitmentPositionRequests();
-        updateRecruitmentPositionsIfPresent(updateRequests, userId);
+        List<Long> recruitmentPositionIdsToUpdate = updateRecruitmentPositionsIfPresent(updateRequests, userId);
+
+        insertRecruitmentPositionsIfNotEmpty(createRequests, studyId);
 
         List<Long> notNewRecruitmentPositionId = Stream.concat(
-                recruitmentPositionIdsToRemove.stream(),
-                updateRequests.stream()
-                        .map(UpdateRecruitmentPositionRequest::getRecruitmentPositionId)
+                recruitmentPositionIdsToRemove.stream(), recruitmentPositionIdsToUpdate.stream()
         ).toList();
 
         List<StudyRecruitmentPosition> newRecruitmentPositions =
@@ -200,7 +194,9 @@ public class StudyCommandService {
                 .toList();
     }
 
-    private void updateRecruitmentPositionsIfPresent(List<UpdateRecruitmentPositionRequest> requests, UUID userId) {
+    private List<Long> updateRecruitmentPositionsIfPresent(
+            List<UpdateRecruitmentPositionRequest> requests, UUID userId
+    ) {
         if (ListCheckUtils.isListPresent(requests)) {
 
             List<Long> recruitmentPositionIds = requests.stream()
@@ -222,19 +218,22 @@ public class StudyCommandService {
                             AcceptedStudyParticipationCountInfo::getAcceptedStudyParticipationCount
                     ));
 
-            Map<Long, UpdateRecruitmentPositionRequest> requestByRecruitmentPositionId = requests.stream()
+            Map<Long, StudyRecruitmentPosition> recruitmentPositionByRecruitmentPositionId = recruitmentPositions.stream()
                     .collect(Collectors.toMap(
-                            UpdateRecruitmentPositionRequest::getRecruitmentPositionId, request -> request
+                            StudyRecruitmentPosition::getId, recruitmentPosition -> recruitmentPosition
                     ));
 
-            for (StudyRecruitmentPosition recruitmentPosition : recruitmentPositions) {
-                if (recruitmentPosition.getHeadcount() <
-                        acceptedCountByRecruitmentPositionId.getOrDefault(recruitmentPosition.getId(), 0)) {
+            for (UpdateRecruitmentPositionRequest request : requests) {
+                if (request.getHeadcount() <
+                        acceptedCountByRecruitmentPositionId.getOrDefault(request.getRecruitmentPositionId(), 0)) {
                     throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
                 }
-                recruitmentPosition.modify(requestByRecruitmentPositionId.get(recruitmentPosition.getId()));
+                recruitmentPositionByRecruitmentPositionId.get(request.getRecruitmentPositionId()).modify(request);
             }
+
+            return recruitmentPositionIds;
         }
+        return Collections.emptyList();
     }
 
     private void deleteRecruitmentPositionsIfNotEmpty(List<Long> idsToRemove) {
