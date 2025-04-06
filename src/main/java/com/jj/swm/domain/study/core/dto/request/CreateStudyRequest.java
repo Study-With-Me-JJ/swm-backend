@@ -42,6 +42,6 @@ public class CreateStudyRequest {
 
     @Valid
     @NotEmpty
-    @Size(max = RECRUITMENT_POSITION_LIMIT)
+    @Size(min = 1, max = RECRUITMENT_POSITION_LIMIT)
     private List<CreateRecruitmentPositionRequest> createRecruitmentPositionRequests;
 }
