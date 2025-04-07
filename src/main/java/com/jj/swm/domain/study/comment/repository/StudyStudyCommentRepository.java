@@ -15,14 +15,10 @@ import java.util.UUID;
 
 public interface StudyStudyCommentRepository extends JpaRepository<StudyComment, Long>, CustomStudyCommentRepository {
 
-    Optional<StudyComment> findByIdAndUserId(Long commentId, UUID userId);
-
     @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1")
     Optional<StudyComment> findByIdWithParent(Long id);
 
-    @Modifying
-    @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")
-    void deleteAllByIdOrParentId(Long commentId);
+    Optional<StudyComment> findByIdAndUserId(Long commentId, UUID userId);
 
     @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1 and c.user.id = ?2")
     Optional<StudyComment> findByIdAndUserIdWithParent(Long commentId, UUID userId);
@@ -38,6 +34,10 @@ public interface StudyStudyCommentRepository extends JpaRepository<StudyComment,
             """
     )
     List<StudyReplyCountInfo> countByParentIds(List<Long> parentIds);
+
+    @Modifying
+    @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")
+    void deleteAllByIdOrParentId(Long commentId);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id = ?1")

@@ -197,11 +197,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
     @DisplayName("스터디 모집 댓글 삭제에 성공한다.")
     void deleteComment_Success() {
         //when
-        commentCommandService.deleteComment(
-                studyId,
-                commentId,
-                user.getId()
-        );
+        commentCommandService.deleteComment(commentId, user.getId());
 
         //then
         Study study = studyRepository.findById(studyId).get();
@@ -221,11 +217,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         );
 
         //when
-        commentCommandService.deleteComment(
-                studyId,
-                commentId,
-                user.getId()
-        );
+        commentCommandService.deleteComment(commentId, user.getId());
 
         //then
         Study study = studyRepository.findById(studyId).get();
@@ -246,11 +238,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         ).getCommentId();
 
         //when
-        commentCommandService.deleteComment(
-                studyId,
-                replyId,
-                user.getId()
-        );
+        commentCommandService.deleteComment(replyId, user.getId());
 
         //then
         Study study = studyRepository.findById(studyId).get();
@@ -283,11 +271,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
             Long commentId = commentIds.get(i);
             executorService.submit(() -> {
                 try {
-                    commentCommandService.deleteComment(
-                            studyId,
-                            commentId,
-                            user.getId()
-                    );
+                    commentCommandService.deleteComment(commentId, user.getId());
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {

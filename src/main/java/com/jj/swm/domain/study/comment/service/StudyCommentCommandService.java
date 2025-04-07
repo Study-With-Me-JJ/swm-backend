@@ -65,20 +65,20 @@ public class StudyCommentCommandService {
     }
 
     @Transactional
-    public void deleteComment(
-            Long studyId,
-            Long commentId,
-            UUID userId
-    ) {
+    public void deleteComment(Long commentId, UUID userId) {
         StudyComment comment = commentRepository.findByIdAndUserIdWithParent(commentId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
 
-        if (comment.getParent() == null) {
-            Study study = findByIdUsingLockOrThrow(studyId);
-            study.decrementCommentCount();
-        }
+        decrementStudyCommentCountIfParent(comment);
 
         commentRepository.deleteAllByIdOrParentId(commentId);
+    }
+
+    private void decrementStudyCommentCountIfParent(StudyComment comment) {
+        if (comment.getParent() == null) {
+            Study study = findByIdUsingLockOrThrow(comment.getStudy().getId());
+            study.decrementCommentCount();
+        }
     }
 
     private Study findByIdUsingLockOrThrow(Long studyId) {
