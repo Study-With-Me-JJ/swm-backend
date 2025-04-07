@@ -126,7 +126,7 @@ public class StudyQueryService {
 
         GetStudyParticipationStatusResponse getStudyParticipationStatusResponse = null;
         if(optionalParticipation.isPresent()){
-            getStudyParticipationStatusResponse = getStudyParticipationStatusResponse.from(optionalParticipation.get());
+            getStudyParticipationStatusResponse = GetStudyParticipationStatusResponse.from(optionalParticipation.get());
         }
 
         return GetStudyDetailsResponse.of(
