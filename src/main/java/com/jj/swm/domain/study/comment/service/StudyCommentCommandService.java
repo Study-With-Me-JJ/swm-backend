@@ -58,6 +58,7 @@ public class StudyCommentCommandService {
     ) {
         StudyComment comment = commentRepository.findByIdAndUserId(commentId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
+
         comment.modify(updateRequest);
 
         return UpdateStudyCommentResponse.from();
