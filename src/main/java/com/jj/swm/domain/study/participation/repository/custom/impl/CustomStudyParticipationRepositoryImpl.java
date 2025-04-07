@@ -48,6 +48,35 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public Page<StudyParticipation> findPagedStudyParticipationByStatusWithUserInMyPage(
+            Long studyId,
+            StudyParticipationStatus status,
+            Pageable pageable
+    ) {
+        List<StudyParticipation> content = jpaQueryFactory.selectFrom(studyParticipation)
+                .join(studyParticipation.user)
+                .fetchJoin()
+                .join(studyParticipation.recruitmentPosition)
+                .fetchJoin()
+                .where(
+                        studyParticipation.study.id.eq(studyId),
+                        statusEq(status)
+                ).orderBy(studyParticipation.id.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = jpaQueryFactory.select(studyParticipation.count())
+                .from(studyParticipation)
+                .where(
+                        studyParticipation.study.id.eq(studyId),
+                        statusEq(status)
+                );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
     private BooleanBuilder statusEq(StudyParticipationStatus status) {
         return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyParticipation.status.eq(status));
     }

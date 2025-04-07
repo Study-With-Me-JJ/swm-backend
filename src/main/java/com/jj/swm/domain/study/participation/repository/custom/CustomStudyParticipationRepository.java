@@ -12,4 +12,10 @@ public interface CustomStudyParticipationRepository {
             StudyParticipationStatus status,
             Pageable pageable
     );
+
+    Page<StudyParticipation> findPagedStudyParticipationByStatusWithUserInMyPage(
+            Long studyId,
+            StudyParticipationStatus status,
+            Pageable pageable
+    );
 }
