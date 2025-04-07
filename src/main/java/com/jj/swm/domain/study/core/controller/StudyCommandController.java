@@ -159,7 +159,7 @@ public class StudyCommandController {
                     스터디 모집 포지션을 변경합니다.
                     추가, 수정, 삭제를 모두 진행할 수 있습니다.
                     변경된 모집 포지션 개수가 1개 이상, 10개 이하이어야 정상적으로 진행됩니다.
-                    새로 생성된 참여 신청 수는 0개로 설정해주시면 됩니다.
+                    새로 생성된 모집 포지션의 참여 신청 수는 0개로 설정해주시면 됩니다.
                     """
     )
     public ApiResponse<List<GetRecruitmentPositionResponse>> modifyRecruitmentPosition(
