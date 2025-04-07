@@ -10,14 +10,19 @@ public class GetRecruitmentPositionDetailsResponse extends GetRecruitmentPositio
 
     private Integer acceptedCount;
 
+    private Integer participatedCount;
+
     public static GetRecruitmentPositionDetailsResponse of(
-            StudyRecruitmentPosition recruitmentPosition, Integer acceptedCount
+            StudyRecruitmentPosition recruitmentPosition,
+            Integer acceptedCount,
+            Integer participatedCount
     ) {
         return GetRecruitmentPositionDetailsResponse.builder()
                 .recruitmentPositionId(recruitmentPosition.getId())
                 .title(recruitmentPosition.getTitle())
                 .headcount(recruitmentPosition.getHeadcount())
                 .acceptedCount(acceptedCount)
+                .participatedCount(participatedCount)
                 .build();
     }
 }
