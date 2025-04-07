@@ -22,7 +22,7 @@ public class StudyCommentCommandController {
 
     private final StudyCommentCommandService commentCommandService;
 
-    @PostMapping({"/v1/study/{studyId}/comment", "/v1/study/{studyId}/comment/{parentId}"})
+    @PostMapping({"/v1/study/{studyId}/comment", "/v1/study/{studyId}/comment/{parentCommentId}"})
     @Operation(
             summary = "스터디 댓글 생성",
             description = "스터디 댓글을 생성합니다. 대댓글도 같은 API를 사용합니다."
@@ -31,13 +31,13 @@ public class StudyCommentCommandController {
     public ApiResponse<CreateStudyCommentResponse> createComment(
             @Valid @RequestBody UpsertStudyCommentRequest createRequest,
             @PathVariable("studyId") Long studyId,
-            @PathVariable(value = "parentId", required = false) Long parentId,
+            @PathVariable(value = "parentCommentId", required = false) Long parentCommentId,
             Principal principal
     ) {
         CreateStudyCommentResponse response = commentCommandService.createComment(
                 createRequest,
                 studyId,
-                parentId,
+                parentCommentId,
                 UUID.fromString(principal.getName())
         );
 
