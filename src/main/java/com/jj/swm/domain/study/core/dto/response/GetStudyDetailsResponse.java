@@ -53,6 +53,8 @@ public class GetStudyDetailsResponse {
 
     private PageResponse<GetParentStudyCommentResponse> pageCommentResponse;
 
+    private GetStudyParticipationStatusResponse getStudyParticipationStatusResponse;
+
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime createdAt;
 
@@ -65,7 +67,8 @@ public class GetStudyDetailsResponse {
             Long studyBookmarkId,
             List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses,
             List<GetStudyImageResponse> getImageResponses,
-            PageResponse<GetParentStudyCommentResponse> pageCommentResponse
+            PageResponse<GetParentStudyCommentResponse> pageCommentResponse,
+            GetStudyParticipationStatusResponse getStudyParticipationStatusResponse
     ) {
         return GetStudyDetailsResponse.builder()
                 .studyId(study.getId())
@@ -90,6 +93,7 @@ public class GetStudyDetailsResponse {
                 .pageCommentResponse(pageCommentResponse)
                 .createdAt(study.getCreatedAt())
                 .updatedAt(study.getUpdatedAt())
+                .getStudyParticipationStatusResponse(getStudyParticipationStatusResponse)
                 .build();
     }
 }

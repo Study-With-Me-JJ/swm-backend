@@ -5,18 +5,16 @@ import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.domain.study.core.dto.GetStudyCondition;
 import com.jj.swm.domain.study.core.dto.StudyBookmarkInfo;
 import com.jj.swm.domain.study.core.dto.StudyLikeInfo;
-import com.jj.swm.domain.study.core.dto.response.GetStudyDetailsResponse;
-import com.jj.swm.domain.study.core.dto.response.GetStudyImageResponse;
-import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
+import com.jj.swm.domain.study.core.dto.response.*;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyImage;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
 import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
-import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionDetailsResponse;
-import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -30,9 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,11 +57,21 @@ public class StudyQueryService {
         Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyId =
                 getLikeStatusAndBookmarkIdByStudyIdBasedOnLogin(pagedStudy, userId);
 
+        List<StudyParticipation> participations = new ArrayList<>();
+        if(userId != null)
+             participations = participationRepository.findByStudyIdsAndUserIdWithRecruitmentPosition(pagedStudy.stream().map(Study::getId).toList(), userId);
+
+        Map<Long, GetStudyParticipationStatusResponse> map = new HashMap<>();
+        for(StudyParticipation participation : participations) {
+            map.put(participation.getStudy().getId(), GetStudyParticipationStatusResponse.from(participation));
+        }
+
         List<GetStudyResponse> responses = pagedStudy.stream()
                 .map(study -> GetStudyResponse.of(
                         study,
                         likeStatusAndBookmarkIdByStudyId.get(study.getId()).bookmarkId,
-                        likeStatusAndBookmarkIdByStudyId.get(study.getId()).likeStatus
+                        likeStatusAndBookmarkIdByStudyId.get(study.getId()).likeStatus,
+                        map.get(study.getId())
                 )).toList();
 
         return PageResponse.of(responses, hasNext);
@@ -114,13 +120,23 @@ public class StudyQueryService {
         PageResponse<GetParentStudyCommentResponse> pageCommentResponse =
                 commentQueryService.getPageParentAndReplyCountResponse(studyId, pageable);
 
+        Optional<StudyParticipation> optionalParticipation = Optional.empty();
+        if(userId != null)
+            optionalParticipation = participationRepository.findByStudyIdAndUserIdWithRecruitmentPosition(studyId, userId);
+
+        GetStudyParticipationStatusResponse getStudyParticipationStatusResponse = null;
+        if(optionalParticipation.isPresent()){
+            getStudyParticipationStatusResponse = getStudyParticipationStatusResponse.from(optionalParticipation.get());
+        }
+
         return GetStudyDetailsResponse.of(
                 study,
                 likeStatusAndBookmarkId.likeStatus(),
                 likeStatusAndBookmarkId.bookmarkId(),
                 getRecruitmentPositionDetailsResponses,
                 getImageResponses,
-                pageCommentResponse
+                pageCommentResponse,
+                getStudyParticipationStatusResponse
         );
     }
 
