@@ -2,6 +2,7 @@ package com.jj.swm.domain.study.participation.controller;
 
 import com.jj.swm.domain.study.participation.dto.GetStudyParticipationCondition;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationDetailsResponse;
+import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationInMyPageResponse;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationResponse;
 import com.jj.swm.domain.study.participation.service.StudyParticipationQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
@@ -38,6 +39,26 @@ public class StudyParticipationQueryController {
         PageResponse<GetStudyParticipationResponse> pageResponse =
                 participationQueryService.getStudyParticipations(
                         recruitmentPositionId,
+                        UUID.fromString(principal.getName()),
+                        condition
+                );
+
+        return ApiResponse.ok(pageResponse);
+    }
+
+    @GetMapping("/v1/study/{studyId}/participation")
+    @Operation(
+            summary = "스터디 참여 조회",
+            description = "마이 페이지에서 스터디 참여 목록을 조회합니다. 스터디 작성자 전용입니다. "
+    )
+    public ApiResponse<PageResponse<GetStudyParticipationInMyPageResponse>> getStudyParticipationsInMyPage(
+            @PathVariable("studyId") Long studyId,
+            Principal principal,
+            GetStudyParticipationCondition condition
+    ) {
+        PageResponse<GetStudyParticipationInMyPageResponse> pageResponse =
+                participationQueryService.getStudyParticipationsInMyPage(
+                        studyId,
                         UUID.fromString(principal.getName()),
                         condition
                 );

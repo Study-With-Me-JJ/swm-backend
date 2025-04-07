@@ -1,9 +1,12 @@
 package com.jj.swm.domain.study.participation.service;
 
+import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
+import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.participation.dto.GetStudyParticipationCondition;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationDetailsResponse;
+import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationInMyPageResponse;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationResponse;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.entity.StudyParticipationLink;
@@ -30,6 +33,7 @@ public class StudyParticipationQueryService {
     private final RecruitmentPositionRepository recruitmentPositionRepository;
     private final StudyParticipationRepository participationRepository;
     private final StudyParticipationLinkRepository participationLinkRepository;
+    private final StudyRepository studyRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<GetStudyParticipationResponse> getStudyParticipations(
@@ -57,6 +61,35 @@ public class StudyParticipationQueryService {
         }
 
         return PageResponse.of(participations, GetStudyParticipationResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GetStudyParticipationInMyPageResponse> getStudyParticipationsInMyPage(
+            Long studyId,
+            UUID userId,
+            GetStudyParticipationCondition condition
+    ) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+
+        if(!study.getUser().getId().equals(userId)){
+            throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
+        }
+
+        Pageable pageable = PageRequest.of(condition.getPageNo(), PageSize.StudyParticipation);
+
+        Page<StudyParticipation> participations =
+                participationRepository.findPagedStudyParticipationByStatusWithUserInMyPage(
+                        studyId,
+                        condition.getStatus(),
+                        pageable
+                );
+
+        if (participations.isEmpty()) {
+            return PageResponse.of(List.of(), false);
+        }
+
+        return PageResponse.of(participations, GetStudyParticipationInMyPageResponse::from);
     }
 
     @Transactional(readOnly = true)
