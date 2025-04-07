@@ -560,16 +560,16 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //then
         StudyRecruitmentPosition recruitmentPosition =
                 recruitmentPositionRepository.findById(newRecruitmentPositionId).get();
-        assertEquals(request.getCreateRecruitmentPositionRequests().get(0).getTitle(), recruitmentPosition.getTitle());
+        assertEquals(request.getCreateRecruitmentPositionRequests().getFirst().getTitle(), recruitmentPosition.getTitle());
 
         Optional<StudyRecruitmentPosition> optionalRecruitmentPosition =
-                recruitmentPositionRepository.findById(request.getRecruitmentPositionIdsToRemove().get(0));
+                recruitmentPositionRepository.findById(request.getRecruitmentPositionIdsToRemove().getFirst());
         assertFalse(optionalRecruitmentPosition.isPresent());
 
         recruitmentPosition = recruitmentPositionRepository.findById(
-                request.getUpdateRecruitmentPositionRequests().get(0).getRecruitmentPositionId()
+                request.getUpdateRecruitmentPositionRequests().getFirst().getRecruitmentPositionId()
         ).get();
-        assertEquals(request.getUpdateRecruitmentPositionRequests().get(0).getTitle(), recruitmentPosition.getTitle());
+        assertEquals(request.getUpdateRecruitmentPositionRequests().getFirst().getTitle(), recruitmentPosition.getTitle());
 
         assertEquals(4, recruitmentPositionRepository.count()); // 4개에서 2개 제거하고 2개 추가
     }
