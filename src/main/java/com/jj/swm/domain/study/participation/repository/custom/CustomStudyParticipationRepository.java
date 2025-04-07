@@ -1,15 +1,15 @@
 package com.jj.swm.domain.study.participation.repository.custom;
 
-import com.jj.swm.domain.study.participation.dto.GetStudyParticipationCondition;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
-
-import java.util.List;
+import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CustomStudyParticipationRepository {
 
-    List<StudyParticipation> findPagedStudyParticipationByConditionWithUser(
+    Page<StudyParticipation> findPagedStudyParticipationByStatusWithUser(
             Long recruitmentPositionId,
-            GetStudyParticipationCondition condition,
-            int pageSize
+            StudyParticipationStatus status,
+            Pageable pageable
     );
 }
