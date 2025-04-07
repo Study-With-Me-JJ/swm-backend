@@ -150,7 +150,7 @@ public class StudyQueryService {
 
         Page<Study> pagedStudy = studyLikeRepository.findPagedStudyByUserId(userId, pageable);
 
-        return PageResponse.of(pagedStudy, GetStudyResponse::of);
+        return PageResponse.of(pagedStudy, GetStudyResponse::from);
     }
 
     @Transactional(readOnly = true)
@@ -163,7 +163,7 @@ public class StudyQueryService {
 
         Page<Study> pagedStudy = studyBookmarkRepository.findPagedStudyByUserId(userId, pageable);
 
-        return PageResponse.of(pagedStudy, GetStudyResponse::of);
+        return PageResponse.of(pagedStudy, GetStudyResponse::from);
     }
 
     @Transactional(readOnly = true)
@@ -176,7 +176,7 @@ public class StudyQueryService {
 
         Page<Study> pagedStudy = studyRepository.findAllByUserId(userId, pageable);
 
-        return PageResponse.of(pagedStudy, GetStudyResponse::of);
+        return PageResponse.of(pagedStudy, GetStudyResponse::from);
     }
 
     private Map<Long, LikeStatusAndBookmarkId> getLikeStatusAndBookmarkIdByStudyIdBasedOnLogin(

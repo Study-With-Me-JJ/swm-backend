@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.participation.service;
 
+import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,10 +58,6 @@ public class StudyParticipationQueryService {
                         pageable
                 );
 
-        if (participations.isEmpty()) {
-            return PageResponse.of(List.of(), false);
-        }
-
         return PageResponse.of(participations, GetStudyParticipationResponse::from);
     }
 
@@ -85,11 +83,20 @@ public class StudyParticipationQueryService {
                         pageable
                 );
 
-        if (participations.isEmpty()) {
-            return PageResponse.of(List.of(), false);
-        }
-
         return PageResponse.of(participations, GetStudyParticipationInMyPageResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GetStudyResponse> getUserParticipantStudy(UUID userId, int pageNo) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.Study,
+                Sort.by("id").descending()
+        );
+
+        Page<Study> studies = participationRepository.findPagedStudyByUserId(userId, pageable);
+
+        return PageResponse.of(studies, GetStudyResponse::from);
     }
 
     @Transactional(readOnly = true)

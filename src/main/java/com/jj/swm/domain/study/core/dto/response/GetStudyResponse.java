@@ -65,7 +65,7 @@ public class GetStudyResponse {
                 .build();
     }
 
-    public static GetStudyResponse of(Study study) {
+    public static GetStudyResponse from(Study study) {
         return GetStudyResponse.builder()
                 .studyId(study.getId())
                 .title(study.getTitle())
