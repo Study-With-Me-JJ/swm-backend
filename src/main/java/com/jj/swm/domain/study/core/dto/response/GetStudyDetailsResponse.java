@@ -5,7 +5,6 @@ import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentRespons
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
-import com.jj.swm.domain.study.recruitmentposition.dto.response.GetRecruitmentPositionDetailsResponse;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.Builder;
 import lombok.Getter;

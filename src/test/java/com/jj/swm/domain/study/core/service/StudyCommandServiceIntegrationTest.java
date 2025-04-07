@@ -6,20 +6,18 @@ import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertStudyCommentReq
 import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
 import com.jj.swm.domain.study.comment.service.StudyCommentCommandService;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
+import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
-import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyBookmark;
-import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
-import com.jj.swm.domain.study.core.fixture.dto.request.DeleteStudiesRequestFixture;
-import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyRequestFixture;
-import com.jj.swm.domain.study.core.fixture.dto.request.UpdateStudyStatusRequestFixture;
+import com.jj.swm.domain.study.core.entity.*;
+import com.jj.swm.domain.study.core.fixture.dto.request.*;
 import com.jj.swm.domain.study.core.repository.*;
-import com.jj.swm.domain.study.recruitmentposition.fixture.dto.request.CreateStudyParticipationRequestFixture;
-import com.jj.swm.domain.study.recruitmentposition.repository.RecruitmentPositionRepository;
-import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationLinkRepository;
-import com.jj.swm.domain.study.recruitmentposition.repository.StudyParticipationRepository;
-import com.jj.swm.domain.study.recruitmentposition.service.RecruitmentPositionCommandService;
+import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
+import com.jj.swm.domain.study.participation.fixture.dto.request.CreateStudyParticipationRequestFixture;
+import com.jj.swm.domain.study.participation.fixture.dto.request.UpdateStudyParticipationStatusRequestFixture;
+import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
+import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
+import com.jj.swm.domain.study.participation.service.StudyParticipationCommandService;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -52,7 +50,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     private StudyCommentCommandService commentCommandService;
 
     @Autowired
-    private RecruitmentPositionCommandService recruitmentPositionCommandService;
+    private StudyParticipationCommandService participationCommandService;
 
     // repository
     @Autowired
@@ -88,7 +86,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     // entity
     private User user;
     private final Long studyId = 1L; // setUp 시 생성된 스터디 모집의 id값
-    private final Long recruitmentPositionId = 1L; // setUp 시 생성된 모집 포지션의 id 값
+    private final Long recruitmentPositionId = 1L; // setUp 시 생성된 4개의 모집 포지션 중 하나의 id 값
 
     private ExecutorService executorService;
     private CountDownLatch countDownLatch;
@@ -120,7 +118,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(request.getTags().size(), studyTagRepository.countByStudyId(newStudyId));
         assertEquals(request.getImageUrls().size(), studyImageRepository.countByStudyId(newStudyId));
         assertEquals(
-                request.getUpsertRecruitmentPositionRequests().size(),
+                request.getCreateRecruitmentPositionRequests().size(),
                 recruitmentPositionRepository.countByStudyId(newStudyId)
         );
     }
@@ -445,7 +443,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
                 user.getId()
         );
 
-        recruitmentPositionCommandService.createStudyParticipation(
+        participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
                 user.getId()
@@ -472,7 +470,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
         Long newStudyId = 2L;
-        Long newRecruitmentPositionId = 3L; // setUp에서 2개 생성했으므로 새로 생성된 모집 포지션 ID는 3부터 시작
+        Long newRecruitmentPositionId = 5L; // setUp에서 2개 생성했으므로 새로 생성된 모집 포지션 ID는 5부터 시작
 
         studyCommandService.createStudyLike(studyId, user.getId());
         studyCommandService.createStudyBookmark(studyId, user.getId());
@@ -507,13 +505,13 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
                 user.getId()
         );
 
-        recruitmentPositionCommandService.createStudyParticipation(
+        participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
                 user.getId()
         );
 
-        recruitmentPositionCommandService.createStudyParticipation(
+        participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
                 newRecruitmentPositionId,
                 user.getId()
@@ -542,6 +540,163 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.deleteStudies(
                 DeleteStudiesRequestFixture.create(List.of(studyId, 123456789L)), user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("스터디 모집 포지션 변경에 성공한다.")
+    void modifyRecruitmentPosition_Success() {
+        //given
+        ModifyRecruitmentPositionRequest request = ModifyRecruitmentPositionRequestFixture.create();
+
+        //when
+        studyCommandService.modifyRecruitmentPosition(
+                request,
+                studyId,
+                user.getId()
+        );
+        Long newRecruitmentPositionId = 5L;
+
+        //then
+        StudyRecruitmentPosition recruitmentPosition =
+                recruitmentPositionRepository.findById(newRecruitmentPositionId).get();
+        assertEquals(request.getCreateRecruitmentPositionRequests().getFirst().getTitle(), recruitmentPosition.getTitle());
+
+        Optional<StudyRecruitmentPosition> optionalRecruitmentPosition =
+                recruitmentPositionRepository.findById(request.getRecruitmentPositionIdsToRemove().getFirst());
+        assertFalse(optionalRecruitmentPosition.isPresent());
+
+        recruitmentPosition = recruitmentPositionRepository.findById(
+                request.getUpdateRecruitmentPositionRequests().getFirst().getRecruitmentPositionId()
+        ).get();
+        assertEquals(request.getUpdateRecruitmentPositionRequests().getFirst().getTitle(), recruitmentPosition.getTitle());
+
+        assertEquals(4, recruitmentPositionRepository.count()); // 4개에서 2개 제거하고 2개 추가
+    }
+
+    @Test
+    @DisplayName("추가 모집 포지션 리스트가 비어도 스터디 모집 포지션 변경에 성공한다.")
+    void modifyRecruitmentPosition_WhenCreateRecruitmentPositionRequestsNull_Success() {
+        //when
+        studyCommandService.modifyRecruitmentPosition(
+                ModifyRecruitmentPositionRequestFixture.createForCreateRecruitmentPositionRequestsNullSuccess(),
+                studyId,
+                user.getId()
+        );
+
+        //then
+        assertEquals(2, recruitmentPositionRepository.count()); // 4개에서 2개 제거
+    }
+
+    @Test
+    @DisplayName("수장 모집 포지션 리스트가 비어도 스터디 모집 포지션 변경에 성공한다.")
+    void modifyRecruitmentPosition_WhenUpdateRecruitmentPositionRequestsNull_Success() {
+        //when
+        studyCommandService.modifyRecruitmentPosition(
+                ModifyRecruitmentPositionRequestFixture.createForUpdateRecruitmentPositionRequestsNullSuccess(),
+                studyId,
+                user.getId()
+        );
+
+        //then
+        assertEquals(4, recruitmentPositionRepository.count()); // 4개에서 2개 제거
+    }
+
+    @Test
+    @DisplayName("수정할 모집 포지션과 이를 위해 조회한 모집 포지션 사이즈가 다르면 모집 포지션 변경에 실패한다.")
+    void modifyRecruitmentPosition_WhenNotEqualsUpdateSize_ThenFail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
+                ModifyRecruitmentPositionRequestFixture.createForNotEqualsUpdateSizeFail(),
+                studyId,
+                user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("수정할 모집 포지션의 모집 인원보다 승인 수가 크면 모집 포지션 변경에 실패한다.")
+    void modifyRecruitmentPosition_WhenHeadcountLessThenAcceptedCount_ThenFail() {
+        //given
+        Long updateRecruitmentPositionId = 3L;
+
+        for (int i = 1; i <= 2; i++) {
+            User newUser = userRepository.save(UserFixture.create());
+            participationCommandService.createStudyParticipation(
+                    CreateStudyParticipationRequestFixture.create(),
+                    updateRecruitmentPositionId,
+                    newUser.getId()
+            );
+
+            Long newParticipationId = (long) i;
+
+            participationCommandService.updateStudyParticipationStatus(
+                    UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                    newParticipationId,
+                    user.getId()
+            );
+        }
+
+
+        //when & then
+        assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
+                ModifyRecruitmentPositionRequestFixture.createForHeadcountLessThenAcceptedCountFail(updateRecruitmentPositionId),
+                studyId,
+                user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("스터디가 존재하지 않으면 모집 포지션 변경에 실패한다.")
+    void modifyRecruitmentPosition_WhenStudyNotExists_Fail() {
+        //given
+        studyRepository.save(Study.builder()
+                .title("test_title")
+                .status(StudyStatus.ACTIVE)
+                .category(StudyCategory.ALGORITHM)
+                .content("test_content")
+                .openChatUrl("test_open_chat_url")
+                .user(user)
+                .build());
+        Long newStudyId = 2L;
+
+        //when & then
+        assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
+                ModifyRecruitmentPositionRequestFixture.create(),
+                newStudyId,
+                user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("삭제할 모집 포지션과 이를 위해 조회한 모집 포지션 사이즈가 다르면 크면 모집 포지션 변경에 실패한다.")
+    void modifyRecruitmentPosition_WhenNotEqualsDeleteSize_Fail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
+                ModifyRecruitmentPositionRequestFixture.createForNotEqualsDeleteSizeFail(),
+                studyId,
+                user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("모집 포지션 최대 개수를 넘으면 모집 포지션 변경에 실패한다.")
+    void modifyRecruitmentPosition_WhenExceedSize_Fail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
+                ModifyRecruitmentPositionRequestFixture.createForExceedSizeFail(),
+                studyId,
+                user.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("모집 포지션 최소 개수보다 작으면 모집 포지션 변경에 실패한다.")
+    void modifyRecruitmentPosition_WhenUnderSize_Fail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
+                ModifyRecruitmentPositionRequestFixture.createForUnderSizeFail(),
+                studyId,
+                user.getId()
         ));
     }
 }

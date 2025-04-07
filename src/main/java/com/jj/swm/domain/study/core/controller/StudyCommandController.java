@@ -6,6 +6,8 @@ import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
+import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest;
+import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionResponse;
 import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -147,5 +150,29 @@ public class StudyCommandController {
         studyCommandService.deleteStudyLike(studyId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
+    }
+
+    @PatchMapping("/v1/study/{studyId}/recruitment-position")
+    @Operation(
+            summary = "스터디 모집 포지션 변경",
+            description = """
+                    스터디 모집 포지션을 변경합니다.
+                    추가, 수정, 삭제를 모두 진행할 수 있습니다.
+                    변경된 모집 포지션 개수가 1개 이상, 10개 이하이어야 정상적으로 진행됩니다.
+                    새로 생성된 모집 포지션의 참여 신청 수는 0개로 설정해주시면 됩니다.
+                    """
+    )
+    public ApiResponse<List<GetRecruitmentPositionResponse>> modifyRecruitmentPosition(
+            @Valid @RequestBody ModifyRecruitmentPositionRequest request,
+            @PathVariable("studyId") Long studyId,
+            Principal principal
+    ) {
+        List<GetRecruitmentPositionResponse> responses = studyCommandService.modifyRecruitmentPosition(
+                request,
+                studyId,
+                UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.ok(responses);
     }
 }
