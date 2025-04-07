@@ -2,6 +2,7 @@ package com.jj.swm.domain.study.participation.repository;
 
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
+import com.jj.swm.domain.study.participation.dto.StudyParticipationCountInfo;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.repository.custom.CustomStudyParticipationRepository;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,18 @@ public interface StudyParticipationRepository extends
             """
     )
     List<AcceptedStudyParticipationCountInfo> countByRecruitmentPositionIdsAndAcceptedStatus(
+            List<Long> recruitmentPositionIds
+    );
+
+    @Query("""
+            select p.recruitmentPosition.id as recruitmentPositionId, count(*) as totalCount,
+                        sum(case when p.status = 'ACCEPTED' then 1 else 0 end) as acceptedCount
+            from StudyParticipation p
+            where p.recruitmentPosition.id in (?1)
+            group by p.recruitmentPosition.id
+            """
+    )
+    List<StudyParticipationCountInfo> countByRecruitmentPositionIds(
             List<Long> recruitmentPositionIds
     );
 
