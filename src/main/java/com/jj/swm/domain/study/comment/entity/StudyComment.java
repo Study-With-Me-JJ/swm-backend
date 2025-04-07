@@ -54,9 +54,9 @@ public class StudyComment extends BaseTimeEntity {
             User user
     ) {
         return StudyComment.builder()
-                .user(user)
-                .study(study)
                 .content(createRequest.getContent())
+                .study(study)
+                .user(user)
                 .build();
     }
 
