@@ -62,4 +62,10 @@ public interface StudyParticipationRepository extends
             nativeQuery = true
     )
     Optional<StudyParticipation> findByStudyIdAndUserId(Long studyId, UUID userId);
+
+    @Query("select p from StudyParticipation p join fetch p.recruitmentPosition where p.study.id in (?1) and p.user.id = ?2")
+    List<StudyParticipation> findByStudyIdsAndUserIdWithRecruitmentPosition(List<Long> studyId, UUID userId);
+
+    @Query("select p from StudyParticipation p join fetch p.recruitmentPosition where p.study.id = ?1 and p.user.id = ?2")
+    Optional<StudyParticipation> findByStudyIdAndUserIdWithRecruitmentPosition(Long studyId, UUID userId);
 }

@@ -36,10 +36,13 @@ public class GetStudyResponse {
 
     private List<GetRecruitmentPositionResponse> getRecruitmentPositionResponses;
 
+    private GetStudyParticipationStatusResponse getStudyParticipationStatusResponse;
+
     public static GetStudyResponse of(
             Study study,
             Long studyBookmarkId,
-            boolean liked
+            boolean liked,
+            GetStudyParticipationStatusResponse getStudyParticipationStatusResponse
     ) {
         return GetStudyResponse.builder()
                 .studyId(study.getId())
@@ -58,6 +61,7 @@ public class GetStudyResponse {
                 .getRecruitmentPositionResponses(study.getStudyRecruitmentPositions().stream()
                         .map(GetRecruitmentPositionResponse::from)
                         .toList())
+                .getStudyParticipationStatusResponse(getStudyParticipationStatusResponse)
                 .build();
     }
 
