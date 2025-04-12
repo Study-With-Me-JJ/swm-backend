@@ -1,7 +1,8 @@
 package com.jj.swm.domain.studyroom.reservation.controller;
 
 import com.jj.swm.domain.studyroom.reservation.dto.response.GetReservationInfoDetailsResponse;
-import com.jj.swm.domain.studyroom.reservation.dto.response.GetReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.dto.response.GetOwnerReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.dto.response.GetReserverReservationInfoResponse;
 import com.jj.swm.domain.studyroom.reservation.service.StudyRoomReservationQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -42,10 +43,21 @@ public class StudyRoomReservationQueryController {
 
     @Secured("ROLE_ROOM_ADMIN")
     @GetMapping("/v1/studyroom/reservation/owner")
-    public ApiResponse<PageResponse<GetReservationInfoResponse>> getReservationInfos(
+    public ApiResponse<PageResponse<GetOwnerReservationInfoResponse>> getReservationInfosForOwner(
             Principal principal, @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
-        PageResponse<GetReservationInfoResponse> response = queryService.getReservationInfos(
+        PageResponse<GetOwnerReservationInfoResponse> response = queryService.getReservationInfosForOwner(
+                UUID.fromString(principal.getName()), pageNo
+        );
+
+        return ApiResponse.ok(response);
+    }
+
+    @GetMapping("/v1/studyroom/reservation/reserver")
+    public ApiResponse<PageResponse<GetReserverReservationInfoResponse>> getReservationInfosForReserver(
+            Principal principal, @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
+    ) {
+        PageResponse<GetReserverReservationInfoResponse> response = queryService.getReservationInfosForReserver(
                 UUID.fromString(principal.getName()), pageNo
         );
 
