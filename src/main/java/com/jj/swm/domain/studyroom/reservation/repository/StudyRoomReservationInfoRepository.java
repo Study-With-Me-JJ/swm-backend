@@ -1,7 +1,8 @@
 package com.jj.swm.domain.studyroom.reservation.repository;
 
 import com.jj.swm.domain.studyroom.reservation.entity.StudyRoomReservationInfo;
-import com.jj.swm.domain.studyroom.reservation.repository.custom.ReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.repository.custom.OwnerReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.repository.custom.ReserverReservationInfoResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,5 +34,16 @@ public interface StudyRoomReservationInfoRepository extends JpaRepository<StudyR
             where s.studyRoom.id in ?1
        """
     )
-    Page<ReservationInfoResponse> findPagedReservationInfoByStudyRoomIds(List<Long> studyRoomIds, Pageable pageable);
+    Page<OwnerReservationInfoResponse> findPagedReservationInfoByStudyRoomIds(List<Long> studyRoomIds, Pageable pageable);
+
+    @Query(
+            """
+                select s.id as studyRoomReservationInfoId, s.reserverName as reserverName, s.studyRoom.phoneNumber as studyRoomPhoneNumber,
+                       s.checkInTime as checkInTime, s.studyRoom.title as title, s.approvalStatus as approvalStatus
+                from StudyRoomReservationInfo s
+                left join s.studyRoom
+                where s.user.id = ?1
+           """
+    )
+    Page<ReserverReservationInfoResponse> findPagedReservationInfoByUserId(UUID userId, Pageable pageable);
 }
