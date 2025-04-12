@@ -4,7 +4,7 @@ import com.jj.swm.domain.studyroom.reservation.entity.ApprovalStatus;
 
 import java.time.LocalDateTime;
 
-public interface ReservationInfoResponse {
+public interface OwnerReservationInfoResponse {
 
     Long getStudyRoomReservationInfoId();
 
