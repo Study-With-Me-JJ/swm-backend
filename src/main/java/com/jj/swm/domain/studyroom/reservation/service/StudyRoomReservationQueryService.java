@@ -1,12 +1,13 @@
 package com.jj.swm.domain.studyroom.reservation.service;
 
-import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
 import com.jj.swm.domain.studyroom.core.repository.StudyRoomRepository;
 import com.jj.swm.domain.studyroom.reservation.dto.response.GetReservationInfoDetailsResponse;
-import com.jj.swm.domain.studyroom.reservation.dto.response.GetReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.dto.response.GetOwnerReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.dto.response.GetReserverReservationInfoResponse;
 import com.jj.swm.domain.studyroom.reservation.entity.StudyRoomReservationInfo;
 import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationInfoRepository;
-import com.jj.swm.domain.studyroom.reservation.repository.custom.ReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.repository.custom.OwnerReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.repository.custom.ReserverReservationInfoResponse;
 import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
@@ -52,14 +53,24 @@ public class StudyRoomReservationQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetReservationInfoResponse> getReservationInfos(UUID userId, int pageNo) {
+    public PageResponse<GetOwnerReservationInfoResponse> getReservationInfosForOwner(UUID userId, int pageNo) {
         List<Long> studyRoomIds = studyRoomRepository.findStudyRoomIdsByUserId(userId);
 
         Pageable pageable = PageRequest.of(pageNo, PageSize.StudyRoomReservationInfo, Sort.by("id").descending());
 
-        Page<ReservationInfoResponse> pagedReservationInfos
+        Page<OwnerReservationInfoResponse> pagedReservationInfos
                 = reservationInfoRepository.findPagedReservationInfoByStudyRoomIds(studyRoomIds, pageable);
 
-        return PageResponse.of(pagedReservationInfos, GetReservationInfoResponse::from);
+        return PageResponse.of(pagedReservationInfos, GetOwnerReservationInfoResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GetReserverReservationInfoResponse> getReservationInfosForReserver(UUID userId, int pageNo) {
+        Pageable pageable = PageRequest.of(pageNo, PageSize.StudyRoomReservationInfo, Sort.by("id").descending());
+
+        Page<ReserverReservationInfoResponse> pageReservationInfos
+                = reservationInfoRepository.findPagedReservationInfoByUserId(userId, pageable);
+
+        return PageResponse.of(pageReservationInfos, GetReserverReservationInfoResponse::from);
     }
 }
