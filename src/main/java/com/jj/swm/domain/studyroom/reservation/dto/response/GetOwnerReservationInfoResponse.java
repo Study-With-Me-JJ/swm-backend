@@ -2,7 +2,7 @@ package com.jj.swm.domain.studyroom.reservation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.studyroom.reservation.entity.ApprovalStatus;
-import com.jj.swm.domain.studyroom.reservation.repository.custom.ReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.repository.custom.OwnerReservationInfoResponse;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class GetReservationInfoResponse {
+public class GetOwnerReservationInfoResponse {
 
     private Long studyRoomReservationInfoId;
 
@@ -25,8 +25,8 @@ public class GetReservationInfoResponse {
 
     private ApprovalStatus approvalStatus;
 
-    public static GetReservationInfoResponse from(ReservationInfoResponse reservationInfoResponse) {
-        return GetReservationInfoResponse.builder()
+    public static GetOwnerReservationInfoResponse from(OwnerReservationInfoResponse reservationInfoResponse) {
+        return GetOwnerReservationInfoResponse.builder()
                 .studyRoomReservationInfoId(reservationInfoResponse.getStudyRoomReservationInfoId())
                 .reserverName(reservationInfoResponse.getReserverName())
                 .reserverPhoneNumber(reservationInfoResponse.getReserverPhoneNumber())
