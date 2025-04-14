@@ -29,12 +29,12 @@ public class StudyCommentCommandService {
     public CreateStudyCommentResponse createComment(
             UpsertStudyCommentRequest createRequest,
             Long studyId,
-            Long parentCommentId,
+            Long commentId,
             UUID userId
     ) {
         User user = userRepository.getReferenceById(userId);
-        StudyComment parentComment = findByIdOrThrowIfNotParentElseNull(parentCommentId);
-        Study study = findByIdOrThrowIfParentThenUsingLock(studyId, parentCommentId);
+        StudyComment parentComment = findByIdOrThrowIfNotParentElseNull(commentId);
+        Study study = findByIdOrThrowIfParentThenUsingLock(studyId, commentId);
 
         StudyComment comment = buildComment(
                 createRequest,
@@ -86,8 +86,8 @@ public class StudyCommentCommandService {
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
-    private void incrementStudyCommentCountIfParent(Study study, StudyComment parentComment) {
-        if (parentComment == null) {
+    private void incrementStudyCommentCountIfParent(Study study, StudyComment comment) {
+        if (comment == null) {
             study.incrementCommentCount();
         }
     }
@@ -111,22 +111,22 @@ public class StudyCommentCommandService {
         return comment;
     }
 
-    private Study findByIdOrThrowIfParentThenUsingLock(Long studyId, Long parentCommentId) {
-        return isParentComment(parentCommentId)
+    private Study findByIdOrThrowIfParentThenUsingLock(Long studyId, Long commentId) {
+        return isParentComment(commentId)
                 ? findByIdUsingLockOrThrow(studyId)
                 : studyRepository.findById(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
     }
 
-    private StudyComment findByIdOrThrowIfNotParentElseNull(Long parentCommentId) {
-        return isParentComment(parentCommentId)
+    private StudyComment findByIdOrThrowIfNotParentElseNull(Long commentId) {
+        return isParentComment(commentId)
                 ? null
-                : commentRepository.findByIdWithParent(parentCommentId)
+                : commentRepository.findByIdWithParent(commentId)
                 .map(comment -> comment.getParent() == null ? comment : comment.getParent())
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
     }
 
-    private boolean isParentComment(Long parentCommentId) {
-        return parentCommentId == null;
+    private boolean isParentComment(Long commentId) {
+        return commentId == null;
     }
 }

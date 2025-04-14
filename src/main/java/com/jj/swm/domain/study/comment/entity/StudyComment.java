@@ -17,10 +17,10 @@ import java.util.List;
 @Entity
 @Builder
 @Table(name = "study_comment")
+@SQLRestriction("deleted_at is null")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "update study_comment set deleted_at = NOW() WHERE id = ?")
-@SQLRestriction("deleted_at is null")
 public class StudyComment extends BaseTimeEntity {
 
     @Id

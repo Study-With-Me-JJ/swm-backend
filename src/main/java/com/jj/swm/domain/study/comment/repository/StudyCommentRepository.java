@@ -18,10 +18,10 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
     @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1")
     Optional<StudyComment> findByIdWithParent(Long id);
 
-    Optional<StudyComment> findByIdAndUserId(Long commentId, UUID userId);
+    Optional<StudyComment> findByIdAndUserId(Long id, UUID userId);
 
     @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1 and c.user.id = ?2")
-    Optional<StudyComment> findByIdAndUserIdWithParent(Long commentId, UUID userId);
+    Optional<StudyComment> findByIdAndUserIdWithParent(Long id, UUID userId);
 
     @Query("select c from StudyComment c join fetch c.user where c.study.id = ?1 and c.parent.id is null")
     Page<StudyComment> findPagedCommentByStudyIdWithUser(Long studyId, Pageable pageable);
@@ -33,11 +33,11 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
             group by c.parent.id
             """
     )
-    List<StudyReplyCountInfo> countByCommentIds(List<Long> commentIds);
+    List<StudyReplyCountInfo> countByCommentIds(List<Long> ids);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")
-    void deleteAllByIdOrParentId(Long commentId);
+    void deleteAllByIdOrParentId(Long id);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id = ?1")
