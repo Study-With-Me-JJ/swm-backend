@@ -13,31 +13,31 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StudyStudyCommentRepository extends JpaRepository<StudyComment, Long>, CustomStudyCommentRepository {
-
-    Optional<StudyComment> findByIdAndUserId(Long commentId, UUID userId);
+public interface StudyCommentRepository extends JpaRepository<StudyComment, Long>, CustomStudyCommentRepository {
 
     @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1")
     Optional<StudyComment> findByIdWithParent(Long id);
 
-    @Modifying
-    @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")
-    void deleteAllByIdOrParentId(Long commentId);
+    Optional<StudyComment> findByIdAndUserId(Long id, UUID userId);
 
     @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1 and c.user.id = ?2")
-    Optional<StudyComment> findByIdAndUserIdWithParent(Long commentId, UUID userId);
+    Optional<StudyComment> findByIdAndUserIdWithParent(Long id, UUID userId);
 
     @Query("select c from StudyComment c join fetch c.user where c.study.id = ?1 and c.parent.id is null")
-    Page<StudyComment> findPagedParentByStudyIdWithUser(Long studyId, Pageable pageable);
+    Page<StudyComment> findPagedCommentByStudyIdWithUser(Long studyId, Pageable pageable);
 
     @Query("""
-            SELECT c.parent.id as parentId, count(c) as replyCount
-            FROM StudyComment c
-            WHERE c.parent.id in ?1
-            GROUP BY c.parent.id
+            select c.parent.id as commentId, count(c) as replyCount
+            from StudyComment c
+            where c.parent.id in ?1
+            group by c.parent.id
             """
     )
-    List<StudyReplyCountInfo> countByParentIds(List<Long> parentIds);
+    List<StudyReplyCountInfo> countByCommentIds(List<Long> ids);
+
+    @Modifying
+    @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")
+    void deleteAllByIdOrParentId(Long id);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id = ?1")

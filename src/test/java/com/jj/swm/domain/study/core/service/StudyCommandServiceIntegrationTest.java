@@ -3,7 +3,7 @@ package com.jj.swm.domain.study.core.service;
 import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.comment.dto.request.UpsertStudyCommentRequest;
 import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertStudyCommentRequestFixture;
-import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
+import com.jj.swm.domain.study.comment.repository.StudyCommentRepository;
 import com.jj.swm.domain.study.comment.service.StudyCommentCommandService;
 import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest;
@@ -75,7 +75,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     private RecruitmentPositionRepository recruitmentPositionRepository;
 
     @Autowired
-    private StudyStudyCommentRepository commentRepository;
+    private StudyCommentRepository commentRepository;
 
     @Autowired
     private StudyParticipationRepository participationRepository;

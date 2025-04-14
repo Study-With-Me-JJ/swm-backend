@@ -1,8 +1,12 @@
 package com.jj.swm.domain.study.participation.repository;
 
+import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
+import com.jj.swm.domain.study.participation.dto.StudyParticipationCountInfo;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.repository.custom.CustomStudyParticipationRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,6 +29,18 @@ public interface StudyParticipationRepository extends
             """
     )
     List<AcceptedStudyParticipationCountInfo> countByRecruitmentPositionIdsAndAcceptedStatus(
+            List<Long> recruitmentPositionIds
+    );
+
+    @Query("""
+            select p.recruitmentPosition.id as recruitmentPositionId, count(*) as totalCount,
+                        sum(case when p.status = 'ACCEPTED' then 1 else 0 end) as acceptedCount
+            from StudyParticipation p
+            where p.recruitmentPosition.id in (?1)
+            group by p.recruitmentPosition.id
+            """
+    )
+    List<StudyParticipationCountInfo> countByRecruitmentPositionIds(
             List<Long> recruitmentPositionIds
     );
 
@@ -68,4 +84,7 @@ public interface StudyParticipationRepository extends
 
     @Query("select p from StudyParticipation p join fetch p.recruitmentPosition where p.study.id = ?1 and p.user.id = ?2")
     Optional<StudyParticipation> findByStudyIdAndUserIdWithRecruitmentPosition(Long studyId, UUID userId);
+
+    @Query("select p.study from StudyParticipation p where p.user.id = ?1")
+    Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);
 }

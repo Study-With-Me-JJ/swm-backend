@@ -22,7 +22,7 @@ public class StudyCommentCommandController {
 
     private final StudyCommentCommandService commentCommandService;
 
-    @PostMapping({"/v1/study/{studyId}/comment", "/v1/study/{studyId}/comment/{parentId}"})
+    @PostMapping({"/v1/study/{studyId}/comment", "/v1/study/{studyId}/comment/{commentId}"})
     @Operation(
             summary = "스터디 댓글 생성",
             description = "스터디 댓글을 생성합니다. 대댓글도 같은 API를 사용합니다."
@@ -31,13 +31,13 @@ public class StudyCommentCommandController {
     public ApiResponse<CreateStudyCommentResponse> createComment(
             @Valid @RequestBody UpsertStudyCommentRequest createRequest,
             @PathVariable("studyId") Long studyId,
-            @PathVariable(value = "parentId", required = false) Long parentId,
+            @PathVariable(value = "commentId", required = false) Long commentId,
             Principal principal
     ) {
         CreateStudyCommentResponse response = commentCommandService.createComment(
                 createRequest,
                 studyId,
-                parentId,
+                commentId,
                 UUID.fromString(principal.getName())
         );
 
@@ -60,18 +60,13 @@ public class StudyCommentCommandController {
         return ApiResponse.ok(response);
     }
 
-    @DeleteMapping("/v1/study/{studyId}/comment/{commentId}")
+    @DeleteMapping("/v1/study/comment/{commentId}")
     @Operation(summary = "스터디 댓글 삭제", description = "스터디 댓글을 삭제합니다.")
     public ApiResponse<Void> deleteComment(
-            @PathVariable("studyId") Long studyId,
             @PathVariable("commentId") Long commentId,
             Principal principal
     ) {
-        commentCommandService.deleteComment(
-                studyId,
-                commentId,
-                UUID.fromString(principal.getName())
-        );
+        commentCommandService.deleteComment(commentId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

@@ -1,12 +1,16 @@
 package com.jj.swm.domain.study.participation.service;
 
+import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
+import com.jj.swm.domain.study.core.entity.Study;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
+import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.study.participation.dto.GetStudyParticipationCondition;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationDetailsResponse;
+import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationInMyPageResponse;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationResponse;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.entity.StudyParticipationLink;
-import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.global.common.constants.PageSize;
@@ -14,6 +18,10 @@ import com.jj.swm.global.common.dto.PageResponse;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +35,7 @@ public class StudyParticipationQueryService {
     private final RecruitmentPositionRepository recruitmentPositionRepository;
     private final StudyParticipationRepository participationRepository;
     private final StudyParticipationLinkRepository participationLinkRepository;
+    private final StudyRepository studyRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<GetStudyParticipationResponse> getStudyParticipations(
@@ -40,27 +49,54 @@ public class StudyParticipationQueryService {
 
         validateStudyWriter(recruitmentPosition, userId);
 
-        List<StudyParticipation> participations =
-                participationRepository.findPagedStudyParticipationByConditionWithUser(
+        Pageable pageable = PageRequest.of(condition.getPageNo(), PageSize.StudyParticipation);
+
+        Page<StudyParticipation> participations =
+                participationRepository.findPagedStudyParticipationByStatusWithUser(
                         recruitmentPositionId,
-                        condition,
-                        PageSize.StudyParticipation + 1
+                        condition.getStatus(),
+                        pageable
                 );
 
-        if (participations.isEmpty()) {
-            return PageResponse.of(List.of(), false);
+        return PageResponse.of(participations, GetStudyParticipationResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GetStudyParticipationInMyPageResponse> getStudyParticipationsInMyPage(
+            Long studyId,
+            UUID userId,
+            GetStudyParticipationCondition condition
+    ) {
+        Study study = studyRepository.findById(studyId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+
+        if(!study.getUser().getId().equals(userId)){
+            throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
         }
 
-        boolean hasNext = participations.size() > PageSize.StudyParticipation;
+        Pageable pageable = PageRequest.of(condition.getPageNo(), PageSize.StudyParticipation);
 
-        List<StudyParticipation> pagedParticipation =
-                hasNext ? participations.subList(0, PageSize.StudyParticipation) : participations;
+        Page<StudyParticipation> participations =
+                participationRepository.findPagedStudyParticipationByStatusWithUserInMyPage(
+                        studyId,
+                        condition.getStatus(),
+                        pageable
+                );
 
-        List<GetStudyParticipationResponse> responses = pagedParticipation.stream()
-                .map(GetStudyParticipationResponse::from)
-                .toList();
+        return PageResponse.of(participations, GetStudyParticipationInMyPageResponse::from);
+    }
 
-        return PageResponse.of(responses, hasNext);
+    @Transactional(readOnly = true)
+    public PageResponse<GetStudyResponse> getUserParticipantStudy(UUID userId, int pageNo) {
+        Pageable pageable = PageRequest.of(
+                pageNo,
+                PageSize.Study,
+                Sort.by("id").descending()
+        );
+
+        Page<Study> studies = participationRepository.findPagedStudyByUserId(userId, pageable);
+
+        return PageResponse.of(studies, GetStudyResponse::from);
     }
 
     @Transactional(readOnly = true)

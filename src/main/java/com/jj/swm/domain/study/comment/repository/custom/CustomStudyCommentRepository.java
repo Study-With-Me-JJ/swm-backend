@@ -7,7 +7,7 @@ import java.util.List;
 public interface CustomStudyCommentRepository {
 
     List<StudyComment> findPagedReplyByParentIdWithUser(
-            Long parentId,
+            Long commentId,
             Long lastReplyId,
             int pageSize
     );

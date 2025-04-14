@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class GetStudyCommentResponse {
+public class GetStudyReplyResponse {
 
     private Long commentId;
 
@@ -28,10 +28,8 @@ public class GetStudyCommentResponse {
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime updatedAt;
 
-    private Long replyCount;
-
-    public static GetStudyCommentResponse of(StudyComment comment, Long replyCount) {
-        return GetStudyCommentResponse.builder()
+    public static GetStudyReplyResponse from(StudyComment comment) {
+        return GetStudyReplyResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
                 .userId(comment.getUser().getId())
@@ -39,7 +37,6 @@ public class GetStudyCommentResponse {
                 .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
-                .replyCount(replyCount)
                 .build();
     }
 }

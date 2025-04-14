@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.service;
 
-import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
 import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.domain.study.core.dto.GetStudyCondition;
 import com.jj.swm.domain.study.core.dto.StudyBookmarkInfo;
@@ -13,7 +13,7 @@ import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
 import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
-import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
+import com.jj.swm.domain.study.participation.dto.StudyParticipationCountInfo;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.global.common.constants.PageSize;
@@ -58,11 +58,11 @@ public class StudyQueryService {
                 getLikeStatusAndBookmarkIdByStudyIdBasedOnLogin(pagedStudy, userId);
 
         List<StudyParticipation> participations = new ArrayList<>();
-        if(userId != null)
-             participations = participationRepository.findByStudyIdsAndUserIdWithRecruitmentPosition(pagedStudy.stream().map(Study::getId).toList(), userId);
+        if (userId != null)
+            participations = participationRepository.findByStudyIdsAndUserIdWithRecruitmentPosition(pagedStudy.stream().map(Study::getId).toList(), userId);
 
         Map<Long, GetStudyParticipationStatusResponse> map = new HashMap<>();
-        for(StudyParticipation participation : participations) {
+        for (StudyParticipation participation : participations) {
             map.put(participation.getStudy().getId(), GetStudyParticipationStatusResponse.from(participation));
         }
 
@@ -98,17 +98,18 @@ public class StudyQueryService {
                 .map(StudyRecruitmentPosition::getId)
                 .toList();
 
-        Map<Long, Integer> acceptedStudyParticipationCountByRecruitmentId =
-                participationRepository.countByRecruitmentPositionIdsAndAcceptedStatus(recruitmentPositionIds).stream()
+        Map<Long, StudyParticipationCountInfo> studyParticipationCountByRecruitmentId =
+                participationRepository.countByRecruitmentPositionIds(recruitmentPositionIds).stream()
                         .collect(Collectors.toMap(
-                                AcceptedStudyParticipationCountInfo::getRecruitmentPositionId,
-                                AcceptedStudyParticipationCountInfo::getAcceptedStudyParticipationCount
+                                StudyParticipationCountInfo::getRecruitmentPositionId,
+                                info -> info
                         ));
 
         List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses =
                 recruitmentPositions.stream().map(recruitmentPosition -> GetRecruitmentPositionDetailsResponse.of(
                         recruitmentPosition,
-                        acceptedStudyParticipationCountByRecruitmentId.getOrDefault(recruitmentPosition.getId(), 0)
+                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0 : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getAcceptedCount(),
+                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0 : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getTotalCount()
                 )).toList();
 
         Pageable pageable = PageRequest.of(
@@ -117,15 +118,15 @@ public class StudyQueryService {
                 Sort.by("id").descending()
         );
 
-        PageResponse<GetParentStudyCommentResponse> pageCommentResponse =
-                commentQueryService.getPageParentAndReplyCountResponse(studyId, pageable);
+        PageResponse<GetStudyCommentResponse> pageCommentResponse =
+                commentQueryService.buildStudyCommentPageResponse(studyId, pageable);
 
         Optional<StudyParticipation> optionalParticipation = Optional.empty();
-        if(userId != null)
+        if (userId != null)
             optionalParticipation = participationRepository.findByStudyIdAndUserIdWithRecruitmentPosition(studyId, userId);
 
         GetStudyParticipationStatusResponse getStudyParticipationStatusResponse = null;
-        if(optionalParticipation.isPresent()){
+        if (optionalParticipation.isPresent()) {
             getStudyParticipationStatusResponse = GetStudyParticipationStatusResponse.from(optionalParticipation.get());
         }
 
@@ -150,7 +151,7 @@ public class StudyQueryService {
 
         Page<Study> pagedStudy = studyLikeRepository.findPagedStudyByUserId(userId, pageable);
 
-        return PageResponse.of(pagedStudy, GetStudyResponse::of);
+        return PageResponse.of(pagedStudy, GetStudyResponse::from);
     }
 
     @Transactional(readOnly = true)
@@ -163,7 +164,7 @@ public class StudyQueryService {
 
         Page<Study> pagedStudy = studyBookmarkRepository.findPagedStudyByUserId(userId, pageable);
 
-        return PageResponse.of(pagedStudy, GetStudyResponse::of);
+        return PageResponse.of(pagedStudy, GetStudyResponse::from);
     }
 
     @Transactional(readOnly = true)
@@ -176,7 +177,7 @@ public class StudyQueryService {
 
         Page<Study> pagedStudy = studyRepository.findAllByUserId(userId, pageable);
 
-        return PageResponse.of(pagedStudy, GetStudyResponse::of);
+        return PageResponse.of(pagedStudy, GetStudyResponse::from);
     }
 
     private Map<Long, LikeStatusAndBookmarkId> getLikeStatusAndBookmarkIdByStudyIdBasedOnLogin(
