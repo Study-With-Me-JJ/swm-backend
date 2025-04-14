@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.service;
 
-import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
 import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.domain.study.core.dto.GetStudyCondition;
 import com.jj.swm.domain.study.core.dto.StudyBookmarkInfo;
@@ -108,8 +108,8 @@ public class StudyQueryService {
         List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses =
                 recruitmentPositions.stream().map(recruitmentPosition -> GetRecruitmentPositionDetailsResponse.of(
                         recruitmentPosition,
-                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId())==null ? 0: studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getAcceptedCount(),
-                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId())==null ? 0: studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getTotalCount()
+                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0 : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getAcceptedCount(),
+                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0 : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getTotalCount()
                 )).toList();
 
         Pageable pageable = PageRequest.of(
@@ -118,8 +118,8 @@ public class StudyQueryService {
                 Sort.by("id").descending()
         );
 
-        PageResponse<GetParentStudyCommentResponse> pageCommentResponse =
-                commentQueryService.getPageParentAndReplyCountResponse(studyId, pageable);
+        PageResponse<GetStudyCommentResponse> pageCommentResponse =
+                commentQueryService.buildStudyCommentPageResponse(studyId, pageable);
 
         Optional<StudyParticipation> optionalParticipation = Optional.empty();
         if (userId != null)

@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.core.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
@@ -51,7 +51,7 @@ public class GetStudyDetailsResponse {
 
     private List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionResponses;
 
-    private PageResponse<GetParentStudyCommentResponse> pageCommentResponse;
+    private PageResponse<GetStudyCommentResponse> pageCommentResponse;
 
     private GetStudyParticipationStatusResponse getStudyParticipationStatusResponse;
 
@@ -67,7 +67,7 @@ public class GetStudyDetailsResponse {
             Long studyBookmarkId,
             List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses,
             List<GetStudyImageResponse> getImageResponses,
-            PageResponse<GetParentStudyCommentResponse> pageCommentResponse,
+            PageResponse<GetStudyCommentResponse> pageCommentResponse,
             GetStudyParticipationStatusResponse getStudyParticipationStatusResponse
     ) {
         return GetStudyDetailsResponse.builder()

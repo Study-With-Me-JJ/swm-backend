@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.core.service;
 
 import com.google.common.collect.Lists;
-import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
+import com.jj.swm.domain.study.comment.repository.StudyCommentRepository;
 import com.jj.swm.domain.study.core.constants.StudyConstants;
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
@@ -44,7 +44,7 @@ public class StudyCommandService {
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
-    private final StudyStudyCommentRepository studyCommentRepository;
+    private final StudyCommentRepository studyCommentRepository;
     private final StudyParticipationRepository participationRepository;
     private final RecruitmentPositionRepository recruitmentPositionRepository;
     private final StudyParticipationLinkRepository participationLinkRepository;

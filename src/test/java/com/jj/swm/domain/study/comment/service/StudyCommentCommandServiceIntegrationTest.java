@@ -4,7 +4,7 @@ import com.jj.swm.IntegrationContainerSupporter;
 import com.jj.swm.domain.study.comment.dto.request.UpsertStudyCommentRequest;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.fixture.dto.request.UpsertStudyCommentRequestFixture;
-import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
+import com.jj.swm.domain.study.comment.repository.StudyCommentRepository;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
@@ -46,7 +46,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
     private StudyRepository studyRepository;
 
     @Autowired
-    private StudyStudyCommentRepository commentRepository;
+    private StudyCommentRepository commentRepository;
 
     // entity
     private User user;

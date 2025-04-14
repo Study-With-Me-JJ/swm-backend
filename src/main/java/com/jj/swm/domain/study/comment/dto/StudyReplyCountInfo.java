@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.comment.dto;
 
 public interface StudyReplyCountInfo {
 
-    Long getParentId();
+    Long getCommentId();
 
-    Integer getReplyCount();
+    Long getReplyCount();
 }
