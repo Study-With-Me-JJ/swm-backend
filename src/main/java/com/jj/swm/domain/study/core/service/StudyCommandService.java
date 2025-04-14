@@ -43,8 +43,8 @@ public class StudyCommandService {
     private final StudyTagRepository studyTagRepository;
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
-    private final StudyBookmarkRepository studyBookmarkRepository;
     private final StudyCommentRepository studyCommentRepository;
+    private final StudyBookmarkRepository studyBookmarkRepository;
     private final StudyParticipationRepository participationRepository;
     private final RecruitmentPositionRepository recruitmentPositionRepository;
     private final StudyParticipationLinkRepository participationLinkRepository;
@@ -57,9 +57,7 @@ public class StudyCommandService {
         studyRepository.save(study);
 
         insertTagsIfPresent(request.getTags(), study);
-
         insertImagesIfPresent(request.getImageUrls(), study);
-
         recruitmentPositionRepository.batchInsert(request.getCreateRecruitmentPositionRequests(), study);
     }
 

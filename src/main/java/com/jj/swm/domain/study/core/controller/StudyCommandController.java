@@ -1,13 +1,9 @@
 package com.jj.swm.domain.study.core.controller;
 
-import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
-import com.jj.swm.domain.study.core.dto.request.DeleteStudiesRequest;
-import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
-import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
+import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
-import com.jj.swm.domain.study.core.service.StudyCommandService;
-import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionResponse;
+import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

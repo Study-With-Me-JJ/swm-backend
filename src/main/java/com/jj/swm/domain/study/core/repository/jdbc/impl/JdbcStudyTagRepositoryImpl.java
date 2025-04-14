@@ -18,7 +18,7 @@ public class JdbcStudyTagRepositoryImpl implements JdbcStudyTagRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public void batchInsert(List<String> tags, Study study) {
-        String sql = "insert into study_tag(study_id, name) VALUES(?,?)";
+        String sql = "insert into study_tag(name, study_id) VALUES(?,?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 
@@ -26,8 +26,8 @@ public class JdbcStudyTagRepositoryImpl implements JdbcStudyTagRepository {
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 String tag = tags.get(i);
 
-                ps.setLong(1, study.getId());
-                ps.setString(2, tag);
+                ps.setString(1, tag);
+                ps.setLong(2, study.getId());
             }
 
             @Override
