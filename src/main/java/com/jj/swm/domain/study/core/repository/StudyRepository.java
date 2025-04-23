@@ -26,14 +26,14 @@ public interface StudyRepository extends JpaRepository<Study, Long>, CustomStudy
     @Query("select s from Study s join fetch s.user where s.id = ?1")
     Optional<Study> findByIdWithUserUsingLock(Long id);
 
-    long countByIdInAndUserId(List<Long> ids, UUID userId);
-
-    @Modifying
-    @Query("update Study s set s.deletedAt = CURRENT_TIMESTAMP where s.id in ?1")
-    void deleteAllByStudyIds(List<Long> ids);
-
     @Query("select s.id from Study s where s.user.id = ?1")
     List<Long> findIdsByUserId(UUID userId);
 
     Page<Study> findAllByUserId(UUID userId, Pageable pageable);
+
+    long countByIdInAndUserId(List<Long> ids, UUID userId);
+
+    @Modifying
+    @Query("update Study s set s.deletedAt = CURRENT_TIMESTAMP where s.id in ?1")
+    void deleteAllByIds(List<Long> ids);
 }

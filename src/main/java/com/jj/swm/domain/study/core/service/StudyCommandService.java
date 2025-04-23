@@ -6,10 +6,7 @@ import com.jj.swm.domain.study.core.constants.StudyConstants;
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
 import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionResponse;
-import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyBookmark;
-import com.jj.swm.domain.study.core.entity.StudyLike;
-import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.entity.*;
 import com.jj.swm.domain.study.core.repository.*;
 import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
@@ -70,7 +67,6 @@ public class StudyCommandService {
         Study study = findByIdAndUserIdOrThrow(studyId, userId);
 
         modifyTags(request.getModifyTagRequest(), study);
-
         modifyImages(request.getModifyImageRequest(), study);
 
         study.modify(request);
@@ -305,48 +301,68 @@ public class StudyCommandService {
     }
 
     private void modifyTags(ModifyStudyTagRequest request, Study study) {
-        if (request != null) {
-            List<String> tagsToAdd = Optional.ofNullable(request.getTagsToAdd())
-                    .orElse(Collections.emptyList());
-            List<Long> tagIdsToRemove = Optional.ofNullable(request.getTagIdsToRemove())
-                    .orElse(Collections.emptyList());
+        if (request == null || !(isListPresent(request.getTagsToAdd()) || isListPresent(request.getTagIdsToRemove())))
+            return;
 
-            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
-            int newTagSize = oldTagSize + tagsToAdd.size() - tagIdsToRemove.size();
+        List<String> tagsToAdd = Optional.ofNullable(request.getTagsToAdd())
+                .orElse(Collections.emptyList());
+        List<Long> tagIdsToRemove = Optional.ofNullable(request.getTagIdsToRemove())
+                .orElse(Collections.emptyList());
 
-            if (newTagSize < 0 || newTagSize > StudyConstants.TAG_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Deviation");
-            }
+        List<StudyTag> tags = studyTagRepository.findAllByStudyId(study.getId());
 
-            if (isListNotEmpty(tagsToAdd))
-                studyTagRepository.batchInsert(tagsToAdd, study);
+        int oldTagSize = tags.size();
+        int removeCount = (int) tags.stream()
+                .filter(tag -> tagIdsToRemove.contains(tag.getId()))
+                .count();
 
-            if (isListNotEmpty(tagIdsToRemove))
-                studyTagRepository.deleteAllByIdsAndStudyId(tagIdsToRemove, study.getId());
+        if (removeCount != tagIdsToRemove.size()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "some tags not found");
+        }
+
+        int newTagSize = oldTagSize + tagsToAdd.size() - removeCount;
+        if (newTagSize > StudyConstants.TAG_LIMIT) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Deviation");
+        }
+
+        if (removeCount > 0)
+            studyTagRepository.deleteAllByIdsAndStudyId(tagIdsToRemove, study.getId());
+
+        if (isListNotEmpty(tagsToAdd)) {
+            studyTagRepository.batchInsert(tagsToAdd, study);
         }
     }
 
     private void modifyImages(ModifyStudyImageRequest request, Study study) {
-        if (request != null) {
-            List<String> imageUrlsToAdd = Optional.ofNullable(request.getImageUrlsToAdd())
-                    .orElse(Collections.emptyList());
-            List<Long> imageIdsToRemove = Optional.ofNullable(request.getImageIdsToRemove())
-                    .orElse(Collections.emptyList());
+        if (request == null || !(isListPresent(request.getImageUrlsToAdd()) || isListPresent(request.getImageIdsToRemove())))
+            return;
 
-            int oldImageSize = studyImageRepository.countByStudyId(study.getId());
-            int newImageSize = oldImageSize + imageUrlsToAdd.size() - imageIdsToRemove.size();
+        List<String> imageUrlsToAdd = Optional.ofNullable(request.getImageUrlsToAdd())
+                .orElse(Collections.emptyList());
+        List<Long> imageIdsToRemove = Optional.ofNullable(request.getImageIdsToRemove())
+                .orElse(Collections.emptyList());
 
-            if (newImageSize < 0 || newImageSize > StudyConstants.IMAGE_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Deviation");
-            }
+        List<StudyImage> images = studyImageRepository.findAllByStudyId(study.getId());
 
-            if (isListNotEmpty(imageUrlsToAdd))
-                studyImageRepository.batchInsert(imageUrlsToAdd, study);
+        int oldImageSize = images.size();
+        int removeCount = (int) images.stream()
+                .filter(image -> imageIdsToRemove.contains(image.getId()))
+                .count();
 
-            if (isListNotEmpty(imageIdsToRemove)) {
-                studyImageRepository.deleteAllByIdsAndStudyId(imageIdsToRemove, study.getId());
-            }
+        if (removeCount != imageIdsToRemove.size()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "some images not found");
         }
+
+        int newImageSize = oldImageSize + imageUrlsToAdd.size() - removeCount;
+        if (newImageSize > StudyConstants.IMAGE_LIMIT) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Deviation");
+        }
+
+        if (removeCount > 0)
+            studyImageRepository.deleteAllByIdsAndStudyId(imageIdsToRemove, study.getId());
+
+        if (isListNotEmpty(imageUrlsToAdd))
+            studyImageRepository.batchInsert(imageUrlsToAdd, study);
     }
 
     private void deleteStudyAndAssociations(Long studyId, Study study) {
@@ -378,7 +394,7 @@ public class StudyCommandService {
         participationRepository.deleteAllByStudyIds(studyIds);
         recruitmentPositionRepository.deleteAllByStudyIds(studyIds);
 
-        studyRepository.deleteAllByStudyIds(studyIds);
+        studyRepository.deleteAllByIds(studyIds);
     }
 
     private void throwIfAlreadyBookmarked(Long studyId, UUID userId) {
