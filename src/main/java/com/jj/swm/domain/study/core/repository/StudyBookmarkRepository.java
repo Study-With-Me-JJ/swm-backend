@@ -31,5 +31,5 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
     @Query("select b.id from StudyBookmark b where b.study.id = ?1 and b.user.id = ?2")
     Long findIdByStudyIdAndUserId(Long studyId, UUID userId);
 
-    Optional<StudyBookmark> findByIdAndUserId(Long bookmarkId, UUID userId);
+    Optional<StudyBookmark> findByIdAndUserId(Long id, UUID userId);
 }

@@ -87,7 +87,7 @@ public class StudyCommandService {
     public void deleteStudy(Long studyId, UUID userId) {
         Study study = findByIdAndUserIdOrThrow(studyId, userId);
 
-        deleteStudyAndAssociations(studyId, study);
+        deleteStudyAndAssociations(study);
     }
 
     @Transactional
@@ -366,18 +366,18 @@ public class StudyCommandService {
             studyImageRepository.batchInsert(imageUrlsToAdd, study);
     }
 
-    private void deleteStudyAndAssociations(Long studyId, Study study) {
-        studyTagRepository.deleteAllByStudyId(studyId);
-        studyImageRepository.deleteAllByStudyId(studyId);
-        studyLikeRepository.deleteAllByStudyId(studyId);
-        studyCommentRepository.deleteAllByStudyId(studyId);
-        studyBookmarkRepository.deleteAllByStudyId(studyId);
+    private void deleteStudyAndAssociations(Study study) {
+        studyTagRepository.deleteAllByStudyId(study.getId());
+        studyImageRepository.deleteAllByStudyId(study.getId());
+        studyLikeRepository.deleteAllByStudyId(study.getId());
+        studyCommentRepository.deleteAllByStudyId(study.getId());
+        studyBookmarkRepository.deleteAllByStudyId(study.getId());
 
-        List<Long> participationIds = participationRepository.findIdsByStudyId(studyId);
+        List<Long> participationIds = participationRepository.findIdsByStudyId(study.getId());
         Lists.partition(participationIds, batchSize)
                 .forEach(participationLinkRepository::deleteAllByParticipationIds);
-        participationRepository.deleteAllByStudyId(studyId);
-        recruitmentPositionRepository.deleteAllByStudyId(studyId);
+        participationRepository.deleteAllByStudyId(study.getId());
+        recruitmentPositionRepository.deleteAllByStudyId(study.getId());
 
         studyRepository.delete(study);
     }
