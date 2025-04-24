@@ -79,6 +79,7 @@ public class StudyCommandService {
             UUID userId
     ) {
         Study study = findByIdAndUserIdOrThrow(studyId, userId);
+
         study.modifyStatus(request);
     }
 
