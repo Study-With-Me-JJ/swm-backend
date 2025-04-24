@@ -93,11 +93,8 @@ public class StudyCommandService {
     @Transactional
     public void deleteStudies(DeleteStudiesRequest request, UUID userId) {
         List<Long> studyIds = request.getStudyIds();
-        long numToDelete = studyRepository.countByIdInAndUserId(studyIds, userId);
 
-        if (numToDelete != studyIds.size()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "Some Study Not Found");
-        }
+        validateStudyOwnership(studyIds, userId);
 
         deleteStudiesAndAssociations(studyIds);
     }
@@ -229,6 +226,14 @@ public class StudyCommandService {
             return recruitmentPositionIds;
         }
         return Collections.emptyList();
+    }
+
+    private void validateStudyOwnership(List<Long> studyIds, UUID userId) {
+        long removeCount = studyRepository.countByIdInAndUserId(studyIds, userId);
+
+        if (removeCount != studyIds.size()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "Some Study Not Found");
+        }
     }
 
     private void deleteRecruitmentPositionsIfNotEmpty(List<Long> idsToRemove) {
