@@ -15,6 +15,14 @@ import java.util.UUID;
 
 public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Long>, CustomStudyBookmarkRepository {
 
+    Optional<StudyBookmark> findByIdAndUserId(Long id, UUID userId);
+
+    @Query("select b.study from StudyBookmark b where b.user.id = ?1")
+    Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);
+
+    @Query("select b.id from StudyBookmark b where b.study.id = ?1 and b.user.id = ?2")
+    Long findIdByStudyIdAndUserId(Long studyId, UUID userId);
+
     boolean existsByStudyIdAndUserId(Long studyId, UUID userId);
 
     @Modifying
@@ -24,12 +32,4 @@ public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Lo
     @Modifying
     @Query("delete from StudyBookmark b where b.study.id in ?1")
     void deleteAllByStudyIds(List<Long> studyIds);
-
-    @Query("select b.study from StudyBookmark b where b.user.id = ?1")
-    Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);
-
-    @Query("select b.id from StudyBookmark b where b.study.id = ?1 and b.user.id = ?2")
-    Long findIdByStudyIdAndUserId(Long studyId, UUID userId);
-
-    Optional<StudyBookmark> findByIdAndUserId(Long id, UUID userId);
 }
