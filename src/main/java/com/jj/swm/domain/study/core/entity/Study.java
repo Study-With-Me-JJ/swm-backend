@@ -88,8 +88,8 @@ public class Study extends BaseTimeEntity {
     public void modify(UpdateStudyRequest request) {
         this.title = request.getTitle();
         this.content = request.getContent();
-        this.category = request.getCategory();
         this.openChatUrl = request.getOpenChatUrl();
+        this.category = request.getCategory();
     }
 
     public void modifyStatus(UpdateStudyStatusRequest request) {
