@@ -154,25 +154,88 @@ public class StudyCommandService {
             Long studyId,
             UUID userId
     ) {
+        List<StudyRecruitmentPosition> recruitmentPositions = recruitmentPositionRepository.findByStudyIdAndStudyUserId(
+                studyId, userId
+        );
+
+        if (recruitmentPositions.isEmpty()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "study can not exist");
+        }
+
         List<CreateRecruitmentPositionRequest> createRequests =
                 Optional.ofNullable(request.getCreateRecruitmentPositionRequests())
                         .orElse(Collections.emptyList());
+        List<Long> recruitmentPositionIdsToUpdate = Optional.ofNullable(request.getUpdateRecruitmentPositionRequests())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(UpdateRecruitmentPositionRequest::getRecruitmentPositionId)
+                .toList();
         List<Long> recruitmentPositionIdsToRemove = Optional.ofNullable(request.getRecruitmentPositionIdsToRemove())
                 .orElse(Collections.emptyList());
 
-        validateCorrectSize(
-                createRequests,
-                recruitmentPositionIdsToRemove,
-                studyId,
-                userId
-        );
+        int oldRecruitmentPositionSize = recruitmentPositions.size();
+        int removeCount = (int) recruitmentPositions.stream()
+                .filter(recruitmentPosition -> recruitmentPositionIdsToRemove.contains(recruitmentPosition.getId()))
+                .count();
 
-        deleteRecruitmentPositionsIfNotEmpty(recruitmentPositionIdsToRemove);
+        if (removeCount != recruitmentPositionIdsToRemove.size()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "some recruitmentPosition not found");
+        }
 
-        List<UpdateRecruitmentPositionRequest> updateRequests = request.getUpdateRecruitmentPositionRequests();
-        List<Long> recruitmentPositionIdsToUpdate = updateRecruitmentPositionsIfPresent(updateRequests, userId);
+        int newRecruitmentPositionSize = oldRecruitmentPositionSize + createRequests.size() - removeCount;
 
-        insertRecruitmentPositionsIfNotEmpty(createRequests, studyId);
+        if (newRecruitmentPositionSize < 1 || newRecruitmentPositionSize > StudyConstants.RECRUITMENT_POSITION_LIMIT) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "recruitment position limit deviation");
+        }
+
+        if (recruitmentPositionIdsToUpdate.stream().anyMatch(recruitmentPositionIdsToRemove::contains)) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "recruitmentPositionIdsToRemove contains updateRecruitmentPositionIds");
+        } // 대충 invalid input와 같이 오류 메세지 하면 될 거 같은데
+
+        int updateCount = (int) recruitmentPositions.stream()
+                .filter(recruitmentPosition -> recruitmentPositionIdsToUpdate.contains(recruitmentPosition.getId()))
+                .count();
+
+        if (updateCount != recruitmentPositionIdsToUpdate.size()) {
+            throw new GlobalException(ErrorCode.NOT_FOUND, "some recruitmentPositions not found");
+        }
+
+        if (removeCount > 0) {
+            List<Long> participationIds = participationRepository.findIdsByRecruitmentPositionIds(recruitmentPositionIdsToRemove);
+            Lists.partition(participationIds, batchSize)
+                    .forEach(participationLinkRepository::deleteAllByParticipationIds);
+            participationRepository.deleteAllByRecruitmentPositionIds(recruitmentPositionIdsToRemove);
+            recruitmentPositionRepository.deleteAllByIds(recruitmentPositionIdsToRemove);
+        }
+
+        if (isListNotEmpty(recruitmentPositionIdsToUpdate)) {
+            List<AcceptedStudyParticipationCountInfo> acceptedStudyParticipationCountInfos =
+                    participationRepository.countByRecruitmentPositionIdsAndAcceptedStatus(recruitmentPositionIdsToUpdate);
+            Map<Long, Integer> acceptedCountByRecruitmentPositionId = acceptedStudyParticipationCountInfos.stream()
+                    .collect(Collectors.toMap(
+                            AcceptedStudyParticipationCountInfo::getRecruitmentPositionId,
+                            AcceptedStudyParticipationCountInfo::getAcceptedStudyParticipationCount
+                    ));
+
+            Map<Long, StudyRecruitmentPosition> recruitmentPositionByRecruitmentPositionId = recruitmentPositions.stream()
+                    .collect(Collectors.toMap(
+                            StudyRecruitmentPosition::getId, recruitmentPosition -> recruitmentPosition
+                    ));
+
+            for (UpdateRecruitmentPositionRequest updateRequest : request.getUpdateRecruitmentPositionRequests()) {
+                if (updateRequest.getHeadcount() <
+                        acceptedCountByRecruitmentPositionId.getOrDefault(updateRequest.getRecruitmentPositionId(), 0)) {
+                    throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
+                }
+                recruitmentPositionByRecruitmentPositionId.get(updateRequest.getRecruitmentPositionId()).modify(updateRequest);
+            }
+        }
+
+        if (ListCheckUtils.isListNotEmpty(createRequests)) {
+            Study study = studyRepository.getReferenceById(studyId);
+
+            recruitmentPositionRepository.batchInsert(createRequests, study);
+        }
 
         List<Long> notNewRecruitmentPositionId = Stream.concat(
                 recruitmentPositionIdsToRemove.stream(), recruitmentPositionIdsToUpdate.stream()
@@ -186,101 +249,11 @@ public class StudyCommandService {
                 .toList();
     }
 
-    private List<Long> updateRecruitmentPositionsIfPresent(
-            List<UpdateRecruitmentPositionRequest> requests, UUID userId
-    ) {
-        if (ListCheckUtils.isListPresent(requests)) {
-
-            List<Long> recruitmentPositionIds = requests.stream()
-                    .map(UpdateRecruitmentPositionRequest::getRecruitmentPositionId)
-                    .toList();
-
-            List<StudyRecruitmentPosition> recruitmentPositions =
-                    recruitmentPositionRepository.findByIdInAndStudyUserId(recruitmentPositionIds, userId);
-
-            if (requests.size() != recruitmentPositions.size()) {
-                throw new GlobalException(ErrorCode.NOT_FOUND, "some recruitmentPositions not found");
-            }
-
-            List<AcceptedStudyParticipationCountInfo> acceptedStudyParticipationCountInfos =
-                    participationRepository.countByRecruitmentPositionIdsAndAcceptedStatus(recruitmentPositionIds);
-            Map<Long, Integer> acceptedCountByRecruitmentPositionId = acceptedStudyParticipationCountInfos.stream()
-                    .collect(Collectors.toMap(
-                            AcceptedStudyParticipationCountInfo::getRecruitmentPositionId,
-                            AcceptedStudyParticipationCountInfo::getAcceptedStudyParticipationCount
-                    ));
-
-            Map<Long, StudyRecruitmentPosition> recruitmentPositionByRecruitmentPositionId = recruitmentPositions.stream()
-                    .collect(Collectors.toMap(
-                            StudyRecruitmentPosition::getId, recruitmentPosition -> recruitmentPosition
-                    ));
-
-            for (UpdateRecruitmentPositionRequest request : requests) {
-                if (request.getHeadcount() <
-                        acceptedCountByRecruitmentPositionId.getOrDefault(request.getRecruitmentPositionId(), 0)) {
-                    throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
-                }
-                recruitmentPositionByRecruitmentPositionId.get(request.getRecruitmentPositionId()).modify(request);
-            }
-
-            return recruitmentPositionIds;
-        }
-        return Collections.emptyList();
-    }
-
     private void validateStudyOwnership(List<Long> studyIds, UUID userId) {
         long removeCount = studyRepository.countByIdInAndUserId(studyIds, userId);
 
         if (removeCount != studyIds.size()) {
             throw new GlobalException(ErrorCode.NOT_FOUND, "Some Study Not Found");
-        }
-    }
-
-    private void deleteRecruitmentPositionsIfNotEmpty(List<Long> idsToRemove) {
-        if (ListCheckUtils.isListNotEmpty(idsToRemove)) {
-            List<Long> participationIds = participationRepository.findIdsByRecruitmentPositionIds(idsToRemove);
-            Lists.partition(participationIds, batchSize)
-                    .forEach(participationLinkRepository::deleteAllByParticipationIds);
-            participationRepository.deleteAllByRecruitmentPositionIds(idsToRemove);
-            recruitmentPositionRepository.deleteAllByIds(idsToRemove);
-        }
-    }
-
-    private void insertRecruitmentPositionsIfNotEmpty(List<CreateRecruitmentPositionRequest> requests, Long studyId) {
-        if (ListCheckUtils.isListNotEmpty(requests)) {
-            Study study = studyRepository.getReferenceById(studyId);
-
-            recruitmentPositionRepository.batchInsert(requests, study);
-        }
-    }
-
-    private void validateCorrectSize(
-            List<CreateRecruitmentPositionRequest> createRequests,
-            List<Long> recruitmentPositionIdsToRemove,
-            Long studyId,
-            UUID userId
-    ) {
-        int oldRecruitmentPositionSize = recruitmentPositionRepository.countByStudyId(studyId);
-
-        if (oldRecruitmentPositionSize == 0) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "study can not exist");
-        }
-
-        int actualDeletedCount = 0;
-        if (ListCheckUtils.isListNotEmpty(recruitmentPositionIdsToRemove)) {
-            actualDeletedCount = recruitmentPositionRepository.countByIdInAndStudyUserId(
-                    recruitmentPositionIdsToRemove, userId
-            );
-
-            if (actualDeletedCount != recruitmentPositionIdsToRemove.size()) {
-                throw new GlobalException(ErrorCode.NOT_FOUND, "some recruitmentPosition not found");
-            }
-        }
-
-        int newRecruitmentPositionSize = oldRecruitmentPositionSize + createRequests.size() - actualDeletedCount;
-
-        if (newRecruitmentPositionSize < 1 || newRecruitmentPositionSize > StudyConstants.RECRUITMENT_POSITION_LIMIT) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "recruitment position limit deviation");
         }
     }
 
