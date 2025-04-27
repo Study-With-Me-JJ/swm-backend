@@ -19,7 +19,7 @@ public interface StudyParticipationRepository extends
         JpaRepository<StudyParticipation, Long>, CustomStudyParticipationRepository {
 
     @Query("select count(*) from StudyParticipation p where p.recruitmentPosition.id = ?1 and p.status = 'ACCEPTED'")
-    int countByRecruitmentPositionIdAndAcceptedStatus(Long recruitmentPositionId);
+    long countByRecruitmentPositionIdAndAcceptedStatus(Long recruitmentPositionId);
 
     @Query("""
             select p.recruitmentPosition.id as recruitmentPositionId, count(*) as acceptedStudyParticipationCount
@@ -28,7 +28,7 @@ public interface StudyParticipationRepository extends
             group by p.recruitmentPosition.id
             """
     )
-    List<AcceptedStudyParticipationCountInfo> countByRecruitmentPositionIdsAndAcceptedStatus(
+    List<AcceptedStudyParticipationCountInfo> countByRecruitmentPositionIdsAndAccepted(
             List<Long> recruitmentPositionIds
     );
 

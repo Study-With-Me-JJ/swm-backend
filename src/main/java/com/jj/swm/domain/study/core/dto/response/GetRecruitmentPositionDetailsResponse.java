@@ -8,14 +8,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class GetRecruitmentPositionDetailsResponse extends GetRecruitmentPositionResponse {
 
-    private Integer acceptedCount;
+    private long acceptedCount;
 
-    private Integer participatedCount;
+    private long participatedCount;
 
     public static GetRecruitmentPositionDetailsResponse of(
             StudyRecruitmentPosition recruitmentPosition,
-            Integer acceptedCount,
-            Integer participatedCount
+            long acceptedCount,
+            long participatedCount
     ) {
         return GetRecruitmentPositionDetailsResponse.builder()
                 .recruitmentPositionId(recruitmentPosition.getId())

@@ -108,8 +108,8 @@ public class StudyQueryService {
         List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses =
                 recruitmentPositions.stream().map(recruitmentPosition -> GetRecruitmentPositionDetailsResponse.of(
                         recruitmentPosition,
-                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0 : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getAcceptedCount(),
-                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0 : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getTotalCount()
+                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0L : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getAcceptedCount(),
+                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0L : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getTotalCount()
                 )).toList();
 
         Pageable pageable = PageRequest.of(

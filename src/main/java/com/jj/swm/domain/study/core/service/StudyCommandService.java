@@ -210,8 +210,8 @@ public class StudyCommandService {
 
         if (isListNotEmpty(recruitmentPositionIdsToUpdate)) {
             List<AcceptedStudyParticipationCountInfo> acceptedStudyParticipationCountInfos =
-                    participationRepository.countByRecruitmentPositionIdsAndAcceptedStatus(recruitmentPositionIdsToUpdate);
-            Map<Long, Integer> acceptedCountByRecruitmentPositionId = acceptedStudyParticipationCountInfos.stream()
+                    participationRepository.countByRecruitmentPositionIdsAndAccepted(recruitmentPositionIdsToUpdate);
+            Map<Long, Long> acceptedCountByRecruitmentPositionId = acceptedStudyParticipationCountInfos.stream()
                     .collect(Collectors.toMap(
                             AcceptedStudyParticipationCountInfo::getRecruitmentPositionId,
                             AcceptedStudyParticipationCountInfo::getAcceptedStudyParticipationCount
@@ -224,7 +224,7 @@ public class StudyCommandService {
 
             for (UpdateRecruitmentPositionRequest updateRequest : request.getUpdateRecruitmentPositionRequests()) {
                 if (updateRequest.getHeadcount() <
-                        acceptedCountByRecruitmentPositionId.getOrDefault(updateRequest.getRecruitmentPositionId(), 0)) {
+                        acceptedCountByRecruitmentPositionId.getOrDefault(updateRequest.getRecruitmentPositionId(), 0L)) {
                     throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
                 }
                 recruitmentPositionByRecruitmentPositionId.get(updateRequest.getRecruitmentPositionId()).modify(updateRequest);

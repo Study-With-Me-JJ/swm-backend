@@ -20,7 +20,7 @@ public interface RecruitmentPositionRepository extends
     @Query("select rp from StudyRecruitmentPosition rp join fetch rp.study where rp.id = ?1")
     Optional<StudyRecruitmentPosition> findByIdWithStudy(Long id);
 
-    int countByStudyId(Long studyId);
+    long countByStudyId(Long studyId);
 
     @Modifying
     @Query("update StudyRecruitmentPosition rp set rp.deletedAt = CURRENT_TIMESTAMP where rp.study.id = ?1")

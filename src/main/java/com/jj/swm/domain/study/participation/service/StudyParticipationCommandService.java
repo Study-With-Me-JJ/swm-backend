@@ -181,8 +181,8 @@ public class StudyParticipationCommandService {
             List<Long> linkIdsToRemove = Optional.ofNullable(request.getLinkIdsToRemove())
                     .orElse(Collections.emptyList());
 
-            int oldLinkSize = participationLinkRepository.countByParticipationId(participation.getId());
-            int newLinkSize = oldLinkSize + linksToAdd.size() - linkIdsToRemove.size();
+            long oldLinkSize = participationLinkRepository.countByParticipationId(participation.getId());
+            long newLinkSize = oldLinkSize + linksToAdd.size() - linkIdsToRemove.size();
 
             if (newLinkSize < 0 || newLinkSize > StudyParticipationConstants.LINK_LIMIT) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Link Limit Deviation");
@@ -244,7 +244,7 @@ public class StudyParticipationCommandService {
     }
 
     private void validateAcceptedCountNotEqualHeadcount(StudyRecruitmentPosition recruitmentPosition) {
-        int acceptedCount =
+        long acceptedCount =
                 participationRepository.countByRecruitmentPositionIdAndAcceptedStatus(recruitmentPosition.getId());
 
         if (recruitmentPosition.getHeadcount() == acceptedCount) {

@@ -12,7 +12,7 @@ public interface StudyTagRepository extends JpaRepository<StudyTag, Long>, JdbcS
 
     List<StudyTag> findAllByStudyId(Long studyId);
 
-    int countByStudyId(Long studyId);
+    long countByStudyId(Long studyId);
 
     @Modifying
     @Query("update StudyTag t set t.deletedAt = CURRENT_TIMESTAMP where t.id in ?1 and t.study.id = ?2")

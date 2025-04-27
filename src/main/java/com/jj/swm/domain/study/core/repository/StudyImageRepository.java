@@ -12,7 +12,7 @@ public interface StudyImageRepository extends JpaRepository<StudyImage, Long>, J
 
     List<StudyImage> findAllByStudyId(Long studyId);
 
-    int countByStudyId(Long studyId);
+    long countByStudyId(Long studyId);
 
     @Modifying
     @Query("delete from StudyImage i where i.id in ?1 and i.study.id = ?2")
