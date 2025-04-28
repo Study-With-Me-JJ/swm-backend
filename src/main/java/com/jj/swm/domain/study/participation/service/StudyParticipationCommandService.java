@@ -51,6 +51,8 @@ public class StudyParticipationCommandService {
 
         Study study = recruitmentPosition.getStudy();
 
+        validateStudyWriter(userId, study);
+
         validateAlreadyExistsAndBeforeThreeDays(study, userId);
 
         validateAcceptedCountNotEqualHeadcount(recruitmentPosition);
@@ -134,6 +136,12 @@ public class StudyParticipationCommandService {
         validateAcceptedCountNotEqualHeadcount(recruitmentPosition);
 
         participation.modifyPosition(recruitmentPosition);
+    }
+
+    private void validateStudyWriter(UUID userId, Study study) {
+        if(study.getUser().getId().equals(userId)){
+            throw new GlobalException(ErrorCode.FORBIDDEN, "study writer can't participate");
+        }
     }
 
     private void validateSameRecruitmentPosition(Long recruitmentPositionId, StudyParticipation participation) {
