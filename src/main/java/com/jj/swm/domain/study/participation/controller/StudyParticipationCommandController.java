@@ -18,7 +18,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "StudyRecruitmentPosition", description = "<b>[스터디 모집 포지션]</b> API")
+@Tag(name = "StudyParticipation", description = "<b>[스터디 참여]</b> API")
 public class StudyParticipationCommandController {
 
     private final StudyParticipationCommandService participationCommandService;
@@ -63,22 +63,6 @@ public class StudyParticipationCommandController {
         return ApiResponse.ok(response);
     }
 
-    @PatchMapping("/v1/recruitment-position/{recruitmentPositionId}/participation/{participationId}/position")
-    @Operation(summary = "스터디 참여의 모집 포지션 수정", description = "스터디 참여의 모집 포지션을 수정합니다.")
-    public ApiResponse<Void> updateStudyParticipationPosition(
-            @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
-            @PathVariable("participationId") Long participationId,
-            Principal principal
-    ) {
-        participationCommandService.updateStudyParticipationPosition(
-                recruitmentPositionId,
-                participationId,
-                UUID.fromString(principal.getName())
-        );
-
-        return ApiResponse.ok(null);
-    }
-
     @PatchMapping("/v1/recruitment-position/participation/{participationId}")
     @Operation(
             summary = "스터디 참여 수정",
@@ -94,6 +78,22 @@ public class StudyParticipationCommandController {
     ) {
         participationCommandService.updateStudyParticipation(
                 request,
+                participationId,
+                UUID.fromString(principal.getName())
+        );
+
+        return ApiResponse.ok(null);
+    }
+
+    @PatchMapping("/v1/recruitment-position/{recruitmentPositionId}/participation/{participationId}/position")
+    @Operation(summary = "스터디 참여의 모집 포지션 수정", description = "스터디 참여의 모집 포지션을 수정합니다.")
+    public ApiResponse<Void> updateStudyParticipationPosition(
+            @PathVariable("recruitmentPositionId") Long recruitmentPositionId,
+            @PathVariable("participationId") Long participationId,
+            Principal principal
+    ) {
+        participationCommandService.updateStudyParticipationPosition(
+                recruitmentPositionId,
                 participationId,
                 UUID.fromString(principal.getName())
         );

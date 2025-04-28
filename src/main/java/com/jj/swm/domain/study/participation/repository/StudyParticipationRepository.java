@@ -44,8 +44,8 @@ public interface StudyParticipationRepository extends
             List<Long> recruitmentPositionIds
     );
 
-    @Query("select p from StudyParticipation p join fetch p.study where p.id = ?1")
-    Optional<StudyParticipation> findByIdWithStudy(Long id);
+    @Query("select p from StudyParticipation p join fetch p.study join fetch p.recruitmentPosition where p.id = ?1")
+    Optional<StudyParticipation> findByIdWithStudyAndRecruitmentPosition(Long id);
 
     @Query("select p from StudyParticipation p join fetch p.user join fetch p.study where p.id = ?1")
     Optional<StudyParticipation> findByIdWithUserAndStudy(Long id);
