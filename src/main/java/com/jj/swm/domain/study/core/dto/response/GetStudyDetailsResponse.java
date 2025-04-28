@@ -2,16 +2,17 @@ package com.jj.swm.domain.study.core.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
+import com.jj.swm.domain.study.core.dto.UserInteractionInfo;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
+import com.jj.swm.domain.user.core.dto.response.UserInfoResponse;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Builder
@@ -33,17 +34,11 @@ public class GetStudyDetailsResponse {
 
     private int viewCount;
 
-    private UUID userId;
-
-    private String nickname;
-
-    private String profileImageUrl;
-
-    private boolean likeStatus;
+    private UserInfoResponse userInfoResponse;
 
     private String openChatUrl;
 
-    private Long studyBookmarkId;
+    private UserInteractionInfo userInteractionInfo;
 
     private List<GetStudyTagResponse> getTagResponses;
 
@@ -63,8 +58,7 @@ public class GetStudyDetailsResponse {
 
     public static GetStudyDetailsResponse of(
             Study study,
-            boolean likeStatus,
-            Long studyBookmarkId,
+            UserInteractionInfo userInteractionInfo,
             List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses,
             List<GetStudyImageResponse> getImageResponses,
             PageResponse<GetStudyCommentResponse> pageCommentResponse,
@@ -79,12 +73,9 @@ public class GetStudyDetailsResponse {
                 .commentCount(study.getCommentCount())
                 .status(study.getStatus())
                 .viewCount(study.getViewCount())
-                .userId(study.getUser().getId())
-                .nickname(study.getUser().getNickname())
-                .profileImageUrl(study.getUser().getProfileImageUrl())
-                .likeStatus(likeStatus)
+                .userInfoResponse(UserInfoResponse.from(study.getUser()))
                 .openChatUrl(study.getOpenChatUrl())
-                .studyBookmarkId(studyBookmarkId)
+                .userInteractionInfo(userInteractionInfo)
                 .getTagResponses(study.getStudyTags().stream()
                         .map(GetStudyTagResponse::from)
                         .toList())

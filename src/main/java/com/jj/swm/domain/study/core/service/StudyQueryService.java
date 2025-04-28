@@ -76,60 +76,26 @@ public class StudyQueryService {
         Study study = studyRepository.findByIdWithUserUsingLock(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
 
-        LikeStatusAndBookmarkId likeStatusAndBookmarkId = getLikeStatusAndBookmarkIdBasedOnLogin(studyId, userId);
+        UserInteractionInfo userInteractionInfo = getUserInteractionInfoBasedOnLogin(studyId, userId);
 
         study.incrementViewCount();
 
-        List<StudyImage> images = studyImageRepository.findAllByStudyId(studyId);
-
-        List<GetStudyImageResponse> getImageResponses = images.stream()
-                .map(GetStudyImageResponse::from)
-                .toList();
+        List<GetStudyImageResponse> getStudyImageResponses = getGetStudyImageResponses(studyId);
 
         List<StudyRecruitmentPosition> recruitmentPositions = study.getStudyRecruitmentPositions();
 
-        List<Long> recruitmentPositionIds = recruitmentPositions.stream()
-                .map(StudyRecruitmentPosition::getId)
-                .toList();
-
-        Map<Long, StudyParticipationCountInfo> studyParticipationCountByRecruitmentId =
-                participationRepository.countByRecruitmentPositionIds(recruitmentPositionIds).stream()
-                        .collect(Collectors.toMap(
-                                StudyParticipationCountInfo::getRecruitmentPositionId,
-                                info -> info
-                        ));
-
         List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses =
-                recruitmentPositions.stream().map(recruitmentPosition -> GetRecruitmentPositionDetailsResponse.of(
-                        recruitmentPosition,
-                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0L : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getAcceptedCount(),
-                        studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ? 0L : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getTotalCount()
-                )).toList();
+                getGetRecruitmentPositionDetailsResponses(recruitmentPositions);
 
-        Pageable pageable = PageRequest.of(
-                0,
-                PageSize.StudyComment,
-                Sort.by("id").descending()
-        );
+        PageResponse<GetStudyCommentResponse> pageCommentResponse = getGetStudyCommentResponsePageResponse(studyId);
 
-        PageResponse<GetStudyCommentResponse> pageCommentResponse =
-                commentQueryService.buildStudyCommentPageResponse(studyId, pageable);
-
-        Optional<StudyParticipation> optionalParticipation = Optional.empty();
-        if (userId != null)
-            optionalParticipation = participationRepository.findByStudyIdAndUserIdWithRecruitmentPosition(studyId, userId);
-
-        GetStudyParticipationStatusResponse getStudyParticipationStatusResponse = null;
-        if (optionalParticipation.isPresent()) {
-            getStudyParticipationStatusResponse = GetStudyParticipationStatusResponse.from(optionalParticipation.get());
-        }
+        GetStudyParticipationStatusResponse getStudyParticipationStatusResponse = getGetStudyParticipationStatusResponse(studyId, userId);
 
         return GetStudyDetailsResponse.of(
                 study,
-                likeStatusAndBookmarkId.likeStatus(),
-                likeStatusAndBookmarkId.bookmarkId(),
+                userInteractionInfo,
                 getRecruitmentPositionDetailsResponses,
-                getImageResponses,
+                getStudyImageResponses,
                 pageCommentResponse,
                 getStudyParticipationStatusResponse
         );
@@ -200,6 +166,60 @@ public class StudyQueryService {
                 )));
     }
 
+    private PageResponse<GetStudyCommentResponse> getGetStudyCommentResponsePageResponse(Long studyId) {
+        Pageable pageable = PageRequest.of(
+                0,
+                PageSize.StudyComment,
+                Sort.by("id").descending()
+        );
+
+        return commentQueryService.buildStudyCommentPageResponse(studyId, pageable);
+    }
+
+    private GetStudyParticipationStatusResponse getGetStudyParticipationStatusResponse(Long studyId, UUID userId) {
+        if (userId == null)
+            return null;
+
+        Optional<StudyParticipation> optionalParticipation =
+                participationRepository.findByStudyIdAndUserIdWithRecruitmentPosition(studyId, userId);
+
+        GetStudyParticipationStatusResponse getStudyParticipationStatusResponse = null;
+        if (optionalParticipation.isPresent()) {
+            getStudyParticipationStatusResponse = GetStudyParticipationStatusResponse.from(optionalParticipation.get());
+        }
+
+        return getStudyParticipationStatusResponse;
+    }
+
+    private List<GetRecruitmentPositionDetailsResponse> getGetRecruitmentPositionDetailsResponses(List<StudyRecruitmentPosition> recruitmentPositions) {
+        List<Long> recruitmentPositionIds = recruitmentPositions.stream()
+                .map(StudyRecruitmentPosition::getId)
+                .toList();
+
+        Map<Long, StudyParticipationCountInfo> studyParticipationCountByRecruitmentId =
+                participationRepository.countByRecruitmentPositionIds(recruitmentPositionIds).stream()
+                        .collect(Collectors.toMap(
+                                StudyParticipationCountInfo::getRecruitmentPositionId,
+                                info -> info
+                        ));
+
+        return recruitmentPositions.stream().map(recruitmentPosition -> GetRecruitmentPositionDetailsResponse.of(
+                recruitmentPosition,
+                studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ?
+                        0L : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getAcceptedCount(),
+                studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ?
+                        0L : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getTotalCount()
+        )).toList();
+    }
+
+    private List<GetStudyImageResponse> getGetStudyImageResponses(Long studyId) {
+        List<StudyImage> images = studyImageRepository.findAllByStudyId(studyId);
+
+        return images.stream()
+                .map(GetStudyImageResponse::from)
+                .toList();
+    }
+
     private Map<Long, GetStudyParticipationStatusResponse> getGetStudyParticipationStatusResponseByStudyIdBasedOnLogin(
             List<Study> studies, UUID userId
     ) {
@@ -215,17 +235,14 @@ public class StudyQueryService {
                 .collect(Collectors.toMap(participation -> participation.getStudy().getId(), GetStudyParticipationStatusResponse::from));
     }
 
-    private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdBasedOnLogin(Long studyId, UUID userId) {
+    private UserInteractionInfo getUserInteractionInfoBasedOnLogin(Long studyId, UUID userId) {
         if (userId == null) {
-            return new LikeStatusAndBookmarkId(false, null);
+            return null;
         }
 
-        return new LikeStatusAndBookmarkId(
-                studyLikeRepository.existsByStudyIdAndUserId(studyId, userId),
-                studyBookmarkRepository.findIdByStudyIdAndUserId(studyId, userId)
+        return new UserInteractionInfo(
+                studyBookmarkRepository.findIdByStudyIdAndUserId(studyId, userId),
+                studyLikeRepository.existsByStudyIdAndUserId(studyId, userId)
         );
-    }
-
-    private record LikeStatusAndBookmarkId(boolean likeStatus, Long bookmarkId) {
     }
 }

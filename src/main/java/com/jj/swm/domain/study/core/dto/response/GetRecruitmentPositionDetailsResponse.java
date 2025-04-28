@@ -1,12 +1,19 @@
 package com.jj.swm.domain.study.core.dto.response;
 
+import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
-public class GetRecruitmentPositionDetailsResponse extends GetRecruitmentPositionResponse {
+@Builder
+public class GetRecruitmentPositionDetailsResponse {
+
+    private Long recruitmentPositionId;
+
+    private RecruitmentPositionTitle title;
+
+    private Integer headcount;
 
     private long acceptedCount;
 
