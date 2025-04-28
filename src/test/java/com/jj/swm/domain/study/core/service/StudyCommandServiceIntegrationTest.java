@@ -158,8 +158,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("SaveTag&ImageRequest가 없어도 스터디 모집 수정에 성공한다.")
-    void updateStudy_WithoutSaveTagAndImageRequest_Success() {
+    @DisplayName("modifyTag&ImageRequest가 없어도 스터디 모집 수정에 성공한다.")
+    void updateStudy_WithoutModifyTagAndImageRequest_Success() {
         //when
         studyCommandService.updateStudy(
                 UpdateStudyRequestFixture.createForNoModifyTagAndImageRequestSuccess(),
@@ -203,11 +203,11 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("태그 개수가 0보다 작으면 스터디 모집 수정에 실패한다.")
+    @DisplayName("tagIdsToRemove에 옳지 않은 id값이 전달되면 스터디 모집 수정에 실패한다.")
     void updateStudy_WhenUnderTagLimit_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
-                UpdateStudyRequestFixture.createForUnderTagLimitFail(),
+                UpdateStudyRequestFixture.createForWrongTagIdToRemove(),
                 studyId,
                 user.getId()
         ));
@@ -215,7 +215,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
     @Test
     @DisplayName("태그 제한 개수를 초과하면 스터디 모집 수정에 실패한다.")
-    void updateStudy_WhenExceedTagLimit_ThenFail() {
+    void updateStudy_WhenWrongTagIdToRemove_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 UpdateStudyRequestFixture.createForExceedTagLimitFail(),
@@ -225,11 +225,11 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     }
 
     @Test
-    @DisplayName("이미지 개수가 0보다 작으면 스터디 모집 수정에 실패한다.")
-    void updateStudy_WhenUnderImageLimit_ThenFail() {
+    @DisplayName("tagIdsToRemove에 옳지 않은 id값이 전달되면 스터디 모집 수정에 실패한다.")
+    void updateStudy_WhenWrongImageIdToRemove_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
-                UpdateStudyRequestFixture.createForUnderImageLimitFail(),
+                UpdateStudyRequestFixture.createForWrongImageIdToRemove(),
                 studyId,
                 user.getId()
         ));

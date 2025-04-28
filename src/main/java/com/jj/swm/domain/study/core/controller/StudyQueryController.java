@@ -58,10 +58,10 @@ public class StudyQueryController {
     @Operation(
             summary = "특정 유저가 좋아요한 스터디 목록 조회",
             description = "특정 유저가 좋아요한 스터디를 페이징 조회합니다.<br>" +
-                    "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
+                    "pageNo는 필수값이 아닙니다. 가장 첫 페이지는 pageNo가 0입니다."
     )
     public ApiResponse<PageResponse<GetStudyResponse>> getUserLikedStudies(
-            Principal principal, @RequestParam(value = "pageNo") int pageNo
+            Principal principal, @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
         PageResponse<GetStudyResponse> pageResponse = studyQueryService.getUserLikedStudies(
                 UUID.fromString(principal.getName()), pageNo
@@ -74,10 +74,10 @@ public class StudyQueryController {
     @Operation(
             summary = "특정 유저가 북마크한 스터디 목록 조회",
             description = "특정 유저가 북마크한 스터디를 페이징 조회합니다.<br>" +
-                    "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
+                    "pageNo는 필수값이 아닙니다. 가장 첫 페이지는 pageNo가 0입니다."
     )
     public ApiResponse<PageResponse<GetStudyResponse>> getUserBookmarkedStudies(
-            Principal principal, @RequestParam(value = "pageNo") int pageNo
+            Principal principal, @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
         PageResponse<GetStudyResponse> pageResponse = studyQueryService.getUserBookmarkedStudies(
                 UUID.fromString(principal.getName()), pageNo
@@ -90,10 +90,10 @@ public class StudyQueryController {
     @Operation(
             summary = "특정 유저가 작성한 스터디 목록 조회",
             description = "특정 유저가 작성한 스터디를 페이징 조회합니다.<br>" +
-                    "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
+                    "pageNo는 필수값이 아닙니다. 가장 첫 페이지는 pageNo가 0입니다."
     )
     public ApiResponse<PageResponse<GetStudyResponse>> getUserStudies(
-            Principal principal, @RequestParam(value = "pageNo") int pageNo
+            Principal principal, @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
         PageResponse<GetStudyResponse> pageResponse = studyQueryService.getUserStudies(
                 UUID.fromString(principal.getName()), pageNo

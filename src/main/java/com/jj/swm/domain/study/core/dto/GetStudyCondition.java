@@ -1,13 +1,12 @@
 package com.jj.swm.domain.study.core.dto;
 
+import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -20,7 +19,7 @@ public class GetStudyCondition {
 
     private StudyStatus status;
 
-    private List<RecruitmentPositionTitle> recruitmentPositionTitles = new ArrayList<>();
+    private List<RecruitmentPositionTitle> recruitmentPositionTitles;
 
     private Long lastStudyId;
 

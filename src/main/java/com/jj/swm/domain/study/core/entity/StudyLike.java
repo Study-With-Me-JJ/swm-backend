@@ -26,8 +26,8 @@ public class StudyLike {
 
     public static StudyLike of(Study study, User user) {
         return StudyLike.builder()
-                .user(user)
                 .study(study)
+                .user(user)
                 .build();
     }
 }

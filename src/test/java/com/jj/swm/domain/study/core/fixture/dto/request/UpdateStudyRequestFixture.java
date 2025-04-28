@@ -65,7 +65,7 @@ public class UpdateStudyRequestFixture {
                 .build();
     }
 
-    public static UpdateStudyRequest createForUnderTagLimitFail() {
+    public static UpdateStudyRequest createForWrongTagIdToRemove() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")
@@ -92,7 +92,7 @@ public class UpdateStudyRequestFixture {
                 .build();
     }
 
-    public static UpdateStudyRequest createForUnderImageLimitFail() {
+    public static UpdateStudyRequest createForWrongImageIdToRemove() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")

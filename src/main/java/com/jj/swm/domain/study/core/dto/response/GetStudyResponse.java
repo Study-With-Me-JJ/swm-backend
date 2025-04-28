@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.core.dto.response;
 
+import com.jj.swm.domain.study.core.dto.UserInteractionInfo;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
@@ -28,9 +29,7 @@ public class GetStudyResponse {
 
     private int viewCount;
 
-    private Long studyBookmarkId;
-
-    private boolean liked;
+    private UserInteractionInfo userInteractionInfo;
 
     private List<GetStudyTagResponse> getTagResponses;
 
@@ -40,8 +39,7 @@ public class GetStudyResponse {
 
     public static GetStudyResponse of(
             Study study,
-            Long studyBookmarkId,
-            boolean liked,
+            UserInteractionInfo userInteractionInfo,
             GetStudyParticipationStatusResponse getStudyParticipationStatusResponse
     ) {
         return GetStudyResponse.builder()
@@ -53,8 +51,7 @@ public class GetStudyResponse {
                 .commentCount(study.getCommentCount())
                 .status(study.getStatus())
                 .viewCount(study.getViewCount())
-                .studyBookmarkId(studyBookmarkId)
-                .liked(liked)
+                .userInteractionInfo(userInteractionInfo)
                 .getTagResponses(study.getStudyTags().stream()
                         .map(GetStudyTagResponse::from)
                         .toList())
@@ -75,8 +72,6 @@ public class GetStudyResponse {
                 .commentCount(study.getCommentCount())
                 .status(study.getStatus())
                 .viewCount(study.getViewCount())
-                .studyBookmarkId(null)
-                .liked(false)
                 .getTagResponses(study.getStudyTags().stream()
                         .map(GetStudyTagResponse::from)
                         .toList())
