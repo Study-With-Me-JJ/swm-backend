@@ -52,8 +52,6 @@ public class StudyParticipationCommandService {
 
         Study study = recruitmentPosition.getStudy();
 
-        validateStudyWriter(userId, study);
-
         validateAlreadyExistsAndBeforeThreeDays(study, userId);
 
         validateAcceptedCountNotEqualHeadcount(recruitmentPosition);
