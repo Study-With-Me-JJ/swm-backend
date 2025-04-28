@@ -1,6 +1,8 @@
 package com.jj.swm.domain.study.participation.service;
 
 import com.jj.swm.domain.study.core.entity.Study;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.participation.constants.StudyParticipationConstants;
 import com.jj.swm.domain.study.participation.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.study.participation.dto.request.ModifyStudyParticipationLinkRequest;
@@ -8,9 +10,8 @@ import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipatio
 import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationStatusRequest;
 import com.jj.swm.domain.study.participation.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
+import com.jj.swm.domain.study.participation.entity.StudyParticipationLink;
 import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
-import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
-import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
@@ -102,7 +103,7 @@ public class StudyParticipationCommandService {
             UUID userId
     ) {
         StudyParticipation participation =
-                findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
+                findByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
 
         modifyLink(request.getModifyLinkRequest(), participation);
 
@@ -112,7 +113,7 @@ public class StudyParticipationCommandService {
     @Transactional
     public void deleteStudyParticipation(Long participationId, UUID userId) {
         StudyParticipation participation =
-                findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
+                findByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
 
         participationLinkRepository.deleteAllByParticipationId(participation.getId());
         participationRepository.delete(participation);
@@ -125,7 +126,7 @@ public class StudyParticipationCommandService {
             UUID userId
     ) {
         StudyParticipation participation =
-                findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
+                findByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
 
         StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
@@ -170,17 +171,21 @@ public class StudyParticipationCommandService {
         });
     }
 
-    private StudyParticipation findParticipationByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(
+    private StudyParticipation findByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(
             Long participationId, UUID userId
     ) {
         StudyParticipation participation = participationRepository.findByIdAndUserId(participationId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
 
+        validateStatusNotAccepted(participation);
+
+        return participation;
+    }
+
+    private void validateStatusNotAccepted(StudyParticipation participation) {
         if (participation.getStatus() == StudyParticipationStatus.ACCEPTED) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Already accepted study participation");
         }
-
-        return participation;
     }
 
     private void modifyLink(ModifyStudyParticipationLinkRequest request, StudyParticipation participation) {
@@ -190,20 +195,30 @@ public class StudyParticipationCommandService {
             List<Long> linkIdsToRemove = Optional.ofNullable(request.getLinkIdsToRemove())
                     .orElse(Collections.emptyList());
 
-            long oldLinkSize = participationLinkRepository.countByParticipationId(participation.getId());
-            long newLinkSize = oldLinkSize + linksToAdd.size() - linkIdsToRemove.size();
+            List<StudyParticipationLink> links =
+                    participationLinkRepository.findAllByParticipationId(participation.getId());
 
+            int oldLinkSize = links.size();
+            int removeCount = (int) links.stream()
+                    .filter(link -> linkIdsToRemove.contains(link.getId()))
+                    .count();
+
+            if (removeCount != linkIdsToRemove.size()) {
+                throw new GlobalException(ErrorCode.NOT_FOUND, "some links not found");
+            }
+
+            int newLinkSize = oldLinkSize + linksToAdd.size() - removeCount;
             if (newLinkSize < 0 || newLinkSize > StudyParticipationConstants.LINK_LIMIT) {
                 throw new GlobalException(ErrorCode.NOT_VALID, "Link Limit Deviation");
             }
 
-            if (isListNotEmpty(linksToAdd))
-                participationLinkRepository.batchInsert(linksToAdd, participation);
-
-            if (isListNotEmpty(linkIdsToRemove))
+            if (removeCount > 0)
                 participationLinkRepository.deleteAllByIdsAndParticipationId(
                         linkIdsToRemove, participation.getId()
                 );
+
+            if (isListNotEmpty(linksToAdd))
+                participationLinkRepository.batchInsert(linksToAdd, participation);
         }
     }
 
