@@ -80,12 +80,13 @@ public class StudyParticipationCommandService {
 
         validateNewStatusNotPending(newStatus);
 
-        StudyParticipation participation = participationRepository.findByIdWithStudy(participationId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+        StudyParticipation participation =
+                participationRepository.findByIdWithStudyAndRecruitmentPosition(participationId)
+                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
 
         validateOldStatusMustPending(participation);
 
-        validateStudyWriter(participation, userId);
+        validateStudyWriter(participation.getStudy(), userId);
 
         validateAcceptedCountNotEqualsHeadcountIfAcceptedStatus(participation, newStatus);
 
@@ -139,7 +140,7 @@ public class StudyParticipationCommandService {
     }
 
     private void validateStudyWriter(UUID userId, Study study) {
-        if(study.getUser().getId().equals(userId)){
+        if (study.getUser().getId().equals(userId)) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "study writer can't participate");
         }
     }
@@ -227,8 +228,8 @@ public class StudyParticipationCommandService {
         }
     }
 
-    private void validateStudyWriter(StudyParticipation participation, UUID userId) {
-        if (!participation.getStudy().getUser().getId().equals(userId)) {
+    private void validateStudyWriter(Study study, UUID userId) {
+        if (!study.getUser().getId().equals(userId)) {
             throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
         }
     }
