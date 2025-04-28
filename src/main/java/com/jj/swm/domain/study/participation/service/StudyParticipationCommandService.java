@@ -138,12 +138,6 @@ public class StudyParticipationCommandService {
         participation.modifyPosition(recruitmentPosition);
     }
 
-    private void validateStudyWriter(UUID userId, Study study) {
-        if (study.getUser().getId().equals(userId)) {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "study writer can't participate");
-        }
-    }
-
     private void validateSameRecruitmentPosition(Long recruitmentPositionId, StudyParticipation participation) {
         if (participation.getRecruitmentPosition().getId().equals(recruitmentPositionId)) {
             throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment position same thing");
