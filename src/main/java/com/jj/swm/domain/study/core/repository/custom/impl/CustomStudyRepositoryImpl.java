@@ -2,11 +2,12 @@ package com.jj.swm.domain.study.core.repository.custom.impl;
 
 import com.jj.swm.domain.study.core.dto.GetStudyCondition;
 import com.jj.swm.domain.study.core.dto.SortCriteria;
+import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.core.repository.custom.CustomStudyRepository;
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
+import com.jj.swm.global.common.util.ListCheckUtils;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -32,9 +33,9 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                         studyCategoryEq(condition.getCategory()),
                         studyStatusEq(condition.getStatus()),
                         recruitmentPositionTitleExists(condition.getRecruitmentPositionTitles()),
-                        createSortPredicate(condition)
+                        buildSortPredicate(condition)
                 )
-                .orderBy(createOrderSpecifier(condition.getSortCriteria()))
+                .orderBy(buildOrderSpecifier(condition.getSortCriteria()))
                 .limit(pageSize)
                 .fetch();
     }
@@ -52,13 +53,26 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     }
 
     private BooleanBuilder recruitmentPositionTitleExists(List<RecruitmentPositionTitle> titles) {
-        return titles == null || titles.isEmpty()
-                ? null
-                : nullSafeBuilder(() -> study.studyRecruitmentPositions.any().title.in(titles));
+        return ListCheckUtils.isListPresent(titles)
+                ? nullSafeBuilder(() -> study.studyRecruitmentPositions.any().title.in(titles))
+                : null;
     }
 
 
-    private OrderSpecifier<?>[] createOrderSpecifier(SortCriteria sortCriteria) {
+    private BooleanBuilder buildSortPredicate(GetStudyCondition condition) {
+        Integer lastSortValue = condition.getLastSortValue();
+        Long lastStudyId = condition.getLastStudyId();
+
+        return switch (condition.getSortCriteria()) {
+            case LIKE -> nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
+                    .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
+            case COMMENT -> nullSafeBuilder(() -> study.commentCount.lt(lastSortValue)
+                    .or(study.commentCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
+            default -> nullSafeBuilder(() -> study.id.lt(lastStudyId));
+        };
+    }
+
+    private OrderSpecifier<?>[] buildOrderSpecifier(SortCriteria sortCriteria) {
         return switch (sortCriteria) {
             case SortCriteria.LIKE -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.DESC, study.likeCount),
@@ -71,20 +85,6 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
                     new OrderSpecifier<>(Order.DESC, study.commentCount),
                     new OrderSpecifier<>(Order.DESC, study.id),
             };
-        };
-    }
-
-    private BooleanBuilder createSortPredicate(GetStudyCondition condition) {
-        Integer lastSortValue = condition.getLastSortValue();
-        SortCriteria sortCriteria = condition.getSortCriteria();
-        Long lastStudyId = condition.getLastStudyId();
-
-        return switch (sortCriteria) {
-            case LIKE -> nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
-                    .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
-            case COMMENT -> nullSafeBuilder(() -> study.commentCount.lt(lastSortValue)
-                    .or(study.commentCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
-            default -> nullSafeBuilder(() -> study.id.lt(lastStudyId));
         };
     }
 }

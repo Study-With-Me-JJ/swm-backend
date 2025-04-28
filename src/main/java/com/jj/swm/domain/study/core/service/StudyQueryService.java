@@ -3,12 +3,9 @@ package com.jj.swm.domain.study.core.service;
 import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
 import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.domain.study.core.dto.GetStudyCondition;
-import com.jj.swm.domain.study.core.dto.StudyBookmarkInfo;
-import com.jj.swm.domain.study.core.dto.StudyLikeInfo;
+import com.jj.swm.domain.study.core.dto.UserInteractionInfo;
 import com.jj.swm.domain.study.core.dto.response.*;
-import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyImage;
-import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.entity.*;
 import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
 import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
@@ -28,7 +25,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,24 +54,18 @@ public class StudyQueryService {
 
         List<Study> pagedStudy = hasNext ? studies.subList(0, PageSize.Study) : studies;
 
-        Map<Long, LikeStatusAndBookmarkId> likeStatusAndBookmarkIdByStudyId =
-                getLikeStatusAndBookmarkIdByStudyIdBasedOnLogin(pagedStudy, userId);
+        Map<Long, UserInteractionInfo> userInteractionInfoByStudyId = getUserInteractionInfoByStudyIdBasedOnLogin(
+                pagedStudy, userId
+        );
 
-        List<StudyParticipation> participations = new ArrayList<>();
-        if (userId != null)
-            participations = participationRepository.findByStudyIdsAndUserIdWithRecruitmentPosition(pagedStudy.stream().map(Study::getId).toList(), userId);
-
-        Map<Long, GetStudyParticipationStatusResponse> map = new HashMap<>();
-        for (StudyParticipation participation : participations) {
-            map.put(participation.getStudy().getId(), GetStudyParticipationStatusResponse.from(participation));
-        }
+        Map<Long, GetStudyParticipationStatusResponse> getStudyParticipationStatusResponseByStudyId =
+                getGetStudyParticipationStatusResponseByStudyIdBasedOnLogin(pagedStudy, userId);
 
         List<GetStudyResponse> responses = pagedStudy.stream()
                 .map(study -> GetStudyResponse.of(
                         study,
-                        likeStatusAndBookmarkIdByStudyId.get(study.getId()).bookmarkId,
-                        likeStatusAndBookmarkIdByStudyId.get(study.getId()).likeStatus,
-                        map.get(study.getId())
+                        userInteractionInfoByStudyId.get(study.getId()),
+                        getStudyParticipationStatusResponseByStudyId.get(study.getId())
                 )).toList();
 
         return PageResponse.of(responses, hasNext);
@@ -180,30 +174,45 @@ public class StudyQueryService {
         return PageResponse.of(pagedStudy, GetStudyResponse::from);
     }
 
-    private Map<Long, LikeStatusAndBookmarkId> getLikeStatusAndBookmarkIdByStudyIdBasedOnLogin(
+    private Map<Long, UserInteractionInfo> getUserInteractionInfoByStudyIdBasedOnLogin(
             List<Study> studies, UUID userId
     ) {
         if (userId == null) {
             return studies.stream()
-                    .collect(Collectors.toMap(Study::getId, study -> new LikeStatusAndBookmarkId(false, null)));
+                    .collect(Collectors.toMap(Study::getId, study -> null));
         }
 
         List<Long> studyIds = studies.stream()
                 .map(Study::getId)
                 .toList();
 
-        Map<Long, Long> likeIdByStudyId = studyLikeRepository.findAllByUserIdAndStudyIds(studyIds, userId).stream()
-                .collect(Collectors.toMap(StudyLikeInfo::studyId, StudyLikeInfo::id));
+        Map<Long, Long> likeIdByStudyId = studyLikeRepository.findAllByStudyIdInAndUserId(studyIds, userId).stream()
+                .collect(Collectors.toMap(like -> like.getStudy().getId(), StudyLike::getId));
 
         Map<Long, Long> bookmarkIdByStudyId =
-                studyBookmarkRepository.findAllByUserIdAndStudyIds(userId, studyIds).stream()
-                        .collect(Collectors.toMap(StudyBookmarkInfo::studyId, StudyBookmarkInfo::id));
+                studyBookmarkRepository.findAllByStudyIdInAndUserId(studyIds, userId).stream()
+                        .collect(Collectors.toMap(bookmark -> bookmark.getStudy().getId(), StudyBookmark::getId));
 
         return studyIds.stream()
-                .collect(Collectors.toMap(studyId -> studyId, studyId -> new LikeStatusAndBookmarkId(
-                        likeIdByStudyId.getOrDefault(studyId, null) != null,
-                        bookmarkIdByStudyId.getOrDefault(studyId, null)
+                .collect(Collectors.toMap(studyId -> studyId, studyId -> new UserInteractionInfo(
+                        bookmarkIdByStudyId.getOrDefault(studyId, null),
+                        likeIdByStudyId.getOrDefault(studyId, null) != null
                 )));
+    }
+
+    private Map<Long, GetStudyParticipationStatusResponse> getGetStudyParticipationStatusResponseByStudyIdBasedOnLogin(
+            List<Study> studies, UUID userId
+    ) {
+        if (userId == null) {
+            return studies.stream()
+                    .collect(Collectors.toMap(Study::getId, study -> null));
+        }
+        List<StudyParticipation> participations = participationRepository.findByStudyIdsAndUserIdWithRecruitmentPosition(
+                studies.stream().map(Study::getId).toList(), userId
+        );
+
+        return participations.stream()
+                .collect(Collectors.toMap(participation -> participation.getStudy().getId(), GetStudyParticipationStatusResponse::from));
     }
 
     private LikeStatusAndBookmarkId getLikeStatusAndBookmarkIdBasedOnLogin(Long studyId, UUID userId) {
