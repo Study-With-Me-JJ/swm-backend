@@ -16,6 +16,16 @@ public class PageResponse<D> {
     private boolean hasNext;
     private List<D> data;
 
+    public static <D> PageResponse<D> from(Page<D> page) {
+        return new PageResponse<>(
+                page.getNumberOfElements(),
+                page.getTotalPages(),
+                page.getTotalElements(),
+                page.hasNext(),
+                page.getContent()
+        );
+    }
+
     public static <E, D> PageResponse<D> of(Page<E> entity, Function<E, D> makeDto) {
         List<D> dto = convertToDto(entity, makeDto);
 
