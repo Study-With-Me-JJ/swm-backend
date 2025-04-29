@@ -61,14 +61,14 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
 
     private BooleanBuilder buildSortPredicate(GetStudyCondition condition) {
         Integer lastSortValue = condition.getLastSortValue();
-        Long lastStudyId = condition.getLastStudyId();
+        Long lastId = condition.getLastStudyId();
 
         return switch (condition.getSortCriteria()) {
             case LIKE -> nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
-                    .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
+                    .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastId))));
             case COMMENT -> nullSafeBuilder(() -> study.commentCount.lt(lastSortValue)
-                    .or(study.commentCount.eq(lastSortValue).and(study.id.lt(lastStudyId))));
-            default -> nullSafeBuilder(() -> study.id.lt(lastStudyId));
+                    .or(study.commentCount.eq(lastSortValue).and(study.id.lt(lastId))));
+            default -> nullSafeBuilder(() -> study.id.lt(lastId));
         };
     }
 
