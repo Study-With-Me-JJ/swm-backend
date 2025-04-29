@@ -2,8 +2,7 @@ package com.jj.swm.domain.studyroom.reservation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.studyroom.reservation.entity.ApprovalStatus;
-import com.jj.swm.domain.studyroom.reservation.repository.custom.OwnerReservationInfoResponse;
-import com.jj.swm.domain.studyroom.reservation.repository.custom.ReserverReservationInfoResponse;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -26,14 +25,20 @@ public class GetReserverReservationInfoResponse {
 
     private ApprovalStatus approvalStatus;
 
-    public static GetReserverReservationInfoResponse from(ReserverReservationInfoResponse reservationInfoResponse) {
-        return GetReserverReservationInfoResponse.builder()
-                .studyRoomReservationInfoId(reservationInfoResponse.getStudyRoomReservationInfoId())
-                .reserverName(reservationInfoResponse.getReserverName())
-                .studyRoomPhoneNumber(reservationInfoResponse.getStudyRoomPhoneNumber())
-                .checkInTime(reservationInfoResponse.getCheckInTime())
-                .title(reservationInfoResponse.getTitle())
-                .approvalStatus(reservationInfoResponse.getApprovalStatus())
-                .build();
+    @QueryProjection
+    public GetReserverReservationInfoResponse(
+            Long studyRoomReservationInfoId,
+            String reserverName,
+            String studyRoomPhoneNumber,
+            LocalDateTime checkInTime,
+            String title,
+            ApprovalStatus approvalStatus
+    ) {
+        this.studyRoomReservationInfoId = studyRoomReservationInfoId;
+        this.reserverName = reserverName;
+        this.studyRoomPhoneNumber = studyRoomPhoneNumber;
+        this.checkInTime = checkInTime;
+        this.title = title;
+        this.approvalStatus = approvalStatus;
     }
 }
