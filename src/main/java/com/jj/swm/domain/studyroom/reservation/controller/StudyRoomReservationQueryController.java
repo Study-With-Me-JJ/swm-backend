@@ -3,6 +3,7 @@ package com.jj.swm.domain.studyroom.reservation.controller;
 import com.jj.swm.domain.studyroom.reservation.dto.response.GetReservationInfoDetailsResponse;
 import com.jj.swm.domain.studyroom.reservation.dto.response.GetOwnerReservationInfoResponse;
 import com.jj.swm.domain.studyroom.reservation.dto.response.GetReserverReservationInfoResponse;
+import com.jj.swm.domain.studyroom.reservation.entity.ApprovalStatus;
 import com.jj.swm.domain.studyroom.reservation.service.StudyRoomReservationQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -12,6 +13,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "StudyRoomReservationInfo", description = "<b>[스터디 룸 예약]</b> API")
@@ -44,10 +46,12 @@ public class StudyRoomReservationQueryController {
     @Secured("ROLE_ROOM_ADMIN")
     @GetMapping("/v1/studyroom/reservation/owner")
     public ApiResponse<PageResponse<GetOwnerReservationInfoResponse>> getReservationInfosForOwner(
-            Principal principal, @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
+            Principal principal,
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
+            @RequestParam(value = "status", required = false) ApprovalStatus status
     ) {
         PageResponse<GetOwnerReservationInfoResponse> response = queryService.getReservationInfosForOwner(
-                UUID.fromString(principal.getName()), pageNo
+                UUID.fromString(principal.getName()), pageNo, status
         );
 
         return ApiResponse.ok(response);
@@ -55,10 +59,12 @@ public class StudyRoomReservationQueryController {
 
     @GetMapping("/v1/studyroom/reservation/reserver")
     public ApiResponse<PageResponse<GetReserverReservationInfoResponse>> getReservationInfosForReserver(
-            Principal principal, @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
+            Principal principal,
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo,
+            @RequestParam(value = "status", required = false) ApprovalStatus status
     ) {
         PageResponse<GetReserverReservationInfoResponse> response = queryService.getReservationInfosForReserver(
-                UUID.fromString(principal.getName()), pageNo
+                UUID.fromString(principal.getName()), pageNo, status
         );
 
         return ApiResponse.ok(response);
