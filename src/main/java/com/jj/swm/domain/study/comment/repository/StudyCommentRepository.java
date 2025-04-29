@@ -33,7 +33,7 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
             group by c.parent.id
             """
     )
-    List<StudyReplyCountInfo> countByCommentIds(List<Long> ids);
+    List<StudyReplyCountInfo> countByParentIds(List<Long> parentIds);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")

@@ -36,17 +36,17 @@ public class StudyCommentQueryController {
         return ApiResponse.ok(pageResponse);
     }
 
-    @GetMapping({"/v1/comment/{commentId}/reply", "/v1/comment/{commentId}/reply/{lastReplyId}"})
+    @GetMapping({"/v1/comment/{parentId}/reply", "/v1/comment/{parentId}/reply/{lastReplyId}"})
     @Operation(
             summary = "스터디 대댓글 목록 조회",
             description = "스터디 대댓글을 무한 스크롤 기반으로 조회합니다.<br>" +
                     "lastReplyId는 필수 값이 아닙니다. lastReplyId를 보내면 이 다음 대댓글을 불러옵니다."
     )
     public ApiResponse<PageResponse<GetStudyReplyResponse>> getReplies(
-            @PathVariable("commentId") Long commentId,
+            @PathVariable("parentId") Long parentId,
             @PathVariable(value = "lastReplyId", required = false) Long lastReplyId
     ) {
-        PageResponse<GetStudyReplyResponse> pageResponse = commentQueryService.getReplies(commentId, lastReplyId);
+        PageResponse<GetStudyReplyResponse> pageResponse = commentQueryService.getReplies(parentId, lastReplyId);
 
         return ApiResponse.ok(pageResponse);
     }

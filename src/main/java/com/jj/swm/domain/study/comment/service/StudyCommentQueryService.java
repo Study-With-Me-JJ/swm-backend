@@ -37,9 +37,9 @@ public class StudyCommentQueryService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyReplyResponse> getReplies(Long commentId, Long lastReplyId) {
+    public PageResponse<GetStudyReplyResponse> getReplies(Long parentId, Long lastReplyId) {
         List<StudyComment> replies = commentRepository.findPagedReplyByParentIdWithUser(
-                commentId,
+                parentId,
                 lastReplyId,
                 PageSize.StudyReply + 1
         );
@@ -71,11 +71,11 @@ public class StudyCommentQueryService {
     }
 
     private Map<Long, Long> getReplyCountByCommentId(Page<StudyComment> pagedComment) {
-        List<Long> commentIds = pagedComment.get()
+        List<Long> parentIds = pagedComment.get()
                 .map(StudyComment::getId)
                 .toList();
 
-        return commentRepository.countByCommentIds(commentIds).stream()
+        return commentRepository.countByParentIds(parentIds).stream()
                 .collect(Collectors.toMap(StudyReplyCountInfo::getCommentId, StudyReplyCountInfo::getReplyCount));
     }
 }

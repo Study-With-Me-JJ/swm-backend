@@ -29,12 +29,12 @@ public class StudyCommentCommandService {
     public CreateStudyCommentResponse createComment(
             UpsertStudyCommentRequest createRequest,
             Long studyId,
-            Long commentId,
+            Long parentId,
             UUID userId
     ) {
         User user = userRepository.getReferenceById(userId);
-        StudyComment parentComment = findByIdOrThrowIfNotParentElseNull(commentId);
-        Study study = findByIdOrThrowIfParentThenUsingLock(studyId, commentId);
+        StudyComment parentComment = findByIdOrThrowIfNotParentElseNull(parentId);
+        Study study = findByIdOrThrowIfParentThenUsingLock(studyId, parentId);
 
         StudyComment comment = buildComment(
                 createRequest,
@@ -111,8 +111,8 @@ public class StudyCommentCommandService {
         return comment;
     }
 
-    private Study findByIdOrThrowIfParentThenUsingLock(Long studyId, Long commentId) {
-        return isParentComment(commentId)
+    private Study findByIdOrThrowIfParentThenUsingLock(Long studyId, Long parentId) {
+        return isParentComment(parentId)
                 ? findByIdUsingLockOrThrow(studyId)
                 : studyRepository.findById(studyId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
