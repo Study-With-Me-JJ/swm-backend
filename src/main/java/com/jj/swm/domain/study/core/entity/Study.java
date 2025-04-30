@@ -36,7 +36,7 @@ public class Study extends BaseTimeEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "open_chat_url", length = 300, nullable = false)
+    @Column(name = "open_chat_url", length = 300)
     private String openChatUrl;
 
     @Column(name = "deleted_at")

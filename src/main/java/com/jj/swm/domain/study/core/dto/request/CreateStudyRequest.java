@@ -24,7 +24,6 @@ public class CreateStudyRequest {
     @NotBlank
     private String content;
 
-    @NotBlank
     @Size(max = 300)
     private String openChatUrl;
 
