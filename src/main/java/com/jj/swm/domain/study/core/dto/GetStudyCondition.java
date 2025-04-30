@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import java.util.List;
 
+import static com.jj.swm.domain.study.core.dto.SortCriteria.NEWEST;
+
 @Getter
 @Setter
 public class GetStudyCondition {
@@ -24,7 +26,7 @@ public class GetStudyCondition {
     private Long lastStudyId;
 
     @Schema(defaultValue = "NEWEST")
-    private SortCriteria sortCriteria = SortCriteria.NEWEST;
+    private SortCriteria sortCriteria = NEWEST;
 
     private Integer lastSortValue;
 }

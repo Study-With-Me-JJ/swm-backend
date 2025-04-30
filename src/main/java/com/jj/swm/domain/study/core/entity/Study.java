@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.jj.swm.domain.study.core.entity.StudyStatus.ACTIVE;
+
 @Getter
 @Entity
 @Builder
@@ -79,7 +81,7 @@ public class Study extends BaseTimeEntity {
                 .category(request.getCategory())
                 .likeCount(0)
                 .commentCount(0)
-                .status(StudyStatus.ACTIVE)
+                .status(ACTIVE)
                 .viewCount(0)
                 .user(user)
                 .build();

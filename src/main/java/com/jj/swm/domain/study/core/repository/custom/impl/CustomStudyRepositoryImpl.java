@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.core.repository.custom.impl;
 
+import com.jj.swm.domain.common.utils.QueryDSLBooleanUtils;
 import com.jj.swm.domain.study.core.dto.GetStudyCondition;
 import com.jj.swm.domain.study.core.dto.SortCriteria;
 import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
@@ -7,7 +8,6 @@ import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyCategory;
 import com.jj.swm.domain.study.core.entity.StudyStatus;
 import com.jj.swm.domain.study.core.repository.custom.CustomStudyRepository;
-import com.jj.swm.global.common.util.ListCheckUtils;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import static com.jj.swm.domain.common.utils.QueryDSLBooleanUtils.nullSafeBuilder;
 import static com.jj.swm.domain.study.core.entity.QStudy.study;
+import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 
 
 @RequiredArgsConstructor
@@ -41,20 +41,20 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     }
 
     private BooleanBuilder studyTitleContains(String title) {
-        return nullSafeBuilder(() -> study.title.contains(title));
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> study.title.contains(title));
     }
 
     private BooleanBuilder studyCategoryEq(StudyCategory category) {
-        return nullSafeBuilder(() -> study.category.eq(category));
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> study.category.eq(category));
     }
 
     private BooleanBuilder studyStatusEq(StudyStatus status) {
-        return nullSafeBuilder(() -> study.status.eq(status));
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> study.status.eq(status));
     }
 
     private BooleanBuilder recruitmentPositionTitleExists(List<RecruitmentPositionTitle> titles) {
-        return ListCheckUtils.isListPresent(titles)
-                ? nullSafeBuilder(() -> study.studyRecruitmentPositions.any().title.in(titles))
+        return isListPresent(titles)
+                ? QueryDSLBooleanUtils.nullSafeBuilder(() -> study.studyRecruitmentPositions.any().title.in(titles))
                 : null;
     }
 
@@ -64,24 +64,24 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
         Long lastId = condition.getLastStudyId();
 
         return switch (condition.getSortCriteria()) {
-            case LIKE -> nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
+            case LIKE -> QueryDSLBooleanUtils.nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
                     .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastId))));
-            case COMMENT -> nullSafeBuilder(() -> study.commentCount.lt(lastSortValue)
+            case COMMENT -> QueryDSLBooleanUtils.nullSafeBuilder(() -> study.commentCount.lt(lastSortValue)
                     .or(study.commentCount.eq(lastSortValue).and(study.id.lt(lastId))));
-            default -> nullSafeBuilder(() -> study.id.lt(lastId));
+            default -> QueryDSLBooleanUtils.nullSafeBuilder(() -> study.id.lt(lastId));
         };
     }
 
     private OrderSpecifier<?>[] buildOrderSpecifier(SortCriteria sortCriteria) {
         return switch (sortCriteria) {
-            case SortCriteria.LIKE -> new OrderSpecifier<?>[]{
+            case LIKE -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.DESC, study.likeCount),
                     new OrderSpecifier<>(Order.DESC, study.id),
             };
-            case SortCriteria.NEWEST -> new OrderSpecifier<?>[]{
+            case NEWEST -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.DESC, study.id)
             };
-            case SortCriteria.COMMENT -> new OrderSpecifier<?>[]{
+            case COMMENT -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.DESC, study.commentCount),
                     new OrderSpecifier<>(Order.DESC, study.id),
             };

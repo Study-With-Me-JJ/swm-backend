@@ -21,11 +21,4 @@ public class StudyImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
-
-    public static StudyImage of(Study study, String imageUrl) {
-        return StudyImage.builder()
-                .imageUrl(imageUrl)
-                .study(study)
-                .build();
-    }
 }

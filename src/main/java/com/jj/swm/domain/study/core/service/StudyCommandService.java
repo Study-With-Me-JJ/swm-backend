@@ -25,6 +25,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.jj.swm.domain.study.core.constants.StudyConstants.*;
+import static com.jj.swm.global.common.enums.ErrorCode.NOT_FOUND;
+import static com.jj.swm.global.common.enums.ErrorCode.NOT_VALID;
 import static com.jj.swm.global.common.util.ListCheckUtils.isListNotEmpty;
 import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 
@@ -106,7 +109,7 @@ public class StudyCommandService {
         User user = userRepository.getReferenceById(userId);
 
         Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
 
         StudyBookmark studyBookmark = StudyBookmark.of(study, user);
         studyBookmarkRepository.save(studyBookmark);
@@ -117,7 +120,7 @@ public class StudyCommandService {
     @Transactional
     public void deleteStudyBookmark(Long bookmarkId, UUID userId) {
         StudyBookmark studyBookmark = studyBookmarkRepository.findByIdAndUserId(bookmarkId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study bookmark not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study bookmark not found"));
 
         studyBookmarkRepository.delete(studyBookmark);
     }
@@ -139,7 +142,7 @@ public class StudyCommandService {
     @Transactional
     public void deleteStudyLike(Long studyId, UUID userId) {
         StudyLike studyLike = studyLikeRepository.findByStudyIdAndUserId(studyId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study like not found"));
 
         Study study = findByIdUsingLockOrThrow(studyId);
 
@@ -159,7 +162,7 @@ public class StudyCommandService {
         );
 
         if (recruitmentPositions.isEmpty()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "study can not exist");
+            throw new GlobalException(NOT_FOUND, "study can not exist");
         }
 
         List<CreateRecruitmentPositionRequest> createRequests =
@@ -179,17 +182,17 @@ public class StudyCommandService {
                 .count();
 
         if (removeCount != recruitmentPositionIdsToRemove.size()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "some recruitmentPosition not found");
+            throw new GlobalException(NOT_FOUND, "some recruitmentPosition not found");
         }
 
         int newRecruitmentPositionSize = oldRecruitmentPositionSize + createRequests.size() - removeCount;
 
-        if (newRecruitmentPositionSize < 1 || newRecruitmentPositionSize > StudyConstants.RECRUITMENT_POSITION_LIMIT) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "recruitment position limit deviation");
+        if (newRecruitmentPositionSize < 1 || newRecruitmentPositionSize > RECRUITMENT_POSITION_LIMIT) {
+            throw new GlobalException(NOT_FOUND, "recruitment position limit deviation");
         }
 
         if (recruitmentPositionIdsToUpdate.stream().anyMatch(recruitmentPositionIdsToRemove::contains)) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "recruitmentPositionIdsToRemove contains updateRecruitmentPositionIds");
+            throw new GlobalException(NOT_VALID, "recruitmentPositionIdsToRemove contains updateRecruitmentPositionIds");
         } // 대충 invalid input와 같이 오류 메세지 하면 될 거 같은데
 
         int updateCount = (int) recruitmentPositions.stream()
@@ -197,7 +200,7 @@ public class StudyCommandService {
                 .count();
 
         if (updateCount != recruitmentPositionIdsToUpdate.size()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "some recruitmentPositions not found");
+            throw new GlobalException(NOT_FOUND, "some recruitmentPositions not found");
         }
 
         if (removeCount > 0) {
@@ -225,13 +228,13 @@ public class StudyCommandService {
             for (UpdateRecruitmentPositionRequest updateRequest : request.getUpdateRecruitmentPositionRequests()) {
                 if (updateRequest.getHeadcount() <
                         acceptedCountByRecruitmentPositionId.getOrDefault(updateRequest.getRecruitmentPositionId(), 0L)) {
-                    throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
+                    throw new GlobalException(NOT_VALID, "accepted count is greater than headcount");
                 }
                 recruitmentPositionByRecruitmentPositionId.get(updateRequest.getRecruitmentPositionId()).modify(updateRequest);
             }
         }
 
-        if (ListCheckUtils.isListNotEmpty(createRequests)) {
+        if (isListNotEmpty(createRequests)) {
             Study study = studyRepository.getReferenceById(studyId);
 
             recruitmentPositionRepository.batchInsert(createRequests, study);
@@ -253,7 +256,7 @@ public class StudyCommandService {
         long removeCount = studyRepository.countByIdInAndUserId(studyIds, userId);
 
         if (removeCount != studyIds.size()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "Some Study Not Found");
+            throw new GlobalException(NOT_FOUND, "Some Study Not Found");
         }
     }
 
@@ -271,12 +274,12 @@ public class StudyCommandService {
 
     private Study findByIdAndUserIdOrThrow(Long studyId, UUID userId) {
         return studyRepository.findByIdAndUserId(studyId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
     private Study findByIdUsingLockOrThrow(Long studyId) {
         return studyRepository.findByIdUsingLock(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
     private void modifyTags(ModifyStudyTagRequest request, Study study) {
@@ -296,12 +299,12 @@ public class StudyCommandService {
                 .count();
 
         if (removeCount != tagIdsToRemove.size()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "some tags not found");
+            throw new GlobalException(NOT_FOUND, "some tags not found");
         }
 
         int newTagSize = oldTagSize + tagsToAdd.size() - removeCount;
-        if (newTagSize > StudyConstants.TAG_LIMIT) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Deviation");
+        if (newTagSize > TAG_LIMIT) {
+            throw new GlobalException(NOT_VALID, "Tag Limit Deviation");
         }
 
         if (removeCount > 0)
@@ -329,12 +332,12 @@ public class StudyCommandService {
                 .count();
 
         if (removeCount != imageIdsToRemove.size()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "some images not found");
+            throw new GlobalException(NOT_FOUND, "some images not found");
         }
 
         int newImageSize = oldImageSize + imageUrlsToAdd.size() - removeCount;
-        if (newImageSize > StudyConstants.IMAGE_LIMIT) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Deviation");
+        if (newImageSize > IMAGE_LIMIT) {
+            throw new GlobalException(NOT_VALID, "Image Limit Deviation");
         }
 
         if (removeCount > 0)
@@ -378,13 +381,13 @@ public class StudyCommandService {
 
     private void throwIfAlreadyBookmarked(Long studyId, UUID userId) {
         if (studyBookmarkRepository.existsByStudyIdAndUserId(studyId, userId)) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
+            throw new GlobalException(NOT_VALID, "Already Bookmarked");
         }
     }
 
     private void throwIfAlreadyLiked(Long studyId, UUID userId) {
         if (studyLikeRepository.existsByStudyIdAndUserId(studyId, userId)) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
+            throw new GlobalException(NOT_VALID, "Already Liked");
         }
     }
 }

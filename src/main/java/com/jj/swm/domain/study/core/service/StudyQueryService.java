@@ -15,7 +15,6 @@ import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.common.dto.PageResponse;
-import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +29,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.jj.swm.global.common.enums.ErrorCode.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -74,7 +75,7 @@ public class StudyQueryService {
     @Transactional
     public GetStudyDetailsResponse getStudyDetails(Long studyId, UUID userId) {
         Study study = studyRepository.findByIdWithUserUsingLock(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
 
         UserInteractionInfo userInteractionInfo = getUserInteractionInfoBasedOnLogin(studyId, userId);
 

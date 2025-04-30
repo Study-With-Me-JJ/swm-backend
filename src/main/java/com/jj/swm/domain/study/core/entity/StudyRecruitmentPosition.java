@@ -1,6 +1,5 @@
 package com.jj.swm.domain.study.core.entity;
 
-import com.jj.swm.domain.study.core.dto.request.CreateRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateRecruitmentPositionRequest;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,14 +38,6 @@ public class StudyRecruitmentPosition {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
-
-    public static StudyRecruitmentPosition of(CreateRecruitmentPositionRequest request, Study study) {
-        return StudyRecruitmentPosition.builder()
-                .title(request.getTitle())
-                .headcount(request.getHeadcount())
-                .study(study)
-                .build();
-    }
 
     public void modify(UpdateRecruitmentPositionRequest request) {
         this.title = request.getTitle();

@@ -9,13 +9,14 @@ import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
-import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+
+import static com.jj.swm.global.common.enums.ErrorCode.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +58,7 @@ public class StudyCommentCommandService {
             UUID userId
     ) {
         StudyComment comment = commentRepository.findByIdAndUserId(commentId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "comment not found"));
 
         comment.modify(updateRequest);
 
@@ -67,7 +68,7 @@ public class StudyCommentCommandService {
     @Transactional
     public void deleteComment(Long commentId, UUID userId) {
         StudyComment comment = commentRepository.findByIdAndUserIdWithParent(commentId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "comment not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "comment not found"));
 
         decrementStudyCommentCountIfParent(comment);
 
@@ -83,7 +84,7 @@ public class StudyCommentCommandService {
 
     private Study findByIdUsingLockOrThrow(Long studyId) {
         return studyRepository.findByIdUsingLock(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
     private void incrementStudyCommentCountIfParent(Study study, StudyComment comment) {
@@ -115,7 +116,7 @@ public class StudyCommentCommandService {
         return isParentComment(parentId)
                 ? findByIdUsingLockOrThrow(studyId)
                 : studyRepository.findById(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
     private StudyComment findByIdOrThrowIfNotParentElseNull(Long commentId) {
@@ -123,7 +124,7 @@ public class StudyCommentCommandService {
                 ? null
                 : commentRepository.findByIdWithParent(commentId)
                 .map(comment -> comment.getParent() == null ? comment : comment.getParent())
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "parent comment not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "parent comment not found"));
     }
 
     private boolean isParentComment(Long commentId) {

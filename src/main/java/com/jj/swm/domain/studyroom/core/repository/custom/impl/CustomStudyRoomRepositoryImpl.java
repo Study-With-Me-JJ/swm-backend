@@ -9,17 +9,14 @@ import com.jj.swm.domain.studyroom.core.repository.custom.CustomStudyRoomReposit
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.function.Supplier;
 
 import static com.jj.swm.domain.studyroom.core.entity.QStudyRoom.studyRoom;
-import static com.jj.swm.domain.common.utils.QueryDSLBooleanUtils.nullSafeBuilder; 
 
 @RequiredArgsConstructor
 public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository {
@@ -44,25 +41,25 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
     }
 
     private BooleanBuilder studyRoomTitleContains(String title) {
-        return nullSafeBuilder(() -> studyRoom.title.contains(title));
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.title.contains(title));
     }
 
     private BooleanBuilder studyRoomHeadcountGoe(int headCount) {
-        return nullSafeBuilder(() -> studyRoom.entireMaxHeadcount.goe(headCount));
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.entireMaxHeadcount.goe(headCount));
     }
 
     private BooleanBuilder studyRoomPriceBetween(int minPricePerHour, int maxPricePerHour) {
-        return nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.between(minPricePerHour, maxPricePerHour));
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.between(minPricePerHour, maxPricePerHour));
     }
 
     private BooleanBuilder studyRoomLocalityExists(String locality) {
-        return nullSafeBuilder(() -> studyRoom.address.locality.eq(locality));
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.address.locality.eq(locality));
     }
 
     private BooleanBuilder studyRoomOptionsContains(List<StudyRoomOption> options) {
         return options == null || options.isEmpty()
                 ? null
-                : nullSafeBuilder(() -> studyRoom.optionInfos.any().option.in(options));
+                : QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.optionInfos.any().option.in(options));
     }
 
     private BooleanBuilder createSortPredicate(GetStudyRoomCondition condition) {
@@ -72,15 +69,15 @@ public class CustomStudyRoomRepositoryImpl implements CustomStudyRoomRepository 
         Double lastAverageRating = condition.getLastAverageRatingValue();
 
         return switch (sortCriteria) {
-            case STAR -> nullSafeBuilder(() -> studyRoom.averageRating.lt(lastAverageRating)
+            case STAR -> QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.averageRating.lt(lastAverageRating)
                     .or(studyRoom.averageRating.eq(lastAverageRating).and(studyRoom.id.lt(lastStudyRoomId))));
-            case LIKE -> nullSafeBuilder(() -> studyRoom.likeCount.lt(lastSortValue)
+            case LIKE -> QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.likeCount.lt(lastSortValue)
                     .or(studyRoom.likeCount.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
-            case REVIEW -> nullSafeBuilder(() -> studyRoom.reviewCount.lt(lastSortValue)
+            case REVIEW -> QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.reviewCount.lt(lastSortValue)
                     .or(studyRoom.reviewCount.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
-            case PRICE_ASC -> nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.gt(lastSortValue)
+            case PRICE_ASC -> QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.entireMinPricePerHour.gt(lastSortValue)
                     .or(studyRoom.entireMinPricePerHour.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
-            case PRICE_DESC -> nullSafeBuilder(() -> studyRoom.entireMaxPricePerHour.lt(lastSortValue)
+            case PRICE_DESC -> QueryDSLBooleanUtils.nullSafeBuilder(() -> studyRoom.entireMaxPricePerHour.lt(lastSortValue)
                     .or(studyRoom.entireMaxPricePerHour.eq(lastSortValue).and(studyRoom.id.lt(lastStudyRoomId))));
             case DISTANCE -> {
                 NumberExpression<Double> distanceExpression = calculateDistance(

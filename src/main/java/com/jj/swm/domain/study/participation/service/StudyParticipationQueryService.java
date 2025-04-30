@@ -15,7 +15,6 @@ import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRe
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.common.dto.PageResponse;
-import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.jj.swm.global.common.enums.ErrorCode.FORBIDDEN;
+import static com.jj.swm.global.common.enums.ErrorCode.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +47,7 @@ public class StudyParticipationQueryService {
     ) {
         StudyRecruitmentPosition recruitmentPosition =
                 recruitmentPositionRepository.findByIdWithStudy(recruitmentPositionId)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "recruitment position not found"));
+                        .orElseThrow(() -> new GlobalException(NOT_FOUND, "recruitment position not found"));
 
         validateStudyWriter(recruitmentPosition, userId);
 
@@ -68,10 +70,10 @@ public class StudyParticipationQueryService {
             GetStudyParticipationCondition condition
     ) {
         Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
 
         if(!study.getUser().getId().equals(userId)){
-            throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
+            throw new GlobalException(FORBIDDEN, "not study writer");
         }
 
         Pageable pageable = PageRequest.of(condition.getPageNo(), PageSize.StudyParticipation);
@@ -105,7 +107,7 @@ public class StudyParticipationQueryService {
     ) {
         StudyParticipation participation =
                 participationRepository.findByIdWithUserAndStudy(participationId)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+                        .orElseThrow(() -> new GlobalException(NOT_FOUND, "study participation not found"));
 
         boolean isStudyWriter;
         if (participation.getUser().getId().equals(userId)) {
@@ -113,7 +115,7 @@ public class StudyParticipationQueryService {
         } else if (participation.getStudy().getUser().getId().equals(userId)) {
             isStudyWriter = true;
         } else {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "No Authorization");
+            throw new GlobalException(FORBIDDEN, "No Authorization");
         }
 
         List<StudyParticipationLink> participationLinks =
@@ -128,7 +130,7 @@ public class StudyParticipationQueryService {
 
     private void validateStudyWriter(StudyRecruitmentPosition recruitmentPosition, UUID userId) {
         if (!recruitmentPosition.getStudy().getUser().getId().equals(userId)) {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
+            throw new GlobalException(FORBIDDEN, "not study writer");
         }
     }
 }

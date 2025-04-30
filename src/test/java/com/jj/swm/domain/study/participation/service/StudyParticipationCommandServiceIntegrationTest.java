@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 
+import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StudyParticipationCommandServiceIntegrationTest extends IntegrationContainerSupporter {
@@ -175,7 +176,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void createStudyParticipation_WhenDeletedRejectedParticipationWithinThreeDays_ThenFail() {
         //given
         participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
+                UpdateStudyParticipationStatusRequestFixture.create(REJECTED),
                 participationId,
                 user1.getId()
         );
@@ -195,7 +196,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         //when
         UpdateStudyParticipationStatusResponse response =
                 participationCommandService.updateStudyParticipationStatus(
-                        UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                        UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                         participationId,
                         user1.getId()
                 );
@@ -204,7 +205,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         StudyParticipation participation = participationRepository.findById(participationId).get();
 
         assertEquals(response.getKakaoId(), participation.getKakaoId());
-        assertEquals(StudyParticipationStatus.ACCEPTED, participation.getStatus());
+        assertEquals(ACCEPTED, participation.getStatus());
     }
 
     @Test
@@ -213,7 +214,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         //when
         UpdateStudyParticipationStatusResponse response =
                 participationCommandService.updateStudyParticipationStatus(
-                        UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
+                        UpdateStudyParticipationStatusRequestFixture.create(REJECTED),
                         participationId,
                         user1.getId()
                 );
@@ -222,7 +223,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         StudyParticipation participation = participationRepository.findById(participationId).get();
 
         assertNull(response);
-        assertEquals(StudyParticipationStatus.REJECTED, participation.getStatus());
+        assertEquals(REJECTED, participation.getStatus());
     }
 
     @Test
@@ -240,7 +241,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
             Long newParticipationId = participationId + i;
 
             participationCommandService.updateStudyParticipationStatus(
-                    UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                    UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                     newParticipationId,
                     user1.getId()
             );
@@ -248,7 +249,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
 
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                 participationId,
                 user1.getId()
         ));
@@ -259,7 +260,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void updateStudyParticipationStatus_WhenNotStudyWriter_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                 participationId,
                 UserFixture.uuid
         ));
@@ -270,14 +271,14 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void updateStudyParticipationStatus_WhenStatusNotPending_ThenFail() {
         //given
         participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                 participationId,
                 user1.getId()
         );
 
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.REJECTED),
+                UpdateStudyParticipationStatusRequestFixture.create(REJECTED),
                 participationId,
                 user1.getId()
         ));
@@ -288,7 +289,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void updateStudyParticipationStatus_WhenNewStatusPending_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.PENDING),
+                UpdateStudyParticipationStatusRequestFixture.create(PENDING),
                 participationId,
                 user1.getId()
         ));
@@ -309,7 +310,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
             Long newParticipationId = participationId + i;
 
             participationCommandService.updateStudyParticipationStatus(
-                    UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                    UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                     newParticipationId,
                     user1.getId()
             );
@@ -428,7 +429,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void updateStudyParticipation_WhenAlreadyAccepted_Success() {
         //given
         participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                 participationId,
                 user1.getId()
         );
@@ -457,7 +458,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void deleteStudyParticipation_WhenAlreadyAccepted_ThenFail() {
         //given
         participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                 participationId,
                 user1.getId()
         );

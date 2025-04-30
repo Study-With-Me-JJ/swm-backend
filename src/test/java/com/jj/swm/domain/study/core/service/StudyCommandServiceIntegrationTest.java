@@ -34,6 +34,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.jj.swm.domain.study.core.entity.StudyCategory.ALGORITHM;
+import static com.jj.swm.domain.study.core.entity.StudyStatus.ACTIVE;
+import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.ACCEPTED;
 import static com.jj.swm.domain.user.helper.UserTestHelper.insertUsersAndGetUserIds;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -630,7 +633,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
             Long newParticipationId = (long) i;
 
             participationCommandService.updateStudyParticipationStatus(
-                    UpdateStudyParticipationStatusRequestFixture.create(StudyParticipationStatus.ACCEPTED),
+                    UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                     newParticipationId,
                     user.getId()
             );
@@ -651,8 +654,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         studyRepository.save(Study.builder()
                 .title("test_title")
-                .status(StudyStatus.ACTIVE)
-                .category(StudyCategory.ALGORITHM)
+                .status(ACTIVE)
+                .category(ALGORITHM)
                 .content("test_content")
                 .openChatUrl("test_open_chat_url")
                 .user(user)

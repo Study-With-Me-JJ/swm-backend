@@ -10,6 +10,8 @@ import lombok.Getter;
 import java.util.List;
 import java.util.UUID;
 
+import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.ACCEPTED;
+
 @Getter
 @Builder
 public class GetStudyParticipationDetailsResponse {
@@ -39,7 +41,7 @@ public class GetStudyParticipationDetailsResponse {
     ) {
         return GetStudyParticipationDetailsResponse.builder()
                 .participationId(participation.getId())
-                .kakaoId(!isStudyWriter || (participation.getStatus() == StudyParticipationStatus.ACCEPTED)
+                .kakaoId(!isStudyWriter || (participation.getStatus() == ACCEPTED)
                         ? participation.getKakaoId() : null)
                 .status(participation.getStatus())
                 .coverLetter(participation.getCoverLetter())

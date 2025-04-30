@@ -2,9 +2,10 @@ package com.jj.swm.domain.study.core.fixture.dto.request;
 
 import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateRecruitmentPositionRequest;
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
 
 import java.util.List;
+
+import static com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle.ETC;
 
 public class ModifyRecruitmentPositionRequestFixture {
 
@@ -16,12 +17,12 @@ public class ModifyRecruitmentPositionRequestFixture {
                 )).updateRecruitmentPositionRequests(List.of(
                         UpdateRecruitmentPositionRequest.builder()
                                 .recruitmentPositionId(3L)
-                                .title(RecruitmentPositionTitle.ETC)
+                                .title(ETC)
                                 .headcount(1)
                                 .build(),
                         UpdateRecruitmentPositionRequest.builder()
                                 .recruitmentPositionId(4L)
-                                .title(RecruitmentPositionTitle.ETC)
+                                .title(ETC)
                                 .headcount(1)
                                 .build()
                 )).recruitmentPositionIdsToRemove(List.of(1L, 2L))
@@ -33,12 +34,12 @@ public class ModifyRecruitmentPositionRequestFixture {
                 .updateRecruitmentPositionRequests(List.of(
                         UpdateRecruitmentPositionRequest.builder()
                                 .recruitmentPositionId(3L)
-                                .title(RecruitmentPositionTitle.ETC)
+                                .title(ETC)
                                 .headcount(1)
                                 .build(),
                         UpdateRecruitmentPositionRequest.builder()
                                 .recruitmentPositionId(4L)
-                                .title(RecruitmentPositionTitle.ETC)
+                                .title(ETC)
                                 .headcount(1)
                                 .build()
                 )).recruitmentPositionIdsToRemove(List.of(1L, 2L))
@@ -59,7 +60,7 @@ public class ModifyRecruitmentPositionRequestFixture {
                 .updateRecruitmentPositionRequests(List.of(
                         UpdateRecruitmentPositionRequest.builder()
                                 .recruitmentPositionId(5L)
-                                .title(RecruitmentPositionTitle.ETC)
+                                .title(ETC)
                                 .headcount(1)
                                 .build()
                 )).build();
@@ -70,7 +71,7 @@ public class ModifyRecruitmentPositionRequestFixture {
                 .updateRecruitmentPositionRequests(List.of(
                         UpdateRecruitmentPositionRequest.builder()
                                 .recruitmentPositionId(updateRecruitmentPositionId)
-                                .title(RecruitmentPositionTitle.ETC)
+                                .title(ETC)
                                 .headcount(1)
                                 .build()
                 )).build();

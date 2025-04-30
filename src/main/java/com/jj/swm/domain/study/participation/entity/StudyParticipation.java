@@ -15,6 +15,8 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 
+import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.PENDING;
+
 @Getter
 @Entity
 @Builder
@@ -66,7 +68,7 @@ public class StudyParticipation {
             User user
     ) {
         return StudyParticipation.builder()
-                .status(StudyParticipationStatus.PENDING)
+                .status(PENDING)
                 .kakaoId(request.getKakaoId())
                 .coverLetter(request.getCoverLetter())
                 .fileInfo(request.getFileInfo())

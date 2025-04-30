@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.comment.repository.custom.impl;
 
+import com.jj.swm.domain.common.utils.QueryDSLBooleanUtils;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.custom.CustomStudyCommentRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import static com.jj.swm.domain.common.utils.QueryDSLBooleanUtils.nullSafeBuilder;
 import static com.jj.swm.domain.study.comment.entity.QStudyComment.studyComment;
 
 @RequiredArgsConstructor
@@ -31,6 +31,6 @@ public class CustomStudyCommentRepositoryImpl implements CustomStudyCommentRepos
     }
 
     private BooleanBuilder lastReplyIdLt(Long lastReplyId) {
-        return nullSafeBuilder(() -> studyComment.id.lt(lastReplyId));
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyComment.id.lt(lastReplyId));
     }
 }

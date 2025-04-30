@@ -3,9 +3,10 @@ package com.jj.swm.domain.study.core.fixture.dto.request;
 import com.jj.swm.domain.study.core.dto.request.ModifyStudyImageRequest;
 import com.jj.swm.domain.study.core.dto.request.ModifyStudyTagRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
-import com.jj.swm.domain.study.core.entity.StudyCategory;
 
 import java.util.List;
+
+import static com.jj.swm.domain.study.core.entity.StudyCategory.DEVELOPMENT;
 
 public class UpdateStudyRequestFixture {
 
@@ -14,7 +15,7 @@ public class UpdateStudyRequestFixture {
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
-                .category(StudyCategory.DEVELOPMENT)
+                .category(DEVELOPMENT)
                 .modifyTagRequest(ModifyStudyTagRequest.builder()
                         .tagsToAdd(List.of("new_test_tag1", "new_test_tag2"))
                         .tagIdsToRemove(List.of(1L))
@@ -31,7 +32,7 @@ public class UpdateStudyRequestFixture {
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
-                .category(StudyCategory.DEVELOPMENT)
+                .category(DEVELOPMENT)
                 .build();
     }
 
@@ -40,7 +41,7 @@ public class UpdateStudyRequestFixture {
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
-                .category(StudyCategory.DEVELOPMENT)
+                .category(DEVELOPMENT)
                 .modifyTagRequest(ModifyStudyTagRequest.builder()
                         .tagIdsToRemove(List.of(1L))
                         .build())
@@ -55,7 +56,7 @@ public class UpdateStudyRequestFixture {
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
-                .category(StudyCategory.DEVELOPMENT)
+                .category(DEVELOPMENT)
                 .modifyTagRequest(ModifyStudyTagRequest.builder()
                         .tagsToAdd(List.of("new_test_tag1", "new_test_tag2"))
                         .build())
@@ -70,7 +71,7 @@ public class UpdateStudyRequestFixture {
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
-                .category(StudyCategory.DEVELOPMENT)
+                .category(DEVELOPMENT)
                 .modifyTagRequest(ModifyStudyTagRequest.builder()
                         .tagIdsToRemove(List.of(1L, 2L, 3L))
                         .build())
@@ -82,7 +83,7 @@ public class UpdateStudyRequestFixture {
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
-                .category(StudyCategory.DEVELOPMENT)
+                .category(DEVELOPMENT)
                 .modifyTagRequest(ModifyStudyTagRequest.builder()
                         .tagsToAdd(List.of(
                                 "new_test_tag1", "new_test_tag2", "new_test_tag3",
@@ -97,7 +98,7 @@ public class UpdateStudyRequestFixture {
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
-                .category(StudyCategory.DEVELOPMENT)
+                .category(DEVELOPMENT)
                 .modifyImageRequest(ModifyStudyImageRequest.builder()
                         .imageIdsToRemove(List.of(1L, 2L, 3L))
                         .build())
@@ -109,7 +110,7 @@ public class UpdateStudyRequestFixture {
                 .title("new_test_title")
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
-                .category(StudyCategory.DEVELOPMENT)
+                .category(DEVELOPMENT)
                 .modifyImageRequest(ModifyStudyImageRequest.builder()
                         .imageUrlsToAdd(List.of(
                                 "http://newTest_image1.png", "http://newTest_image2.png", "http://newTest_image3.png",

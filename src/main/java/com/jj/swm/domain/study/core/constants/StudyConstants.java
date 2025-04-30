@@ -4,5 +4,5 @@ public class StudyConstants {
     public static final int TAG_LIMIT = 10;
     public static final int IMAGE_LIMIT = 10;
     public static final int RECRUITMENT_POSITION_LIMIT = 10;
-    public static final int RECRUITMENT_POSITION_COUNT_MAX = 100;
+    public static final int RECRUITMENT_POSITION_HEADCOUNT_MAX = 100;
 }

@@ -3,7 +3,6 @@ package com.jj.swm.domain.study.participation.service;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
-import com.jj.swm.domain.study.participation.constants.StudyParticipationConstants;
 import com.jj.swm.domain.study.participation.dto.request.CreateStudyParticipationRequest;
 import com.jj.swm.domain.study.participation.dto.request.ModifyStudyParticipationLinkRequest;
 import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationRequest;
@@ -16,7 +15,7 @@ import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRe
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
-import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.common.util.ListCheckUtils;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.jj.swm.domain.study.participation.constants.StudyParticipationConstants.LINK_LIMIT;
+import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.*;
+import static com.jj.swm.global.common.enums.ErrorCode.*;
 import static com.jj.swm.global.common.util.ListCheckUtils.isListNotEmpty;
 import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 
@@ -48,7 +50,7 @@ public class StudyParticipationCommandService {
     ) {
         StudyRecruitmentPosition recruitmentPosition =
                 recruitmentPositionRepository.findByIdWithStudy(recruitmentPositionId)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
+                        .orElseThrow(() -> new GlobalException(NOT_FOUND, "Recruitment Position not found"));
 
         Study study = recruitmentPosition.getStudy();
 
@@ -81,7 +83,7 @@ public class StudyParticipationCommandService {
 
         StudyParticipation participation =
                 participationRepository.findByIdWithStudyAndRecruitmentPosition(participationId)
-                        .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+                        .orElseThrow(() -> new GlobalException(NOT_FOUND, "study participation not found"));
 
         validateOldStatusMustPending(participation);
 
@@ -127,7 +129,7 @@ public class StudyParticipationCommandService {
                 findByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
 
         StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "Recruitment Position not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "Recruitment Position not found"));
 
         validateSameStudy(participation, recruitmentPosition);
 
@@ -140,13 +142,13 @@ public class StudyParticipationCommandService {
 
     private void validateSameRecruitmentPosition(Long recruitmentPositionId, StudyParticipation participation) {
         if (participation.getRecruitmentPosition().getId().equals(recruitmentPositionId)) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment position same thing");
+            throw new GlobalException(NOT_VALID, "Recruitment position same thing");
         }
     }
 
     private void validateSameStudy(StudyParticipation participation, StudyRecruitmentPosition recruitmentPosition) {
         if (!participation.getStudy().getId().equals(recruitmentPosition.getStudy().getId())) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment position does not belong to same study");
+            throw new GlobalException(NOT_VALID, "Recruitment position does not belong to same study");
         }
     }
 
@@ -155,10 +157,10 @@ public class StudyParticipationCommandService {
                 participationRepository.findByStudyIdAndUserId(study.getId(), userId);
         optionalParticipation.ifPresent(participation -> {
             if (participation.getDeletedAt() == null) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Already Exists");
-            } else if (participation.getStatus() == StudyParticipationStatus.REJECTED
+                throw new GlobalException(NOT_VALID, "Already Exists");
+            } else if (participation.getStatus() == REJECTED
                     && LocalDateTime.now().isBefore(participation.getDeletedAt().plusDays(3))) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Three days have not passed yet.");
+                throw new GlobalException(NOT_VALID, "Three days have not passed yet.");
             }
         });
     }
@@ -167,7 +169,7 @@ public class StudyParticipationCommandService {
             Long participationId, UUID userId
     ) {
         StudyParticipation participation = participationRepository.findByIdAndUserId(participationId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study participation not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study participation not found"));
 
         validateStatusNotAccepted(participation);
 
@@ -175,8 +177,8 @@ public class StudyParticipationCommandService {
     }
 
     private void validateStatusNotAccepted(StudyParticipation participation) {
-        if (participation.getStatus() == StudyParticipationStatus.ACCEPTED) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Already accepted study participation");
+        if (participation.getStatus() == ACCEPTED) {
+            throw new GlobalException(NOT_VALID, "Already accepted study participation");
         }
     }
 
@@ -196,12 +198,12 @@ public class StudyParticipationCommandService {
                     .count();
 
             if (removeCount != linkIdsToRemove.size()) {
-                throw new GlobalException(ErrorCode.NOT_FOUND, "some links not found");
+                throw new GlobalException(NOT_FOUND, "some links not found");
             }
 
             int newLinkSize = oldLinkSize + linksToAdd.size() - removeCount;
-            if (newLinkSize < 0 || newLinkSize > StudyParticipationConstants.LINK_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Link Limit Deviation");
+            if (newLinkSize < 0 || newLinkSize > LINK_LIMIT) {
+                throw new GlobalException(NOT_VALID, "Link Limit Deviation");
             }
 
             if (removeCount > 0)
@@ -217,7 +219,7 @@ public class StudyParticipationCommandService {
     private UpdateStudyParticipationStatusResponse buildUpdateStudyParticipationStatusResponse(
             StudyParticipation participation
     ) {
-        if (participation.getStatus() == StudyParticipationStatus.ACCEPTED) {
+        if (participation.getStatus() == ACCEPTED) {
             return UpdateStudyParticipationStatusResponse.from(participation);
         }
 
@@ -228,7 +230,7 @@ public class StudyParticipationCommandService {
             StudyParticipation participation,
             StudyParticipationStatus status
     ) {
-        if (status == StudyParticipationStatus.ACCEPTED) {
+        if (status == ACCEPTED) {
             StudyRecruitmentPosition recruitmentPosition = participation.getRecruitmentPosition();
 
             validateAcceptedCountNotEqualHeadcount(recruitmentPosition);
@@ -237,19 +239,19 @@ public class StudyParticipationCommandService {
 
     private void validateStudyWriter(Study study, UUID userId) {
         if (!study.getUser().getId().equals(userId)) {
-            throw new GlobalException(ErrorCode.FORBIDDEN, "not study writer");
+            throw new GlobalException(FORBIDDEN, "not study writer");
         }
     }
 
     private void validateOldStatusMustPending(StudyParticipation participation) {
-        if (participation.getStatus() != StudyParticipationStatus.PENDING) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "already changed status");
+        if (participation.getStatus() != PENDING) {
+            throw new GlobalException(NOT_VALID, "already changed status");
         }
     }
 
     private void validateNewStatusNotPending(StudyParticipationStatus status) {
-        if (status == StudyParticipationStatus.PENDING) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Invalid status value");
+        if (status == PENDING) {
+            throw new GlobalException(NOT_VALID, "Invalid status value");
         }
     }
 
@@ -264,7 +266,7 @@ public class StudyParticipationCommandService {
                 participationRepository.countByRecruitmentPositionIdAndAcceptedStatus(recruitmentPosition.getId());
 
         if (recruitmentPosition.getHeadcount() == acceptedCount) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Recruitment Position already full");
+            throw new GlobalException(NOT_VALID, "Recruitment Position already full");
         }
     }
 }
