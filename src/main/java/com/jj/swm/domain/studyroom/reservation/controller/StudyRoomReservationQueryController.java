@@ -13,7 +13,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "StudyRoomReservationInfo", description = "<b>[스터디 룸 예약]</b> API")
@@ -28,7 +27,7 @@ public class StudyRoomReservationQueryController {
     public ApiResponse<GetReservationInfoDetailsResponse> getReservationInfoDetails(
             @PathVariable("reservationToken") String reservationToken
     ) {
-        GetReservationInfoDetailsResponse response = queryService.getReservationInfoDetails(reservationToken);
+        GetReservationInfoDetailsResponse response = queryService.getReservationInfoDetailsWithToken(reservationToken);
 
         return ApiResponse.ok(response);
     }
@@ -38,7 +37,7 @@ public class StudyRoomReservationQueryController {
             @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId, Principal principal
     ) {
         GetReservationInfoDetailsResponse response
-                = queryService.getReservationInfoDetails(studyRoomReservationInfoId, UUID.fromString(principal.getName()));
+                = queryService.getReservationInfoDetailsWithId(studyRoomReservationInfoId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(response);
     }

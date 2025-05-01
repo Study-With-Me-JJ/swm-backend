@@ -33,7 +33,7 @@ public class StudyRoomReservationQueryService {
     private final StudyRoomRepository studyRoomRepository;
 
     @Transactional(readOnly = true)
-    public GetReservationInfoDetailsResponse getReservationInfoDetails(String reservationToken) {
+    public GetReservationInfoDetailsResponse getReservationInfoDetailsWithToken(String reservationToken) {
         Long studyRoomReservationInfoId
                 = tokenRedisService.findReservationIdByReservationTokenOrThrow(reservationToken);
 
@@ -44,7 +44,7 @@ public class StudyRoomReservationQueryService {
     }
 
     @Transactional(readOnly = true)
-    public GetReservationInfoDetailsResponse getReservationInfoDetails(Long studyRoomReservationInfoId, UUID userId) {
+    public GetReservationInfoDetailsResponse getReservationInfoDetailsWithId(Long studyRoomReservationInfoId, UUID userId) {
         StudyRoomReservationInfo studyRoomReservationInfo = reservationInfoRepository.findByIdAndUserIdWithReserveType(studyRoomReservationInfoId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
 
