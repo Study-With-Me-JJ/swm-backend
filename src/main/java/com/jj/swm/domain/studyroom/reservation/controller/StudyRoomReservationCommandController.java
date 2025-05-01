@@ -8,6 +8,7 @@ import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -30,7 +31,7 @@ public class StudyRoomReservationCommandController {
         return ApiResponse.created(null);
     }
 
-    @PatchMapping("/v1/studyroom/reservation/{reservationToken}/status")
+    @PatchMapping("/v1/studyroom/reservation/token/{reservationToken}/status")
     public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
             @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
             @PathVariable("reservationToken") String reservationToken
@@ -38,6 +39,17 @@ public class StudyRoomReservationCommandController {
         commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, reservationToken);
 
         return ApiResponse.created(null);
+    }
+
+    @Secured("ROLE_ROOM_ADMIN")
+    @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}/status")
+    public ApiResponse<Void> updateStudyRoomReservationApprovalStatus(
+            @Valid @RequestBody UpdateStudyRoomReservationApprovalStatusRequest request,
+            @PathVariable("studyRoomReservationInfoId") Long studyRoomReservationInfoId
+    ) {
+        commandService.updateStudyRoomReservationApprovalStatusAndSendSms(request, studyRoomReservationInfoId);
+
+        return ApiResponse.ok(null);
     }
 
     @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}")
@@ -52,7 +64,7 @@ public class StudyRoomReservationCommandController {
                 UUID.fromString(principal.getName())
         );
 
-        return ApiResponse.created(null);
+        return ApiResponse.ok(null);
     }
 
     @PatchMapping("/v1/studyroom/reservation/{studyRoomReservationInfoId}/cancel")

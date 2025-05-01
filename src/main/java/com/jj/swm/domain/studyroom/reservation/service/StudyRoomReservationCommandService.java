@@ -67,12 +67,22 @@ public class StudyRoomReservationCommandService {
         StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdWithStudyRoom(studyRoomReservationInfoId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
 
-        if(reservationInfo.getApprovalStatus().equals(ApprovalStatus.CANCELED))
-            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Canceled");
-
-        reservationInfo.modifyApprovalStatus(request.getApprovalStatus());
+        modifyStudyRoomReservationApprovalStatus(request, reservationInfo);
 
         Events.send(StudyRoomReservationResponseEvent.of(reservationInfo, reservationToken));
+        // TODO: 알림톡 전송 작업
+    }
+
+    @Transactional
+    public void updateStudyRoomReservationApprovalStatusAndSendSms(
+            UpdateStudyRoomReservationApprovalStatusRequest request, Long studyRoomReservationInfoId
+    ){
+        StudyRoomReservationInfo reservationInfo = reservationInfoRepository.findByIdWithStudyRoom(studyRoomReservationInfoId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
+
+        modifyStudyRoomReservationApprovalStatus(request, reservationInfo);
+
+        Events.send(StudyRoomReservationResponseEvent.of(reservationInfo, null));
         // TODO: 알림톡 전송 작업
     }
 
@@ -84,10 +94,7 @@ public class StudyRoomReservationCommandService {
     ) {
         StudyRoomReservationInfo reservationInfo = findByIdAndUserIdOrThrow(studyRoomReservationInfoId, userId);
 
-        ApprovalStatus approvalStatus = reservationInfo.getApprovalStatus();
-
-        if(approvalStatus.equals(ApprovalStatus.APPROVED) || approvalStatus.equals(ApprovalStatus.REJECTED))
-            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Approved or Rejected");
+        throwIfApprovedOrRejected(reservationInfo.getApprovalStatus());
 
         reservationInfo.modifyStudyRoomReservationInfo(request);
     }
@@ -96,6 +103,8 @@ public class StudyRoomReservationCommandService {
     public void cancelStudyRoomReservation(Long studyRoomReservationInfoId, UUID userId) {
         StudyRoomReservationInfo reservationInfo = findByIdAndUserIdOrThrow(studyRoomReservationInfoId, userId);
 
+        throwIfApprovedOrRejected(reservationInfo.getApprovalStatus());
+
         reservationInfo.modifyApprovalStatus(ApprovalStatus.CANCELED);
         // TODO: 유저의 요청의 CANCEL 톡 전송 여부, Redis 토큰 삭제 여부(경우에 따라 소유자가 승인/거부를 위해 접속 시 삭제(updateSendSms 메서드에서))
     }
@@ -103,5 +112,19 @@ public class StudyRoomReservationCommandService {
     private StudyRoomReservationInfo findByIdAndUserIdOrThrow(Long studyRoomReservationInfoId, UUID userId) {
         return reservationInfoRepository.findByIdAndUserId(studyRoomReservationInfoId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReservationInfo Not Found"));
+    }
+
+    private void modifyStudyRoomReservationApprovalStatus(
+            UpdateStudyRoomReservationApprovalStatusRequest request, StudyRoomReservationInfo reservationInfo
+    ) {
+        if(reservationInfo.getApprovalStatus().equals(ApprovalStatus.CANCELED))
+            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Canceled");
+
+        reservationInfo.modifyApprovalStatus(request.getApprovalStatus());
+    }
+
+    private void throwIfApprovedOrRejected(ApprovalStatus approvalStatus) {
+        if(approvalStatus.equals(ApprovalStatus.APPROVED) || approvalStatus.equals(ApprovalStatus.REJECTED))
+            throw new GlobalException(ErrorCode.NOT_VALID, "StudyRoomReservationInfo Already Approved or Rejected");
     }
 }

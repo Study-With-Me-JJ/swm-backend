@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -185,7 +185,7 @@ public class UserCommandController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공"
     )
-    @PreAuthorize("hasRole('ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PatchMapping("/v1/user/business/verification/requests/approval")
     public ApiResponse<Void> updateInspectionStatusApproval(
         @Valid @RequestBody UpdateInspectionStatusRequest request
@@ -202,7 +202,7 @@ public class UserCommandController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200", description = "성공"
     )
-    @PreAuthorize("hasRole('ADMIN')")
+    @Secured("ROLE_ADMIN")
     @PatchMapping("/v1/user/business/verification/requests/rejection")
     public ApiResponse<Void> updateInspectionStatusRejection(
             @Valid @RequestBody UpdateInspectionStatusRequest request
