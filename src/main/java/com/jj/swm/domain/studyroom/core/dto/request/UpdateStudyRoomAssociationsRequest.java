@@ -1,7 +1,7 @@
 package com.jj.swm.domain.studyroom.core.dto.request;
 
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomOptionInfoRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomReserveTypeRequest;
 import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomTypeInfoRequest;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -25,5 +25,5 @@ public class UpdateStudyRoomAssociationsRequest {
 
     private ModifyStudyRoomTypeInfoRequest typeInfoModification;
 
-    private ModifyStudyRoomReservationTypeRequest reservationTypeModification;
+    private ModifyStudyRoomReserveTypeRequest reserveTypeModification;
 }

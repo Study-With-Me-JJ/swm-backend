@@ -1,7 +1,7 @@
 package com.jj.swm.domain.studyroom.core.fixture.dto.request;
 
 import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomRequest;
-import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomReservationTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.CreateStudyRoomReserveTypeRequest;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomOption;
 import com.jj.swm.domain.studyroom.core.entity.StudyRoomType;
 import com.jj.swm.domain.studyroom.core.entity.embeddable.Address;
@@ -40,7 +40,7 @@ public class CreateStudyRoomRequestFixture {
                 .imageUrls(List.of("http://test1.png", "http://test2.png"))
                 .types(List.of(StudyRoomType.STUDY, StudyRoomType.MEETING))
                 .options(List.of(StudyRoomOption.MIKE, StudyRoomOption.NO_SMOKE))
-                .reservationTypes(
+                .reserveTypes(
                         List.of(createStudyRoomReservationTypeRequest())
                 )
                 .minReserveTime(2)
@@ -51,8 +51,8 @@ public class CreateStudyRoomRequestFixture {
                 .build();
     }
 
-     public static CreateStudyRoomReservationTypeRequest createStudyRoomReservationTypeRequest(){
-        return CreateStudyRoomReservationTypeRequest.builder()
+     public static CreateStudyRoomReserveTypeRequest createStudyRoomReservationTypeRequest(){
+        return CreateStudyRoomReserveTypeRequest.builder()
                 .maxHeadcount(1)
                 .reservationOption("1인실")
                 .pricePerHour(1000)

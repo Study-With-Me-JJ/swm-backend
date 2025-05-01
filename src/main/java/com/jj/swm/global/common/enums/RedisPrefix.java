@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum RedisPrefix {
     EMAIL_AUTH_CODE("email_auth_code:"),
     PASSWORD_AUTH_CODE("password_auth_code:"),
-    ID_AUTH_CODE("id_auth_code:");
+    ID_AUTH_CODE("id_auth_code:"),
+    STUDYROOM_RESERVATION_TOKEN("studyroom_reservation_token:");
 
     private final String value;
 }
