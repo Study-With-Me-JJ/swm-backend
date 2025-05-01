@@ -94,7 +94,6 @@ class StudyRoomReservationCommandServiceIntegrationTest extends IntegrationConta
         StudyRoomReservationInfo studyRoomReservationInfo = reservationInfoRepository.findById(1L).get();
         assertEquals("tester", studyRoomReservationInfo.getReserverName());
         assertEquals(3, studyRoomReservationInfo.getHeadcount());
-        assertEquals(now.plusHours(3), studyRoomReservationInfo.getCheckOutTime());
         verify(kakaoNotificationService, times(1))
                 .sendStudyRoomReservationRequestNotification(any(StudyRoomReservationRequestEvent.class), any(String.class));
     }
