@@ -1,0 +1,411 @@
+package com.jj.swm.domain.studyroom.core.service;
+
+import com.jj.swm.domain.studyroom.core.constants.StudyRoomConstants;
+import com.jj.swm.domain.studyroom.core.dto.request.*;
+import com.jj.swm.domain.studyroom.core.entity.*;
+import com.jj.swm.domain.studyroom.core.repository.*;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomDayOffRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomImageRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomOptionInfoRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomReserveTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.UpdateStudyRoomReserveTypeRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomTagRequest;
+import com.jj.swm.domain.studyroom.core.dto.request.update.ModifyStudyRoomTypeInfoRequest;
+import com.jj.swm.domain.studyroom.core.dto.response.CreateStudyRoomBookmarkResponse;
+import com.jj.swm.domain.studyroom.core.dto.response.CreateStudyRoomLikeResponse;
+import com.jj.swm.domain.studyroom.qna.repository.StudyRoomQnaRepository;
+import com.jj.swm.domain.studyroom.review.entity.StudyRoomReview;
+import com.jj.swm.domain.studyroom.review.repository.StudyRoomReviewImageRepository;
+import com.jj.swm.domain.studyroom.review.repository.StudyRoomReviewReplyRepository;
+import com.jj.swm.domain.studyroom.review.repository.StudyRoomReviewRepository;
+import com.jj.swm.domain.user.core.entity.User;
+import com.jj.swm.domain.user.core.repository.UserRepository;
+import com.jj.swm.global.common.enums.ErrorCode;
+import com.jj.swm.global.exception.GlobalException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.DayOfWeek;
+import java.util.*;
+
+import static com.jj.swm.global.common.util.ListCheckUtils.*;
+
+@Service
+@RequiredArgsConstructor
+public class StudyRoomCommandService {
+
+    private final StudyRoomRepository studyRoomRepository;
+    private final UserRepository userRepository;
+    private final StudyRoomDayOffRepository dayOffRepository;
+    private final StudyRoomImageRepository imageRepository;
+    private final StudyRoomOptionInfoRepository optionInfoRepository;
+    private final StudyRoomTypeInfoRepository typeInfoRepository;
+    private final StudyRoomReserveTypeRepository reserveTypeRepository;
+    private final StudyRoomTagRepository tagRepository;
+    private final StudyRoomLikeRepository likeRepository;
+    private final StudyRoomBookmarkRepository bookmarkRepository;
+    private final StudyRoomReviewRepository reviewRepository;
+    private final StudyRoomReviewReplyRepository reviewReplyRepository;
+    private final StudyRoomReviewImageRepository reviewImageRepository;
+    private final StudyRoomQnaRepository qnaRepository;
+
+    @Transactional
+    public void createStudyRoom(CreateStudyRoomRequest request, UUID userId){
+        User user = userRepository.getReferenceById(userId);
+
+        StudyRoom studyRoom = StudyRoom.of(request);
+        studyRoom.modifyRoomAdmin(user);
+
+        studyRoom = studyRoomRepository.save(studyRoom);
+
+        insertStudyRoomAssociations(request, studyRoom);
+    }
+
+    @Transactional
+    public void updateStudyRoomSettings(
+            UpdateStudyRoomSettingsRequest request,
+            Long studyRoomId,
+            UUID userId
+    ){
+        StudyRoom studyRoom = findByStudyRoomIdAndUserIdOrThrow(studyRoomId, userId);
+
+        studyRoom.modifyStudyRoom(request);
+
+        modifyImages(request.getImageModification(), studyRoom);
+        modifyTags(request.getTagModification(), studyRoom);
+        modifyDayOffs(request.getDayOffModification(), studyRoom);
+    }
+
+    @Transactional
+    public void updateStudyRoomAssociations(
+            UpdateStudyRoomAssociationsRequest request,
+            Long studyRoomId,
+            UUID userId
+    ) {
+        StudyRoom studyRoom = findByStudyRoomIdAndUserIdOrThrow(studyRoomId, userId);
+
+        modifyOptions(request.getOptionInfoModification(), studyRoom);
+        modifyTypes(request.getTypeInfoModification(), studyRoom);
+        modifyReserveTypes(request.getReserveTypeModification(), studyRoom);
+    }
+
+    @Transactional
+    public void deleteStudyRoomAndAssociations(Long studyRoomId, UUID userId) {
+        if(!studyRoomRepository.existsByIdAndUserId(studyRoomId, userId))
+            throw new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found");
+
+        deleteStudyRoomLogic(List.of(studyRoomId));
+    }
+
+    @Transactional
+    public void deleteStudyRoomsAndAssociations(List<Long> studyRoomIds, UUID userId) {
+        if(!studyRoomRepository.validateAllExistsByIdsAndUserId(studyRoomIds, userId, studyRoomIds.size()))
+            throw new GlobalException(ErrorCode.NOT_FOUND, "Some StudyRoom Not Found");
+
+        deleteStudyRoomLogic(studyRoomIds);
+    }
+
+    @Transactional
+    public CreateStudyRoomLikeResponse createStudyRoomLike(Long studyRoomId, UUID userId) {
+        throwIfAlreadyLiked(studyRoomId, userId);
+
+        StudyRoom studyRoom = findByStudyRoomIdWithLockOrThrow(studyRoomId);
+        User user = userRepository.getReferenceById(userId);
+
+        StudyRoomLike studyRoomLike = StudyRoomLike.of(studyRoom, user);
+
+        likeRepository.save(studyRoomLike);
+
+        studyRoom.addLike();
+
+        return CreateStudyRoomLikeResponse.from(studyRoomLike);
+    }
+
+    @Transactional
+    public void deleteStudyRoomLike(Long studyRoomId, UUID userId) {
+        StudyRoomLike studyRoomLike = likeRepository.findByStudyRoomIdAndUserId(studyRoomId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomLike Not Found"));
+
+        StudyRoom studyRoom = findByStudyRoomIdWithLockOrThrow(studyRoomId);
+
+        studyRoom.unLike();
+        likeRepository.delete(studyRoomLike);
+    }
+
+    @Transactional
+    public CreateStudyRoomBookmarkResponse createStudyRoomBookmark(Long studyRoomId, UUID userId) {
+        throwIfAlreadyBookmarked(studyRoomId, userId);
+        StudyRoom studyRoom = findByStudyRoomIdOrThrow(studyRoomId);
+        User user = userRepository.getReferenceById(userId);
+
+        StudyRoomBookmark studyRoomBookmark = StudyRoomBookmark.of(studyRoom, user);
+
+        bookmarkRepository.save(studyRoomBookmark);
+
+        return CreateStudyRoomBookmarkResponse.from(studyRoomBookmark);
+    }
+
+    @Transactional
+    public void deleteStudyRoomBookmark(Long studyRoomBookmarkId, UUID userId) {
+        StudyRoomBookmark studyRoomBookmark = bookmarkRepository.findByIdAndUserId(studyRoomBookmarkId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomBookmark Not Found"));
+
+        bookmarkRepository.delete(studyRoomBookmark);
+    }
+
+    private void insertStudyRoomAssociations(CreateStudyRoomRequest request, StudyRoom studyRoom) {
+        insertDayOffs(request.getDayOffs(), studyRoom);
+        insertTags(request.getTags(), studyRoom);
+        imageRepository.batchInsert(request.getImageUrls(), studyRoom);
+        optionInfoRepository.batchInsert(request.getOptions(), studyRoom);
+        typeInfoRepository.batchInsert(request.getTypes(), studyRoom);
+        reserveTypeRepository.batchInsert(request.getReserveTypes(), studyRoom);
+    }
+
+    private void modifyImages(ModifyStudyRoomImageRequest request, StudyRoom studyRoom) {
+        if (request != null) {
+            if (isListNotNull(request.getImagesToUpdate())) {
+                validateSizeLimitExceeded(request.getImagesToUpdate().size(), StudyRoomConstants.IMAGE_LIMIT, "Image");
+
+                imageRepository.deleteByStudyRoomIds(List.of(studyRoom.getId()));
+                imageRepository.batchInsert(request.getImagesToUpdate(), studyRoom);
+            }
+        }
+    }
+
+    private void modifyTags(ModifyStudyRoomTagRequest request, StudyRoom studyRoom) {
+        if(request != null){
+            if (isListPresent(request.getTagsToAdd())) {
+                long size = tagRepository.countByStudyRoomId(studyRoom.getId());
+                long totalSize = computeTotalSize(size, request.getTagsToAdd(), request.getTagIdsToRemove());
+
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.TAG_LIMIT, "Tag");
+
+                tagRepository.batchInsert(request.getTagsToAdd(), studyRoom);
+            }
+            if (isListPresent(request.getTagIdsToRemove()))
+                removeTags(request.getTagIdsToRemove(), studyRoom);
+        }
+    }
+
+    private void removeTags(List<Long> tagIdsToRemove, StudyRoom studyRoom) {
+        int size = tagRepository.countStudyRoomTagByIdInAndStudyRoom(tagIdsToRemove, studyRoom);
+
+        if(size == tagIdsToRemove.size()){
+            tagRepository.deleteAllByIdInBatch(tagIdsToRemove);
+        } else{
+            throw new GlobalException(ErrorCode.NOT_VALID, "Some tag not matching StudyRoom.");
+        }
+    }
+
+    private void modifyDayOffs(ModifyStudyRoomDayOffRequest request, StudyRoom studyRoom) {
+        if(request != null){
+            if (isListPresent(request.getDayOffsToAdd())) {
+                long size = dayOffRepository.countByStudyRoomId(studyRoom.getId());
+                long totalSize = computeTotalSize(size, request.getDayOffsToAdd(), request.getDayOffIdsToRemove());
+
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.DAYOFF_LIMIT, "DayOff");
+
+                List<DayOfWeek> dayOffsToAdd = request.getDayOffsToAdd();
+
+                boolean isAlreadyExists = dayOffRepository.existsByStudyRoomIdAndDayOfWeekIn(studyRoom.getId(), dayOffsToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated DayOff");
+
+                dayOffRepository.batchInsert(dayOffsToAdd, studyRoom);
+            }
+            if (isListPresent(request.getDayOffIdsToRemove()))
+                removeDayOffs(request.getDayOffIdsToRemove(), studyRoom);
+        }
+    }
+
+    private void removeDayOffs(List<Long> dayOffIdsToRemove, StudyRoom studyRoom) {
+        int size = dayOffRepository.countStudyRoomDayOffByIdInAndStudyRoom(dayOffIdsToRemove, studyRoom);
+
+        if (size == dayOffIdsToRemove.size()) {
+            dayOffRepository.deleteAllByIdInBatch(dayOffIdsToRemove);
+        } else {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Some day-off not matching StudyRoom.");
+        }
+    }
+
+    private void modifyOptions(ModifyStudyRoomOptionInfoRequest request, StudyRoom studyRoom) {
+        if(request != null){
+            if (isListPresent(request.getOptionsToAdd())) {
+                List<StudyRoomOption> optionsToAdd = request.getOptionsToAdd();
+
+                boolean isAlreadyExists
+                        = optionInfoRepository.existsByStudyRoomIdAndOptionIn(studyRoom.getId(), optionsToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated Option");
+
+                optionInfoRepository.batchInsert(optionsToAdd, studyRoom);
+            }
+            if (isListPresent(request.getOptionsIdsToRemove()))
+                removeOptions(request.getOptionsIdsToRemove(), studyRoom);
+        }
+    }
+
+    private void removeOptions(List<Long> optionIdsToRemove, StudyRoom studyRoom) {
+        int size = optionInfoRepository.countStudyRoomOptionInfoByIdInAndStudyRoom(optionIdsToRemove, studyRoom);
+
+        if (size == optionIdsToRemove.size()) {
+            optionInfoRepository.deleteAllByIdInBatch(optionIdsToRemove);
+        } else {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Some option not matching StudyRoom.");
+        }
+    }
+
+    private void modifyTypes(ModifyStudyRoomTypeInfoRequest request, StudyRoom studyRoom) {
+        if(request != null){
+            if (isListPresent(request.getTypesToAdd())) {
+                long size = typeInfoRepository.countByStudyRoomId(studyRoom.getId());
+                long totalSize = computeTotalSize(size, request.getTypesToAdd(), request.getTypeIdsToRemove());
+
+                validateSizeLimitExceeded(totalSize, StudyRoomConstants.TYPE_LIMIT, "Type");
+
+                List<StudyRoomType> typesToAdd = request.getTypesToAdd();
+
+                boolean isAlreadyExists = typeInfoRepository.existsByStudyRoomIdAndTypeIn(studyRoom.getId(), typesToAdd);
+
+                if(isAlreadyExists)
+                    throw new GlobalException(ErrorCode.NOT_VALID, "Duplicated StudyRoomType");
+
+                typeInfoRepository.batchInsert(typesToAdd, studyRoom);
+            }
+            if (isListPresent(request.getTypeIdsToRemove()))
+                removeTypes(request.getTypeIdsToRemove(), studyRoom);
+        }
+    }
+
+    private void removeTypes(List<Long> typeIdsToRemove, StudyRoom studyRoom) {
+        int size = typeInfoRepository.countStudyRoomTypeInfoByIdInAndStudyRoom(typeIdsToRemove, studyRoom);
+
+        if (size == typeIdsToRemove.size()) {
+            typeInfoRepository.deleteAllByIdInBatch(typeIdsToRemove);
+        } else {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Some type not matching StudyRoom.");
+        }
+    }
+
+    private void modifyReserveTypes(ModifyStudyRoomReserveTypeRequest request, StudyRoom studyRoom) {
+        if(request != null){
+            if (isListNotNull(request.getReserveTypesToAdd()))
+                reserveTypeRepository.batchInsert(request.getReserveTypesToAdd(), studyRoom);
+            if (isListPresent(request.getReserveTypesToUpdate()))
+                updateReserveTypes(request.getReserveTypesToUpdate(), studyRoom);
+            if (isListPresent(request.getReserveTypeIdsToRemove()))
+                removeReserveTypes(request.getReserveTypeIdsToRemove(), studyRoom);
+        }
+    }
+
+    private void updateReserveTypes(
+            List<UpdateStudyRoomReserveTypeRequest> reserveTypesToUpdate, StudyRoom studyRoom
+    ) {
+        Map<Long, CreateStudyRoomReserveTypeRequest> reserveTypeMap = new HashMap<>();
+        List<Long> reserveTypeIds = new ArrayList<>();
+
+        for (UpdateStudyRoomReserveTypeRequest reserveTypeToUpdate : reserveTypesToUpdate) {
+            reserveTypeMap.put(reserveTypeToUpdate.getReserveTypeId(), reserveTypeToUpdate.getReserveType());
+            reserveTypeIds.add(reserveTypeToUpdate.getReserveTypeId());
+        }
+
+        List<StudyRoomReserveType> reserveTypes =
+                reserveTypeRepository.findAllByIdInAndStudyRoom(reserveTypeIds, studyRoom);
+
+        if (reserveTypes.size() != reserveTypesToUpdate.size()) {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Some reserve type not matching StudyRoom.");
+        }
+
+        reserveTypes.forEach(reserveType ->
+                reserveType.modifyReserveType(reserveTypeMap.get(reserveType.getId()))
+        );
+    }
+
+    private void removeReserveTypes(List<Long> reserveTypeIdsToRemove, StudyRoom studyRoom) {
+        int size = reserveTypeRepository.countStudyRoomReserveTypeByIdInAndStudyRoom(
+                reserveTypeIdsToRemove, studyRoom);
+
+        if (size == reserveTypeIdsToRemove.size()) {
+            reserveTypeRepository.deleteByIds(reserveTypeIdsToRemove);
+        } else {
+            throw new GlobalException(ErrorCode.NOT_VALID, "Some reserve type not matching StudyRoom.");
+        }
+    }
+
+    private void deleteStudyRoomLogic(List<Long> studyRoomId) {
+        imageRepository.deleteByStudyRoomIds(studyRoomId);
+        tagRepository.deleteByStudyRoomIds(studyRoomId);
+        optionInfoRepository.deleteByStudyRoomIds(studyRoomId);
+        typeInfoRepository.deleteByStudyRoomIds(studyRoomId);
+        reserveTypeRepository.deleteByStudyRoomId(studyRoomId);
+        dayOffRepository.deleteByStudyRoomIds(studyRoomId);
+        likeRepository.deleteByStudyRoomIds(studyRoomId);
+        bookmarkRepository.deleteByStudyRoomIds(studyRoomId);
+
+        List<StudyRoomReview> reviews = reviewRepository.findByStudyRoomIds(studyRoomId);
+        List<Long> reviewIds = reviews.stream()
+                        .map(StudyRoomReview::getId)
+                        .toList();
+
+        reviewReplyRepository.deleteAllByStudyRoomReviewIdIn(reviewIds);
+        reviewImageRepository.deleteAllByStudyRoomReviewIdIn(reviewIds);
+
+        reviewRepository.deleteByReviewIds(reviewIds);
+        qnaRepository.deleteByStudyRoomIds(studyRoomId);
+        studyRoomRepository.deleteByIdWithJpql(studyRoomId);
+    }
+
+    private void insertDayOffs(List<DayOfWeek> dayOffs, StudyRoom studyRoom) {
+        // DayOff 생성 및 저장
+        if (isListPresent(dayOffs)) {
+            dayOffRepository.batchInsert(dayOffs, studyRoom);
+        }
+    }
+
+    private void insertTags(List<String> tags, StudyRoom studyRoom) {
+        // Tag 생성 및 저장
+        if (isListPresent(tags)) {
+            tagRepository.batchInsert(tags, studyRoom);
+        }
+    }
+
+    private StudyRoom findByStudyRoomIdAndUserIdOrThrow(Long studyRoomId, UUID userId) {
+        return studyRoomRepository.findByIdAndUserIdWithUser(studyRoomId, userId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+    }
+
+    private StudyRoom findByStudyRoomIdOrThrow(Long studyRoomId) {
+        return studyRoomRepository.findById(studyRoomId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+    }
+
+    private StudyRoom findByStudyRoomIdWithLockOrThrow(Long studyRoomId) {
+        return studyRoomRepository.findByIdWithLock(studyRoomId)
+                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoom Not Found"));
+    }
+
+    private void throwIfAlreadyLiked(Long studyRoomId, UUID userId) {
+        if(likeRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId))
+            throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
+    }
+
+    private void throwIfAlreadyBookmarked(Long studyRoomId, UUID userId) {
+        if(bookmarkRepository.existsByStudyRoomIdAndUserId(studyRoomId, userId))
+            throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
+    }
+
+    private void validateSizeLimitExceeded(long size, long limit, String targetName) {
+        if(size > limit) throw new GlobalException(ErrorCode.NOT_VALID, targetName + " Limit Exceeded");
+    }
+
+    private long computeTotalSize(long storedSize, List<?> aboutAdd, List<?> aboutRemove){
+        if(isListPresent(aboutRemove))
+            return storedSize + aboutAdd.size() - aboutRemove.size();
+        else
+            return storedSize + aboutAdd.size();
+    }
+}

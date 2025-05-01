@@ -1,7 +1,7 @@
 package com.jj.swm.config.user;
 
-import com.jj.swm.domain.user.service.UserCommandService;
-import com.jj.swm.domain.user.service.UserQueryService;
+import com.jj.swm.domain.user.core.service.UserCommandService;
+import com.jj.swm.domain.user.core.service.UserQueryService;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;

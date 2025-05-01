@@ -1,0 +1,2 @@
+ALTER TABLE study_participation_attachment
+RENAME COLUMN study_participant_id TO study_participation_id;

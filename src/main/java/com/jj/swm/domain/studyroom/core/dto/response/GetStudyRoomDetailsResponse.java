@@ -1,0 +1,93 @@
+package com.jj.swm.domain.studyroom.core.dto.response;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jj.swm.domain.studyroom.core.entity.StudyRoom;
+import com.jj.swm.domain.studyroom.core.entity.embeddable.Address;
+import com.jj.swm.domain.studyroom.core.entity.embeddable.Coordinates;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.LocalTime;
+import java.util.List;
+
+@Getter
+@Builder
+public class GetStudyRoomDetailsResponse {
+
+    private Long studyRoomId;
+    private boolean liked;
+    private Long bookmarkId;
+    private String title;
+    private String subtitle;
+    private String introduce;
+    private String notice;
+    private String guideline;
+
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime openingTime;
+
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime closingTime;
+
+    private Address address;
+    private Coordinates coordinates;
+    private String referenceUrl;
+    private String phoneNumber;
+    private Integer minReserveTime;
+    private Integer entireMinHeadcount;
+    private Integer entireMaxHeadcount;
+    private String thumbnail;
+    private int likeCount;
+    private int reviewCount;
+    private double starAvg;
+    private List<GetStudyRoomTagResponse> tags;
+    private List<GetStudyRoomImageResponse> images;
+    private List<GetStudyRoomReserveTypeResponse> reserveTypes;
+    private List<GetStudyRoomDayOffResponse> dayOffs;
+    private List<GetStudyRoomOptionInfoResponse> optionInfos;
+    private List<GetStudyRoomTypeInfoResponse> typeInfos;
+
+    public static GetStudyRoomDetailsResponse of(
+            StudyRoom studyRoom,
+            boolean liked,
+            Long bookmarkId,
+            List<GetStudyRoomImageResponse> imageResponses,
+            List<GetStudyRoomDayOffResponse> dayOffResponses,
+            List<GetStudyRoomReserveTypeResponse> reserveTypeResponses,
+            List<GetStudyRoomOptionInfoResponse> optionInfoResponses,
+            List<GetStudyRoomTypeInfoResponse> typeInfoResponses
+    ) {
+        return GetStudyRoomDetailsResponse.builder()
+                .studyRoomId(studyRoom.getId())
+                .liked(liked)
+                .bookmarkId(bookmarkId)
+                .title(studyRoom.getTitle())
+                .subtitle(studyRoom.getSubtitle())
+                .introduce(studyRoom.getIntroduce())
+                .notice(studyRoom.getNotice())
+                .guideline(studyRoom.getGuideline())
+                .openingTime(studyRoom.getOpeningTime())
+                .closingTime(studyRoom.getClosingTime())
+                .address(studyRoom.getAddress())
+                .coordinates(studyRoom.getCoordinates())
+                .referenceUrl(studyRoom.getReferenceUrl())
+                .phoneNumber(studyRoom.getPhoneNumber())
+                .minReserveTime(studyRoom.getMinReserveTime())
+                .entireMinHeadcount(studyRoom.getEntireMinHeadcount())
+                .entireMaxHeadcount(studyRoom.getEntireMaxHeadcount())
+                .thumbnail(studyRoom.getThumbnail())
+                .likeCount(studyRoom.getLikeCount())
+                .reviewCount(studyRoom.getReviewCount())
+                .starAvg(studyRoom.getAverageRating())
+                .tags(studyRoom.getTags() != null ?
+                        studyRoom.getTags().stream().map(GetStudyRoomTagResponse::from).toList()
+                        : null
+                )
+                .images(imageResponses)
+                .dayOffs(dayOffResponses)
+                .optionInfos(optionInfoResponses)
+                .typeInfos(typeInfoResponses)
+                .reserveTypes(reserveTypeResponses)
+                .build();
+    }
+}

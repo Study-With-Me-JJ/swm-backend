@@ -1,6 +1,6 @@
 package com.jj.swm.global.common.service;
 
-import com.jj.swm.domain.user.dto.event.BusinessVerificationRequestEvent;
+import com.jj.swm.domain.user.core.dto.event.BusinessVerificationRequestEvent;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.GlobalException;
 import lombok.RequiredArgsConstructor;

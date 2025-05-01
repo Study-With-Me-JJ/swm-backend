@@ -1,6 +1,6 @@
 package com.jj.swm.global.security.custom;
 
-import com.jj.swm.domain.user.entity.User;
+import com.jj.swm.domain.user.core.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

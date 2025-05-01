@@ -1,7 +1,6 @@
 package com.jj.swm.global.security.jwt;
 
-import com.jj.swm.domain.user.entity.User;
-import com.jj.swm.domain.user.repository.UserRepository;
+import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.exception.auth.TokenException;
 import jakarta.servlet.FilterChain;
@@ -11,12 +10,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.UUID;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -43,7 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwtProvider.validateLogout(accessToken);
 
             UUID userId = UUID.fromString(jwtProvider.getUserSubject(accessToken));
-            userRepository.findById(userId).orElseThrow(() -> new TokenException(ErrorCode.NOT_VALID, "User Not Found"));
+            userRepository.findById(userId)
+                    .orElseThrow(() -> new TokenException(ErrorCode.NOT_FOUND, "User Not Found"));
 
             setAuthentication(accessToken);
         }

@@ -1,7 +1,6 @@
 package com.jj.swm.global.security.jwt;
 
-import com.google.common.net.HttpHeaders;
-import com.jj.swm.domain.auth.dto.response.Token;
+import com.jj.swm.domain.user.auth.dto.response.Token;
 import com.jj.swm.global.common.enums.ErrorCode;
 import com.jj.swm.global.common.enums.ExpirationTime;
 import com.jj.swm.global.exception.auth.TokenException;
@@ -12,9 +11,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -41,6 +38,9 @@ public class JwtProvider {
     @Value("${jwt.secret-key}")
     private String key;
 
+    @Value("${jwt.reservation-secret-key}")
+    private String reservationKey;
+
     @Value("${cookie.same-site}")
     private String cookieSameSite;
 
@@ -48,6 +48,7 @@ public class JwtProvider {
     private boolean cookieSecure;
 
     private SecretKey secretKey;
+    private SecretKey reservationSecretKey;
     private final TokenRedisService tokenRedisService;
 
     private static final String KEY_ROLE = "role";
@@ -58,9 +59,11 @@ public class JwtProvider {
     private void setSecretKey(){
         this.secretKey = new SecretKeySpec(
                 key.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+        this.reservationSecretKey = new SecretKeySpec(
+                reservationKey.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public Token generateTokens(com.jj.swm.domain.user.entity.User user) {
+    public Token generateTokens(com.jj.swm.domain.user.core.entity.User user) {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 user.getId(),
                 "",
@@ -75,6 +78,18 @@ public class JwtProvider {
 
     public String generateAccessToken(Authentication authentication) {
         return createToken(authentication, ExpirationTime.ACCESS_TOKEN.getValue());
+    }
+
+    public String generateTokenForReservation(Long reservationId, long expireTime) {
+        Date now = new Date();
+        Date expiredDate = new Date(now.getTime() + expireTime);
+
+        return Jwts.builder()
+                .subject(reservationId.toString()) // 예약 ID를 subject로 설정
+                .issuedAt(now)
+                .expiration(expiredDate)
+                .signWith(reservationSecretKey, Jwts.SIG.HS512)
+                .compact();
     }
 
     public ResponseCookie generateRefreshToken(Authentication authentication) {

@@ -1,9 +1,9 @@
 package com.jj.swm.global.security.custom;
 
-import com.jj.swm.domain.user.entity.User;
-import com.jj.swm.domain.user.entity.UserCredential;
-import com.jj.swm.domain.user.repository.UserCredentialRepository;
-import com.jj.swm.domain.user.repository.UserRepository;
+import com.jj.swm.domain.user.core.entity.User;
+import com.jj.swm.domain.user.core.entity.UserCredential;
+import com.jj.swm.domain.user.core.repository.UserCredentialRepository;
+import com.jj.swm.domain.user.core.repository.UserRepository;
 import com.jj.swm.global.security.oauth.OAuth2UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;

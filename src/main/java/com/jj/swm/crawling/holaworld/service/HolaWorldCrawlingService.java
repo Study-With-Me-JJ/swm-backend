@@ -21,7 +21,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -45,7 +44,7 @@ public class HolaWorldCrawlingService implements DisposableBean {
         return new ChromeDriver(options);
     }
 
-    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
+    @Scheduled(cron = "0 0 0 * * *")
     public void crawl() {
         log.info("Starting HolaWorld crawling...");
         driver = initializeChromeDriver();

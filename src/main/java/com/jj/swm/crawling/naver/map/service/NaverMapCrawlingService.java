@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,7 +53,7 @@ public class NaverMapCrawlingService implements DisposableBean {
         return new ChromeDriver(options);
     }
 
-    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.DAYS)
+    @Scheduled(cron = "0 0 1 * * *")
     public void crawl() {
         Arrays.stream(KoreaRegion.values()).toList().forEach(region -> {
             log.info("Starting Study Room crawling for region: {}", region.getKorName());
