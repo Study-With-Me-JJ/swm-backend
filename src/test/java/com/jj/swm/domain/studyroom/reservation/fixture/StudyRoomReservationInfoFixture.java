@@ -32,4 +32,27 @@ public class StudyRoomReservationInfoFixture {
                 .totalPrice(9000)
                 .build();
     }
+
+    public static StudyRoomReservationInfo createApproved(
+            User user,
+            StudyRoom studyRoom,
+            StudyRoomReserveType reserveType
+    ) {
+        LocalDateTime now = LocalDateTime.now();
+
+        return StudyRoomReservationInfo.builder()
+                .user(user)
+                .studyRoom(studyRoom)
+                .studyRoomReserveType(reserveType)
+                .reserverName("test")
+                .reserverPhoneNumber("010-1234-5678")
+                .checkInTime(now)
+                .checkOutTime(now.plusHours(3))
+                .approvalStatus(ApprovalStatus.APPROVED)
+                .usageTime(3)
+                .headcount(1)
+                .memo("memo")
+                .totalPrice(9000)
+                .build();
+    }
 }

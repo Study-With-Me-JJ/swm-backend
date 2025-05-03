@@ -1,5 +1,6 @@
 package com.jj.swm.domain.studyroom.review.service;
 
+import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationInfoRepository;
 import com.jj.swm.domain.studyroom.review.dto.request.CreateStudyRoomReviewRequest;
 import com.jj.swm.domain.studyroom.review.dto.request.CreateStudyRoomReviewReplyRequest;
 import com.jj.swm.domain.studyroom.review.dto.request.UpdateStudyRoomReviewReplyRequest;
@@ -34,14 +35,15 @@ public class StudyRoomReviewCommandService {
     private final StudyRoomReviewRepository reviewRepository;
     private final StudyRoomReviewReplyRepository reviewReplyRepository;
     private final StudyRoomReviewImageRepository reviewImageRepository;
-
+    private final StudyRoomReservationInfoRepository reservationInfoRepository;
+    
     @Transactional
     public CreateStudyRoomReviewResponse createReview(
             CreateStudyRoomReviewRequest request,
             Long studyRoomId,
             UUID userId
     ) {
-        // 이용 내역 검증 로직 필요
+        throwIfAbsentReservationInfo(studyRoomId, userId);
         StudyRoom studyRoom = findByStudyRoomIdWithLockOrThrow(studyRoomId);
         User user = userRepository.getReferenceById(userId);
 
@@ -148,5 +150,10 @@ public class StudyRoomReviewCommandService {
     private StudyRoomReviewReply findByReviewReplyIdAndUserIdOrThrow(Long studyRoomReviewReplyId, UUID userId) {
         return reviewReplyRepository.findByIdAndUserId(studyRoomReviewReplyId, userId)
                 .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "StudyRoomReviewReply Not Found"));
+    }
+
+    private void throwIfAbsentReservationInfo(Long studyRoomId, UUID userId) {
+        if(!reservationInfoRepository.existsApprovedReservationByStudyRoomIdAndUserId(studyRoomId, userId))
+            throw new GlobalException(ErrorCode.NOT_VALID, "Absent Reservation Info");
     }
 }
