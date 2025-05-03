@@ -1,7 +1,13 @@
 package com.jj.swm.domain.studyroom.review.service;
 
 import com.jj.swm.IntegrationContainerSupporter;
+import com.jj.swm.domain.studyroom.core.entity.StudyRoomReserveType;
 import com.jj.swm.domain.studyroom.core.fixture.StudyRoomFixture;
+import com.jj.swm.domain.studyroom.core.fixture.StudyRoomReserveTypeFixture;
+import com.jj.swm.domain.studyroom.core.repository.StudyRoomReserveTypeRepository;
+import com.jj.swm.domain.studyroom.reservation.entity.StudyRoomReservationInfo;
+import com.jj.swm.domain.studyroom.reservation.fixture.StudyRoomReservationInfoFixture;
+import com.jj.swm.domain.studyroom.reservation.repository.StudyRoomReservationInfoRepository;
 import com.jj.swm.domain.studyroom.review.dto.request.CreateStudyRoomReviewRequest;
 import com.jj.swm.domain.studyroom.review.dto.request.CreateStudyRoomReviewReplyRequest;
 import com.jj.swm.domain.studyroom.review.dto.request.UpdateStudyRoomReviewReplyRequest;
@@ -48,6 +54,10 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     @Autowired private UserRepository userRepository;
     @Autowired private StudyRoomReviewRepository reviewRepository;
     @Autowired private StudyRoomReviewReplyRepository reviewReplyRepository;
+    @Autowired private StudyRoomReservationInfoRepository reservationInfoRepository;
+
+    // Helper Repository Bean
+    @Autowired private StudyRoomReserveTypeRepository reserveTypeRepository;
 
     private StudyRoom studyRoom;
     private User createReviewUser;
@@ -75,6 +85,14 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
     @DisplayName("스터디 룸 이용후기 생성에 성공한다.")
     void createReview_Success() {
         //given
+        StudyRoomReserveType studyRoomReserveType = StudyRoomReserveTypeFixture.create(studyRoom);
+        reserveTypeRepository.save(studyRoomReserveType);
+
+        StudyRoomReservationInfo studyRoomReservationInfo = StudyRoomReservationInfoFixture.createApproved(
+                createReviewUser, studyRoom, studyRoomReserveType
+        );
+        reservationInfoRepository.save(studyRoomReservationInfo);
+
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
                 .rating(5)
@@ -115,6 +133,44 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
                         100L,
                         createReviewUser.getId())
         );
+    }
+
+    @Test
+    @DisplayName("스터디 룸 이용후기 생성 시 예약 정보가 없다면 생성에 실패한다.")
+    void createReview_WhenAbsentReservationInfo_ThenFail() {
+        //given
+        CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
+                .comment("test")
+                .rating(5)
+                .imageUrls(List.of("image1", "image2"))
+                .build();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.createReview(request, studyRoom.getId(), createReviewUser.getId()));
+    }
+
+    @Test
+    @DisplayName("스터디 룸 이용후기 생성 시 해당 유저의 예약 정보가 없다면 생성에 실패한다.")
+    void createReview_WhenAbsentUserReservationInfo_ThenFail() {
+        //given
+        StudyRoomReserveType studyRoomReserveType = StudyRoomReserveTypeFixture.create(studyRoom);
+        reserveTypeRepository.save(studyRoomReserveType);
+
+        StudyRoomReservationInfo studyRoomReservationInfo = StudyRoomReservationInfoFixture.createApproved(
+                createReviewUser, studyRoom, studyRoomReserveType
+        );
+        reservationInfoRepository.save(studyRoomReservationInfo);
+
+        CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
+                .comment("test")
+                .rating(5)
+                .imageUrls(List.of("image1", "image2"))
+                .build();
+
+        //when & then
+        Assertions.assertThrows(GlobalException.class,
+                () -> commandService.createReview(request, studyRoom.getId(), UUID.randomUUID()));
     }
 
     @Test
