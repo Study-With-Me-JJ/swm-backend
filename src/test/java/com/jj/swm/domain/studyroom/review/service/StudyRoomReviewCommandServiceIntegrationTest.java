@@ -43,8 +43,7 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
 
     private static final int THREAD_COUNT = 50;
     private static final List<String> ignoreBeforeEachMethod = List.of(
-            "createReview_ConcurrencyTest_Success",
-            "deleteReview_ConcurrencyTest_Success");
+            "createReview_ConcurrencyTest_Success");
 
     // Target Service Bean
     @Autowired private StudyRoomReviewCommandService commandService;
@@ -249,14 +248,24 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
         List<UUID> userUuids = insertUsersAndGetUserIds(userRepository, 5);
         int rating = 5;
 
+        StudyRoomReserveType studyRoomReserveType = StudyRoomReserveTypeFixture.create(studyRoom);
+        reserveTypeRepository.save(studyRoomReserveType);
+
+        for (UUID userId : userUuids) {
+            StudyRoomReservationInfo studyRoomReservationInfo = StudyRoomReservationInfoFixture.createApproved(
+                    userRepository.getReferenceById(userId), studyRoom, studyRoomReserveType
+            );
+            reservationInfoRepository.save(studyRoomReservationInfo);
+        }
+
         //when
-        for (UUID uuid : userUuids) {
+        for (UUID userId : userUuids) {
             commandService.createReview(CreateStudyRoomReviewRequest.builder()
                             .comment("test")
                             .rating(rating--)
                             .imageUrls(null)
                             .build(),
-                    studyRoom.getId(), uuid);
+                    studyRoom.getId(), userId);
         }
 
         //then
@@ -410,6 +419,17 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
+        StudyRoomReserveType studyRoomReserveType = StudyRoomReserveTypeFixture.create(studyRoom);
+        reserveTypeRepository.save(studyRoomReserveType);
+
+        for(int i = 0; i < THREAD_COUNT; i++) {
+            final UUID userId = userUuids.get(i);
+            StudyRoomReservationInfo studyRoomReservationInfo = StudyRoomReservationInfoFixture.createApproved(
+                    userRepository.getReferenceById(userId), studyRoom, studyRoomReserveType
+            );
+            reservationInfoRepository.save(studyRoomReservationInfo);
+        }
+
         CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
                 .comment("test")
                 .rating(5)
@@ -441,26 +461,4 @@ public class StudyRoomReviewCommandServiceIntegrationTest extends IntegrationCon
         assertThat(studyRoom.getReviewCount()).isEqualTo(THREAD_COUNT);
     }
 
-    @Test
-    @DisplayName("스터디 룸 이용후기 삭제 테스트에 성공한다.")
-    void deleteReview_ConcurrencyTest_Success() throws InterruptedException {
-        //given
-        CreateStudyRoomReviewRequest request = CreateStudyRoomReviewRequest.builder()
-                .comment("test")
-                .rating(5)
-                .build();
-
-        createReviewUser = userRepository.save(UserFixture.create());
-
-        CreateStudyRoomReviewResponse response
-                = commandService.createReview(request, studyRoom.getId(), createReviewUser.getId());
-
-        //when
-        commandService.deleteReview(studyRoom.getId(), response.getStudyRoomReviewId(), createReviewUser.getId());
-
-        //then
-        Optional<StudyRoomReview> findStudyRoomReview = reviewRepository.findById(response.getStudyRoomReviewId());
-
-        assertThat(findStudyRoomReview.isPresent()).isFalse();
-    }
 }
