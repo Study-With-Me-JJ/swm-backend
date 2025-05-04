@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.dto.request;
 
-import com.jj.swm.domain.study.core.entity.StudyStatus;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 

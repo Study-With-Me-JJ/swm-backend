@@ -1,12 +1,12 @@
 package com.jj.swm.domain.study.core.repository.custom.impl;
 
 import com.jj.swm.domain.common.utils.QueryDSLBooleanUtils;
-import com.jj.swm.domain.study.core.dto.GetStudyCondition;
-import com.jj.swm.domain.study.core.dto.SortCriteria;
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
+import com.jj.swm.domain.study.core.dto.request.GetStudyCondition;
+import com.jj.swm.domain.study.core.dto.request.GetStudyCondition.SortCriteria;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyCategory;
-import com.jj.swm.domain.study.core.entity.StudyStatus;
+import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatus;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.core.repository.custom.CustomStudyRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;

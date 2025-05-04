@@ -1,10 +1,10 @@
-package com.jj.swm.domain.study.participation.dto;
+package com.jj.swm.domain.study.participation.repository.dto;
 
 public interface StudyParticipationCountInfo {
 
     Long getRecruitmentPositionId();
 
-    long getTotalCount();
+    long getParticipatedCount();
 
     long getAcceptedCount();
 }

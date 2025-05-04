@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.core.dto.request;
 
-import com.jj.swm.domain.study.core.entity.StudyCategory;
+import com.jj.swm.domain.study.core.dto.component.CreateRecruitmentPositionInfo;
+import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -40,5 +41,5 @@ public class CreateStudyRequest {
 
     @Valid
     @Size(min = 1, max = RECRUITMENT_POSITION_LIMIT)
-    private List<CreateRecruitmentPositionRequest> createRecruitmentPositionRequests;
+    private List<CreateRecruitmentPositionInfo> recruitmentPositionInfos;
 }

@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.participation.controller;
 
 import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
-import com.jj.swm.domain.study.participation.dto.GetStudyParticipationCondition;
+import com.jj.swm.domain.study.participation.dto.request.GetStudyParticipationCondition;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationDetailsResponse;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationInMyPageResponse;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationResponse;

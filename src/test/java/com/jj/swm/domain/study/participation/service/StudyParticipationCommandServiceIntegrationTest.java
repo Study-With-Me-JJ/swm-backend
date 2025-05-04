@@ -346,7 +346,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         Optional<StudyParticipationLink> optionalLink = participationLinkRepository.findById(3L); // 기존 2개에서 추가이므로 3부터 시작
         assertTrue(optionalLink.isPresent());
 
-        optionalLink = participationLinkRepository.findById(request.getModifyLinkRequest()
+        optionalLink = participationLinkRepository.findById(request.getModifyLinkInfo()
                 .getLinkIdsToRemove()
                 .getFirst());
         assertFalse(optionalLink.isPresent());

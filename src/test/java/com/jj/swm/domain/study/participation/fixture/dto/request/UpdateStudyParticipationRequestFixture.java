@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.participation.fixture.dto.request;
 
-import com.jj.swm.domain.study.participation.dto.request.ModifyStudyParticipationLinkRequest;
 import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationRequest;
+import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationRequest.ModifyLinkInfo;
 import com.jj.swm.domain.study.participation.entity.embeddable.FileInfo;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public class UpdateStudyParticipationRequestFixture {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
-                .modifyLinkRequest(ModifyStudyParticipationLinkRequest.builder()
+                .modifyLinkInfo(ModifyLinkInfo.builder()
                         .linksToAdd(List.of("add_link1", "add_link2"))
                         .linkIdsToRemove(List.of(1L, 2L))
                         .build())
@@ -38,7 +38,7 @@ public class UpdateStudyParticipationRequestFixture {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
-                .modifyLinkRequest(ModifyStudyParticipationLinkRequest.builder()
+                .modifyLinkInfo(ModifyLinkInfo.builder()
                         .linkIdsToRemove(List.of(1L, 2L))
                         .build())
                 .fileInfo(FileInfo.builder()
@@ -52,7 +52,7 @@ public class UpdateStudyParticipationRequestFixture {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
-                .modifyLinkRequest(ModifyStudyParticipationLinkRequest.builder()
+                .modifyLinkInfo(ModifyLinkInfo.builder()
                         .linksToAdd(List.of("new_link1"))
                         .build())
                 .fileInfo(FileInfo.builder()
@@ -66,7 +66,7 @@ public class UpdateStudyParticipationRequestFixture {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
-                .modifyLinkRequest(ModifyStudyParticipationLinkRequest.builder()
+                .modifyLinkInfo(ModifyLinkInfo.builder()
                         .linksToAdd(List.of("new_link1", "new_link2"))
                         .build())
                 .fileInfo(FileInfo.builder()
@@ -80,7 +80,7 @@ public class UpdateStudyParticipationRequestFixture {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
-                .modifyLinkRequest(ModifyStudyParticipationLinkRequest.builder()
+                .modifyLinkInfo(ModifyLinkInfo.builder()
                         .linkIdsToRemove(List.of(1L, 2L, 3L, 4L))
                         .build())
                 .fileInfo(FileInfo.builder()

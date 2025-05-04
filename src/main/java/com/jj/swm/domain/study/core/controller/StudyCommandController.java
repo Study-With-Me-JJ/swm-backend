@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.core.controller;
 
 import com.jj.swm.domain.study.core.dto.request.*;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
-import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionResponse;
+import com.jj.swm.domain.study.core.dto.response.CreateRecruitmentPositionResponse;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -158,12 +158,12 @@ public class StudyCommandController {
                     새로 생성된 모집 포지션의 참여 신청 수는 0개로 설정해주시면 됩니다.
                     """
     )
-    public ApiResponse<List<GetRecruitmentPositionResponse>> modifyRecruitmentPosition(
+    public ApiResponse<List<CreateRecruitmentPositionResponse>> modifyRecruitmentPosition(
             @Valid @RequestBody ModifyRecruitmentPositionRequest request,
             @PathVariable("studyId") Long studyId,
             Principal principal
     ) {
-        List<GetRecruitmentPositionResponse> responses = studyCommandService.modifyRecruitmentPosition(
+        List<CreateRecruitmentPositionResponse> responses = studyCommandService.modifyRecruitmentPosition(
                 request,
                 studyId,
                 UUID.fromString(principal.getName())

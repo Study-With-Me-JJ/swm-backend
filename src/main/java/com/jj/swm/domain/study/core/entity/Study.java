@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jj.swm.domain.study.core.entity.StudyStatus.ACTIVE;
+import static com.jj.swm.domain.study.core.entity.Study.StudyStatus.ACTIVE;
 
 @Getter
 @Entity
@@ -117,4 +117,13 @@ public class Study extends BaseTimeEntity {
     public void incrementViewCount() {
         this.viewCount++;
     }
+
+    public enum StudyCategory {
+        ALGORITHM, DEVELOPMENT
+    }
+
+    public enum StudyStatus {
+        ACTIVE, INACTIVE
+    }
+
 }

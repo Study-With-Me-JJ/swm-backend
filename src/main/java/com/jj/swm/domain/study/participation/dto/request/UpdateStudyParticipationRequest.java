@@ -6,6 +6,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.List;
+
+import static com.jj.swm.domain.study.participation.constants.StudyParticipationConstants.LINK_LIMIT;
+
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,8 +24,22 @@ public class UpdateStudyParticipationRequest {
     private String coverLetter;
 
     @Valid
-    private ModifyStudyParticipationLinkRequest modifyLinkRequest;
+    private ModifyLinkInfo modifyLinkInfo;
 
     @Valid
     private FileInfo fileInfo;
+
+    @Getter
+    @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class ModifyLinkInfo {
+
+        @Valid
+        @Size(max = LINK_LIMIT)
+        private List<@Size(max = 300) String> linksToAdd;
+
+        @Size(max = LINK_LIMIT)
+        private List<Long> linkIdsToRemove;
+    }
 }

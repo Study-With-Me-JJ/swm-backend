@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.participation.dto.response;
 
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
 import lombok.Builder;

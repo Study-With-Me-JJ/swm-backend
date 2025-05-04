@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.comment.repository;
 
-import com.jj.swm.domain.study.comment.dto.StudyReplyCountInfo;
+import com.jj.swm.domain.study.comment.repository.dto.StudyCommentReplyCountInfo;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.custom.CustomStudyCommentRepository;
 import org.springframework.data.domain.Page;
@@ -33,7 +33,7 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
             group by c.parent.id
             """
     )
-    List<StudyReplyCountInfo> countByParentIds(List<Long> parentIds);
+    List<StudyCommentReplyCountInfo> countByParentIds(List<Long> parentIds);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")

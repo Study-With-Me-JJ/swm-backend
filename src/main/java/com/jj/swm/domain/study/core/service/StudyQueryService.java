@@ -2,15 +2,20 @@ package com.jj.swm.domain.study.core.service;
 
 import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
 import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
-import com.jj.swm.domain.study.core.dto.GetStudyCondition;
-import com.jj.swm.domain.study.core.dto.UserInteractionInfo;
-import com.jj.swm.domain.study.core.dto.response.*;
+import com.jj.swm.domain.study.core.dto.component.ParticipationStatusInfo;
+import com.jj.swm.domain.study.core.dto.request.GetStudyCondition;
+import com.jj.swm.domain.study.core.dto.component.UserInteractionInfo;
+import com.jj.swm.domain.study.core.dto.response.GetStudyDetailsResponse;
+import com.jj.swm.domain.study.core.dto.response.GetStudyDetailsResponse.ImageInfo;
+import com.jj.swm.domain.study.core.dto.response.GetStudyDetailsResponse.RecruitmentPositionDetailsInfo;
+import com.jj.swm.domain.study.core.dto.response.GetStudyDetailsResponse.RecruitmentPositionDetailsInfo.RecruitmentPositionStat;
+import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
 import com.jj.swm.domain.study.core.entity.*;
 import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
 import com.jj.swm.domain.study.core.repository.StudyImageRepository;
 import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
 import com.jj.swm.domain.study.core.repository.StudyRepository;
-import com.jj.swm.domain.study.participation.dto.StudyParticipationCountInfo;
+import com.jj.swm.domain.study.participation.repository.dto.StudyParticipationCountInfo;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.global.common.constants.PageSize;
@@ -59,14 +64,14 @@ public class StudyQueryService {
                 pagedStudy, userId
         );
 
-        Map<Long, GetStudyParticipationStatusResponse> getStudyParticipationStatusResponseByStudyId =
-                getGetStudyParticipationStatusResponseByStudyIdBasedOnLogin(pagedStudy, userId);
+        Map<Long, ParticipationStatusInfo> getParticipationStatusInfoByStudyId =
+                getParticipationStatusInfoByStudyIdBasedOnLogin(pagedStudy, userId);
 
         List<GetStudyResponse> responses = pagedStudy.stream()
                 .map(study -> GetStudyResponse.of(
                         study,
                         userInteractionInfoByStudyId.get(study.getId()),
-                        getStudyParticipationStatusResponseByStudyId.get(study.getId())
+                        getParticipationStatusInfoByStudyId.get(study.getId())
                 )).toList();
 
         return PageResponse.of(responses, hasNext);
@@ -81,24 +86,24 @@ public class StudyQueryService {
 
         study.incrementViewCount();
 
-        List<GetStudyImageResponse> getStudyImageResponses = getGetStudyImageResponses(studyId);
+        List<ImageInfo> imageInfos = getImageInfo(studyId);
 
         List<StudyRecruitmentPosition> recruitmentPositions = study.getStudyRecruitmentPositions();
 
-        List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses =
-                getGetRecruitmentPositionDetailsResponses(recruitmentPositions);
+        List<RecruitmentPositionDetailsInfo> recruitmentPositionInfos =
+                getRecruitmentPositionDetailsInfo(recruitmentPositions);
 
-        PageResponse<GetStudyCommentResponse> pageCommentResponse = getGetStudyCommentResponsePageResponse(studyId);
+        PageResponse<GetStudyCommentResponse> pageComment = getGetStudyCommentResponsePageResponse(studyId);
 
-        GetStudyParticipationStatusResponse getStudyParticipationStatusResponse = getGetStudyParticipationStatusResponse(studyId, userId);
+        ParticipationStatusInfo participationStatusInfo = getParticipationStatusInfo(studyId, userId);
 
         return GetStudyDetailsResponse.of(
                 study,
                 userInteractionInfo,
-                getRecruitmentPositionDetailsResponses,
-                getStudyImageResponses,
-                pageCommentResponse,
-                getStudyParticipationStatusResponse
+                recruitmentPositionInfos,
+                imageInfos,
+                pageComment,
+                participationStatusInfo
         );
     }
 
@@ -161,7 +166,7 @@ public class StudyQueryService {
                         .collect(Collectors.toMap(bookmark -> bookmark.getStudy().getId(), StudyBookmark::getId));
 
         return studyIds.stream()
-                .collect(Collectors.toMap(studyId -> studyId, studyId -> new UserInteractionInfo(
+                .collect(Collectors.toMap(studyId -> studyId, studyId -> UserInteractionInfo.of(
                         bookmarkIdByStudyId.getOrDefault(studyId, null),
                         likeIdByStudyId.getOrDefault(studyId, null) != null
                 )));
@@ -177,51 +182,47 @@ public class StudyQueryService {
         return commentQueryService.buildStudyCommentPageResponse(studyId, pageable);
     }
 
-    private GetStudyParticipationStatusResponse getGetStudyParticipationStatusResponse(Long studyId, UUID userId) {
+    private ParticipationStatusInfo getParticipationStatusInfo(Long studyId, UUID userId) {
         if (userId == null)
             return null;
 
         Optional<StudyParticipation> optionalParticipation =
                 participationRepository.findByStudyIdAndUserIdWithRecruitmentPosition(studyId, userId);
 
-        GetStudyParticipationStatusResponse getStudyParticipationStatusResponse = null;
+        ParticipationStatusInfo participationStatusInfo = null;
         if (optionalParticipation.isPresent()) {
-            getStudyParticipationStatusResponse = GetStudyParticipationStatusResponse.from(optionalParticipation.get());
+            participationStatusInfo = ParticipationStatusInfo.from(optionalParticipation.get());
         }
 
-        return getStudyParticipationStatusResponse;
+        return participationStatusInfo;
     }
 
-    private List<GetRecruitmentPositionDetailsResponse> getGetRecruitmentPositionDetailsResponses(List<StudyRecruitmentPosition> recruitmentPositions) {
+    private List<RecruitmentPositionDetailsInfo> getRecruitmentPositionDetailsInfo(List<StudyRecruitmentPosition> recruitmentPositions) {
         List<Long> recruitmentPositionIds = recruitmentPositions.stream()
                 .map(StudyRecruitmentPosition::getId)
                 .toList();
 
-        Map<Long, StudyParticipationCountInfo> studyParticipationCountByRecruitmentId =
+        Map<Long, RecruitmentPositionStat> RecruitmentPositionStatByRecruitmentId =
                 participationRepository.countByRecruitmentPositionIds(recruitmentPositionIds).stream()
                         .collect(Collectors.toMap(
-                                StudyParticipationCountInfo::getRecruitmentPositionId,
-                                info -> info
+                                StudyParticipationCountInfo::getRecruitmentPositionId, RecruitmentPositionStat::from
                         ));
 
-        return recruitmentPositions.stream().map(recruitmentPosition -> GetRecruitmentPositionDetailsResponse.of(
+        return recruitmentPositions.stream().map(recruitmentPosition -> RecruitmentPositionDetailsInfo.of(
                 recruitmentPosition,
-                studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ?
-                        0L : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getAcceptedCount(),
-                studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()) == null ?
-                        0L : studyParticipationCountByRecruitmentId.get(recruitmentPosition.getId()).getTotalCount()
+                RecruitmentPositionStatByRecruitmentId.get(recruitmentPosition.getId())
         )).toList();
     }
 
-    private List<GetStudyImageResponse> getGetStudyImageResponses(Long studyId) {
+    private List<ImageInfo> getImageInfo(Long studyId) {
         List<StudyImage> images = studyImageRepository.findAllByStudyId(studyId);
 
         return images.stream()
-                .map(GetStudyImageResponse::from)
+                .map(ImageInfo::from)
                 .toList();
     }
 
-    private Map<Long, GetStudyParticipationStatusResponse> getGetStudyParticipationStatusResponseByStudyIdBasedOnLogin(
+    private Map<Long, ParticipationStatusInfo> getParticipationStatusInfoByStudyIdBasedOnLogin(
             List<Study> studies, UUID userId
     ) {
         if (userId == null) {
@@ -233,7 +234,7 @@ public class StudyQueryService {
         );
 
         return participations.stream()
-                .collect(Collectors.toMap(participation -> participation.getStudy().getId(), GetStudyParticipationStatusResponse::from));
+                .collect(Collectors.toMap(participation -> participation.getStudy().getId(), ParticipationStatusInfo::from));
     }
 
     private UserInteractionInfo getUserInteractionInfoBasedOnLogin(Long studyId, UUID userId) {
@@ -241,7 +242,7 @@ public class StudyQueryService {
             return null;
         }
 
-        return new UserInteractionInfo(
+        return UserInteractionInfo.of(
                 studyBookmarkRepository.findIdByStudyIdAndUserId(studyId, userId),
                 studyLikeRepository.existsByStudyIdAndUserId(studyId, userId)
         );

@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.participation.repository;
 
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
-import com.jj.swm.domain.study.participation.dto.StudyParticipationCountInfo;
+import com.jj.swm.domain.study.participation.repository.dto.PositionAcceptedParticipationCountInfo;
+import com.jj.swm.domain.study.participation.repository.dto.StudyParticipationCountInfo;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.repository.custom.CustomStudyParticipationRepository;
 import org.springframework.data.domain.Page;
@@ -22,18 +22,18 @@ public interface StudyParticipationRepository extends
     long countByRecruitmentPositionIdAndAcceptedStatus(Long recruitmentPositionId);
 
     @Query("""
-            select p.recruitmentPosition.id as recruitmentPositionId, count(*) as acceptedStudyParticipationCount
+            select p.recruitmentPosition.id as recruitmentPositionId, count(*) as acceptedParticipationCount
             from StudyParticipation p
             where p.recruitmentPosition.id in ?1 and p.status = 'ACCEPTED'
             group by p.recruitmentPosition.id
             """
     )
-    List<AcceptedStudyParticipationCountInfo> countByRecruitmentPositionIdsAndAccepted(
+    List<PositionAcceptedParticipationCountInfo> countByRecruitmentPositionIdsAndAccepted(
             List<Long> recruitmentPositionIds
     );
 
     @Query("""
-            select p.recruitmentPosition.id as recruitmentPositionId, count(*) as totalCount,
+            select p.recruitmentPosition.id as recruitmentPositionId, count(*) as participatedCount,
                         sum(case when p.status = 'ACCEPTED' then 1 else 0 end) as acceptedCount
             from StudyParticipation p
             where p.recruitmentPosition.id in (?1)

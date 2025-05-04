@@ -4,8 +4,8 @@ import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.participation.dto.request.CreateStudyParticipationRequest;
-import com.jj.swm.domain.study.participation.dto.request.ModifyStudyParticipationLinkRequest;
 import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationRequest;
+import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationRequest.ModifyLinkInfo;
 import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationStatusRequest;
 import com.jj.swm.domain.study.participation.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
@@ -15,7 +15,6 @@ import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRe
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
-import com.jj.swm.global.common.util.ListCheckUtils;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -105,7 +104,7 @@ public class StudyParticipationCommandService {
         StudyParticipation participation =
                 findByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
 
-        modifyLink(request.getModifyLinkRequest(), participation);
+        modifyLink(request.getModifyLinkInfo(), participation);
 
         participation.modify(request);
     }
@@ -182,7 +181,7 @@ public class StudyParticipationCommandService {
         }
     }
 
-    private void modifyLink(ModifyStudyParticipationLinkRequest request, StudyParticipation participation) {
+    private void modifyLink(ModifyLinkInfo request, StudyParticipation participation) {
         if (request != null) {
             List<String> linksToAdd = Optional.ofNullable(request.getLinksToAdd())
                     .orElse(Collections.emptyList());

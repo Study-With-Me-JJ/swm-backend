@@ -1,9 +1,13 @@
 package com.jj.swm.domain.study.core.dto.response;
 
-import com.jj.swm.domain.study.core.dto.UserInteractionInfo;
+import com.jj.swm.domain.study.core.dto.component.ParticipationStatusInfo;
+import com.jj.swm.domain.study.core.dto.component.TagInfo;
+import com.jj.swm.domain.study.core.dto.component.UserInteractionInfo;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyCategory;
-import com.jj.swm.domain.study.core.entity.StudyStatus;
+import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatus;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -31,16 +35,16 @@ public class GetStudyResponse {
 
     private UserInteractionInfo userInteractionInfo;
 
-    private List<GetStudyTagResponse> getTagResponses;
+    private List<TagInfo> tagInfos;
 
-    private List<GetRecruitmentPositionResponse> getRecruitmentPositionResponses;
+    private List<RecruitmentPositionInfo> recruitmentPositionInfos;
 
-    private GetStudyParticipationStatusResponse getStudyParticipationStatusResponse;
+    private ParticipationStatusInfo participationStatusInfo;
 
     public static GetStudyResponse of(
             Study study,
             UserInteractionInfo userInteractionInfo,
-            GetStudyParticipationStatusResponse getStudyParticipationStatusResponse
+            ParticipationStatusInfo participationStatusInfo
     ) {
         return GetStudyResponse.builder()
                 .studyId(study.getId())
@@ -52,13 +56,13 @@ public class GetStudyResponse {
                 .status(study.getStatus())
                 .viewCount(study.getViewCount())
                 .userInteractionInfo(userInteractionInfo)
-                .getTagResponses(study.getStudyTags().stream()
-                        .map(GetStudyTagResponse::from)
+                .tagInfos(study.getStudyTags().stream()
+                        .map(TagInfo::from)
                         .toList())
-                .getRecruitmentPositionResponses(study.getStudyRecruitmentPositions().stream()
-                        .map(GetRecruitmentPositionResponse::from)
+                .recruitmentPositionInfos(study.getStudyRecruitmentPositions().stream()
+                        .map(RecruitmentPositionInfo::from)
                         .toList())
-                .getStudyParticipationStatusResponse(getStudyParticipationStatusResponse)
+                .participationStatusInfo(participationStatusInfo)
                 .build();
     }
 
@@ -72,12 +76,31 @@ public class GetStudyResponse {
                 .commentCount(study.getCommentCount())
                 .status(study.getStatus())
                 .viewCount(study.getViewCount())
-                .getTagResponses(study.getStudyTags().stream()
-                        .map(GetStudyTagResponse::from)
+                .tagInfos(study.getStudyTags().stream()
+                        .map(TagInfo::from)
                         .toList())
-                .getRecruitmentPositionResponses(study.getStudyRecruitmentPositions().stream()
-                        .map(GetRecruitmentPositionResponse::from)
+                .recruitmentPositionInfos(study.getStudyRecruitmentPositions().stream()
+                        .map(RecruitmentPositionInfo::from)
                         .toList())
                 .build();
+    }
+
+    @Getter
+    @Builder
+    public static class RecruitmentPositionInfo {
+
+        private Long recruitmentPositionId;
+
+        private RecruitmentPositionTitle title;
+
+        private Integer headcount;
+
+        public static RecruitmentPositionInfo from(StudyRecruitmentPosition recruitmentPosition) {
+            return RecruitmentPositionInfo.builder()
+                    .recruitmentPositionId(recruitmentPosition.getId())
+                    .title(recruitmentPosition.getTitle())
+                    .headcount(recruitmentPosition.getHeadcount())
+                    .build();
+        }
     }
 }

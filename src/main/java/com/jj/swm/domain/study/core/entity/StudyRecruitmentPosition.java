@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.entity;
 
-import com.jj.swm.domain.study.core.dto.request.UpdateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest.UpdateRecruitmentPositionInfo;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
@@ -39,8 +39,12 @@ public class StudyRecruitmentPosition {
     @JoinColumn(name = "study_id", nullable = false)
     private Study study;
 
-    public void modify(UpdateRecruitmentPositionRequest request) {
-        this.title = request.getTitle();
-        this.headcount = request.getHeadcount();
+    public void modify(UpdateRecruitmentPositionInfo info) {
+        this.title = info.getTitle();
+        this.headcount = info.getHeadcount();
+    }
+
+    public enum RecruitmentPositionTitle {
+        BACKEND, FRONTEND, ETC
     }
 }

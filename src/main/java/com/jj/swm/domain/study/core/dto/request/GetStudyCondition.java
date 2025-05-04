@@ -1,15 +1,15 @@
-package com.jj.swm.domain.study.core.dto;
+package com.jj.swm.domain.study.core.dto.request;
 
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
-import com.jj.swm.domain.study.core.entity.StudyCategory;
-import com.jj.swm.domain.study.core.entity.StudyStatus;
+import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatus;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
-import static com.jj.swm.domain.study.core.dto.SortCriteria.NEWEST;
+import static com.jj.swm.domain.study.core.dto.request.GetStudyCondition.SortCriteria.NEWEST;
 
 @Getter
 @Setter
@@ -29,4 +29,8 @@ public class GetStudyCondition {
     private SortCriteria sortCriteria = NEWEST;
 
     private Integer lastSortValue;
+
+    public enum SortCriteria {
+        LIKE, NEWEST, COMMENT
+    }
 }

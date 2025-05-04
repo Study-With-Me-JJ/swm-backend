@@ -1,12 +1,13 @@
 package com.jj.swm.domain.study.core.fixture.dto.request;
 
-import com.jj.swm.domain.study.core.dto.request.ModifyStudyImageRequest;
-import com.jj.swm.domain.study.core.dto.request.ModifyStudyTagRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
+import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest.ModifyImageInfo;
+import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest.ModifyTagInfo;
 
 import java.util.List;
 
-import static com.jj.swm.domain.study.core.entity.StudyCategory.DEVELOPMENT;
+import static com.jj.swm.domain.study.core.entity.Study.StudyCategory.DEVELOPMENT;
+
 
 public class UpdateStudyRequestFixture {
 
@@ -16,11 +17,11 @@ public class UpdateStudyRequestFixture {
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(DEVELOPMENT)
-                .modifyTagRequest(ModifyStudyTagRequest.builder()
+                .modifyTagInfo(ModifyTagInfo.builder()
                         .tagsToAdd(List.of("new_test_tag1", "new_test_tag2"))
                         .tagIdsToRemove(List.of(1L))
                         .build())
-                .modifyImageRequest(ModifyStudyImageRequest.builder()
+                .modifyImageInfo(ModifyImageInfo.builder()
                         .imageUrlsToAdd(List.of("http://new_test_image1.png", "http://new_test_image2.png"))
                         .imageIdsToRemove(List.of(1L))
                         .build())
@@ -42,10 +43,10 @@ public class UpdateStudyRequestFixture {
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(DEVELOPMENT)
-                .modifyTagRequest(ModifyStudyTagRequest.builder()
+                .modifyTagInfo(ModifyTagInfo.builder()
                         .tagIdsToRemove(List.of(1L))
                         .build())
-                .modifyImageRequest(ModifyStudyImageRequest.builder()
+                .modifyImageInfo(ModifyImageInfo.builder()
                         .imageIdsToRemove(List.of(1L))
                         .build())
                 .build();
@@ -57,10 +58,10 @@ public class UpdateStudyRequestFixture {
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(DEVELOPMENT)
-                .modifyTagRequest(ModifyStudyTagRequest.builder()
+                .modifyTagInfo(ModifyTagInfo.builder()
                         .tagsToAdd(List.of("new_test_tag1", "new_test_tag2"))
                         .build())
-                .modifyImageRequest(ModifyStudyImageRequest.builder()
+                .modifyImageInfo(ModifyImageInfo.builder()
                         .imageUrlsToAdd(List.of("http://new_test_image1.png", "http://new_test_image2.png"))
                         .build())
                 .build();
@@ -72,7 +73,7 @@ public class UpdateStudyRequestFixture {
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(DEVELOPMENT)
-                .modifyTagRequest(ModifyStudyTagRequest.builder()
+                .modifyTagInfo(ModifyTagInfo.builder()
                         .tagIdsToRemove(List.of(1L, 2L, 3L))
                         .build())
                 .build();
@@ -84,7 +85,7 @@ public class UpdateStudyRequestFixture {
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(DEVELOPMENT)
-                .modifyTagRequest(ModifyStudyTagRequest.builder()
+                .modifyTagInfo(ModifyTagInfo.builder()
                         .tagsToAdd(List.of(
                                 "new_test_tag1", "new_test_tag2", "new_test_tag3",
                                 "new_test_tag4", "new_test_tag5", "new_test_tag6",
@@ -99,7 +100,7 @@ public class UpdateStudyRequestFixture {
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(DEVELOPMENT)
-                .modifyImageRequest(ModifyStudyImageRequest.builder()
+                .modifyImageInfo(ModifyImageInfo.builder()
                         .imageIdsToRemove(List.of(1L, 2L, 3L))
                         .build())
                 .build();
@@ -111,7 +112,7 @@ public class UpdateStudyRequestFixture {
                 .content("new_test_content")
                 .openChatUrl("new_test_openChatUrl")
                 .category(DEVELOPMENT)
-                .modifyImageRequest(ModifyStudyImageRequest.builder()
+                .modifyImageInfo(ModifyImageInfo.builder()
                         .imageUrlsToAdd(List.of(
                                 "http://newTest_image1.png", "http://newTest_image2.png", "http://newTest_image3.png",
                                 "http://newTest_image4.png", "http://newTest_image5.png", "http://newTest_image6.png",

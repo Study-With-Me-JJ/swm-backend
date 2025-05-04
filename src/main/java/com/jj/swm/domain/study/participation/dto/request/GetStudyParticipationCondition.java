@@ -1,4 +1,4 @@
-package com.jj.swm.domain.study.participation.dto;
+package com.jj.swm.domain.study.participation.dto.request;
 
 import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
 import lombok.Getter;

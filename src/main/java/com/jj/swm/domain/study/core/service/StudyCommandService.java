@@ -2,19 +2,20 @@ package com.jj.swm.domain.study.core.service;
 
 import com.google.common.collect.Lists;
 import com.jj.swm.domain.study.comment.repository.StudyCommentRepository;
-import com.jj.swm.domain.study.core.constants.StudyConstants;
+import com.jj.swm.domain.study.core.dto.component.CreateRecruitmentPositionInfo;
 import com.jj.swm.domain.study.core.dto.request.*;
+import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest.UpdateRecruitmentPositionInfo;
+import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest.ModifyImageInfo;
+import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest.ModifyTagInfo;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
-import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionResponse;
+import com.jj.swm.domain.study.core.dto.response.CreateRecruitmentPositionResponse;
 import com.jj.swm.domain.study.core.entity.*;
 import com.jj.swm.domain.study.core.repository.*;
-import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
+import com.jj.swm.domain.study.participation.repository.dto.PositionAcceptedParticipationCountInfo;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
-import com.jj.swm.global.common.enums.ErrorCode;
-import com.jj.swm.global.common.util.ListCheckUtils;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class StudyCommandService {
 
         insertTagsIfPresent(request.getTags(), study);
         insertImagesIfPresent(request.getImageUrls(), study);
-        recruitmentPositionRepository.batchInsert(request.getCreateRecruitmentPositionRequests(), study);
+        recruitmentPositionRepository.batchInsert(request.getRecruitmentPositionInfos(), study);
     }
 
     @Transactional
@@ -69,8 +70,8 @@ public class StudyCommandService {
     ) {
         Study study = findByIdAndUserIdOrThrow(studyId, userId);
 
-        modifyTags(request.getModifyTagRequest(), study);
-        modifyImages(request.getModifyImageRequest(), study);
+        modifyTags(request.getModifyTagInfo(), study);
+        modifyImages(request.getModifyImageInfo(), study);
 
         study.modify(request);
     }
@@ -152,7 +153,7 @@ public class StudyCommandService {
     }
 
     @Transactional
-    public List<GetRecruitmentPositionResponse> modifyRecruitmentPosition(
+    public List<CreateRecruitmentPositionResponse> modifyRecruitmentPosition(
             ModifyRecruitmentPositionRequest request,
             Long studyId,
             UUID userId
@@ -165,13 +166,13 @@ public class StudyCommandService {
             throw new GlobalException(NOT_FOUND, "study can not exist");
         }
 
-        List<CreateRecruitmentPositionRequest> createRequests =
-                Optional.ofNullable(request.getCreateRecruitmentPositionRequests())
+        List<CreateRecruitmentPositionInfo> createInfos =
+                Optional.ofNullable(request.getCreateRecruitmentPositionInfos())
                         .orElse(Collections.emptyList());
-        List<Long> recruitmentPositionIdsToUpdate = Optional.ofNullable(request.getUpdateRecruitmentPositionRequests())
+        List<Long> recruitmentPositionIdsToUpdate = Optional.ofNullable(request.getUpdateRecruitmentPositionInfos())
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(UpdateRecruitmentPositionRequest::getRecruitmentPositionId)
+                .map(UpdateRecruitmentPositionInfo::getRecruitmentPositionId)
                 .toList();
         List<Long> recruitmentPositionIdsToRemove = Optional.ofNullable(request.getRecruitmentPositionIdsToRemove())
                 .orElse(Collections.emptyList());
@@ -185,7 +186,7 @@ public class StudyCommandService {
             throw new GlobalException(NOT_FOUND, "some recruitmentPosition not found");
         }
 
-        int newRecruitmentPositionSize = oldRecruitmentPositionSize + createRequests.size() - removeCount;
+        int newRecruitmentPositionSize = oldRecruitmentPositionSize + createInfos.size() - removeCount;
 
         if (newRecruitmentPositionSize < 1 || newRecruitmentPositionSize > RECRUITMENT_POSITION_LIMIT) {
             throw new GlobalException(NOT_FOUND, "recruitment position limit deviation");
@@ -212,12 +213,12 @@ public class StudyCommandService {
         }
 
         if (isListNotEmpty(recruitmentPositionIdsToUpdate)) {
-            List<AcceptedStudyParticipationCountInfo> acceptedStudyParticipationCountInfos =
+            List<PositionAcceptedParticipationCountInfo> positionAcceptedParticipationCountInfos =
                     participationRepository.countByRecruitmentPositionIdsAndAccepted(recruitmentPositionIdsToUpdate);
-            Map<Long, Long> acceptedCountByRecruitmentPositionId = acceptedStudyParticipationCountInfos.stream()
+            Map<Long, Long> acceptedCountByRecruitmentPositionId = positionAcceptedParticipationCountInfos.stream()
                     .collect(Collectors.toMap(
-                            AcceptedStudyParticipationCountInfo::getRecruitmentPositionId,
-                            AcceptedStudyParticipationCountInfo::getAcceptedStudyParticipationCount
+                            PositionAcceptedParticipationCountInfo::getRecruitmentPositionId,
+                            PositionAcceptedParticipationCountInfo::getAcceptedParticipationCount
                     ));
 
             Map<Long, StudyRecruitmentPosition> recruitmentPositionByRecruitmentPositionId = recruitmentPositions.stream()
@@ -225,19 +226,19 @@ public class StudyCommandService {
                             StudyRecruitmentPosition::getId, recruitmentPosition -> recruitmentPosition
                     ));
 
-            for (UpdateRecruitmentPositionRequest updateRequest : request.getUpdateRecruitmentPositionRequests()) {
-                if (updateRequest.getHeadcount() <
-                        acceptedCountByRecruitmentPositionId.getOrDefault(updateRequest.getRecruitmentPositionId(), 0L)) {
+            for (UpdateRecruitmentPositionInfo updateInfo : request.getUpdateRecruitmentPositionInfos()) {
+                if (updateInfo.getHeadcount() <
+                        acceptedCountByRecruitmentPositionId.getOrDefault(updateInfo.getRecruitmentPositionId(), 0L)) {
                     throw new GlobalException(NOT_VALID, "accepted count is greater than headcount");
                 }
-                recruitmentPositionByRecruitmentPositionId.get(updateRequest.getRecruitmentPositionId()).modify(updateRequest);
+                recruitmentPositionByRecruitmentPositionId.get(updateInfo.getRecruitmentPositionId()).modify(updateInfo);
             }
         }
 
-        if (isListNotEmpty(createRequests)) {
+        if (isListNotEmpty(createInfos)) {
             Study study = studyRepository.getReferenceById(studyId);
 
-            recruitmentPositionRepository.batchInsert(createRequests, study);
+            recruitmentPositionRepository.batchInsert(createInfos, study);
         }
 
         List<Long> notNewRecruitmentPositionId = Stream.concat(
@@ -248,7 +249,7 @@ public class StudyCommandService {
                 recruitmentPositionRepository.findByIdNotInAndStudyId(notNewRecruitmentPositionId, studyId);
 
         return newRecruitmentPositions.stream()
-                .map(GetRecruitmentPositionResponse::from)
+                .map(CreateRecruitmentPositionResponse::from)
                 .toList();
     }
 
@@ -282,13 +283,13 @@ public class StudyCommandService {
                 .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
-    private void modifyTags(ModifyStudyTagRequest request, Study study) {
-        if (request == null || !(isListPresent(request.getTagsToAdd()) || isListPresent(request.getTagIdsToRemove())))
+    private void modifyTags(ModifyTagInfo info, Study study) {
+        if (info == null || !(isListPresent(info.getTagsToAdd()) || isListPresent(info.getTagIdsToRemove())))
             return;
 
-        List<String> tagsToAdd = Optional.ofNullable(request.getTagsToAdd())
+        List<String> tagsToAdd = Optional.ofNullable(info.getTagsToAdd())
                 .orElse(Collections.emptyList());
-        List<Long> tagIdsToRemove = Optional.ofNullable(request.getTagIdsToRemove())
+        List<Long> tagIdsToRemove = Optional.ofNullable(info.getTagIdsToRemove())
                 .orElse(Collections.emptyList());
 
         List<StudyTag> tags = studyTagRepository.findAllByStudyId(study.getId());
@@ -315,13 +316,13 @@ public class StudyCommandService {
         }
     }
 
-    private void modifyImages(ModifyStudyImageRequest request, Study study) {
-        if (request == null || !(isListPresent(request.getImageUrlsToAdd()) || isListPresent(request.getImageIdsToRemove())))
+    private void modifyImages(ModifyImageInfo info, Study study) {
+        if (info == null || !(isListPresent(info.getImageUrlsToAdd()) || isListPresent(info.getImageIdsToRemove())))
             return;
 
-        List<String> imageUrlsToAdd = Optional.ofNullable(request.getImageUrlsToAdd())
+        List<String> imageUrlsToAdd = Optional.ofNullable(info.getImageUrlsToAdd())
                 .orElse(Collections.emptyList());
-        List<Long> imageIdsToRemove = Optional.ofNullable(request.getImageIdsToRemove())
+        List<Long> imageIdsToRemove = Optional.ofNullable(info.getImageIdsToRemove())
                 .orElse(Collections.emptyList());
 
         List<StudyImage> images = studyImageRepository.findAllByStudyId(study.getId());

@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.repository.jdbc.impl;
 
-import com.jj.swm.domain.study.core.dto.request.CreateRecruitmentPositionRequest;
+import com.jj.swm.domain.study.core.dto.component.CreateRecruitmentPositionInfo;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.repository.jdbc.JdbcRecruitmentPositionRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,23 +19,23 @@ public class JdbcRecruitmentPositionRepositoryImpl implements JdbcRecruitmentPos
 
     private final JdbcTemplate jdbcTemplate;
 
-    public void batchInsert(List<CreateRecruitmentPositionRequest> requests, Study study) {
+    public void batchInsert(List<CreateRecruitmentPositionInfo> infos, Study study) {
         String sql = "insert into study_recruitment_position(title, headcount, study_id) VALUES(?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                CreateRecruitmentPositionRequest request = requests.get(i);
+                CreateRecruitmentPositionInfo info = infos.get(i);
 
-                ps.setObject(1, request.getTitle().name(), Types.OTHER);
-                ps.setInt(2, request.getHeadcount());
+                ps.setObject(1, info.getTitle().name(), Types.OTHER);
+                ps.setInt(2, info.getHeadcount());
                 ps.setLong(3, study.getId());
             }
 
             @Override
             public int getBatchSize() {
-                return requests.size();
+                return infos.size();
             }
         });
     }

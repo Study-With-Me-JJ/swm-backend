@@ -9,10 +9,11 @@ import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest;
 import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
-import com.jj.swm.domain.study.core.entity.*;
+import com.jj.swm.domain.study.core.entity.Study;
+import com.jj.swm.domain.study.core.entity.StudyBookmark;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.fixture.dto.request.*;
 import com.jj.swm.domain.study.core.repository.*;
-import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
 import com.jj.swm.domain.study.participation.fixture.dto.request.CreateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.participation.fixture.dto.request.UpdateStudyParticipationStatusRequestFixture;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
@@ -34,8 +35,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.jj.swm.domain.study.core.entity.StudyCategory.ALGORITHM;
-import static com.jj.swm.domain.study.core.entity.StudyStatus.ACTIVE;
+import static com.jj.swm.domain.study.core.entity.Study.StudyCategory.ALGORITHM;
+import static com.jj.swm.domain.study.core.entity.Study.StudyStatus.ACTIVE;
 import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.ACCEPTED;
 import static com.jj.swm.domain.user.helper.UserTestHelper.insertUsersAndGetUserIds;
 import static org.junit.jupiter.api.Assertions.*;
@@ -121,8 +122,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(request.getTags().size(), studyTagRepository.countByStudyId(newStudyId));
         assertEquals(request.getImageUrls().size(), studyImageRepository.countByStudyId(newStudyId));
         assertEquals(
-                request.getCreateRecruitmentPositionRequests().size(),
-                recruitmentPositionRepository.countByStudyId(newStudyId)
+                request.getRecruitmentPositionInfos().size(), recruitmentPositionRepository.countByStudyId(newStudyId)
         );
     }
 
@@ -563,16 +563,16 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //then
         StudyRecruitmentPosition recruitmentPosition =
                 recruitmentPositionRepository.findById(newRecruitmentPositionId).get();
-        assertEquals(request.getCreateRecruitmentPositionRequests().getFirst().getTitle(), recruitmentPosition.getTitle());
+        assertEquals(request.getCreateRecruitmentPositionInfos().getFirst().getTitle(), recruitmentPosition.getTitle());
 
         Optional<StudyRecruitmentPosition> optionalRecruitmentPosition =
                 recruitmentPositionRepository.findById(request.getRecruitmentPositionIdsToRemove().getFirst());
         assertFalse(optionalRecruitmentPosition.isPresent());
 
         recruitmentPosition = recruitmentPositionRepository.findById(
-                request.getUpdateRecruitmentPositionRequests().getFirst().getRecruitmentPositionId()
+                request.getUpdateRecruitmentPositionInfos().getFirst().getRecruitmentPositionId()
         ).get();
-        assertEquals(request.getUpdateRecruitmentPositionRequests().getFirst().getTitle(), recruitmentPosition.getTitle());
+        assertEquals(request.getUpdateRecruitmentPositionInfos().getFirst().getTitle(), recruitmentPosition.getTitle());
 
         assertEquals(4, recruitmentPositionRepository.count()); // 4개에서 2개 제거하고 2개 추가
     }

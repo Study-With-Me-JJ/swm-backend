@@ -1,6 +1,6 @@
-package com.jj.swm.domain.study.core.dto.request;
+package com.jj.swm.domain.study.core.dto.component;
 
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -12,7 +12,7 @@ import static com.jj.swm.domain.study.core.constants.StudyConstants.RECRUITMENT_
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreateRecruitmentPositionRequest {
+public class CreateRecruitmentPositionInfo {
 
     @NotNull
     private RecruitmentPositionTitle title;

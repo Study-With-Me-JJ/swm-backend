@@ -4,7 +4,7 @@ import com.jj.swm.domain.study.core.dto.request.CreateStudyRequest;
 
 import java.util.List;
 
-import static com.jj.swm.domain.study.core.entity.StudyCategory.ALGORITHM;
+import static com.jj.swm.domain.study.core.entity.Study.StudyCategory.ALGORITHM;
 
 public class CreateStudyRequestFixture {
 
@@ -16,11 +16,11 @@ public class CreateStudyRequestFixture {
                 .category(ALGORITHM)
                 .tags(List.of("test_tag1", "test_tag2"))
                 .imageUrls(List.of("http://test_image1.png", "http://test_image2.png"))
-                .createRecruitmentPositionRequests(List.of(
-                        CreateRecruitmentPositionRequestFixture.create(),
-                        CreateRecruitmentPositionRequestFixture.create(),
-                        CreateRecruitmentPositionRequestFixture.create(),
-                        CreateRecruitmentPositionRequestFixture.create()
+                .recruitmentPositionInfos(List.of(
+                        CreateRecruitmentPositionInfoFixture.create(),
+                        CreateRecruitmentPositionInfoFixture.create(),
+                        CreateRecruitmentPositionInfoFixture.create(),
+                        CreateRecruitmentPositionInfoFixture.create()
                 )).build();
     }
 
@@ -30,9 +30,9 @@ public class CreateStudyRequestFixture {
                 .content("test_content")
                 .openChatUrl("test_open_chat_url")
                 .category(ALGORITHM)
-                .createRecruitmentPositionRequests(List.of(
-                        CreateRecruitmentPositionRequestFixture.create(),
-                        CreateRecruitmentPositionRequestFixture.create()
+                .recruitmentPositionInfos(List.of(
+                        CreateRecruitmentPositionInfoFixture.create(),
+                        CreateRecruitmentPositionInfoFixture.create()
                 )).build();
     }
 }

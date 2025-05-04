@@ -1,13 +1,13 @@
 package com.jj.swm.domain.study.core.dto.response;
 
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class GetRecruitmentPositionResponse {
+public class CreateRecruitmentPositionResponse {
 
     private Long recruitmentPositionId;
 
@@ -15,8 +15,8 @@ public class GetRecruitmentPositionResponse {
 
     private Integer headcount;
 
-    public static GetRecruitmentPositionResponse from(StudyRecruitmentPosition recruitmentPosition) {
-        return GetRecruitmentPositionResponse.builder()
+    public static CreateRecruitmentPositionResponse from(StudyRecruitmentPosition recruitmentPosition) {
+        return CreateRecruitmentPositionResponse.builder()
                 .recruitmentPositionId(recruitmentPosition.getId())
                 .title(recruitmentPosition.getTitle())
                 .headcount(recruitmentPosition.getHeadcount())

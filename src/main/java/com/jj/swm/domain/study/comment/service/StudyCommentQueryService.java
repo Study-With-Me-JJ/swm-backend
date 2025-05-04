@@ -1,10 +1,10 @@
 package com.jj.swm.domain.study.comment.service;
 
-import com.jj.swm.domain.study.comment.dto.StudyReplyCountInfo;
 import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
 import com.jj.swm.domain.study.comment.dto.response.GetStudyReplyResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.StudyCommentRepository;
+import com.jj.swm.domain.study.comment.repository.dto.StudyCommentReplyCountInfo;
 import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +76,8 @@ public class StudyCommentQueryService {
                 .toList();
 
         return commentRepository.countByParentIds(parentIds).stream()
-                .collect(Collectors.toMap(StudyReplyCountInfo::getCommentId, StudyReplyCountInfo::getReplyCount));
+                .collect(Collectors.toMap(
+                        StudyCommentReplyCountInfo::getCommentId, StudyCommentReplyCountInfo::getReplyCount
+                ));
     }
 }
