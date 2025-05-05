@@ -106,7 +106,7 @@ public class Study extends BaseTimeEntity {
         this.likeCount = Math.max(0, this.likeCount - 1);
     }
 
-    public void incrementCommentCount() {
+    public void increaseCommentCount() {
         this.commentCount++;
     }
 
