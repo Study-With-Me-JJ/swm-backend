@@ -4,5 +4,5 @@ public interface PositionAcceptedParticipationCountInfo {
 
     Long getRecruitmentPositionId();
 
-    long getAcceptedParticipationCount();
+    Long getAcceptedParticipationCount();
 }

@@ -156,8 +156,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         Study study = studyRepository.findById(studyId).get();
         assertEquals(request.getTitle(), study.getTitle());
 
-        assertEquals(3, studyTagRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거하고 2개 추가
-        assertEquals(3, studyImageRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거하고 2개 추가
+        assertEquals(3L, studyTagRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거하고 2개 추가
+        assertEquals(3L, studyImageRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거하고 2개 추가
     }
 
     @Test
@@ -171,8 +171,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //then
-        assertEquals(2, studyTagRepository.countByStudyId(studyId)); // 기존 데이터 2개
-        assertEquals(2, studyImageRepository.countByStudyId(studyId)); // 기존 데이터 2개
+        assertEquals(2L, studyTagRepository.countByStudyId(studyId)); // 기존 데이터 2개
+        assertEquals(2L, studyImageRepository.countByStudyId(studyId)); // 기존 데이터 2개
     }
 
     @Test
@@ -186,8 +186,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //then
-        assertEquals(1, studyTagRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거
-        assertEquals(1, studyImageRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거
+        assertEquals(1L, studyTagRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거
+        assertEquals(1L, studyImageRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거
     }
 
     @Test
@@ -201,8 +201,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //then
-        assertEquals(4, studyTagRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 2개 추가
-        assertEquals(4, studyImageRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 2개 추가
+        assertEquals(4L, studyTagRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 2개 추가
+        assertEquals(4L, studyImageRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 2개 추가
     }
 
     @Test

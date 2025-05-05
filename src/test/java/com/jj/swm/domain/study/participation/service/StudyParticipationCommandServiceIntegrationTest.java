@@ -351,7 +351,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
                 .getFirst());
         assertFalse(optionalLink.isPresent());
 
-        assertEquals(2, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 2개 추가하고 2개 제거
+        assertEquals(2L, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 2개 추가하고 2개 제거
     }
 
     @Test
@@ -371,7 +371,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         optionalLink = participationLinkRepository.findById(1L);
         assertTrue(optionalLink.isPresent());
 
-        assertEquals(2, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 수정 없음
+        assertEquals(2L, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 수정 없음
     }
 
     @Test
@@ -385,7 +385,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         );
 
         //then
-        assertEquals(0, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 추가 없이 2개 제거
+        assertEquals(0L, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 추가 없이 2개 제거
     }
 
     @Test
@@ -399,7 +399,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         );
 
         //then
-        assertEquals(3, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 제거 없이 1개 추가
+        assertEquals(3L, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 제거 없이 1개 추가
     }
 
     @Test
