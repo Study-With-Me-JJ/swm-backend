@@ -34,8 +34,8 @@ public class StudyCommentCommandService {
             UUID userId
     ) {
         User user = userRepository.getReferenceById(userId);
-        StudyComment parent = findByIdIfRootThenNull(parentId);
-        Study study = findByIdIfRootThenUsingLock(studyId, parentId);
+        StudyComment parent = findByIdIfParentThenNull(parentId);
+        Study study = findByIdIfParentThenUsingLock(studyId, parentId);
 
         StudyComment comment = buildComment(
                 createRequest,
@@ -46,7 +46,7 @@ public class StudyCommentCommandService {
 
         commentRepository.save(comment);
 
-        increaseStudyCommentCountIfRoot(study, parent);
+        increaseStudyCommentCountIfParent(study, parent);
 
         return CreateStudyCommentResponse.from(comment);
     }
@@ -57,8 +57,7 @@ public class StudyCommentCommandService {
             Long commentId,
             UUID userId
     ) {
-        StudyComment comment = commentRepository.findByIdAndUserId(commentId, userId)
-                .orElseThrow(() -> new GlobalException(NOT_FOUND, "comment not found"));
+        StudyComment comment = findByIdAndUserId(commentId, userId);
 
         comment.modify(updateRequest);
 
@@ -67,18 +66,22 @@ public class StudyCommentCommandService {
 
     @Transactional
     public void deleteComment(Long commentId, UUID userId) {
-        StudyComment comment = commentRepository.findByIdAndUserIdWithParent(commentId, userId)
-                .orElseThrow(() -> new GlobalException(NOT_FOUND, "comment not found"));
+        StudyComment comment = findByIdAndUserId(commentId, userId);
 
-        decrementStudyCommentCountIfParent(comment);
+        decreaseStudyCommentCountIfParent(comment);
 
-        commentRepository.deleteAllByIdOrParentId(commentId);
+        commentRepository.deleteWithChildrenById(commentId);
     }
 
-    private void decrementStudyCommentCountIfParent(StudyComment comment) {
+    private StudyComment findByIdAndUserId(Long commentId, UUID userId) {
+        return commentRepository.findByIdAndUserId(commentId, userId)
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "comment not found"));
+    }
+
+    private void decreaseStudyCommentCountIfParent(StudyComment comment) {
         if (comment.getParent() == null) {
             Study study = findByIdUsingLock(comment.getStudy().getId());
-            study.decrementCommentCount();
+            study.decreaseCommentCount();
         }
     }
 
@@ -87,7 +90,7 @@ public class StudyCommentCommandService {
                 .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
-    private void increaseStudyCommentCountIfRoot(Study study, StudyComment parent) {
+    private void increaseStudyCommentCountIfParent(Study study, StudyComment parent) {
         if (parent == null) {
             study.increaseCommentCount();
         }
@@ -112,14 +115,14 @@ public class StudyCommentCommandService {
         return comment;
     }
 
-    private Study findByIdIfRootThenUsingLock(Long studyId, Long parentId) {
+    private Study findByIdIfParentThenUsingLock(Long studyId, Long parentId) {
         return parentId == null
                 ? findByIdUsingLock(studyId)
                 : studyRepository.findById(studyId)
                 .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
-    private StudyComment findByIdIfRootThenNull(Long parentId) {
+    private StudyComment findByIdIfParentThenNull(Long parentId) {
         return parentId == null
                 ? null
                 : commentRepository.findByIdWithParent(parentId)

@@ -20,9 +20,6 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
 
     Optional<StudyComment> findByIdAndUserId(Long id, UUID userId);
 
-    @Query("select c from StudyComment c left join fetch c.parent where c.id = ?1 and c.user.id = ?2")
-    Optional<StudyComment> findByIdAndUserIdWithParent(Long id, UUID userId);
-
     @Query("select c from StudyComment c join fetch c.user where c.study.id = ?1 and c.parent.id is null")
     Page<StudyComment> findPagedCommentByStudyIdWithUser(Long studyId, Pageable pageable);
 
@@ -37,7 +34,7 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")
-    void deleteAllByIdOrParentId(Long id);
+    void deleteWithChildrenById(Long id);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id = ?1")
