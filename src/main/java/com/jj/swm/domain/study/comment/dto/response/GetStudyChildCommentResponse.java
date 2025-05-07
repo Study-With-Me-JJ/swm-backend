@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class GetStudyChildCommentResponse {
 
-    private Long commentId;
+    private Long replyId;
 
     private String content;
 
@@ -24,13 +24,13 @@ public class GetStudyChildCommentResponse {
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime updatedAt;
 
-    public static GetStudyChildCommentResponse from(StudyComment comment) {
+    public static GetStudyChildCommentResponse from(StudyComment child) {
         return GetStudyChildCommentResponse.builder()
-                .commentId(comment.getId())
-                .content(comment.getContent())
-                .userInfo(UserInfoResponse.from(comment.getUser()))
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
+                .replyId(child.getId())
+                .content(child.getContent())
+                .userInfo(UserInfoResponse.from(child.getUser()))
+                .createdAt(child.getCreatedAt())
+                .updatedAt(child.getUpdatedAt())
                 .build();
     }
 }

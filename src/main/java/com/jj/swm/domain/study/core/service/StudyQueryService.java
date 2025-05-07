@@ -175,7 +175,7 @@ public class StudyQueryService {
     private PageResponse<GetStudyParentCommentResponse> getGetStudyCommentResponsePageResponse(Long studyId) {
         Pageable pageable = PageRequest.of(
                 0,
-                PageSize.StudyComment,
+                PageSize.StudyParentComment,
                 Sort.by("id").descending()
         );
 

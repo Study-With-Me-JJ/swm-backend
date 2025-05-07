@@ -16,21 +16,21 @@ public class CustomStudyCommentRepositoryImpl implements CustomStudyCommentRepos
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<StudyComment> findPagedReplyByParentIdWithUser(
+    public List<StudyComment> findPagedChildByParentIdWithUser(
             Long parentId,
-            Long lastReplyId,
+            Long lastChildId,
             int pageSize
     ) {
         return jpaQueryFactory.selectFrom(studyComment)
                 .join(studyComment.user)
                 .fetchJoin()
-                .where(studyComment.parent.id.eq(parentId), lastReplyIdLt(lastReplyId))
+                .where(studyComment.parent.id.eq(parentId), lastChildIdLt(lastChildId))
                 .orderBy(studyComment.id.desc())
                 .limit(pageSize)
                 .fetch();
     }
 
-    private BooleanBuilder lastReplyIdLt(Long lastReplyId) {
-        return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyComment.id.lt(lastReplyId));
+    private BooleanBuilder lastChildIdLt(Long lastChildId) {
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyComment.id.lt(lastChildId));
     }
 }

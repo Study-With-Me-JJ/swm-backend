@@ -60,7 +60,7 @@ public class StudyComment extends BaseTimeEntity {
                 .build();
     }
 
-    public void addParent(StudyComment parent) {
+    public void setParent(StudyComment parent) {
         parent.getChildren().add(this);
         this.parent = parent;
     }

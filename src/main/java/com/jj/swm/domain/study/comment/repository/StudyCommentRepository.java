@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.comment.repository;
 
-import com.jj.swm.domain.study.comment.repository.dto.StudyCommentChildrenCountInfo;
+import com.jj.swm.domain.study.comment.repository.dto.StudyParentCommentChildrenCountInfo;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.custom.CustomStudyCommentRepository;
 import org.springframework.data.domain.Page;
@@ -24,13 +24,13 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
     Page<StudyComment> findPagedParentByStudyIdWithUser(Long studyId, Pageable pageable);
 
     @Query("""
-            select c.parent.id as commentId, count(c) as childrenCount
+            select c.parent.id as parentId, count(c) as childrenCount
             from StudyComment c
             where c.parent.id in ?1
             group by c.parent.id
             """
     )
-    List<StudyCommentChildrenCountInfo> countByParentIds(List<Long> parentIds);
+    List<StudyParentCommentChildrenCountInfo> countByParentIds(List<Long> parentIds);
 
     @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.id = ?1 or c.parent.id = ?1")

@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface CustomStudyCommentRepository {
 
-    List<StudyComment> findPagedReplyByParentIdWithUser(
+    List<StudyComment> findPagedChildByParentIdWithUser(
             Long parentId,
-            Long lastReplyId,
+            Long lastChildId,
             int pageSize
     );
 }

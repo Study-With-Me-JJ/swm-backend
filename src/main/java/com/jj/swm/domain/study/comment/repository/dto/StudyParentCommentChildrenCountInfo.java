@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.comment.repository.dto;
 
-public interface StudyCommentChildrenCountInfo {
+public interface StudyParentCommentChildrenCountInfo {
 
-    Long getCommentId();
+    Long getParentId();
 
     Long getChildrenCount();
 }

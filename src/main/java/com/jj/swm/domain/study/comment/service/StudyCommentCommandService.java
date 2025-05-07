@@ -34,7 +34,7 @@ public class StudyCommentCommandService {
             UUID userId
     ) {
         User user = userRepository.getReferenceById(userId);
-        StudyComment parent = findByIdIfParentThenNull(parentId);
+        StudyComment parent = findByIdIfNotParentElseNull(parentId);
         Study study = findByIdIfParentThenUsingLock(studyId, parentId);
 
         StudyComment comment = buildComment(
@@ -109,7 +109,7 @@ public class StudyCommentCommandService {
         );
 
         if (parent != null) {
-            comment.addParent(parent);
+            comment.setParent(parent);
         }
 
         return comment;
@@ -122,7 +122,7 @@ public class StudyCommentCommandService {
                 .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
-    private StudyComment findByIdIfParentThenNull(Long parentId) {
+    private StudyComment findByIdIfNotParentElseNull(Long parentId) {
         return parentId == null
                 ? null
                 : commentRepository.findByIdWithParent(parentId)

@@ -27,26 +27,26 @@ public class StudyCommentQueryController {
                     pageNo는 필수값이 아닙니다. 가장 첫 페이지는 pageNo가 0입니다.
                     """
     )
-    public ApiResponse<PageResponse<GetStudyParentCommentResponse>> getComments(
+    public ApiResponse<PageResponse<GetStudyParentCommentResponse>> getParents(
             @PathVariable("studyId") Long studyId,
             @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
-        PageResponse<GetStudyParentCommentResponse> pageResponse = commentQueryService.getComments(studyId, pageNo);
+        PageResponse<GetStudyParentCommentResponse> pageResponse = commentQueryService.getParents(studyId, pageNo);
 
         return ApiResponse.ok(pageResponse);
     }
 
-    @GetMapping({"/v1/comment/{parentId}/reply", "/v1/comment/{parentId}/reply/{lastReplyId}"})
+    @GetMapping({"/v1/comment/{parentId}/reply", "/v1/comment/{parentId}/reply/{lastChildId}"})
     @Operation(
             summary = "스터디 대댓글 목록 조회",
             description = "스터디 대댓글을 무한 스크롤 기반으로 조회합니다.<br>" +
-                    "lastReplyId는 필수 값이 아닙니다. lastReplyId를 보내면 이 다음 대댓글을 불러옵니다."
+                    "lastChildId 필수 값이 아닙니다. lastChildId 보내면 이 다음 대댓글을 불러옵니다."
     )
-    public ApiResponse<PageResponse<GetStudyChildCommentResponse>> getReplies(
+    public ApiResponse<PageResponse<GetStudyChildCommentResponse>> getChildren(
             @PathVariable("parentId") Long parentId,
-            @PathVariable(value = "lastReplyId", required = false) Long lastReplyId
+            @PathVariable(value = "lastChildId", required = false) Long lastChildId
     ) {
-        PageResponse<GetStudyChildCommentResponse> pageResponse = commentQueryService.getReplies(parentId, lastReplyId);
+        PageResponse<GetStudyChildCommentResponse> pageResponse = commentQueryService.getChildren(parentId, lastChildId);
 
         return ApiResponse.ok(pageResponse);
     }

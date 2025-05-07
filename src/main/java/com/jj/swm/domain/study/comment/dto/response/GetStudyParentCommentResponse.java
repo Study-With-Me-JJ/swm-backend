@@ -26,14 +26,14 @@ public class GetStudyParentCommentResponse {
 
     private Long replyCount;
 
-    public static GetStudyParentCommentResponse of(StudyComment comment, Long replyCount) {
+    public static GetStudyParentCommentResponse of(StudyComment parent, Long childrenCount) {
         return GetStudyParentCommentResponse.builder()
-                .commentId(comment.getId())
-                .content(comment.getContent())
-                .userInfo(UserInfoResponse.from(comment.getUser()))
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .replyCount(replyCount)
+                .commentId(parent.getId())
+                .content(parent.getContent())
+                .userInfo(UserInfoResponse.from(parent.getUser()))
+                .createdAt(parent.getCreatedAt())
+                .updatedAt(parent.getUpdatedAt())
+                .replyCount(childrenCount)
                 .build();
     }
 }
