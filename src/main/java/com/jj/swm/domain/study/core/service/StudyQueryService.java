@@ -1,6 +1,6 @@
 package com.jj.swm.domain.study.core.service;
 
-import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyParentCommentResponse;
 import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.domain.study.core.dto.component.ParticipationStatusInfo;
 import com.jj.swm.domain.study.core.dto.request.GetStudyCondition;
@@ -93,7 +93,7 @@ public class StudyQueryService {
         List<RecruitmentPositionDetailsInfo> recruitmentPositionInfos =
                 getRecruitmentPositionDetailsInfo(recruitmentPositions);
 
-        PageResponse<GetStudyCommentResponse> pageComment = getGetStudyCommentResponsePageResponse(studyId);
+        PageResponse<GetStudyParentCommentResponse> pageComment = getGetStudyCommentResponsePageResponse(studyId);
 
         ParticipationStatusInfo participationStatusInfo = getParticipationStatusInfo(studyId, userId);
 
@@ -172,14 +172,14 @@ public class StudyQueryService {
                 )));
     }
 
-    private PageResponse<GetStudyCommentResponse> getGetStudyCommentResponsePageResponse(Long studyId) {
+    private PageResponse<GetStudyParentCommentResponse> getGetStudyCommentResponsePageResponse(Long studyId) {
         Pageable pageable = PageRequest.of(
                 0,
                 PageSize.StudyComment,
                 Sort.by("id").descending()
         );
 
-        return commentQueryService.buildStudyCommentPageResponse(studyId, pageable);
+        return commentQueryService.buildParentCommentPageResponse(studyId, pageable);
     }
 
     private ParticipationStatusInfo getParticipationStatusInfo(Long studyId, UUID userId) {

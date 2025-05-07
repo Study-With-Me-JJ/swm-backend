@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.comment.controller;
 
-import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
-import com.jj.swm.domain.study.comment.dto.response.GetStudyReplyResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyParentCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyChildCommentResponse;
 import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -27,11 +27,11 @@ public class StudyCommentQueryController {
                     pageNo는 필수값이 아닙니다. 가장 첫 페이지는 pageNo가 0입니다.
                     """
     )
-    public ApiResponse<PageResponse<GetStudyCommentResponse>> getComments(
+    public ApiResponse<PageResponse<GetStudyParentCommentResponse>> getComments(
             @PathVariable("studyId") Long studyId,
             @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
-        PageResponse<GetStudyCommentResponse> pageResponse = commentQueryService.getComments(studyId, pageNo);
+        PageResponse<GetStudyParentCommentResponse> pageResponse = commentQueryService.getComments(studyId, pageNo);
 
         return ApiResponse.ok(pageResponse);
     }
@@ -42,11 +42,11 @@ public class StudyCommentQueryController {
             description = "스터디 대댓글을 무한 스크롤 기반으로 조회합니다.<br>" +
                     "lastReplyId는 필수 값이 아닙니다. lastReplyId를 보내면 이 다음 대댓글을 불러옵니다."
     )
-    public ApiResponse<PageResponse<GetStudyReplyResponse>> getReplies(
+    public ApiResponse<PageResponse<GetStudyChildCommentResponse>> getReplies(
             @PathVariable("parentId") Long parentId,
             @PathVariable(value = "lastReplyId", required = false) Long lastReplyId
     ) {
-        PageResponse<GetStudyReplyResponse> pageResponse = commentQueryService.getReplies(parentId, lastReplyId);
+        PageResponse<GetStudyChildCommentResponse> pageResponse = commentQueryService.getReplies(parentId, lastReplyId);
 
         return ApiResponse.ok(pageResponse);
     }

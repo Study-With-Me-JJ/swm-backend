@@ -1,10 +1,10 @@
 package com.jj.swm.domain.study.comment.service;
 
-import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
-import com.jj.swm.domain.study.comment.dto.response.GetStudyReplyResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyChildCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyParentCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.StudyCommentRepository;
-import com.jj.swm.domain.study.comment.repository.dto.StudyCommentReplyCountInfo;
+import com.jj.swm.domain.study.comment.repository.dto.StudyCommentChildrenCountInfo;
 import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,18 +26,18 @@ public class StudyCommentQueryService {
     private final StudyCommentRepository commentRepository;
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyCommentResponse> getComments(Long studyId, int pageNo) {
+    public PageResponse<GetStudyParentCommentResponse> getComments(Long studyId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
                 PageSize.StudyComment,
                 Sort.by("id").descending()
         );
 
-        return buildStudyCommentPageResponse(studyId, pageable);
+        return buildParentCommentPageResponse(studyId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyReplyResponse> getReplies(Long parentId, Long lastReplyId) {
+    public PageResponse<GetStudyChildCommentResponse> getReplies(Long parentId, Long lastReplyId) {
         List<StudyComment> replies = commentRepository.findPagedReplyByParentIdWithUser(
                 parentId,
                 lastReplyId,
@@ -52,32 +52,34 @@ public class StudyCommentQueryService {
 
         List<StudyComment> pagedReply = hasNext ? replies.subList(0, PageSize.StudyReply) : replies;
 
-        List<GetStudyReplyResponse> responses = pagedReply.stream()
-                .map(GetStudyReplyResponse::from)
+        List<GetStudyChildCommentResponse> responses = pagedReply.stream()
+                .map(GetStudyChildCommentResponse::from)
                 .toList();
 
         return PageResponse.of(responses, hasNext);
     }
 
-    public PageResponse<GetStudyCommentResponse> buildStudyCommentPageResponse(Long studyId, Pageable pageable) {
-        Page<StudyComment> pagedComment = commentRepository.findPagedCommentByStudyIdWithUser(studyId, pageable);
+    public PageResponse<GetStudyParentCommentResponse> buildParentCommentPageResponse(Long studyId, Pageable pageable) {
+        Page<StudyComment> pagedParent = commentRepository.findPagedParentByStudyIdWithUser(studyId, pageable);
 
-        Map<Long, Long> replyCountByCommentId = getReplyCountByCommentId(pagedComment);
+        Map<Long, Long> childrenCountByParentId = getChildrenCountByParentId(pagedParent);
 
         return PageResponse.of(
-                pagedComment,
-                (comment) -> GetStudyCommentResponse.of(comment, replyCountByCommentId.getOrDefault(comment.getId(), 0L))
+                pagedParent,
+                (parent) -> GetStudyParentCommentResponse.of(
+                        parent, childrenCountByParentId.getOrDefault(parent.getId(), 0L)
+                )
         );
     }
 
-    private Map<Long, Long> getReplyCountByCommentId(Page<StudyComment> pagedComment) {
-        List<Long> parentIds = pagedComment.get()
+    private Map<Long, Long> getChildrenCountByParentId(Page<StudyComment> pagedParent) {
+        List<Long> parentIds = pagedParent.get()
                 .map(StudyComment::getId)
                 .toList();
 
         return commentRepository.countByParentIds(parentIds).stream()
                 .collect(Collectors.toMap(
-                        StudyCommentReplyCountInfo::getCommentId, StudyCommentReplyCountInfo::getReplyCount
+                        StudyCommentChildrenCountInfo::getCommentId, StudyCommentChildrenCountInfo::getChildrenCount
                 ));
     }
 }

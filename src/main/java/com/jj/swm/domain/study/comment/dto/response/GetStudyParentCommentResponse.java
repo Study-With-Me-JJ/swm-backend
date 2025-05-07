@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class GetStudyCommentResponse {
+public class GetStudyParentCommentResponse {
 
     private Long commentId;
 
@@ -26,8 +26,8 @@ public class GetStudyCommentResponse {
 
     private Long replyCount;
 
-    public static GetStudyCommentResponse of(StudyComment comment, Long replyCount) {
-        return GetStudyCommentResponse.builder()
+    public static GetStudyParentCommentResponse of(StudyComment comment, Long replyCount) {
+        return GetStudyParentCommentResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
                 .userInfo(UserInfoResponse.from(comment.getUser()))

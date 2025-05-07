@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.core.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyParentCommentResponse;
 import com.jj.swm.domain.study.core.dto.component.ParticipationStatusInfo;
 import com.jj.swm.domain.study.core.dto.component.TagInfo;
 import com.jj.swm.domain.study.core.dto.component.UserInteractionInfo;
@@ -52,7 +52,7 @@ public class GetStudyDetailsResponse {
 
     private List<RecruitmentPositionDetailsInfo> recruitmentPositionInfos;
 
-    private PageResponse<GetStudyCommentResponse> pageComment;
+    private PageResponse<GetStudyParentCommentResponse> pageComment;
 
     private ParticipationStatusInfo participationStatusInfo;
 
@@ -67,7 +67,7 @@ public class GetStudyDetailsResponse {
             UserInteractionInfo userInteractionInfo,
             List<RecruitmentPositionDetailsInfo> recruitmentPositionInfos,
             List<ImageInfo> imageInfos,
-            PageResponse<GetStudyCommentResponse> pageComment,
+            PageResponse<GetStudyParentCommentResponse> pageComment,
             ParticipationStatusInfo participationStatusInfo
     ) {
         return GetStudyDetailsResponse.builder()

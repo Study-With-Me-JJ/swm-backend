@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class GetStudyReplyResponse {
+public class GetStudyChildCommentResponse {
 
     private Long commentId;
 
@@ -24,8 +24,8 @@ public class GetStudyReplyResponse {
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime updatedAt;
 
-    public static GetStudyReplyResponse from(StudyComment comment) {
-        return GetStudyReplyResponse.builder()
+    public static GetStudyChildCommentResponse from(StudyComment comment) {
+        return GetStudyChildCommentResponse.builder()
                 .commentId(comment.getId())
                 .content(comment.getContent())
                 .userInfo(UserInfoResponse.from(comment.getUser()))
