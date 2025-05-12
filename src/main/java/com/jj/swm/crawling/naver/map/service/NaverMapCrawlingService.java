@@ -80,8 +80,8 @@ public class NaverMapCrawlingService implements DisposableBean {
                 Long lastHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
 
                 while (true) {
-                    driver.executeScript("arguments[0].scrollTop += 1000", scrollableElement);
-                    sleep(10000);
+                    driver.executeScript("arguments[0].scrollTop += 2500", scrollableElement);
+                    sleep(4500);
                     Long newHeight = (Long) driver.executeScript("return arguments[0].scrollHeight", scrollableElement);
                     if (Objects.equals(newHeight, lastHeight)) {
                         // scroll to top
