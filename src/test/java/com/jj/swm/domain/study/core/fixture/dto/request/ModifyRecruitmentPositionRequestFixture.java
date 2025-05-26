@@ -11,10 +11,10 @@ public class ModifyRecruitmentPositionRequestFixture {
 
     public static ModifyRecruitmentPositionRequest create() {
         return ModifyRecruitmentPositionRequest.builder()
-                .createRecruitmentPositionInfos(List.of(
+                .recruitmentPositionInfosToAdd(List.of(
                         CreateRecruitmentPositionInfoFixture.create(),
                         CreateRecruitmentPositionInfoFixture.create()
-                )).updateRecruitmentPositionInfos(List.of(
+                )).recruitmentPositionInfosToEdit(List.of(
                         UpdateRecruitmentPositionInfoFixture.create(3L),
                         UpdateRecruitmentPositionInfoFixture.create(4L)
                 )).recruitmentPositionIdsToRemove(List.of(1L, 2L))
@@ -23,7 +23,7 @@ public class ModifyRecruitmentPositionRequestFixture {
 
     public static ModifyRecruitmentPositionRequest createForCreateRecruitmentPositionRequestsNullSuccess() {
         return ModifyRecruitmentPositionRequest.builder()
-                .updateRecruitmentPositionInfos(List.of(
+                .recruitmentPositionInfosToEdit(List.of(
                         UpdateRecruitmentPositionInfoFixture.create(3L),
                         UpdateRecruitmentPositionInfoFixture.create(4L)
                 )).recruitmentPositionIdsToRemove(List.of(1L, 2L))
@@ -32,7 +32,7 @@ public class ModifyRecruitmentPositionRequestFixture {
 
     public static ModifyRecruitmentPositionRequest createForUpdateRecruitmentPositionRequestsNullSuccess() {
         return ModifyRecruitmentPositionRequest.builder()
-                .createRecruitmentPositionInfos(List.of(
+                .recruitmentPositionInfosToAdd(List.of(
                         CreateRecruitmentPositionInfoFixture.create(),
                         CreateRecruitmentPositionInfoFixture.create()
                 )).recruitmentPositionIdsToRemove(List.of(1L, 2L))
@@ -41,14 +41,14 @@ public class ModifyRecruitmentPositionRequestFixture {
 
     public static ModifyRecruitmentPositionRequest createForNotEqualsUpdateSizeFail() {
         return ModifyRecruitmentPositionRequest.builder()
-                .updateRecruitmentPositionInfos(List.of(
+                .recruitmentPositionInfosToEdit(List.of(
                         UpdateRecruitmentPositionInfoFixture.create(5L)
                 )).build();
     }
 
     public static ModifyRecruitmentPositionRequest createForHeadcountLessThenAcceptedCountFail(Long updateRecruitmentPositionId) {
         return ModifyRecruitmentPositionRequest.builder()
-                .updateRecruitmentPositionInfos(List.of(
+                .recruitmentPositionInfosToEdit(List.of(
                         UpdateRecruitmentPositionInfoFixture.create(updateRecruitmentPositionId)
                 )).build();
     }
@@ -61,7 +61,7 @@ public class ModifyRecruitmentPositionRequestFixture {
 
     public static ModifyRecruitmentPositionRequest createForExceedSizeFail() {
         return ModifyRecruitmentPositionRequest.builder()
-                .createRecruitmentPositionInfos(List.of(
+                .recruitmentPositionInfosToAdd(List.of(
                         CreateRecruitmentPositionInfoFixture.create(),
                         CreateRecruitmentPositionInfoFixture.create(),
                         CreateRecruitmentPositionInfoFixture.create(),

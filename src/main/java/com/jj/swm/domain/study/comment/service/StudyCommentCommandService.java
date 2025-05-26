@@ -35,7 +35,7 @@ public class StudyCommentCommandService {
     ) {
         User user = userRepository.getReferenceById(userId);
         StudyComment parent = findByIdIfNotParentElseNull(parentId);
-        Study study = findByIdIfParentThenUsingLock(studyId, parentId);
+        Study study = findById(studyId);
 
         StudyComment comment = buildComment(
                 createRequest,
@@ -43,7 +43,6 @@ public class StudyCommentCommandService {
                 parent,
                 user
         );
-
         commentRepository.save(comment);
 
         increaseStudyCommentCountIfParent(study, parent);
@@ -80,19 +79,18 @@ public class StudyCommentCommandService {
 
     private void decreaseStudyCommentCountIfParent(StudyComment comment) {
         if (comment.getParent() == null) {
-            Study study = findByIdUsingLock(comment.getStudy().getId());
-            study.decreaseCommentCount();
+            studyRepository.decrementCommentCountById(comment.getStudy().getId());
         }
     }
 
-    private Study findByIdUsingLock(Long studyId) {
-        return studyRepository.findByIdUsingLock(studyId)
+    private Study findById(Long studyId) {
+        return studyRepository.findById(studyId)
                 .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
     private void increaseStudyCommentCountIfParent(Study study, StudyComment parent) {
         if (parent == null) {
-            study.increaseCommentCount();
+            studyRepository.incrementCommentCountById(study.getId());
         }
     }
 
@@ -113,13 +111,6 @@ public class StudyCommentCommandService {
         }
 
         return comment;
-    }
-
-    private Study findByIdIfParentThenUsingLock(Long studyId, Long parentId) {
-        return parentId == null
-                ? findByIdUsingLock(studyId)
-                : studyRepository.findById(studyId)
-                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
     private StudyComment findByIdIfNotParentElseNull(Long parentId) {

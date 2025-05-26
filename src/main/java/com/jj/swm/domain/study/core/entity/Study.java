@@ -49,19 +49,13 @@ public class Study extends BaseTimeEntity {
     @Column(name = "category", nullable = false)
     private StudyCategory category;
 
-    @Column(name = "like_count", nullable = false)
-    private int likeCount;
-
-    @Column(name = "comment_count", nullable = false)
-    private int commentCount;
-
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "status", nullable = false)
     private StudyStatus status;
 
-    @Column(name = "view_count", nullable = false)
-    private int viewCount;
+    @Embedded
+    private StudyStatistics statistics;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -79,10 +73,8 @@ public class Study extends BaseTimeEntity {
                 .content(request.getContent())
                 .openChatUrl(request.getOpenChatUrl())
                 .category(request.getCategory())
-                .likeCount(0)
-                .commentCount(0)
                 .status(ACTIVE)
-                .viewCount(0)
+                .statistics(StudyStatistics.empty())
                 .user(user)
                 .build();
     }
@@ -98,26 +90,6 @@ public class Study extends BaseTimeEntity {
         this.status = request.getStatus();
     }
 
-    public void incrementLikeCount() {
-        this.likeCount++;
-    }
-
-    public void decrementLikeCount() {
-        this.likeCount = Math.max(0, this.likeCount - 1);
-    }
-
-    public void increaseCommentCount() {
-        this.commentCount++;
-    }
-
-    public void decreaseCommentCount() {
-        this.commentCount = Math.max(0, this.commentCount - 1);
-    }
-
-    public void incrementViewCount() {
-        this.viewCount++;
-    }
-
     public enum StudyCategory {
         ALGORITHM, DEVELOPMENT
     }
@@ -126,4 +98,28 @@ public class Study extends BaseTimeEntity {
         ACTIVE, INACTIVE
     }
 
+    @Getter
+    @Builder
+    @Embeddable
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class StudyStatistics {
+
+        @Column(name = "like_count", nullable = false)
+        private int likeCount;
+
+        @Column(name = "comment_count", nullable = false)
+        private int commentCount;
+
+        @Column(name = "view_count", nullable = false)
+        private int viewCount;
+
+        private static StudyStatistics empty() {
+            return StudyStatistics.builder()
+                    .likeCount(0)
+                    .commentCount(0)
+                    .viewCount(0)
+                    .build();
+        }
+    }
 }

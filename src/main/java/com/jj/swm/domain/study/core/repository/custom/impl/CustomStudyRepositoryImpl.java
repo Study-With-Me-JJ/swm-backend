@@ -64,10 +64,10 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
         Long lastId = condition.getLastStudyId();
 
         return switch (condition.getSortCriteria()) {
-            case LIKE -> QueryDSLBooleanUtils.nullSafeBuilder(() -> study.likeCount.lt(lastSortValue)
-                    .or(study.likeCount.eq(lastSortValue).and(study.id.lt(lastId))));
-            case COMMENT -> QueryDSLBooleanUtils.nullSafeBuilder(() -> study.commentCount.lt(lastSortValue)
-                    .or(study.commentCount.eq(lastSortValue).and(study.id.lt(lastId))));
+            case LIKE -> QueryDSLBooleanUtils.nullSafeBuilder(() -> study.statistics.likeCount.lt(lastSortValue)
+                    .or(study.statistics.likeCount.eq(lastSortValue).and(study.id.lt(lastId))));
+            case COMMENT -> QueryDSLBooleanUtils.nullSafeBuilder(() -> study.statistics.commentCount.lt(lastSortValue)
+                    .or(study.statistics.commentCount.eq(lastSortValue).and(study.id.lt(lastId))));
             default -> QueryDSLBooleanUtils.nullSafeBuilder(() -> study.id.lt(lastId));
         };
     }
@@ -75,14 +75,14 @@ public class CustomStudyRepositoryImpl implements CustomStudyRepository {
     private OrderSpecifier<?>[] buildOrderSpecifier(SortCriteria sortCriteria) {
         return switch (sortCriteria) {
             case LIKE -> new OrderSpecifier<?>[]{
-                    new OrderSpecifier<>(Order.DESC, study.likeCount),
+                    new OrderSpecifier<>(Order.DESC, study.statistics.likeCount),
                     new OrderSpecifier<>(Order.DESC, study.id),
             };
             case NEWEST -> new OrderSpecifier<?>[]{
                     new OrderSpecifier<>(Order.DESC, study.id)
             };
             case COMMENT -> new OrderSpecifier<?>[]{
-                    new OrderSpecifier<>(Order.DESC, study.commentCount),
+                    new OrderSpecifier<>(Order.DESC, study.statistics.commentCount),
                     new OrderSpecifier<>(Order.DESC, study.id),
             };
         };

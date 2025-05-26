@@ -21,11 +21,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.jj.swm.domain.study.core.common.EntityModificationValidator.*;
 import static com.jj.swm.domain.study.participation.constants.StudyParticipationConstants.LINK_LIMIT;
 import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.*;
 import static com.jj.swm.global.common.enums.ErrorCode.*;
@@ -104,7 +104,7 @@ public class StudyParticipationCommandService {
         StudyParticipation participation =
                 findByIdAndUserIdOrThrowAlsoValidateStatusNotAccepted(participationId, userId);
 
-        modifyLink(request.getModifyLinkInfo(), participation);
+        modifyLinks(request.getModifyLinkInfo(), participation);
 
         participation.modify(request);
     }
@@ -181,38 +181,31 @@ public class StudyParticipationCommandService {
         }
     }
 
-    private void modifyLink(ModifyLinkInfo request, StudyParticipation participation) {
-        if (request != null) {
-            List<String> linksToAdd = Optional.ofNullable(request.getLinksToAdd())
-                    .orElse(Collections.emptyList());
-            List<Long> linkIdsToRemove = Optional.ofNullable(request.getLinkIdsToRemove())
-                    .orElse(Collections.emptyList());
+    private void modifyLinks(ModifyLinkInfo info, StudyParticipation participation) {
+        if (info == null || !(isListPresent(info.getLinksToAdd()) || isListPresent(info.getLinkIdsToRemove()))) return;
 
-            List<StudyParticipationLink> links =
-                    participationLinkRepository.findAllByParticipationId(participation.getId());
+        List<String> linksToAdd = getSafeList(info.getLinksToAdd());
+        List<Long> linkIdsToRemove = getSafeList(info.getLinkIdsToRemove());
 
-            int oldLinkSize = links.size();
-            int removeCount = (int) links.stream()
-                    .filter(link -> linkIdsToRemove.contains(link.getId()))
-                    .count();
+        List<StudyParticipationLink> links = participationLinkRepository.findAllByParticipationId(participation.getId());
 
-            if (removeCount != linkIdsToRemove.size()) {
-                throw new GlobalException(NOT_FOUND, "some links not found");
-            }
+        validateAllIdsPresent(
+                linkIdsToRemove,
+                links,
+                StudyParticipationLink::getId,
+                "some links not found"
+        );
+        validateSizeLimit(
+                links.size() + linksToAdd.size() - linkIdsToRemove.size(),
+                LINK_LIMIT,
+                "links limit exceeded"
+        );
 
-            int newLinkSize = oldLinkSize + linksToAdd.size() - removeCount;
-            if (newLinkSize < 0 || newLinkSize > LINK_LIMIT) {
-                throw new GlobalException(NOT_VALID, "Link Limit Deviation");
-            }
+        if (isListNotEmpty(linkIdsToRemove))
+            participationLinkRepository.deleteAllByIdsAndParticipationId(linkIdsToRemove, participation.getId());
 
-            if (removeCount > 0)
-                participationLinkRepository.deleteAllByIdsAndParticipationId(
-                        linkIdsToRemove, participation.getId()
-                );
-
-            if (isListNotEmpty(linksToAdd))
-                participationLinkRepository.batchInsert(linksToAdd, participation);
-        }
+        if (isListNotEmpty(linksToAdd))
+            participationLinkRepository.batchInsert(linksToAdd, participation);
     }
 
     private UpdateStudyParticipationStatusResponse buildUpdateStudyParticipationStatusResponse(

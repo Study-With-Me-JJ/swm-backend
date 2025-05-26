@@ -5,6 +5,7 @@ import com.jj.swm.domain.study.core.dto.component.TagInfo;
 import com.jj.swm.domain.study.core.dto.component.UserInteractionInfo;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatistics;
 import com.jj.swm.domain.study.core.entity.Study.StudyStatus;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
@@ -25,13 +26,9 @@ public class GetStudyResponse {
 
     private StudyCategory category;
 
-    private int likeCount;
-
-    private int commentCount;
-
     private StudyStatus status;
 
-    private int viewCount;
+    private StudyStatistics statistics;
 
     private UserInteractionInfo userInteractionInfo;
 
@@ -51,10 +48,8 @@ public class GetStudyResponse {
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
-                .likeCount(study.getLikeCount())
-                .commentCount(study.getCommentCount())
                 .status(study.getStatus())
-                .viewCount(study.getViewCount())
+                .statistics(study.getStatistics())
                 .userInteractionInfo(userInteractionInfo)
                 .tagInfos(study.getStudyTags().stream()
                         .map(TagInfo::from)
@@ -72,10 +67,8 @@ public class GetStudyResponse {
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
-                .likeCount(study.getLikeCount())
-                .commentCount(study.getCommentCount())
                 .status(study.getStatus())
-                .viewCount(study.getViewCount())
+                .statistics(study.getStatistics())
                 .tagInfos(study.getStudyTags().stream()
                         .map(TagInfo::from)
                         .toList())

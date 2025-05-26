@@ -37,10 +37,6 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
     void deleteWithChildrenById(Long id);
 
     @Modifying
-    @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id = ?1")
-    void deleteAllByStudyId(Long studyId);
-
-    @Modifying
     @Query("update StudyComment c set c.deletedAt = CURRENT_TIMESTAMP where c.study.id in ?1")
     void deleteAllByStudyIds(List<Long> studyIds);
 }

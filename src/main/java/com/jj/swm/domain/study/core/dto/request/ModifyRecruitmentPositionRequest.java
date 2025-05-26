@@ -23,11 +23,11 @@ public class ModifyRecruitmentPositionRequest {
 
     @Valid
     @Size(max = RECRUITMENT_POSITION_LIMIT)
-    private List<CreateRecruitmentPositionInfo> createRecruitmentPositionInfos;
+    private List<CreateRecruitmentPositionInfo> recruitmentPositionInfosToAdd;
 
     @Valid
     @Size(max = RECRUITMENT_POSITION_LIMIT)
-    private List<UpdateRecruitmentPositionInfo> updateRecruitmentPositionInfos;
+    private List<UpdateRecruitmentPositionInfo> recruitmentPositionInfosToEdit;
 
     @Size(max = RECRUITMENT_POSITION_LIMIT)
     private List<Long> recruitmentPositionIdsToRemove;

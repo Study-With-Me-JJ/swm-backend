@@ -84,7 +84,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
 
         //then
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(2, study.getCommentCount());
+        assertEquals(2, study.getStatistics().getCommentCount());
 
         Optional<StudyComment> optionalComment = commentRepository.findById(newCommentId);
         assertTrue(optionalComment.isPresent());
@@ -106,7 +106,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
 
         //then
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(1, study.getCommentCount());
+        assertEquals(1, study.getStatistics().getCommentCount());
 
         StudyComment reply = commentRepository.findById(replyId).get();
         assertEquals(commentId, reply.getParent().getId());
@@ -167,7 +167,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
 
         //then
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(THREAD_COUNT + 1, study.getCommentCount()); // setUp에서 기본 생성에 의해 +1 설정
+        assertEquals(THREAD_COUNT + 1, study.getStatistics().getCommentCount()); // setUp에서 기본 생성에 의해 +1 설정
     }
 
     @Test
@@ -206,7 +206,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
 
         //then
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(0, study.getCommentCount());
+        assertEquals(0, study.getStatistics().getCommentCount());
 
         assertEquals(0, commentRepository.count());
     }
@@ -227,7 +227,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
 
         //then
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(1, study.getCommentCount());
+        assertEquals(1, study.getStatistics().getCommentCount());
 
         Optional<StudyComment> optionalComment = commentRepository.findById(replyId);
         assertFalse(optionalComment.isPresent());
@@ -272,6 +272,6 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         assertEquals(1, commentRepository.count()); // setUp에서 기본 생성에 의해 1 설정
 
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(1, study.getCommentCount());
+        assertEquals(1, study.getStatistics().getCommentCount());
     }
 }

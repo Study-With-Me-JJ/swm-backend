@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.jj.swm.domain.study.core.entity.Study.StudyCategory.ALGORITHM;
 import static com.jj.swm.domain.study.core.entity.Study.StudyStatus.ACTIVE;
@@ -320,7 +321,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertTrue(result);
 
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(1, study.getLikeCount());
+        assertEquals(1, study.getStatistics().getLikeCount());
     }
 
     @Test
@@ -362,7 +363,39 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(THREAD_COUNT, studyLikeRepository.count());
 
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(THREAD_COUNT, study.getLikeCount());
+        assertEquals(THREAD_COUNT, study.getStatistics().getLikeCount());
+    }
+    @Test
+    @DisplayName("동일 사용자가 동일 스터디에 중복으로 좋아요를 할 경우 동시성 제어가 작동한다")
+    void createStudyLike_SameUserConcurrency() throws InterruptedException {
+        //given
+        UUID singleUserId = insertUsersAndGetUserIds(userRepository, 1).get(0);
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        countDownLatch = new CountDownLatch(THREAD_COUNT);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
+        //when - 동일 사용자로 여러 번 호출
+        for (int i = 0; i < THREAD_COUNT; i++) {
+            executorService.submit(() -> {
+                try {
+                    studyCommandService.createStudyLike(studyId, singleUserId);
+                    successCount.incrementAndGet();
+                } catch (Exception e) {
+                    failCount.incrementAndGet();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+
+        countDownLatch.await();
+        executorService.shutdown();
+
+        //then - 하나만 성공해야 함
+        assertEquals(1, successCount.get());
+        assertEquals(THREAD_COUNT - 1, failCount.get());
+        assertEquals(1, studyLikeRepository.count());
     }
 
     @Test
@@ -379,7 +412,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertFalse(result);
 
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(0, study.getLikeCount());
+        assertEquals(0, study.getStatistics().getLikeCount());
     }
 
     @Test
@@ -422,49 +455,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(0, studyLikeRepository.count());
 
         Study study = studyRepository.findById(studyId).get();
-        assertEquals(0, study.getLikeCount());
-    }
-
-    @Test
-    @DisplayName("스터디 모집 삭제에 성공한다.")
-    void deleteStudy_Success() {
-        //given
-        studyCommandService.createStudyLike(studyId, user.getId());
-        studyCommandService.createStudyBookmark(studyId, user.getId());
-
-        UpsertStudyCommentRequest createRequest = UpsertStudyCommentRequestFixture.create();
-        Long parentId = commentCommandService.createComment(
-                createRequest,
-                studyId,
-                null,
-                user.getId()
-        ).getCommentId();
-        commentCommandService.createComment(
-                createRequest,
-                studyId,
-                parentId,
-                user.getId()
-        );
-
-        participationCommandService.createStudyParticipation(
-                CreateStudyParticipationRequestFixture.create(),
-                recruitmentPositionId,
-                user.getId()
-        );
-
-        //when
-        studyCommandService.deleteStudy(studyId, user.getId());
-
-        //then
-        assertEquals(0, studyTagRepository.count());
-        assertEquals(0, studyImageRepository.count());
-        assertEquals(0, recruitmentPositionRepository.count());
-        assertEquals(0, studyLikeRepository.count());
-        assertEquals(0, commentRepository.count());
-        assertEquals(0, studyBookmarkRepository.count());
-        assertEquals(0, studyRepository.count());
-        assertEquals(0, participationRepository.count());
-        assertEquals(0, participationLinkRepository.count());
+        assertEquals(0, study.getStatistics().getLikeCount());
     }
 
     @Test
@@ -522,7 +513,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
         //when
         studyCommandService.deleteStudies(
-                DeleteStudiesRequestFixture.create(List.of(studyId, newStudyId)), user.getId()
+                DeleteStudyRequestFixture.create(List.of(studyId, newStudyId)), user.getId()
         );
 
         //then
@@ -542,7 +533,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void deleteStudies_WhenNotExist_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.deleteStudies(
-                DeleteStudiesRequestFixture.create(List.of(studyId, 123456789L)), user.getId()
+                DeleteStudyRequestFixture.create(List.of(studyId, 123456789L)), user.getId()
         ));
     }
 
@@ -563,16 +554,16 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //then
         StudyRecruitmentPosition recruitmentPosition =
                 recruitmentPositionRepository.findById(newRecruitmentPositionId).get();
-        assertEquals(request.getCreateRecruitmentPositionInfos().getFirst().getTitle(), recruitmentPosition.getTitle());
+        assertEquals(request.getRecruitmentPositionInfosToAdd().getFirst().getTitle(), recruitmentPosition.getTitle());
 
         Optional<StudyRecruitmentPosition> optionalRecruitmentPosition =
                 recruitmentPositionRepository.findById(request.getRecruitmentPositionIdsToRemove().getFirst());
         assertFalse(optionalRecruitmentPosition.isPresent());
 
         recruitmentPosition = recruitmentPositionRepository.findById(
-                request.getUpdateRecruitmentPositionInfos().getFirst().getRecruitmentPositionId()
+                request.getRecruitmentPositionInfosToEdit().getFirst().getRecruitmentPositionId()
         ).get();
-        assertEquals(request.getUpdateRecruitmentPositionInfos().getFirst().getTitle(), recruitmentPosition.getTitle());
+        assertEquals(request.getRecruitmentPositionInfosToEdit().getFirst().getTitle(), recruitmentPosition.getTitle());
 
         assertEquals(4, recruitmentPositionRepository.count()); // 4개에서 2개 제거하고 2개 추가
     }

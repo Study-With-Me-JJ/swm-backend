@@ -10,17 +10,25 @@ import lombok.Getter;
 @Builder
 public class ParticipationStatusInfo {
 
-    Long participationId;
+    private Long participationId;
 
-    StudyParticipationStatus status;
+    private StudyParticipationStatus status;
 
-    RecruitmentPositionTitle title;
+    private RecruitmentPositionTitle title;
 
     public static ParticipationStatusInfo from(StudyParticipation participation) {
         return ParticipationStatusInfo.builder()
                 .participationId(participation.getId())
                 .status(participation.getStatus())
                 .title(participation.getRecruitmentPosition().getTitle())
+                .build();
+    }
+
+    public static ParticipationStatusInfo empty() {
+        return ParticipationStatusInfo.builder()
+                .participationId(null)
+                .status(null)
+                .title(null)
                 .build();
     }
 }

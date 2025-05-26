@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DeleteStudiesRequest {
+public class DeleteStudyRequest {
 
     @NotEmpty
     @Size(max = PageSize.Study)

@@ -7,6 +7,7 @@ import com.jj.swm.domain.study.core.dto.component.TagInfo;
 import com.jj.swm.domain.study.core.dto.component.UserInteractionInfo;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatistics;
 import com.jj.swm.domain.study.core.entity.Study.StudyStatus;
 import com.jj.swm.domain.study.core.entity.StudyImage;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
@@ -32,13 +33,9 @@ public class GetStudyDetailsResponse {
 
     private StudyCategory category;
 
-    private int likeCount;
-
-    private int commentCount;
-
     private StudyStatus status;
 
-    private int viewCount;
+    private StudyStatistics statistics;
 
     private UserInfoResponse userInfoResponse;
 
@@ -75,10 +72,8 @@ public class GetStudyDetailsResponse {
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
-                .likeCount(study.getLikeCount())
-                .commentCount(study.getCommentCount())
                 .status(study.getStatus())
-                .viewCount(study.getViewCount())
+                .statistics(study.getStatistics())
                 .userInfoResponse(UserInfoResponse.from(study.getUser()))
                 .openChatUrl(study.getOpenChatUrl())
                 .userInteractionInfo(userInteractionInfo)
