@@ -7,7 +7,7 @@ import com.jj.swm.domain.user.core.entity.User;
 
 import java.time.LocalDateTime;
 
-import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.REJECTED;
+import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.REJECTED;
 
 public class StudyParticipationFixture {
 

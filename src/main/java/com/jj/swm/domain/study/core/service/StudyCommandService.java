@@ -235,7 +235,7 @@ public class StudyCommandService {
                 participationRepository.countByRecruitmentPositionIdsAndAccepted(recruitmentPositionIdsToEdit).stream()
                         .collect(Collectors.toMap(
                                 PositionAcceptedParticipationCountInfo::getRecruitmentPositionId,
-                                PositionAcceptedParticipationCountInfo::getAcceptedParticipationCount
+                                PositionAcceptedParticipationCountInfo::getAcceptedCount
                         ));
 
         Map<Long, StudyRecruitmentPosition> recruitmentPositionByRecruitmentPositionId = recruitmentPositions.stream()

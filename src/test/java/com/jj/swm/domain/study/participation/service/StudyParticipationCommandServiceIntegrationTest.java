@@ -12,7 +12,6 @@ import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipatio
 import com.jj.swm.domain.study.participation.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.entity.StudyParticipationLink;
-import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
 import com.jj.swm.domain.study.participation.fixture.dto.request.CreateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.participation.fixture.dto.request.UpdateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.participation.fixture.dto.request.UpdateStudyParticipationStatusRequestFixture;
@@ -30,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 
-import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.*;
+import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StudyParticipationCommandServiceIntegrationTest extends IntegrationContainerSupporter {

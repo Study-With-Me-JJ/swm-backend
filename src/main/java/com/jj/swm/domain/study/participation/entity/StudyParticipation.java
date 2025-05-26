@@ -15,7 +15,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 
-import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.PENDING;
+import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.PENDING;
 
 @Getter
 @Entity
@@ -90,5 +90,9 @@ public class StudyParticipation {
         this.kakaoId = request.getKakaoId();
         this.coverLetter = request.getCoverLetter();
         this.fileInfo = request.getFileInfo();
+    }
+
+    public enum StudyParticipationStatus {
+        PENDING, REJECTED, ACCEPTED
     }
 }

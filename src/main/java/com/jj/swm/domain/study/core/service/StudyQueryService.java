@@ -81,7 +81,7 @@ public class StudyQueryService {
 
         UserInteractionInfo userInteractionInfo = getUserInteractionInfo(studyId, userId);
 
-        List<ImageInfo> imageInfos = getImageInfo(studyId);
+        List<ImageInfo> imageInfos = getImageInfos(studyId);
 
         List<RecruitmentPositionDetailsInfo> recruitmentPositionDetailsInfos =
                 getRecruitmentPositionDetailsInfo(study.getStudyRecruitmentPositions());
@@ -200,7 +200,7 @@ public class StudyQueryService {
                 )).toList();
     }
 
-    private List<ImageInfo> getImageInfo(Long studyId) {
+    private List<ImageInfo> getImageInfos(Long studyId) {
         List<StudyImage> images = studyImageRepository.findAllByStudyId(studyId);
 
         return images.stream()

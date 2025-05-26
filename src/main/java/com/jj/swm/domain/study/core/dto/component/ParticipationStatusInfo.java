@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.core.dto.component;
 
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
-import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
 import lombok.Builder;
 import lombok.Getter;
 

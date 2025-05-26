@@ -15,4 +15,10 @@ public class UpdateStudyParticipationStatusResponse {
                 .kakaoId(participation.getKakaoId())
                 .build();
     }
+
+    public static UpdateStudyParticipationStatusResponse empty() {
+        return UpdateStudyParticipationStatusResponse.builder()
+                .kakaoId(null)
+                .build();
+    }
 }

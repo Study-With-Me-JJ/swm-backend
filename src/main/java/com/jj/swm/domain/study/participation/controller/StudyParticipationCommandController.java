@@ -53,12 +53,11 @@ public class StudyParticipationCommandController {
             @PathVariable("participationId") Long participationId,
             Principal principal
     ) {
-        UpdateStudyParticipationStatusResponse response =
-                participationCommandService.updateStudyParticipationStatus(
-                        request,
-                        participationId,
-                        UUID.fromString(principal.getName())
-                );
+        UpdateStudyParticipationStatusResponse response = participationCommandService.updateStudyParticipationStatus(
+                request,
+                participationId,
+                UUID.fromString(principal.getName())
+        );
 
         return ApiResponse.ok(response);
     }

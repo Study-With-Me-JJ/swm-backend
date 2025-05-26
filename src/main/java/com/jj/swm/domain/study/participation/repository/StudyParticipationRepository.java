@@ -45,7 +45,7 @@ public interface StudyParticipationRepository extends
     Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);
 
     @Query("select p from StudyParticipation p join fetch p.study join fetch p.recruitmentPosition where p.id = ?1")
-    Optional<StudyParticipation> findByIdWithStudyAndRecruitmentPosition(Long id);
+    Optional<StudyParticipation> findByIdWithStudyAndPosition(Long id);
 
     @Query("select p from StudyParticipation p join fetch p.user join fetch p.study where p.id = ?1")
     Optional<StudyParticipation> findByIdWithUserAndStudy(Long id);
@@ -53,10 +53,10 @@ public interface StudyParticipationRepository extends
     Optional<StudyParticipation> findByIdAndUserId(Long id, UUID userId);
 
     @Query("select count(*) from StudyParticipation p where p.recruitmentPosition.id = ?1 and p.status = 'ACCEPTED'")
-    long countByRecruitmentPositionIdAndAcceptedStatus(Long recruitmentPositionId);
+    long countByRecruitmentPositionIdAndAccepted(Long recruitmentPositionId);
 
     @Query("""
-            select p.recruitmentPosition.id as recruitmentPositionId, count(*) as acceptedParticipationCount
+            select p.recruitmentPosition.id as recruitmentPositionId, count(*) as acceptedCount
             from StudyParticipation p
             where p.recruitmentPosition.id in ?1 and p.status = 'ACCEPTED'
             group by p.recruitmentPosition.id
@@ -67,7 +67,7 @@ public interface StudyParticipationRepository extends
 
     @Query("""
             select p.recruitmentPosition.id as recruitmentPositionId, count(*) as participatedCount,
-                        sum(case when p.status = 'ACCEPTED' then 1 else 0 end) as acceptedCount
+                       sum(case when p.status = 'ACCEPTED' then 1 else 0 end) as acceptedCount
             from StudyParticipation p
             where p.recruitmentPosition.id in (?1)
             group by p.recruitmentPosition.id

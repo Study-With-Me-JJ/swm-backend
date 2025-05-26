@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.participation.repository.custom.impl;
 
 import com.jj.swm.domain.common.utils.QueryDSLBooleanUtils;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
-import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
 import com.jj.swm.domain.study.participation.repository.custom.CustomStudyParticipationRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -22,7 +22,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<StudyParticipation> findPagedStudyParticipationByStatusWithUser(
+    public Page<StudyParticipation> findPagedParticipationByStatusWithUser(
             Long recruitmentPositionId,
             StudyParticipationStatus status,
             Pageable pageable
@@ -49,7 +49,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
     }
 
     @Override
-    public Page<StudyParticipation> findPagedStudyParticipationByStatusWithUserInMyPage(
+    public Page<StudyParticipation> findPagedParticipationByStatusWithUserInMyPage(
             Long studyId,
             StudyParticipationStatus status,
             Pageable pageable

@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.jj.swm.domain.study.core.entity.Study.StudyCategory.ALGORITHM;
 import static com.jj.swm.domain.study.core.entity.Study.StudyStatus.ACTIVE;
-import static com.jj.swm.domain.study.participation.entity.StudyParticipationStatus.ACCEPTED;
+import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.ACCEPTED;
 import static com.jj.swm.domain.user.helper.UserTestHelper.insertUsersAndGetUserIds;
 import static org.junit.jupiter.api.Assertions.*;
 
