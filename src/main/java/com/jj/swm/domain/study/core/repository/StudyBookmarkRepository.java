@@ -10,13 +10,14 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface StudyBookmarkRepository extends JpaRepository<StudyBookmark, Long> {
 
     Optional<StudyBookmark> findByIdAndUserId(Long id, UUID userId);
 
-    List<StudyBookmark> findAllByStudyIdInAndUserId(List<Long> studyIds, UUID userId);
+    List<StudyBookmark> findAllByStudyIdInAndUserId(Set<Long> studyIds, UUID userId);
 
     @Query("select b.study from StudyBookmark b where b.user.id = ?1")
     Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);

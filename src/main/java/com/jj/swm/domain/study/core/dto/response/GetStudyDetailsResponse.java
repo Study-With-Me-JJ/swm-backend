@@ -127,6 +127,13 @@ public class GetStudyDetailsResponse {
                         .acceptedCount(participationCountInfo.getAcceptedCount())
                         .build();
             }
+
+            public static RecruitmentPositionStat empty() {
+                return RecruitmentPositionStat.builder()
+                        .participatedCount(0L)
+                        .acceptedCount(0L)
+                        .build();
+            }
         }
     }
 

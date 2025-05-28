@@ -1,4 +1,4 @@
-package com.jj.swm.domain.study.core.common;
+package com.jj.swm.domain.study.common;
 
 import com.jj.swm.global.exception.GlobalException;
 

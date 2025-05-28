@@ -112,9 +112,7 @@ public class StudyParticipationCommandController {
     public ApiResponse<Void> deleteStudyParticipation(
             @PathVariable("participationId") Long participationId, Principal principal
     ) {
-        participationCommandService.deleteStudyParticipation(
-                participationId, UUID.fromString(principal.getName())
-        );
+        participationCommandService.deleteStudyParticipation(participationId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

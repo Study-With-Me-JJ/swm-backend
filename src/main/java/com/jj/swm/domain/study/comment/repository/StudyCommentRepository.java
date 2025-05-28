@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.comment.repository;
 
-import com.jj.swm.domain.study.comment.repository.dto.StudyParentCommentChildrenCountInfo;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.custom.CustomStudyCommentRepository;
+import com.jj.swm.domain.study.comment.repository.dto.StudyParentCommentChildrenCountInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

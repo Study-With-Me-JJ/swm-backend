@@ -27,9 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.jj.swm.domain.study.core.common.EntityModificationValidator.*;
+import static com.jj.swm.domain.study.common.EntityModificationValidator.*;
 import static com.jj.swm.domain.study.core.constants.StudyConstants.*;
 import static com.jj.swm.global.common.enums.ErrorCode.NOT_FOUND;
 import static com.jj.swm.global.common.enums.ErrorCode.NOT_VALID;
@@ -194,27 +193,9 @@ public class StudyCommandService {
         );
         insertRecruitmentPositionsIfNotEmpty(infosToAdd, studyId);
 
-        List<StudyRecruitmentPosition> newRecruitmentPositions = getNewRecruitmentPositions(
-                recruitmentPositionIdsToRemove,
-                recruitmentPositionIdsToEdit,
-                studyId
-        );
-
-        return newRecruitmentPositions.stream()
+        return recruitmentPositionRepository.findAllByStudyId(studyId).stream()
                 .map(CreateRecruitmentPositionResponse::from)
                 .toList();
-    }
-
-    private List<StudyRecruitmentPosition> getNewRecruitmentPositions(
-            List<Long> recruitmentPositionIdsToRemove,
-            List<Long> recruitmentPositionIdsToEdit,
-            Long studyId
-    ) {
-        List<Long> notNewRecruitmentPositionId = Stream.concat(
-                recruitmentPositionIdsToRemove.stream(), recruitmentPositionIdsToEdit.stream()
-        ).toList();
-
-        return recruitmentPositionRepository.findByIdNotInAndStudyId(notNewRecruitmentPositionId, studyId);
     }
 
     private void insertRecruitmentPositionsIfNotEmpty(List<CreateRecruitmentPositionInfo> infosToAdd, Long studyId) {

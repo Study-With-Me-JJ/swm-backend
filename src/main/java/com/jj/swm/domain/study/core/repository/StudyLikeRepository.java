@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -17,7 +18,7 @@ public interface StudyLikeRepository extends JpaRepository<StudyLike, Long> {
 
     Optional<StudyLike> findByIdAndUserId(Long id, UUID userId);
 
-    List<StudyLike> findAllByStudyIdInAndUserId(List<Long> studyIds, UUID userId);
+    List<StudyLike> findAllByStudyIdInAndUserId(Set<Long> studyIds, UUID userId);
 
     @Query(value = "select l.id from study_like l where l.study_id = ?1 and l.user_id = ?2 limit 1", nativeQuery = true)
     Long findIdByStudyIdAndUserId(Long studyId, UUID userId);

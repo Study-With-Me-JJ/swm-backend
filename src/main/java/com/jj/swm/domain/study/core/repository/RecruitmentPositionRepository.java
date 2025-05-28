@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface RecruitmentPositionRepository extends
         JpaRepository<StudyRecruitmentPosition, Long>, JdbcRecruitmentPositionRepository {
 
-    List<StudyRecruitmentPosition> findByIdNotInAndStudyId(List<Long> ids, Long studyId);
+    List<StudyRecruitmentPosition> findAllByStudyId(Long studyId);
 
     List<StudyRecruitmentPosition> findByStudyIdAndStudyUserId(Long studyId, UUID userId);
 

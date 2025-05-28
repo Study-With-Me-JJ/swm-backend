@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface StudyParticipationRepository extends
@@ -28,7 +29,7 @@ public interface StudyParticipationRepository extends
             value = "select * from study_participation where study_id = ?1 and user_id = ?2 order by id desc limit 1",
             nativeQuery = true
     )
-    Optional<StudyParticipation> findByStudyIdAndUserId(Long studyId, UUID userId);
+    Optional<StudyParticipation> findByStudyIdAndUserIdWithNativeQuery(Long studyId, UUID userId);
 
     @Query("""
             select p
@@ -36,10 +37,10 @@ public interface StudyParticipationRepository extends
             join fetch p.recruitmentPosition
             where p.study.id in (?1) and p.user.id = ?2
             """)
-    List<StudyParticipation> findAllByStudyIdsAndUserIdWithPosition(List<Long> studyId, UUID userId);
+    List<StudyParticipation> findAllByStudyIdsAndUserIdWithPosition(Set<Long> studyId, UUID userId);
 
-    @Query("select p from StudyParticipation p join fetch p.recruitmentPosition where p.study.id = ?1 and p.user.id = ?2")
-    Optional<StudyParticipation> findByStudyIdAndUserIdWithRecruitmentPosition(Long studyId, UUID userId);
+    @Query("select p from StudyParticipation p where p.study.id = ?1 and p.user.id = ?2")
+    Optional<StudyParticipation> findByStudyIdAndUserId(Long studyId, UUID userId);
 
     @Query("select p.study from StudyParticipation p where p.user.id = ?1")
     Page<Study> findPagedStudyByUserId(UUID userId, Pageable pageable);

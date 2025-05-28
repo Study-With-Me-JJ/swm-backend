@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.jj.swm.domain.study.core.common.EntityModificationValidator.*;
+import static com.jj.swm.domain.study.common.EntityModificationValidator.*;
 import static com.jj.swm.domain.study.participation.constants.StudyParticipationConstants.LINK_LIMIT;
 import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.*;
 import static com.jj.swm.global.common.enums.ErrorCode.*;
@@ -47,9 +47,7 @@ public class StudyParticipationCommandService {
             Long recruitmentPositionId,
             UUID userId
     ) {
-        StudyRecruitmentPosition recruitmentPosition =
-                recruitmentPositionRepository.findByIdWithStudy(recruitmentPositionId)
-                        .orElseThrow(() -> new GlobalException(NOT_FOUND, "Recruitment Position not found"));
+        StudyRecruitmentPosition recruitmentPosition = findById(recruitmentPositionId);
 
         Study study = recruitmentPosition.getStudy();
 
@@ -108,14 +106,6 @@ public class StudyParticipationCommandService {
     }
 
     @Transactional
-    public void deleteStudyParticipation(Long participationId, UUID userId) {
-        StudyParticipation participation = findNotAcceptedParticipationByIdAndUserId(participationId, userId);
-
-        participationLinkRepository.deleteAllByParticipationId(participation.getId());
-        participationRepository.delete(participation);
-    }
-
-    @Transactional
     public void updateStudyParticipationPosition(
             Long recruitmentPositionId,
             Long participationId,
@@ -123,14 +113,21 @@ public class StudyParticipationCommandService {
     ) {
         StudyParticipation participation = findNotAcceptedParticipationByIdAndUserId(participationId, userId);
 
-        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId)
-                .orElseThrow(() -> new GlobalException(NOT_FOUND, "Recruitment Position not found"));
+        StudyRecruitmentPosition recruitmentPosition = findById(recruitmentPositionId);
 
         validateSameStudy(participation, recruitmentPosition);
 
         validateAcceptedCountNotEqualHeadcount(recruitmentPosition);
 
         participation.modifyPosition(recruitmentPosition);
+    }
+
+    @Transactional
+    public void deleteStudyParticipation(Long participationId, UUID userId) {
+        StudyParticipation participation = findNotAcceptedParticipationByIdAndUserId(participationId, userId);
+
+        participationLinkRepository.deleteAllByParticipationId(participation.getId());
+        participationRepository.delete(participation);
     }
 
     private void validateSameStudy(StudyParticipation participation, StudyRecruitmentPosition recruitmentPosition) {
@@ -141,7 +138,7 @@ public class StudyParticipationCommandService {
 
     private void validateUserCanJoinStudy(Study study, UUID userId) {
         Optional<StudyParticipation> optionalParticipation =
-                participationRepository.findByStudyIdAndUserId(study.getId(), userId);
+                participationRepository.findByStudyIdAndUserIdWithNativeQuery(study.getId(), userId);
 
         optionalParticipation.ifPresent(participation -> {
             if (participation.getDeletedAt() == null) {
@@ -239,5 +236,10 @@ public class StudyParticipationCommandService {
         if (recruitmentPosition.getHeadcount() == acceptedCount) {
             throw new GlobalException(NOT_VALID, "Recruitment Position already full");
         }
+    }
+
+    private StudyRecruitmentPosition findById(Long recruitmentPositionId) {
+        return recruitmentPositionRepository.findById(recruitmentPositionId)
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "Recruitment Position not found"));
     }
 }

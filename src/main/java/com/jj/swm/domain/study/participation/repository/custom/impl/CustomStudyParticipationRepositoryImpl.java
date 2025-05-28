@@ -31,8 +31,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
                 .join(studyParticipation.user)
                 .fetchJoin()
                 .where(
-                        studyParticipation.recruitmentPosition.id.eq(recruitmentPositionId),
-                        statusEq(status)
+                        studyParticipation.recruitmentPosition.id.eq(recruitmentPositionId), statusEq(status)
                 ).orderBy(studyParticipation.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -41,8 +40,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
         JPAQuery<Long> countQuery = jpaQueryFactory.select(studyParticipation.count())
                 .from(studyParticipation)
                 .where(
-                        studyParticipation.recruitmentPosition.id.eq(recruitmentPositionId),
-                        statusEq(status)
+                        studyParticipation.recruitmentPosition.id.eq(recruitmentPositionId), statusEq(status)
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
@@ -60,8 +58,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
                 .join(studyParticipation.recruitmentPosition)
                 .fetchJoin()
                 .where(
-                        studyParticipation.study.id.eq(studyId),
-                        statusEq(status)
+                        studyParticipation.study.id.eq(studyId), statusEq(status)
                 ).orderBy(studyParticipation.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -70,8 +67,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
         JPAQuery<Long> countQuery = jpaQueryFactory.select(studyParticipation.count())
                 .from(studyParticipation)
                 .where(
-                        studyParticipation.study.id.eq(studyId),
-                        statusEq(status)
+                        studyParticipation.study.id.eq(studyId), statusEq(status)
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
