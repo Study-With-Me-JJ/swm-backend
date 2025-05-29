@@ -21,7 +21,7 @@ public interface StudyRepository extends JpaRepository<Study, Long>, CustomStudy
 
     Page<Study> findAllByUserId(UUID userId, Pageable pageable);
 
-    @Query("select s from Study s join fetch s.user join fetch s.studyRecruitmentPositions where s.id = ?1")
+    @Query("select distinct s from Study s join fetch s.user join fetch s.studyRecruitmentPositions where s.id = ?1")
     Optional<Study> findByIdWithUserAndRecruitmentPosition(Long id);
 
     long countByIdInAndUserId(List<Long> ids, UUID userId);
