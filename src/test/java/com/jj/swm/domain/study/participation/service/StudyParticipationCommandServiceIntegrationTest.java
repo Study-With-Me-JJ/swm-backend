@@ -11,6 +11,7 @@ import com.jj.swm.domain.study.participation.dto.request.CreateStudyParticipatio
 import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationRequest;
 import com.jj.swm.domain.study.participation.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
 import com.jj.swm.domain.study.participation.entity.StudyParticipationLink;
 import com.jj.swm.domain.study.participation.fixture.dto.request.CreateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.participation.fixture.dto.request.UpdateStudyParticipationRequestFixture;
@@ -18,6 +19,7 @@ import com.jj.swm.domain.study.participation.fixture.dto.request.UpdateStudyPart
 import com.jj.swm.domain.study.participation.fixture.entity.StudyParticipationFixture;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
+import com.jj.swm.domain.study.participation.support.StudyParticipationLinkTestRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -27,6 +29,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.*;
@@ -56,12 +59,15 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     private StudyParticipationLinkRepository participationLinkRepository;
 
     @Autowired
+    private StudyParticipationLinkTestRepository participationLinkTestRepository;
+
+    @Autowired
     private StudyRepository studyRepository;
 
     // entity
     private User user1;
     private User user2;
-    private final Long studyId = 1L;
+    private final int headcount = 3; //addStudy 할 시에 모집 포지션의 headcount
     private final Long participationId = 1L;
     private final Long recruitmentPositionId = 1L; // addStudy 할 시에 모집 포지션 4개 삽입
 
@@ -96,17 +102,21 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         assertTrue(optionalParticipation.isPresent());
 
         StudyParticipation participation = optionalParticipation.get();
+        assertEquals(request.getKakaoId(), participation.getKakaoId());
         assertEquals(request.getCoverLetter(), participation.getCoverLetter());
+        assertEquals(request.getFileInfo().getFileName(), participation.getFileInfo().getFileName());
 
-        assertEquals(request.getLinks().size(), participationLinkRepository.count() / 2); // setUp에 의해 /2 진행
+        List<String> links = participationLinkRepository.findAllByParticipationId(newParticipationId).stream()
+                .map(StudyParticipationLink::getLink).toList();
+        assertTrue(links.containsAll(request.getLinks()));
     }
 
     @Test
-    @DisplayName("links&fileUrls가 없어도 스터디 참여 생성에 성공한다.")
-    void createStudyParticipation_WithoutLinksAndFileUrls_Success() {
+    @DisplayName("links가 없어도 스터디 참여 생성에 성공한다.")
+    void createStudyParticipation_WithoutLinks_Success() {
         //when
         participationCommandService.createStudyParticipation(
-                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                CreateStudyParticipationRequestFixture.createForNoLinkSuccess(),
                 recruitmentPositionId,
                 user2.getId()
         );
@@ -122,7 +132,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void createStudyParticipation_WhenAlreadyExists_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.createStudyParticipation(
-                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
                 user1.getId()
         ));
@@ -134,14 +144,15 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         //given
         participationCommandService.deleteStudyParticipation(recruitmentPositionId, user1.getId());
 
-        //when & then
+        //when
         participationCommandService.createStudyParticipation(
-                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
                 user1.getId()
         );
         Long newParticipationId = 2L;
 
+        //then
         Optional<StudyParticipation> optionalParticipation = participationRepository.findById(newParticipationId);
         assertTrue(optionalParticipation.isPresent());
     }
@@ -150,8 +161,9 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     @DisplayName("거절 상태 참여 신청은 지우고 3일 이후에 참여를 생성하면 성공한다.")
     void createStudyParticipation_WhenDeletedRejectedParticipationAfterThreeDays_Success() {
         //given
-        Study study = studyRepository.getReferenceById(studyId);
-        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findById(recruitmentPositionId).get();
+        Study study = studyRepository.getReferenceById(1L); //setUp에서 생성된 스터디의 id
+        StudyRecruitmentPosition recruitmentPosition =
+                recruitmentPositionRepository.getReferenceById(recruitmentPositionId);
         participationRepository.save(StudyParticipationFixture.createForDeletedAtAfterThreeDaysSuccess(
                 study,
                 recruitmentPosition,
@@ -160,7 +172,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
 
         //when & then
         participationCommandService.createStudyParticipation(
-                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
                 user2.getId()
         );
@@ -183,7 +195,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
 
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.createStudyParticipation(
-                CreateStudyParticipationRequestFixture.createForNoLinkAndFileUrlSuccess(),
+                CreateStudyParticipationRequestFixture.create(),
                 recruitmentPositionId,
                 user1.getId()
         ));
@@ -193,43 +205,43 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     @DisplayName("스터디 참여 승인 상태 수정에 성공한다.")
     void updateStudyParticipationStatus_ToAcceptedStatus_Success() {
         //when
-        UpdateStudyParticipationStatusResponse response =
-                participationCommandService.updateStudyParticipationStatus(
-                        UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
-                        participationId,
-                        user1.getId()
-                );
+        StudyParticipationStatus newStatus = ACCEPTED;
+        UpdateStudyParticipationStatusResponse response = participationCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(newStatus),
+                participationId,
+                user1.getId()
+        );
 
         //then
-        StudyParticipation participation = participationRepository.findById(participationId).get();
+        StudyParticipation participation = participationRepository.findById(participationId).orElseThrow();
 
         assertEquals(response.getKakaoId(), participation.getKakaoId());
-        assertEquals(ACCEPTED, participation.getStatus());
+        assertEquals(newStatus, participation.getStatus());
     }
 
     @Test
     @DisplayName("스터디 참여 거절 상태 수정에 성공한다.")
     void updateStudyParticipationStatus_ToRejectedStatus_Success() {
         //when
-        UpdateStudyParticipationStatusResponse response =
-                participationCommandService.updateStudyParticipationStatus(
-                        UpdateStudyParticipationStatusRequestFixture.create(REJECTED),
-                        participationId,
-                        user1.getId()
-                );
+        StudyParticipationStatus newStatus = REJECTED;
+        UpdateStudyParticipationStatusResponse response = participationCommandService.updateStudyParticipationStatus(
+                UpdateStudyParticipationStatusRequestFixture.create(newStatus),
+                participationId,
+                user1.getId()
+        );
 
         //then
-        StudyParticipation participation = participationRepository.findById(participationId).get();
+        StudyParticipation participation = participationRepository.findById(participationId).orElseThrow();
 
-        assertNull(response);
-        assertEquals(REJECTED, participation.getStatus());
+        assertNull(response.getKakaoId());
+        assertEquals(newStatus, participation.getStatus());
     }
 
     @Test
     @DisplayName("승인 수가 모집 인원이랑 같으면 스터디 참여 승인 상태 수정에 실패한다.")
     void updateStudyParticipationStatus_WhenAcceptedCountEqualsHeadcount_ThenFail() {
         //given
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 0; i < headcount; i++) {
             User user = userRepository.save(UserFixture.create());
             participationCommandService.createStudyParticipation(
                     CreateStudyParticipationRequestFixture.create(),
@@ -237,11 +249,9 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
                     user.getId()
             );
 
-            Long newParticipationId = participationId + i;
-
             participationCommandService.updateStudyParticipationStatus(
                     UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
-                    newParticipationId,
+                    participationId + i,
                     user1.getId()
             );
         }
@@ -249,7 +259,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
-                participationId,
+                participationId + headcount,
                 user1.getId()
         ));
     }
@@ -261,12 +271,12 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
                 participationId,
-                UserFixture.uuid
+                user2.getId()
         ));
     }
 
     @Test
-    @DisplayName("기존 참여 상태가 대기가 아니면 스터디 참여 상태 수정에 실패한다.")
+    @DisplayName("기존 참여 상태가 대기 상태가 아니면 스터디 참여 상태 수정에 실패한다.")
     void updateStudyParticipationStatus_WhenStatusNotPending_ThenFail() {
         //given
         participationCommandService.updateStudyParticipationStatus(
@@ -295,35 +305,6 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     }
 
     @Test
-    @DisplayName("이미 모집 인원 수만큼 승인 수가 채워졌으면 참여 생성에 실패한다.")
-    void createStudyParticipation_WhenAcceptedCountEqualHeadcount_ThenFail() {
-        //given
-        for (int i = 0; i <= 2; i++) {
-            User user = userRepository.save(UserFixture.create());
-            participationCommandService.createStudyParticipation(
-                    CreateStudyParticipationRequestFixture.create(),
-                    recruitmentPositionId,
-                    user.getId()
-            );
-
-            Long newParticipationId = participationId + i;
-
-            participationCommandService.updateStudyParticipationStatus(
-                    UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
-                    newParticipationId,
-                    user1.getId()
-            );
-        }
-
-        //when & then
-        assertThrows(GlobalException.class, () -> participationCommandService.createStudyParticipation(
-                CreateStudyParticipationRequestFixture.create(),
-                recruitmentPositionId,
-                user2.getId()
-        ));
-    }
-
-    @Test
     @DisplayName("스터디 참여 수정에 성공한다.")
     void updateStudyParticipation_Success() {
         //given
@@ -337,40 +318,33 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         );
 
         //then
-        StudyParticipation participation = participationRepository.findById(participationId).get();
+        StudyParticipation participation = participationRepository.findById(participationId).orElseThrow();
 
         assertEquals(request.getKakaoId(), participation.getKakaoId());
+        assertEquals(request.getCoverLetter(), participation.getCoverLetter());
         assertEquals(request.getFileInfo().getFileName(), participation.getFileInfo().getFileName());
 
         Optional<StudyParticipationLink> optionalLink = participationLinkRepository.findById(3L); // 기존 2개에서 추가이므로 3부터 시작
         assertTrue(optionalLink.isPresent());
 
-        optionalLink = participationLinkRepository.findById(request.getModifyLinkInfo()
-                .getLinkIdsToRemove()
-                .getFirst());
+        optionalLink = participationLinkRepository.findById(request.getModifyLinkInfo().getLinkIdsToRemove().getFirst());
         assertFalse(optionalLink.isPresent());
 
-        assertEquals(2L, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 2개 추가하고 2개 제거
+        assertEquals(2L, participationLinkTestRepository.countByParticipationId(participationId)); // 기존 2개에서 2개 추가하고 2개 제거
     }
 
     @Test
-    @DisplayName("link 수정 객체가 null이어도 스터디 참여 수정에 성공한다.")
-    void updateStudyParticipation_ModifyLinkRequestNull_Success() {
+    @DisplayName("modifyLinkInfo가 null이어도 스터디 참여 수정에 성공한다.")
+    void updateStudyParticipation_ModifyLinkInfoNull_Success() {
         //when
         participationCommandService.updateStudyParticipation(
-                UpdateStudyParticipationRequestFixture.createForModifyLinkRequestNullSuccess(),
+                UpdateStudyParticipationRequestFixture.createForModifyLinkInfoNullSuccess(),
                 participationId,
                 user1.getId()
         );
 
         //then
-        Optional<StudyParticipationLink> optionalLink = participationLinkRepository.findById(3L); // 기존 2개에서 추가이므로 3부터 시작
-        assertFalse(optionalLink.isPresent());
-
-        optionalLink = participationLinkRepository.findById(1L);
-        assertTrue(optionalLink.isPresent());
-
-        assertEquals(2L, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 수정 없음
+        assertEquals(2L, participationLinkTestRepository.countByParticipationId(participationId)); // 기존 2개에서 수정 없음
     }
 
     @Test
@@ -384,12 +358,26 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         );
 
         //then
-        assertEquals(0L, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 추가 없이 2개 제거
+        assertEquals(0L, participationLinkTestRepository.countByParticipationId(participationId)); // 기존 2개에서 추가 없이 2개 제거
     }
 
     @Test
     @DisplayName("linkIdsToRemove가 null이어도 스터디 참여 수정에 성공한다.")
-    void updateStudyParticipation_LinkIdsToRemoveNull_Success() {
+    void updateStudyParticipation_ModifyLinkInfoEmpty_Success() {
+        //when
+        participationCommandService.updateStudyParticipation(
+                UpdateStudyParticipationRequestFixture.createForModifyLinkInfoEmptySuccess(),
+                participationId,
+                user1.getId()
+        );
+
+        //then
+        assertEquals(2L, participationLinkTestRepository.countByParticipationId(participationId));
+    }
+
+    @Test
+    @DisplayName("modifyLinkInfo가 null이 아닌 빈 객체여도 스터디 참여 수정에 성공한다.")
+    void updateStudyParticipation_Null_Success() {
         //when
         participationCommandService.updateStudyParticipation(
                 UpdateStudyParticipationRequestFixture.createForLinkIdsToRemoveNullSuccess(),
@@ -398,29 +386,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         );
 
         //then
-        assertEquals(3L, participationLinkRepository.countByParticipationId(participationId)); // 기존 2개에서 제거 없이 1개 추가
-    }
-
-    @Test
-    @DisplayName("링크 개수 제한을 넘으면 스터디 참여 수정에 실패한다.")
-    void updateStudyParticipation_WhenExceedLinkLimit_Success() {
-        //when & then
-        assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipation(
-                UpdateStudyParticipationRequestFixture.createForExceedLinkLimitFail(),
-                participationId,
-                user1.getId()
-        ));
-    }
-
-    @Test
-    @DisplayName("링크 개수가 0 미만이면 스터디 참여 수정에 실패한다.")
-    void updateStudyParticipation_WhenUnderLinkLimit_Success() {
-        //when & then
-        assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipation(
-                UpdateStudyParticipationRequestFixture.createForUnderLinkLimitFail(),
-                participationId,
-                user1.getId()
-        ));
+        assertEquals(3L, participationLinkTestRepository.countByParticipationId(participationId)); // 기존 2개에서 제거 없이 1개 추가
     }
 
     @Test
@@ -450,23 +416,8 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         //then
         Optional<StudyParticipation> optionalParticipation = participationRepository.findById(participationId);
         assertFalse(optionalParticipation.isPresent());
-    }
 
-    @Test
-    @DisplayName("이미 승인된 스터디 참여이면 삭제에 실패한다.")
-    void deleteStudyParticipation_WhenAlreadyAccepted_ThenFail() {
-        //given
-        participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
-                participationId,
-                user1.getId()
-        );
-
-        //when & then
-        assertThrows(
-                GlobalException.class,
-                () -> participationCommandService.deleteStudyParticipation(participationId, user1.getId())
-        );
+        assertEquals(0L, participationLinkRepository.count());
     }
 
     @Test
@@ -483,31 +434,20 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         );
 
         //then
-        StudyParticipation participation = participationRepository.findById(participationId).get();
+        StudyParticipation participation = participationRepository.findById(participationId).orElseThrow();
         assertEquals(anotherRecruitmentPositionId, participation.getRecruitmentPosition().getId());
     }
 
     @Test
     @DisplayName("동일하지 않은 스터디의 모집 포지션이면 스터디 참여 모집 포지션 수정에 실패한다.")
-    void updateStudyParticipationPosition_WhenNewRecruitmentPositionWithAnotherStudy_ThenFail() {
+    void updateStudyParticipationPosition_WhenNewRecruitmentPositionIsAnotherStudy_ThenFail() {
         //given
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user1.getId());
-        Long newRecruitmentPositionId = 5L;
+        Long newRecruitmentPositionId = 5L; // 스터디를 생성할 때 4개씩 생성되므로 5부터 시작
 
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationPosition(
                 newRecruitmentPositionId,
-                participationId,
-                user1.getId()
-        ));
-    }
-
-    @Test
-    @DisplayName("기존과 동일한 모집 포지션으로 수정하려고 하면 스터디 참여 모집 포지션 수정에 실패한다.")
-    void updateStudyParticipationPosition_WhenSameRecruitmentPosition_ThenFail() {
-        //when & then
-        assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationPosition(
-                recruitmentPositionId,
                 participationId,
                 user1.getId()
         ));

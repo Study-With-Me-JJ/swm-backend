@@ -19,10 +19,14 @@ public class CreateStudyParticipationRequestFixture {
                 .build();
     }
 
-    public static CreateStudyParticipationRequest createForNoLinkAndFileUrlSuccess() {
+    public static CreateStudyParticipationRequest createForNoLinkSuccess() {
         return CreateStudyParticipationRequest.builder()
                 .kakaoId("test_kakao_id")
                 .coverLetter("test_cover_letter")
+                .fileInfo(FileInfo.builder()
+                        .fileUrl("test_file_url")
+                        .fileName("test_file_name")
+                        .build())
                 .build();
     }
 }

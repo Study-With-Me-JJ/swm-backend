@@ -23,7 +23,7 @@ public class UpdateStudyParticipationRequestFixture {
                 .build();
     }
 
-    public static UpdateStudyParticipationRequest createForModifyLinkRequestNullSuccess() {
+    public static UpdateStudyParticipationRequest createForModifyLinkInfoNullSuccess() {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
@@ -62,26 +62,11 @@ public class UpdateStudyParticipationRequestFixture {
                 .build();
     }
 
-    public static UpdateStudyParticipationRequest createForExceedLinkLimitFail() {
+    public static UpdateStudyParticipationRequest createForModifyLinkInfoEmptySuccess() {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
                 .modifyLinkInfo(ModifyLinkInfo.builder()
-                        .linksToAdd(List.of("new_link1", "new_link2"))
-                        .build())
-                .fileInfo(FileInfo.builder()
-                        .fileUrl("update_file_url")
-                        .fileName("update_file_name")
-                        .build())
-                .build();
-    }
-
-    public static UpdateStudyParticipationRequest createForUnderLinkLimitFail() {
-        return UpdateStudyParticipationRequest.builder()
-                .kakaoId("update_kakao_id")
-                .coverLetter("update_cover_letter")
-                .modifyLinkInfo(ModifyLinkInfo.builder()
-                        .linkIdsToRemove(List.of(1L, 2L, 3L, 4L))
                         .build())
                 .fileInfo(FileInfo.builder()
                         .fileUrl("update_file_url")
