@@ -265,7 +265,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     }
 
     @Test
-    @DisplayName("스터디 작성자가 아니면 스터디 참여 상태 수정에 실패한다.")
+    @DisplayName("스터디 모집 작성자가 아니면 스터디 참여 상태 수정에 실패한다.")
     void updateStudyParticipationStatus_WhenNotStudyWriter_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
@@ -348,7 +348,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     }
 
     @Test
-    @DisplayName("linksToAdd가 null이어도 스터디 참여 수정에 성공한다.")
+    @DisplayName("linksToAdd&linkIdsToRemove가 null이어도 스터디 참여 수정에 성공한다.")
     void updateStudyParticipation_LinksToAddNull_Success() {
         //when
         participationCommandService.updateStudyParticipation(
@@ -358,35 +358,29 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         );
 
         //then
-        assertEquals(0L, participationLinkTestRepository.countByParticipationId(participationId)); // 기존 2개에서 추가 없이 2개 제거
+        assertEquals(2L, participationLinkTestRepository.countByParticipationId(participationId)); // 기존 2개 그대로
     }
 
     @Test
-    @DisplayName("linkIdsToRemove가 null이어도 스터디 참여 수정에 성공한다.")
-    void updateStudyParticipation_ModifyLinkInfoEmpty_Success() {
-        //when
-        participationCommandService.updateStudyParticipation(
-                UpdateStudyParticipationRequestFixture.createForModifyLinkInfoEmptySuccess(),
+    @DisplayName("링크 개수 제한을 넘으면 스터디 참여 수정에 실패한다.")
+    void updateStudyParticipation_WhenExceedLinkLimit_Success() {
+        //when & then
+        assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipation(
+                UpdateStudyParticipationRequestFixture.createForExceedLinkLimitFail(),
                 participationId,
                 user1.getId()
-        );
-
-        //then
-        assertEquals(2L, participationLinkTestRepository.countByParticipationId(participationId));
+        ));
     }
 
     @Test
-    @DisplayName("modifyLinkInfo가 null이 아닌 빈 객체여도 스터디 참여 수정에 성공한다.")
-    void updateStudyParticipation_Null_Success() {
-        //when
-        participationCommandService.updateStudyParticipation(
-                UpdateStudyParticipationRequestFixture.createForLinkIdsToRemoveNullSuccess(),
+    @DisplayName("tagIdsToRemove에 존재하지 않은 id값이 전달되면 스터디 모집 수정에 실패한다.")
+    void updateStudy_WhenUnderTagLimit_ThenFail() {
+        //when & then
+        assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipation(
+                UpdateStudyParticipationRequestFixture.createForWrongLinkIdToRemove(),
                 participationId,
                 user1.getId()
-        );
-
-        //then
-        assertEquals(3L, participationLinkTestRepository.countByParticipationId(participationId)); // 기존 2개에서 제거 없이 1개 추가
+        ));
     }
 
     @Test

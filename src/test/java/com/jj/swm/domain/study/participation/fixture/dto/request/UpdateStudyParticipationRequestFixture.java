@@ -39,7 +39,6 @@ public class UpdateStudyParticipationRequestFixture {
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
                 .modifyLinkInfo(ModifyLinkInfo.builder()
-                        .linkIdsToRemove(List.of(1L, 2L))
                         .build())
                 .fileInfo(FileInfo.builder()
                         .fileUrl("update_file_url")
@@ -48,12 +47,12 @@ public class UpdateStudyParticipationRequestFixture {
                 .build();
     }
 
-    public static UpdateStudyParticipationRequest createForLinkIdsToRemoveNullSuccess() {
+    public static UpdateStudyParticipationRequest createForExceedLinkLimitFail() {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
                 .modifyLinkInfo(ModifyLinkInfo.builder()
-                        .linksToAdd(List.of("new_link1"))
+                        .linksToAdd(List.of("new_link1", "new_link2"))
                         .build())
                 .fileInfo(FileInfo.builder()
                         .fileUrl("update_file_url")
@@ -62,11 +61,12 @@ public class UpdateStudyParticipationRequestFixture {
                 .build();
     }
 
-    public static UpdateStudyParticipationRequest createForModifyLinkInfoEmptySuccess() {
+    public static UpdateStudyParticipationRequest createForWrongLinkIdToRemove() {
         return UpdateStudyParticipationRequest.builder()
                 .kakaoId("update_kakao_id")
                 .coverLetter("update_cover_letter")
                 .modifyLinkInfo(ModifyLinkInfo.builder()
+                        .linkIdsToRemove(List.of(1L, 2L, 3L))
                         .build())
                 .fileInfo(FileInfo.builder()
                         .fileUrl("update_file_url")

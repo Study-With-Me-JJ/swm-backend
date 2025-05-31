@@ -164,7 +164,7 @@ public class StudyParticipationCommandService {
     }
 
     private void modifyLinks(ModifyLinkInfo info, StudyParticipation participation) {
-        if (info == null || !(isListPresent(info.getLinksToAdd()) || isListPresent(info.getLinkIdsToRemove()))) return;
+        if (info == null) return;
 
         List<String> linksToAdd = getSafeList(info.getLinksToAdd());
         List<Long> linkIdsToRemove = getSafeList(info.getLinkIdsToRemove());
