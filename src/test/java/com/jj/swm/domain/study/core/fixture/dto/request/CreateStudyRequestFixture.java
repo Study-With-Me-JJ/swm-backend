@@ -24,7 +24,7 @@ public class CreateStudyRequestFixture {
                 )).build();
     }
 
-    public static CreateStudyRequest createForNoTagImagesSuccess() {
+    public static CreateStudyRequest createForNoTagsAndImagesSuccess() {
         return CreateStudyRequest.builder()
                 .title("test_title")
                 .content("test_content")

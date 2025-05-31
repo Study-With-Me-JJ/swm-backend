@@ -21,21 +21,8 @@ public class ModifyRecruitmentPositionRequestFixture {
                 .build();
     }
 
-    public static ModifyRecruitmentPositionRequest createForCreateRecruitmentPositionRequestsNullSuccess() {
+    public static ModifyRecruitmentPositionRequest createForModifyRecruitmentPositionRequestEmptySuccess() {
         return ModifyRecruitmentPositionRequest.builder()
-                .recruitmentPositionInfosToEdit(List.of(
-                        UpdateRecruitmentPositionInfoFixture.create(3L),
-                        UpdateRecruitmentPositionInfoFixture.create(4L)
-                )).recruitmentPositionIdsToRemove(List.of(1L, 2L))
-                .build();
-    }
-
-    public static ModifyRecruitmentPositionRequest createForUpdateRecruitmentPositionRequestsNullSuccess() {
-        return ModifyRecruitmentPositionRequest.builder()
-                .recruitmentPositionInfosToAdd(List.of(
-                        CreateRecruitmentPositionInfoFixture.create(),
-                        CreateRecruitmentPositionInfoFixture.create()
-                )).recruitmentPositionIdsToRemove(List.of(1L, 2L))
                 .build();
     }
 
@@ -55,7 +42,7 @@ public class ModifyRecruitmentPositionRequestFixture {
 
     public static ModifyRecruitmentPositionRequest createForNotEqualsDeleteSizeFail() {
         return ModifyRecruitmentPositionRequest.builder()
-                .recruitmentPositionIdsToRemove(List.of(1L, 5L))
+                .recruitmentPositionIdsToRemove(List.of(5L))
                 .build();
     }
 
@@ -76,6 +63,13 @@ public class ModifyRecruitmentPositionRequestFixture {
     public static ModifyRecruitmentPositionRequest createForUnderSizeFail() {
         return ModifyRecruitmentPositionRequest.builder()
                 .recruitmentPositionIdsToRemove(List.of(1L, 2L, 3L, 4L))
+                .build();
+    }
+
+    public static ModifyRecruitmentPositionRequest createForEditOverlapRemoveFail() {
+        return ModifyRecruitmentPositionRequest.builder()
+                .recruitmentPositionInfosToEdit(List.of(UpdateRecruitmentPositionInfoFixture.create(1L)))
+                .recruitmentPositionIdsToRemove(List.of(1L))
                 .build();
     }
 

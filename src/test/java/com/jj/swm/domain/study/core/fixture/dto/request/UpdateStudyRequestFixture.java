@@ -28,7 +28,7 @@ public class UpdateStudyRequestFixture {
                 .build();
     }
 
-    public static UpdateStudyRequest createForNoModifyTagAndImageRequestSuccess() {
+    public static UpdateStudyRequest createForNoModifyTagAndImageInfoSuccess() {
         return UpdateStudyRequest.builder()
                 .title("new_test_title")
                 .content("new_test_content")

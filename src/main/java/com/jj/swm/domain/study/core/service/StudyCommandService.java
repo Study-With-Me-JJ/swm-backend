@@ -288,7 +288,7 @@ public class StudyCommandService {
     }
 
     private void modifyTags(ModifyTagInfo info, Study study) {
-        if (info == null || !(isListPresent(info.getTagsToAdd()) || isListPresent(info.getTagIdsToRemove()))) return;
+        if (info == null) return;
 
         List<String> tagsToAdd = getSafeList(info.getTagsToAdd());
         List<Long> tagIdsToRemove = getSafeList(info.getTagIdsToRemove());
@@ -315,8 +315,7 @@ public class StudyCommandService {
     }
 
     private void modifyImages(ModifyImageInfo info, Study study) {
-        if (info == null || !(isListPresent(info.getImageUrlsToAdd()) || isListPresent(info.getImageIdsToRemove())))
-            return;
+        if (info == null) return;
 
         List<String> imageUrlsToAdd = getSafeList(info.getImageUrlsToAdd());
         List<Long> imageIdsToRemove = getSafeList(info.getImageIdsToRemove());
