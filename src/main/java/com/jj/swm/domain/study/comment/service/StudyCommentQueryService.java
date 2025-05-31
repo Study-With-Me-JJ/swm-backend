@@ -1,10 +1,10 @@
 package com.jj.swm.domain.study.comment.service;
 
-import com.jj.swm.domain.study.comment.dto.StudyReplyCountInfo;
-import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
-import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyChildCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyParentCommentResponse;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
+import com.jj.swm.domain.study.comment.repository.StudyCommentRepository;
+import com.jj.swm.domain.study.comment.repository.dto.StudyParentCommentChildrenCountInfo;
 import com.jj.swm.global.common.constants.PageSize;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,59 +23,63 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StudyCommentQueryService {
 
-    private final StudyStudyCommentRepository commentRepository;
+    private final StudyCommentRepository commentRepository;
 
     @Transactional(readOnly = true)
-    public PageResponse<GetParentStudyCommentResponse> getComments(Long studyId, int pageNo) {
+    public PageResponse<GetStudyParentCommentResponse> getParents(Long studyId, int pageNo) {
         Pageable pageable = PageRequest.of(
                 pageNo,
-                PageSize.StudyComment,
+                PageSize.StudyParentComment,
                 Sort.by("id").descending()
         );
 
-        return getPageParentAndReplyCountResponse(studyId, pageable);
+        return buildParentCommentPageResponse(studyId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<GetStudyCommentResponse> getReplies(Long parentId, Long lastReplyId) {
-        List<StudyComment> replies = commentRepository.findPagedReplyByParentIdWithUser(
+    public PageResponse<GetStudyChildCommentResponse> getChildren(Long parentId, Long lastChildId) {
+        List<StudyComment> children = commentRepository.findPagedChildByParentIdWithUser(
                 parentId,
-                lastReplyId,
-                PageSize.StudyReply + 1
+                lastChildId,
+                PageSize.StudyChildComment + 1
         );
 
-        if (replies.isEmpty()) {
+        if (children.isEmpty()) {
             return PageResponse.of(List.of(), false);
         }
 
-        boolean hasNext = replies.size() > PageSize.StudyReply;
+        boolean hasNext = children.size() > PageSize.StudyChildComment;
 
-        List<StudyComment> pagedReply = hasNext ? replies.subList(0, PageSize.StudyReply) : replies;
+        List<StudyComment> pagedChild = hasNext ? children.subList(0, PageSize.StudyChildComment) : children;
 
-        List<GetStudyCommentResponse> responses = pagedReply.stream()
-                .map(GetStudyCommentResponse::from)
+        List<GetStudyChildCommentResponse> responses = pagedChild.stream()
+                .map(GetStudyChildCommentResponse::from)
                 .toList();
 
         return PageResponse.of(responses, hasNext);
     }
 
-    public PageResponse<GetParentStudyCommentResponse> getPageParentAndReplyCountResponse(Long studyId, Pageable pageable) {
-        Page<StudyComment> pagedComment = commentRepository.findPagedParentByStudyIdWithUser(studyId, pageable);
+    public PageResponse<GetStudyParentCommentResponse> buildParentCommentPageResponse(Long studyId, Pageable pageable) {
+        Page<StudyComment> pagedParent = commentRepository.findPagedParentByStudyIdWithUser(studyId, pageable);
 
-        List<Long> parentIds = pagedComment.get()
+        Map<Long, Long> childrenCountByParentId = getChildrenCountByParentId(pagedParent);
+
+        return PageResponse.of(
+                pagedParent, (parent) -> GetStudyParentCommentResponse.of(
+                        parent, childrenCountByParentId.getOrDefault(parent.getId(), 0L)
+                )
+        );
+    }
+
+    private Map<Long, Long> getChildrenCountByParentId(Page<StudyComment> pagedParent) {
+        List<Long> parentIds = pagedParent.get()
                 .map(StudyComment::getId)
                 .toList();
 
-        Map<Long, Integer> replyCountByParentId = commentRepository.countByParentIds(parentIds)
-                .stream()
-                .collect(Collectors.toMap(StudyReplyCountInfo::getParentId, StudyReplyCountInfo::getReplyCount));
-
-        return PageResponse.of(
-                pagedComment,
-                (comment) -> GetParentStudyCommentResponse.of(
-                        comment,
-                        replyCountByParentId.getOrDefault(comment.getId(), 0)
-                )
-        );
+        return commentRepository.countByParentIds(parentIds).stream()
+                .collect(Collectors.toMap(
+                        StudyParentCommentChildrenCountInfo::getParentId,
+                        StudyParentCommentChildrenCountInfo::getChildrenCount
+                ));
     }
 }

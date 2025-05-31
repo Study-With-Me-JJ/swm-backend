@@ -1,8 +1,14 @@
 package com.jj.swm.domain.study.core.dto.response;
 
+import com.jj.swm.domain.study.core.dto.component.ParticipationStatusInfo;
+import com.jj.swm.domain.study.core.dto.component.TagInfo;
+import com.jj.swm.domain.study.core.dto.component.UserInteractionInfo;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyCategory;
-import com.jj.swm.domain.study.core.entity.StudyStatus;
+import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatistics;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatus;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,48 +26,38 @@ public class GetStudyResponse {
 
     private StudyCategory category;
 
-    private int likeCount;
-
-    private int commentCount;
-
     private StudyStatus status;
 
-    private int viewCount;
+    private StudyStatistics statistics;
 
-    private Long studyBookmarkId;
+    private UserInteractionInfo userInteractionInfo;
 
-    private boolean liked;
+    private List<TagInfo> tagInfos;
 
-    private List<GetStudyTagResponse> getTagResponses;
+    private List<RecruitmentPositionInfo> recruitmentPositionInfos;
 
-    private List<GetRecruitmentPositionResponse> getRecruitmentPositionResponses;
-
-    private GetStudyParticipationStatusResponse getStudyParticipationStatusResponse;
+    private ParticipationStatusInfo participationStatusInfo;
 
     public static GetStudyResponse of(
             Study study,
-            Long studyBookmarkId,
-            boolean liked,
-            GetStudyParticipationStatusResponse getStudyParticipationStatusResponse
+            UserInteractionInfo userInteractionInfo,
+            ParticipationStatusInfo participationStatusInfo
     ) {
         return GetStudyResponse.builder()
                 .studyId(study.getId())
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
-                .likeCount(study.getLikeCount())
-                .commentCount(study.getCommentCount())
                 .status(study.getStatus())
-                .viewCount(study.getViewCount())
-                .studyBookmarkId(studyBookmarkId)
-                .liked(liked)
-                .getTagResponses(study.getStudyTags().stream()
-                        .map(GetStudyTagResponse::from)
+                .statistics(study.getStatistics())
+                .userInteractionInfo(userInteractionInfo)
+                .tagInfos(study.getStudyTags().stream()
+                        .map(TagInfo::from)
                         .toList())
-                .getRecruitmentPositionResponses(study.getStudyRecruitmentPositions().stream()
-                        .map(GetRecruitmentPositionResponse::from)
+                .recruitmentPositionInfos(study.getStudyRecruitmentPositions().stream()
+                        .map(RecruitmentPositionInfo::from)
                         .toList())
-                .getStudyParticipationStatusResponse(getStudyParticipationStatusResponse)
+                .participationStatusInfo(participationStatusInfo)
                 .build();
     }
 
@@ -71,18 +67,33 @@ public class GetStudyResponse {
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
-                .likeCount(study.getLikeCount())
-                .commentCount(study.getCommentCount())
                 .status(study.getStatus())
-                .viewCount(study.getViewCount())
-                .studyBookmarkId(null)
-                .liked(false)
-                .getTagResponses(study.getStudyTags().stream()
-                        .map(GetStudyTagResponse::from)
+                .statistics(study.getStatistics())
+                .tagInfos(study.getStudyTags().stream()
+                        .map(TagInfo::from)
                         .toList())
-                .getRecruitmentPositionResponses(study.getStudyRecruitmentPositions().stream()
-                        .map(GetRecruitmentPositionResponse::from)
+                .recruitmentPositionInfos(study.getStudyRecruitmentPositions().stream()
+                        .map(RecruitmentPositionInfo::from)
                         .toList())
                 .build();
+    }
+
+    @Getter
+    @Builder
+    public static class RecruitmentPositionInfo {
+
+        private Long recruitmentPositionId;
+
+        private RecruitmentPositionTitle title;
+
+        private Integer headcount;
+
+        public static RecruitmentPositionInfo from(StudyRecruitmentPosition recruitmentPosition) {
+            return RecruitmentPositionInfo.builder()
+                    .recruitmentPositionId(recruitmentPosition.getId())
+                    .title(recruitmentPosition.getTitle())
+                    .headcount(recruitmentPosition.getHeadcount())
+                    .build();
+        }
     }
 }

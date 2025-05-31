@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/studyroom/reservation/token/*/status").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/studyroom/reservation/token/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/study/user/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "api/v1/study/{studyId}/participation").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/study/**", "/api/v1/comment/**").permitAll()
                         .requestMatchers("/api/v1/files/**").authenticated()
                         .anyRequest().authenticated()
@@ -113,12 +114,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public ObjectMapper objectMapper(){
+    public ObjectMapper objectMapper() {
         return new ObjectMapper().registerModule(new JavaTimeModule());
     }
 
     @Bean
-    public static RoleHierarchy roleHierarchy(){
+    public static RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl.fromHierarchy("""
                 ROLE_ADMIN > ROLE_ROOM_ADMIN
                 ROLE_ROOM_ADMIN > ROLE_USER

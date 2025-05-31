@@ -60,18 +60,13 @@ public class StudyCommentCommandController {
         return ApiResponse.ok(response);
     }
 
-    @DeleteMapping("/v1/study/{studyId}/comment/{commentId}")
+    @DeleteMapping("/v1/study/comment/{commentId}")
     @Operation(summary = "스터디 댓글 삭제", description = "스터디 댓글을 삭제합니다.")
     public ApiResponse<Void> deleteComment(
-            @PathVariable("studyId") Long studyId,
             @PathVariable("commentId") Long commentId,
             Principal principal
     ) {
-        commentCommandService.deleteComment(
-                studyId,
-                commentId,
-                UUID.fromString(principal.getName())
-        );
+        commentCommandService.deleteComment(commentId, UUID.fromString(principal.getName()));
 
         return ApiResponse.ok(null);
     }

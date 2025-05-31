@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.comment.controller;
 
-import com.jj.swm.domain.study.comment.dto.response.GetStudyCommentResponse;
-import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyParentCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyChildCommentResponse;
 import com.jj.swm.domain.study.comment.service.StudyCommentQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
@@ -21,28 +21,32 @@ public class StudyCommentQueryController {
     @GetMapping("/v1/study/{studyId}/comment")
     @Operation(
             summary = "스터디 댓글 목록 조회",
-            description = "스터디 댓글을 페이지 기반으로 조회합니다. 대댓글 개수도 조회합니다.<br>" +
-                    "pageNo는 필수값입니다. 가장 첫 페이지는 pageNo가 0입니다."
+            description = """
+                    스터디 댓글을 페이지네이션 기반으로 조회합니다.
+                    댓글에 대한 대댓글 개수도 조회합니다.
+                    pageNo는 필수값이 아닙니다. 가장 첫 페이지는 pageNo가 0입니다.
+                    """
     )
-    public ApiResponse<PageResponse<GetParentStudyCommentResponse>> getComments(
-            @PathVariable("studyId") Long studyId, @RequestParam("pageNo") int pageNo
+    public ApiResponse<PageResponse<GetStudyParentCommentResponse>> getParents(
+            @PathVariable("studyId") Long studyId,
+            @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
-        PageResponse<GetParentStudyCommentResponse> pageResponse = commentQueryService.getComments(studyId, pageNo);
+        PageResponse<GetStudyParentCommentResponse> pageResponse = commentQueryService.getParents(studyId, pageNo);
 
         return ApiResponse.ok(pageResponse);
     }
 
-    @GetMapping({"/v1/comment/{parentId}/reply", "/v1/comment/{parentId}/reply/{lastReplyId}"})
+    @GetMapping({"/v1/comment/{parentId}/reply", "/v1/comment/{parentId}/reply/{lastChildId}"})
     @Operation(
             summary = "스터디 대댓글 목록 조회",
             description = "스터디 대댓글을 무한 스크롤 기반으로 조회합니다.<br>" +
-                    "lastReplyId는 필수 값이 아닙니다. lastReplyId를 보내면 이 다음 대댓글을 불러옵니다."
+                    "lastChildId 필수 값이 아닙니다. lastChildId 보내면 이 다음 대댓글을 불러옵니다."
     )
-    public ApiResponse<PageResponse<GetStudyCommentResponse>> getReplies(
+    public ApiResponse<PageResponse<GetStudyChildCommentResponse>> getChildren(
             @PathVariable("parentId") Long parentId,
-            @PathVariable(value = "lastReplyId", required = false) Long lastReplyId
+            @PathVariable(value = "lastChildId", required = false) Long lastChildId
     ) {
-        PageResponse<GetStudyCommentResponse> pageResponse = commentQueryService.getReplies(parentId, lastReplyId);
+        PageResponse<GetStudyChildCommentResponse> pageResponse = commentQueryService.getChildren(parentId, lastChildId);
 
         return ApiResponse.ok(pageResponse);
     }

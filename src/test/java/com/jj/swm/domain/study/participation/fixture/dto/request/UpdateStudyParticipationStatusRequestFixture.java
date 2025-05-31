@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.participation.fixture.dto.request;
 
 import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipationStatusRequest;
-import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
 
 public class UpdateStudyParticipationStatusRequestFixture {
 

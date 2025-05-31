@@ -1,8 +1,8 @@
 package com.jj.swm.domain.study.participation.dto.response;
 
-import com.jj.swm.domain.study.core.entity.RecruitmentPositionTitle;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
-import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,6 +11,7 @@ import java.util.UUID;
 @Getter
 @Builder
 public class GetStudyParticipationInMyPageResponse {
+
     private Long participationId;
 
     private StudyParticipationStatus status;

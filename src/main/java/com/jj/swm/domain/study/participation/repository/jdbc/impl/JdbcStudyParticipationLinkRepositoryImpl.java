@@ -18,7 +18,7 @@ public class JdbcStudyParticipationLinkRepositoryImpl implements JdbcStudyPartic
     private final JdbcTemplate jdbcTemplate;
 
     public void batchInsert(List<String> links, StudyParticipation participation) {
-        String sql = "insert into study_participation_link(study_participation_id, link) VALUES(?,?)";
+        String sql = "insert into study_participation_link(link, study_participation_id) VALUES(?,?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 
@@ -26,8 +26,8 @@ public class JdbcStudyParticipationLinkRepositoryImpl implements JdbcStudyPartic
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 String link = links.get(i);
 
-                ps.setLong(1, participation.getId());
-                ps.setString(2, link);
+                ps.setString(1, link);
+                ps.setLong(2, participation.getId());
             }
 
             @Override

@@ -1,7 +1,7 @@
 package com.jj.swm.domain.study.participation.controller;
 
 import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
-import com.jj.swm.domain.study.participation.dto.GetStudyParticipationCondition;
+import com.jj.swm.domain.study.participation.dto.request.GetStudyParticipationCondition;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationDetailsResponse;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationInMyPageResponse;
 import com.jj.swm.domain.study.participation.dto.response.GetStudyParticipationResponse;
@@ -34,12 +34,11 @@ public class StudyParticipationQueryController {
             Principal principal,
             GetStudyParticipationCondition condition
     ) {
-        PageResponse<GetStudyParticipationResponse> pageResponse =
-                participationQueryService.getStudyParticipations(
-                        recruitmentPositionId,
-                        UUID.fromString(principal.getName()),
-                        condition
-                );
+        PageResponse<GetStudyParticipationResponse> pageResponse = participationQueryService.getStudyParticipations(
+                recruitmentPositionId,
+                UUID.fromString(principal.getName()),
+                condition
+        );
 
         return ApiResponse.ok(pageResponse);
     }
@@ -69,14 +68,12 @@ public class StudyParticipationQueryController {
             summary = "참여 신청한 스터디 목록 조회",
             description = "참여 신청한 스터디 목록을 조회합니다."
     )
-    public ApiResponse<PageResponse<GetStudyResponse>> getStudyParticipationsInMyPage(
+    public ApiResponse<PageResponse<GetStudyResponse>> getUserParticipatedStudies(
             Principal principal, @RequestParam(value = "pageNo", required = false, defaultValue = "0") int pageNo
     ) {
-        PageResponse<GetStudyResponse> pageResponse =
-                participationQueryService.getUserParticipantStudy(
-                        UUID.fromString(principal.getName()),
-                        pageNo
-                );
+        PageResponse<GetStudyResponse> pageResponse = participationQueryService.getUserParticipatedStudies(
+                UUID.fromString(principal.getName()), pageNo
+        );
 
         return ApiResponse.ok(pageResponse);
     }
@@ -87,8 +84,7 @@ public class StudyParticipationQueryController {
             description = "스터디 참여를 상세 조회합니다. 스터디 작성자, 참여 신청자 전용입니다. "
     )
     public ApiResponse<GetStudyParticipationDetailsResponse> getStudyParticipationDetails(
-            @PathVariable("participationId") Long participationId,
-            Principal principal
+            @PathVariable("participationId") Long participationId, Principal principal
     ) {
         GetStudyParticipationDetailsResponse response = participationQueryService.getStudyParticipationDetails(
                 participationId, UUID.fromString(principal.getName())

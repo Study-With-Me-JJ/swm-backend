@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.participation.repository.custom.impl;
 
 import com.jj.swm.domain.common.utils.QueryDSLBooleanUtils;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
-import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
 import com.jj.swm.domain.study.participation.repository.custom.CustomStudyParticipationRepository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -22,7 +22,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<StudyParticipation> findPagedStudyParticipationByStatusWithUser(
+    public Page<StudyParticipation> findPagedParticipationByStatusWithUser(
             Long recruitmentPositionId,
             StudyParticipationStatus status,
             Pageable pageable
@@ -31,8 +31,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
                 .join(studyParticipation.user)
                 .fetchJoin()
                 .where(
-                        studyParticipation.recruitmentPosition.id.eq(recruitmentPositionId),
-                        statusEq(status)
+                        studyParticipation.recruitmentPosition.id.eq(recruitmentPositionId), statusEq(status)
                 ).orderBy(studyParticipation.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -41,15 +40,14 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
         JPAQuery<Long> countQuery = jpaQueryFactory.select(studyParticipation.count())
                 .from(studyParticipation)
                 .where(
-                        studyParticipation.recruitmentPosition.id.eq(recruitmentPositionId),
-                        statusEq(status)
+                        studyParticipation.recruitmentPosition.id.eq(recruitmentPositionId), statusEq(status)
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
     @Override
-    public Page<StudyParticipation> findPagedStudyParticipationByStatusWithUserInMyPage(
+    public Page<StudyParticipation> findPagedParticipationByStatusWithUserInMyPage(
             Long studyId,
             StudyParticipationStatus status,
             Pageable pageable
@@ -60,8 +58,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
                 .join(studyParticipation.recruitmentPosition)
                 .fetchJoin()
                 .where(
-                        studyParticipation.study.id.eq(studyId),
-                        statusEq(status)
+                        studyParticipation.study.id.eq(studyId), statusEq(status)
                 ).orderBy(studyParticipation.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -70,8 +67,7 @@ public class CustomStudyParticipationRepositoryImpl implements CustomStudyPartic
         JPAQuery<Long> countQuery = jpaQueryFactory.select(studyParticipation.count())
                 .from(studyParticipation)
                 .where(
-                        studyParticipation.study.id.eq(studyId),
-                        statusEq(status)
+                        studyParticipation.study.id.eq(studyId), statusEq(status)
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);

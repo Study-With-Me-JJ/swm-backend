@@ -1,12 +1,13 @@
 package com.jj.swm.domain.study.participation.fixture.entity;
 
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.participation.entity.StudyParticipation;
-import com.jj.swm.domain.study.participation.entity.StudyParticipationStatus;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.user.core.entity.User;
 
 import java.time.LocalDateTime;
+
+import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.REJECTED;
 
 public class StudyParticipationFixture {
 
@@ -20,7 +21,7 @@ public class StudyParticipationFixture {
                 .deletedAt(LocalDateTime.now().minusDays(3))
                 .coverLetter("test_cover_letter")
                 .kakaoId("test_kakaoId")
-                .status(StudyParticipationStatus.REJECTED)
+                .status(REJECTED)
                 .recruitmentPosition(recruitmentPosition)
                 .fileInfo(null)
                 .user(user)

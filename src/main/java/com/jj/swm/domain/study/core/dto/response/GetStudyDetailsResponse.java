@@ -1,17 +1,25 @@
 package com.jj.swm.domain.study.core.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jj.swm.domain.study.comment.dto.response.GetParentStudyCommentResponse;
+import com.jj.swm.domain.study.comment.dto.response.GetStudyParentCommentResponse;
+import com.jj.swm.domain.study.core.dto.component.ParticipationStatusInfo;
+import com.jj.swm.domain.study.core.dto.component.TagInfo;
+import com.jj.swm.domain.study.core.dto.component.UserInteractionInfo;
 import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyCategory;
-import com.jj.swm.domain.study.core.entity.StudyStatus;
+import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatistics;
+import com.jj.swm.domain.study.core.entity.Study.StudyStatus;
+import com.jj.swm.domain.study.core.entity.StudyImage;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
+import com.jj.swm.domain.study.participation.repository.dto.StudyParticipationCountInfo;
+import com.jj.swm.domain.user.core.dto.response.UserInfoResponse;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Builder
@@ -25,35 +33,25 @@ public class GetStudyDetailsResponse {
 
     private StudyCategory category;
 
-    private int likeCount;
-
-    private int commentCount;
-
     private StudyStatus status;
 
-    private int viewCount;
+    private StudyStatistics statistics;
 
-    private UUID userId;
-
-    private String nickname;
-
-    private String profileImageUrl;
-
-    private boolean likeStatus;
+    private UserInfoResponse userInfoResponse;
 
     private String openChatUrl;
 
-    private Long studyBookmarkId;
+    private UserInteractionInfo userInteractionInfo;
 
-    private List<GetStudyTagResponse> getTagResponses;
+    private List<TagInfo> tagInfos;
 
-    private List<GetStudyImageResponse> getImageResponses;
+    private List<ImageInfo> imageInfos;
 
-    private List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionResponses;
+    private List<RecruitmentPositionDetailsInfo> recruitmentPositionInfos;
 
-    private PageResponse<GetParentStudyCommentResponse> pageCommentResponse;
+    private PageResponse<GetStudyParentCommentResponse> pageComment;
 
-    private GetStudyParticipationStatusResponse getStudyParticipationStatusResponse;
+    private ParticipationStatusInfo participationStatusInfo;
 
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime createdAt;
@@ -63,37 +61,95 @@ public class GetStudyDetailsResponse {
 
     public static GetStudyDetailsResponse of(
             Study study,
-            boolean likeStatus,
-            Long studyBookmarkId,
-            List<GetRecruitmentPositionDetailsResponse> getRecruitmentPositionDetailsResponses,
-            List<GetStudyImageResponse> getImageResponses,
-            PageResponse<GetParentStudyCommentResponse> pageCommentResponse,
-            GetStudyParticipationStatusResponse getStudyParticipationStatusResponse
+            UserInteractionInfo userInteractionInfo,
+            List<RecruitmentPositionDetailsInfo> recruitmentPositionInfos,
+            List<ImageInfo> imageInfos,
+            PageResponse<GetStudyParentCommentResponse> pageComment,
+            ParticipationStatusInfo participationStatusInfo
     ) {
         return GetStudyDetailsResponse.builder()
                 .studyId(study.getId())
                 .title(study.getTitle())
                 .content(study.getContent())
                 .category(study.getCategory())
-                .likeCount(study.getLikeCount())
-                .commentCount(study.getCommentCount())
                 .status(study.getStatus())
-                .viewCount(study.getViewCount())
-                .userId(study.getUser().getId())
-                .nickname(study.getUser().getNickname())
-                .profileImageUrl(study.getUser().getProfileImageUrl())
-                .likeStatus(likeStatus)
+                .statistics(study.getStatistics())
+                .userInfoResponse(UserInfoResponse.from(study.getUser()))
                 .openChatUrl(study.getOpenChatUrl())
-                .studyBookmarkId(studyBookmarkId)
-                .getTagResponses(study.getStudyTags().stream()
-                        .map(GetStudyTagResponse::from)
+                .userInteractionInfo(userInteractionInfo)
+                .tagInfos(study.getStudyTags().stream()
+                        .map(TagInfo::from)
                         .toList())
-                .getImageResponses(getImageResponses)
-                .getRecruitmentPositionResponses(getRecruitmentPositionDetailsResponses)
-                .pageCommentResponse(pageCommentResponse)
+                .imageInfos(imageInfos)
+                .recruitmentPositionInfos(recruitmentPositionInfos)
+                .pageComment(pageComment)
                 .createdAt(study.getCreatedAt())
                 .updatedAt(study.getUpdatedAt())
-                .getStudyParticipationStatusResponse(getStudyParticipationStatusResponse)
+                .participationStatusInfo(participationStatusInfo)
                 .build();
+    }
+
+    @Getter
+    @Builder
+    public static class RecruitmentPositionDetailsInfo {
+
+        private Long recruitmentPositionId;
+
+        private RecruitmentPositionTitle title;
+
+        private Integer headcount;
+
+        private RecruitmentPositionStat stat;
+
+        public static RecruitmentPositionDetailsInfo of(
+                StudyRecruitmentPosition recruitmentPosition,
+                RecruitmentPositionStat stat
+        ) {
+            return RecruitmentPositionDetailsInfo.builder()
+                    .recruitmentPositionId(recruitmentPosition.getId())
+                    .title(recruitmentPosition.getTitle())
+                    .headcount(recruitmentPosition.getHeadcount())
+                    .stat(stat)
+                    .build();
+        }
+
+        @Getter
+        @Builder
+        public static class RecruitmentPositionStat {
+
+            private long participatedCount;
+
+            private long acceptedCount;
+
+            public static RecruitmentPositionStat from(StudyParticipationCountInfo participationCountInfo) {
+                return RecruitmentPositionStat.builder()
+                        .participatedCount(participationCountInfo.getParticipatedCount())
+                        .acceptedCount(participationCountInfo.getAcceptedCount())
+                        .build();
+            }
+
+            public static RecruitmentPositionStat empty() {
+                return RecruitmentPositionStat.builder()
+                        .participatedCount(0L)
+                        .acceptedCount(0L)
+                        .build();
+            }
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class ImageInfo {
+
+        private Long imageId;
+
+        private String imageUrl;
+
+        public static ImageInfo from(StudyImage image) {
+            return ImageInfo.builder()
+                    .imageId(image.getId())
+                    .imageUrl(image.getImageUrl())
+                    .build();
+        }
     }
 }

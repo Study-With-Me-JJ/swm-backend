@@ -1,33 +1,37 @@
 package com.jj.swm.domain.study.core.service;
 
 import com.google.common.collect.Lists;
-import com.jj.swm.domain.study.comment.repository.StudyStudyCommentRepository;
-import com.jj.swm.domain.study.core.constants.StudyConstants;
+import com.jj.swm.domain.study.comment.repository.StudyCommentRepository;
+import com.jj.swm.domain.study.core.dto.component.CreateRecruitmentPositionInfo;
 import com.jj.swm.domain.study.core.dto.request.*;
+import com.jj.swm.domain.study.core.dto.request.ModifyRecruitmentPositionRequest.UpdateRecruitmentPositionInfo;
+import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest.ModifyImageInfo;
+import com.jj.swm.domain.study.core.dto.request.UpdateStudyRequest.ModifyTagInfo;
+import com.jj.swm.domain.study.core.dto.response.CreateRecruitmentPositionResponse;
 import com.jj.swm.domain.study.core.dto.response.CreateStudyBookmarkResponse;
-import com.jj.swm.domain.study.core.dto.response.GetRecruitmentPositionResponse;
-import com.jj.swm.domain.study.core.entity.Study;
-import com.jj.swm.domain.study.core.entity.StudyBookmark;
-import com.jj.swm.domain.study.core.entity.StudyLike;
-import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
+import com.jj.swm.domain.study.core.dto.response.CreateStudyLikeResponse;
+import com.jj.swm.domain.study.core.entity.*;
 import com.jj.swm.domain.study.core.repository.*;
-import com.jj.swm.domain.study.participation.dto.AcceptedStudyParticipationCountInfo;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
+import com.jj.swm.domain.study.participation.repository.dto.PositionAcceptedParticipationCountInfo;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.repository.UserRepository;
-import com.jj.swm.global.common.enums.ErrorCode;
-import com.jj.swm.global.common.util.ListCheckUtils;
 import com.jj.swm.global.exception.GlobalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static com.jj.swm.domain.study.common.EntityModificationValidator.*;
+import static com.jj.swm.domain.study.core.constants.StudyConstants.*;
+import static com.jj.swm.global.common.enums.ErrorCode.NOT_FOUND;
+import static com.jj.swm.global.common.enums.ErrorCode.NOT_VALID;
 import static com.jj.swm.global.common.util.ListCheckUtils.isListNotEmpty;
 import static com.jj.swm.global.common.util.ListCheckUtils.isListPresent;
 
@@ -43,8 +47,8 @@ public class StudyCommandService {
     private final StudyTagRepository studyTagRepository;
     private final StudyLikeRepository studyLikeRepository;
     private final StudyImageRepository studyImageRepository;
+    private final StudyCommentRepository studyCommentRepository;
     private final StudyBookmarkRepository studyBookmarkRepository;
-    private final StudyStudyCommentRepository studyCommentRepository;
     private final StudyParticipationRepository participationRepository;
     private final RecruitmentPositionRepository recruitmentPositionRepository;
     private final StudyParticipationLinkRepository participationLinkRepository;
@@ -57,10 +61,8 @@ public class StudyCommandService {
         studyRepository.save(study);
 
         insertTagsIfPresent(request.getTags(), study);
-
         insertImagesIfPresent(request.getImageUrls(), study);
-
-        recruitmentPositionRepository.batchInsert(request.getCreateRecruitmentPositionRequests(), study);
+        recruitmentPositionRepository.batchInsert(request.getRecruitmentPositionInfos(), study);
     }
 
     @Transactional
@@ -69,11 +71,10 @@ public class StudyCommandService {
             Long studyId,
             UUID userId
     ) {
-        Study study = findByIdAndUserIdOrThrow(studyId, userId);
+        Study study = findByIdAndUserId(studyId, userId);
 
-        modifyTags(request.getModifyTagRequest(), study);
-
-        modifyImages(request.getModifyImageRequest(), study);
+        modifyTags(request.getModifyTagInfo(), study);
+        modifyImages(request.getModifyImageInfo(), study);
 
         study.modify(request);
     }
@@ -84,25 +85,16 @@ public class StudyCommandService {
             Long studyId,
             UUID userId
     ) {
-        Study study = findByIdAndUserIdOrThrow(studyId, userId);
+        Study study = findByIdAndUserId(studyId, userId);
+
         study.modifyStatus(request);
     }
 
     @Transactional
-    public void deleteStudy(Long studyId, UUID userId) {
-        Study study = findByIdAndUserIdOrThrow(studyId, userId);
-
-        deleteStudyAndAssociations(studyId, study);
-    }
-
-    @Transactional
-    public void deleteStudies(DeleteStudiesRequest request, UUID userId) {
+    public void deleteStudies(DeleteStudyRequest request, UUID userId) {
         List<Long> studyIds = request.getStudyIds();
-        long numToDelete = studyRepository.countByIdInAndUserId(studyIds, userId);
 
-        if (numToDelete != studyIds.size()) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "Some Study Not Found");
-        }
+        validateStudiesOwnership(studyIds, userId);
 
         deleteStudiesAndAssociations(studyIds);
     }
@@ -113,8 +105,7 @@ public class StudyCommandService {
 
         User user = userRepository.getReferenceById(userId);
 
-        Study study = studyRepository.findById(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+        Study study = findById(studyId);
 
         StudyBookmark studyBookmark = StudyBookmark.of(study, user);
         studyBookmarkRepository.save(studyBookmark);
@@ -125,246 +116,229 @@ public class StudyCommandService {
     @Transactional
     public void deleteStudyBookmark(Long bookmarkId, UUID userId) {
         StudyBookmark studyBookmark = studyBookmarkRepository.findByIdAndUserId(bookmarkId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study bookmark not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study bookmark not found"));
 
         studyBookmarkRepository.delete(studyBookmark);
     }
 
     @Transactional
-    public void createStudyLike(Long studyId, UUID userId) {
+    public CreateStudyLikeResponse createStudyLike(Long studyId, UUID userId) {
         throwIfAlreadyLiked(studyId, userId);
 
         User user = userRepository.getReferenceById(userId);
 
-        Study study = findByIdUsingLockOrThrow(studyId);
+        Study study = findById(studyId);
 
         StudyLike studyLike = StudyLike.of(study, user);
         studyLikeRepository.save(studyLike);
 
-        study.incrementLikeCount();
+        studyRepository.incrementLikeCountById(studyId);
+
+        return CreateStudyLikeResponse.from(studyLike);
     }
 
     @Transactional
-    public void deleteStudyLike(Long studyId, UUID userId) {
-        StudyLike studyLike = studyLikeRepository.findByStudyIdAndUserId(studyId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study like not found"));
-
-        Study study = findByIdUsingLockOrThrow(studyId);
+    public void deleteStudyLike(Long likeId, UUID userId) {
+        StudyLike studyLike = studyLikeRepository.findByIdAndUserId(likeId, userId)
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study like not found"));
 
         studyLikeRepository.delete(studyLike);
 
-        study.decrementLikeCount();
+        studyRepository.decrementLikeCountById(studyLike.getStudy().getId());
     }
 
     @Transactional
-    public List<GetRecruitmentPositionResponse> modifyRecruitmentPosition(
+    public List<CreateRecruitmentPositionResponse> modifyRecruitmentPosition(
             ModifyRecruitmentPositionRequest request,
             Long studyId,
             UUID userId
     ) {
-        List<CreateRecruitmentPositionRequest> createRequests =
-                Optional.ofNullable(request.getCreateRecruitmentPositionRequests())
-                        .orElse(Collections.emptyList());
-        List<Long> recruitmentPositionIdsToRemove = Optional.ofNullable(request.getRecruitmentPositionIdsToRemove())
-                .orElse(Collections.emptyList());
+        List<StudyRecruitmentPosition> recruitmentPositions = recruitmentPositionRepository.findByStudyIdAndStudyUserId(
+                studyId, userId
+        );
 
-        validateCorrectSize(
-                createRequests,
+        validateStudyCanExist(recruitmentPositions);
+
+        List<CreateRecruitmentPositionInfo> infosToAdd = getSafeList(request.getRecruitmentPositionInfosToAdd());
+        List<Long> recruitmentPositionIdsToRemove = getSafeList(request.getRecruitmentPositionIdsToRemove());
+        List<Long> recruitmentPositionIdsToEdit = getSafeList(request.getRecruitmentPositionInfosToEdit()).stream()
+                .map(UpdateRecruitmentPositionInfo::getRecruitmentPositionId)
+                .toList();
+
+        validateAllIdsPresent(
                 recruitmentPositionIdsToRemove,
-                studyId,
-                userId
+                recruitmentPositions,
+                StudyRecruitmentPosition::getId,
+                "some recruitmentPosition not found"
+        );
+        validateSizeLimit(
+                recruitmentPositions.size() + infosToAdd.size() - recruitmentPositionIdsToRemove.size(),
+                1,
+                RECRUITMENT_POSITION_LIMIT,
+                "recruitment position limit deviation"
+        );
+        validateNoOverlapBetweenEditAndRemove(recruitmentPositionIdsToEdit, recruitmentPositionIdsToRemove);
+        validateAllIdsPresent(
+                recruitmentPositionIdsToEdit,
+                recruitmentPositions,
+                StudyRecruitmentPosition::getId,
+                "some recruitmentPosition not found"
         );
 
         deleteRecruitmentPositionsIfNotEmpty(recruitmentPositionIdsToRemove);
+        updateRecruitmentPositionsIfNotEmpty(
+                request.getRecruitmentPositionInfosToEdit(),
+                recruitmentPositionIdsToEdit,
+                recruitmentPositions
+        );
+        insertRecruitmentPositionsIfNotEmpty(infosToAdd, studyId);
 
-        List<UpdateRecruitmentPositionRequest> updateRequests = request.getUpdateRecruitmentPositionRequests();
-        List<Long> recruitmentPositionIdsToUpdate = updateRecruitmentPositionsIfPresent(updateRequests, userId);
-
-        insertRecruitmentPositionsIfNotEmpty(createRequests, studyId);
-
-        List<Long> notNewRecruitmentPositionId = Stream.concat(
-                recruitmentPositionIdsToRemove.stream(), recruitmentPositionIdsToUpdate.stream()
-        ).toList();
-
-        List<StudyRecruitmentPosition> newRecruitmentPositions =
-                recruitmentPositionRepository.findByIdNotInAndStudyId(notNewRecruitmentPositionId, studyId);
-
-        return newRecruitmentPositions.stream()
-                .map(GetRecruitmentPositionResponse::from)
+        return recruitmentPositionRepository.findAllByStudyId(studyId).stream()
+                .map(CreateRecruitmentPositionResponse::from)
                 .toList();
     }
 
-    private List<Long> updateRecruitmentPositionsIfPresent(
-            List<UpdateRecruitmentPositionRequest> requests, UUID userId
+    private void insertRecruitmentPositionsIfNotEmpty(List<CreateRecruitmentPositionInfo> infosToAdd, Long studyId) {
+        if (!isListNotEmpty(infosToAdd)) return;
+
+        Study study = studyRepository.getReferenceById(studyId);
+        recruitmentPositionRepository.batchInsert(infosToAdd, study);
+    }
+
+    private void updateRecruitmentPositionsIfNotEmpty(
+            List<UpdateRecruitmentPositionInfo> infosToEdit,
+            List<Long> recruitmentPositionIdsToEdit,
+            List<StudyRecruitmentPosition> recruitmentPositions
     ) {
-        if (ListCheckUtils.isListPresent(requests)) {
+        if (!isListNotEmpty(recruitmentPositionIdsToEdit)) return;
 
-            List<Long> recruitmentPositionIds = requests.stream()
-                    .map(UpdateRecruitmentPositionRequest::getRecruitmentPositionId)
-                    .toList();
+        Map<Long, Long> acceptedCountByRecruitmentPositionId =
+                participationRepository.countByRecruitmentPositionIdsAndAccepted(recruitmentPositionIdsToEdit).stream()
+                        .collect(Collectors.toMap(
+                                PositionAcceptedParticipationCountInfo::getRecruitmentPositionId,
+                                PositionAcceptedParticipationCountInfo::getAcceptedCount
+                        ));
 
-            List<StudyRecruitmentPosition> recruitmentPositions =
-                    recruitmentPositionRepository.findByIdInAndStudyUserId(recruitmentPositionIds, userId);
+        Map<Long, StudyRecruitmentPosition> recruitmentPositionByRecruitmentPositionId = recruitmentPositions.stream()
+                .collect(Collectors.toMap(
+                        StudyRecruitmentPosition::getId, recruitmentPosition -> recruitmentPosition
+                ));
 
-            if (requests.size() != recruitmentPositions.size()) {
-                throw new GlobalException(ErrorCode.NOT_FOUND, "some recruitmentPositions not found");
-            }
+        for (UpdateRecruitmentPositionInfo infoToEdit : infosToEdit) {
+            long acceptedCount =
+                    acceptedCountByRecruitmentPositionId.getOrDefault(infoToEdit.getRecruitmentPositionId(), 0L);
+            if (infoToEdit.getHeadcount() < acceptedCount)
+                throw new GlobalException(NOT_VALID, "accepted count is greater than headcount");
 
-            List<AcceptedStudyParticipationCountInfo> acceptedStudyParticipationCountInfos =
-                    participationRepository.countByRecruitmentPositionIdsAndAcceptedStatus(recruitmentPositionIds);
-            Map<Long, Integer> acceptedCountByRecruitmentPositionId = acceptedStudyParticipationCountInfos.stream()
-                    .collect(Collectors.toMap(
-                            AcceptedStudyParticipationCountInfo::getRecruitmentPositionId,
-                            AcceptedStudyParticipationCountInfo::getAcceptedStudyParticipationCount
-                    ));
-
-            Map<Long, StudyRecruitmentPosition> recruitmentPositionByRecruitmentPositionId = recruitmentPositions.stream()
-                    .collect(Collectors.toMap(
-                            StudyRecruitmentPosition::getId, recruitmentPosition -> recruitmentPosition
-                    ));
-
-            for (UpdateRecruitmentPositionRequest request : requests) {
-                if (request.getHeadcount() <
-                        acceptedCountByRecruitmentPositionId.getOrDefault(request.getRecruitmentPositionId(), 0)) {
-                    throw new GlobalException(ErrorCode.NOT_VALID, "accepted count is greater than headcount");
-                }
-                recruitmentPositionByRecruitmentPositionId.get(request.getRecruitmentPositionId()).modify(request);
-            }
-
-            return recruitmentPositionIds;
-        }
-        return Collections.emptyList();
-    }
-
-    private void deleteRecruitmentPositionsIfNotEmpty(List<Long> idsToRemove) {
-        if (ListCheckUtils.isListNotEmpty(idsToRemove)) {
-            List<Long> participationIds = participationRepository.findIdsByRecruitmentPositionIds(idsToRemove);
-            Lists.partition(participationIds, batchSize)
-                    .forEach(participationLinkRepository::deleteAllByParticipationIds);
-            participationRepository.deleteAllByRecruitmentPositionIds(idsToRemove);
-            recruitmentPositionRepository.deleteAllByIds(idsToRemove);
+            recruitmentPositionByRecruitmentPositionId.get(infoToEdit.getRecruitmentPositionId())
+                    .modify(infoToEdit);
         }
     }
 
-    private void insertRecruitmentPositionsIfNotEmpty(List<CreateRecruitmentPositionRequest> requests, Long studyId) {
-        if (ListCheckUtils.isListNotEmpty(requests)) {
-            Study study = studyRepository.getReferenceById(studyId);
+    private void deleteRecruitmentPositionsIfNotEmpty(List<Long> recruitmentPositionIdsToRemove) {
+        if (!isListNotEmpty(recruitmentPositionIdsToRemove)) return;
 
-            recruitmentPositionRepository.batchInsert(requests, study);
-        }
+        List<Long> participationIds =
+                participationRepository.findIdsByRecruitmentPositionIds(recruitmentPositionIdsToRemove);
+        Lists.partition(participationIds, batchSize)
+                .forEach(participationLinkRepository::deleteAllByParticipationIds);
+
+        participationRepository.deleteAllByRecruitmentPositionIds(recruitmentPositionIdsToRemove);
+
+        recruitmentPositionRepository.deleteAllByIds(recruitmentPositionIdsToRemove);
     }
 
-    private void validateCorrectSize(
-            List<CreateRecruitmentPositionRequest> createRequests,
-            List<Long> recruitmentPositionIdsToRemove,
-            Long studyId,
-            UUID userId
+    private void validateNoOverlapBetweenEditAndRemove(
+            List<Long> recruitmentPositionIdsToEdit, List<Long> recruitmentPositionIdsToRemove
     ) {
-        int oldRecruitmentPositionSize = recruitmentPositionRepository.countByStudyId(studyId);
+        if (recruitmentPositionIdsToEdit.stream().anyMatch(recruitmentPositionIdsToRemove::contains))
+            throw new GlobalException(NOT_VALID, "invalid input about edit and remove");
+    }
 
-        if (oldRecruitmentPositionSize == 0) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "study can not exist");
-        }
+    private void validateStudyCanExist(List<StudyRecruitmentPosition> recruitmentPositions) {
+        if (!isListNotEmpty(recruitmentPositions))
+            throw new GlobalException(NOT_FOUND, "study can not exist");
+    }
 
-        int actualDeletedCount = 0;
-        if (ListCheckUtils.isListNotEmpty(recruitmentPositionIdsToRemove)) {
-            actualDeletedCount = recruitmentPositionRepository.countByIdInAndStudyUserId(
-                    recruitmentPositionIdsToRemove, userId
-            );
+    private void validateStudiesOwnership(List<Long> studyIds, UUID userId) {
+        long removeCount = studyRepository.countByIdInAndUserId(studyIds, userId);
 
-            if (actualDeletedCount != recruitmentPositionIdsToRemove.size()) {
-                throw new GlobalException(ErrorCode.NOT_FOUND, "some recruitmentPosition not found");
-            }
-        }
-
-        int newRecruitmentPositionSize = oldRecruitmentPositionSize + createRequests.size() - actualDeletedCount;
-
-        if (newRecruitmentPositionSize < 1 || newRecruitmentPositionSize > StudyConstants.RECRUITMENT_POSITION_LIMIT) {
-            throw new GlobalException(ErrorCode.NOT_FOUND, "recruitment position limit deviation");
-        }
+        if (removeCount != studyIds.size())
+            throw new GlobalException(NOT_FOUND, "Some Study Not Found");
     }
 
     private void insertTagsIfPresent(List<String> tags, Study study) {
-        if (isListPresent(tags)) {
+        if (isListPresent(tags))
             studyTagRepository.batchInsert(tags, study);
-        }
     }
 
     private void insertImagesIfPresent(List<String> imageUrls, Study study) {
-        if (isListPresent(imageUrls)) {
+        if (isListPresent(imageUrls))
             studyImageRepository.batchInsert(imageUrls, study);
-        }
     }
 
-    private Study findByIdAndUserIdOrThrow(Long studyId, UUID userId) {
+    private Study findByIdAndUserId(Long studyId, UUID userId) {
         return studyRepository.findByIdAndUserId(studyId, userId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
-    private Study findByIdUsingLockOrThrow(Long studyId) {
-        return studyRepository.findByIdUsingLock(studyId)
-                .orElseThrow(() -> new GlobalException(ErrorCode.NOT_FOUND, "study not found"));
+    private Study findById(Long studyId) {
+        return studyRepository.findById(studyId)
+                .orElseThrow(() -> new GlobalException(NOT_FOUND, "study not found"));
     }
 
-    private void modifyTags(ModifyStudyTagRequest request, Study study) {
-        if (request != null) {
-            List<String> tagsToAdd = Optional.ofNullable(request.getTagsToAdd())
-                    .orElse(Collections.emptyList());
-            List<Long> tagIdsToRemove = Optional.ofNullable(request.getTagIdsToRemove())
-                    .orElse(Collections.emptyList());
+    private void modifyTags(ModifyTagInfo info, Study study) {
+        if (info == null) return;
 
-            int oldTagSize = studyTagRepository.countByStudyId(study.getId());
-            int newTagSize = oldTagSize + tagsToAdd.size() - tagIdsToRemove.size();
+        List<String> tagsToAdd = getSafeList(info.getTagsToAdd());
+        List<Long> tagIdsToRemove = getSafeList(info.getTagIdsToRemove());
 
-            if (newTagSize < 0 || newTagSize > StudyConstants.TAG_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Tag Limit Deviation");
-            }
+        List<StudyTag> tags = studyTagRepository.findAllByStudyId(study.getId());
 
-            if (isListNotEmpty(tagsToAdd))
-                studyTagRepository.batchInsert(tagsToAdd, study);
+        validateAllIdsPresent(
+                tagIdsToRemove,
+                tags,
+                StudyTag::getId,
+                "some tags not found"
+        );
+        validateSizeLimit(
+                tags.size() + tagsToAdd.size() - tagIdsToRemove.size(),
+                TAG_LIMIT,
+                "tag limit deviation"
+        );
 
-            if (isListNotEmpty(tagIdsToRemove))
-                studyTagRepository.deleteAllByIdsAndStudyId(tagIdsToRemove, study.getId());
-        }
+        if (isListNotEmpty(tagIdsToRemove))
+            studyTagRepository.deleteAllByIds(tagIdsToRemove);
+
+        if (isListNotEmpty(tagsToAdd))
+            studyTagRepository.batchInsert(tagsToAdd, study);
     }
 
-    private void modifyImages(ModifyStudyImageRequest request, Study study) {
-        if (request != null) {
-            List<String> imageUrlsToAdd = Optional.ofNullable(request.getImageUrlsToAdd())
-                    .orElse(Collections.emptyList());
-            List<Long> imageIdsToRemove = Optional.ofNullable(request.getImageIdsToRemove())
-                    .orElse(Collections.emptyList());
+    private void modifyImages(ModifyImageInfo info, Study study) {
+        if (info == null) return;
 
-            int oldImageSize = studyImageRepository.countByStudyId(study.getId());
-            int newImageSize = oldImageSize + imageUrlsToAdd.size() - imageIdsToRemove.size();
+        List<String> imageUrlsToAdd = getSafeList(info.getImageUrlsToAdd());
+        List<Long> imageIdsToRemove = getSafeList(info.getImageIdsToRemove());
 
-            if (newImageSize < 0 || newImageSize > StudyConstants.IMAGE_LIMIT) {
-                throw new GlobalException(ErrorCode.NOT_VALID, "Image Limit Deviation");
-            }
+        List<StudyImage> images = studyImageRepository.findAllByStudyId(study.getId());
 
-            if (isListNotEmpty(imageUrlsToAdd))
-                studyImageRepository.batchInsert(imageUrlsToAdd, study);
+        validateAllIdsPresent(
+                imageIdsToRemove,
+                images,
+                StudyImage::getId,
+                "some images not found"
+        );
+        validateSizeLimit(
+                images.size() + imageUrlsToAdd.size() - imageIdsToRemove.size(),
+                IMAGE_LIMIT,
+                "image limit deviation"
+        );
 
-            if (isListNotEmpty(imageIdsToRemove)) {
-                studyImageRepository.deleteAllByIdsAndStudyId(imageIdsToRemove, study.getId());
-            }
-        }
-    }
+        if (isListNotEmpty(imageIdsToRemove))
+            studyImageRepository.deleteAllByIds(imageIdsToRemove);
 
-    private void deleteStudyAndAssociations(Long studyId, Study study) {
-        studyTagRepository.deleteAllByStudyId(studyId);
-        studyImageRepository.deleteAllByStudyId(studyId);
-        studyLikeRepository.deleteAllByStudyId(studyId);
-        studyCommentRepository.deleteAllByStudyId(studyId);
-        studyBookmarkRepository.deleteAllByStudyId(studyId);
-
-        List<Long> participationIds = participationRepository.findIdsByStudyId(studyId);
-        Lists.partition(participationIds, batchSize)
-                .forEach(participationLinkRepository::deleteAllByParticipationIds);
-        participationRepository.deleteAllByStudyId(studyId);
-        recruitmentPositionRepository.deleteAllByStudyId(studyId);
-
-        studyRepository.delete(study);
+        if (isListNotEmpty(imageUrlsToAdd))
+            studyImageRepository.batchInsert(imageUrlsToAdd, study);
     }
 
     public void deleteStudiesAndAssociations(List<Long> studyIds) {
@@ -380,18 +354,18 @@ public class StudyCommandService {
         participationRepository.deleteAllByStudyIds(studyIds);
         recruitmentPositionRepository.deleteAllByStudyIds(studyIds);
 
-        studyRepository.deleteAllByStudyIds(studyIds);
+        studyRepository.deleteAllByIds(studyIds);
     }
 
     private void throwIfAlreadyBookmarked(Long studyId, UUID userId) {
         if (studyBookmarkRepository.existsByStudyIdAndUserId(studyId, userId)) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Already Bookmarked");
+            throw new GlobalException(NOT_VALID, "Already Bookmarked");
         }
     }
 
     private void throwIfAlreadyLiked(Long studyId, UUID userId) {
         if (studyLikeRepository.existsByStudyIdAndUserId(studyId, userId)) {
-            throw new GlobalException(ErrorCode.NOT_VALID, "Already Liked");
+            throw new GlobalException(NOT_VALID, "Already Liked");
         }
     }
 }

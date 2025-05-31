@@ -1,9 +1,9 @@
 package com.jj.swm.domain.study.core.dto.request;
 
-import com.jj.swm.domain.study.core.entity.StudyCategory;
+import com.jj.swm.domain.study.core.dto.component.CreateRecruitmentPositionInfo;
+import com.jj.swm.domain.study.core.entity.Study.StudyCategory;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -25,7 +25,6 @@ public class CreateStudyRequest {
     @NotBlank
     private String content;
 
-    @NotBlank
     @Size(max = 300)
     private String openChatUrl;
 
@@ -41,7 +40,6 @@ public class CreateStudyRequest {
     private List<@Size(max = 300) String> imageUrls;
 
     @Valid
-    @NotEmpty
     @Size(min = 1, max = RECRUITMENT_POSITION_LIMIT)
-    private List<CreateRecruitmentPositionRequest> createRecruitmentPositionRequests;
+    private List<CreateRecruitmentPositionInfo> recruitmentPositionInfos;
 }

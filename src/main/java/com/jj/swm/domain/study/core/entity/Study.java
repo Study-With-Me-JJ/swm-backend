@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.jj.swm.domain.study.core.entity.Study.StudyStatus.ACTIVE;
+
 @Getter
 @Entity
 @Builder
@@ -36,7 +38,7 @@ public class Study extends BaseTimeEntity {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "open_chat_url", length = 300, nullable = false)
+    @Column(name = "open_chat_url", length = 300)
     private String openChatUrl;
 
     @Column(name = "deleted_at")
@@ -47,19 +49,13 @@ public class Study extends BaseTimeEntity {
     @Column(name = "category", nullable = false)
     private StudyCategory category;
 
-    @Column(name = "like_count", nullable = false)
-    private int likeCount;
-
-    @Column(name = "comment_count", nullable = false)
-    private int commentCount;
-
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "status", nullable = false)
     private StudyStatus status;
 
-    @Column(name = "view_count", nullable = false)
-    private int viewCount;
+    @Embedded
+    private StudyStatistics statistics;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -77,10 +73,8 @@ public class Study extends BaseTimeEntity {
                 .content(request.getContent())
                 .openChatUrl(request.getOpenChatUrl())
                 .category(request.getCategory())
-                .likeCount(0)
-                .commentCount(0)
-                .status(StudyStatus.ACTIVE)
-                .viewCount(0)
+                .status(ACTIVE)
+                .statistics(StudyStatistics.empty())
                 .user(user)
                 .build();
     }
@@ -88,31 +82,44 @@ public class Study extends BaseTimeEntity {
     public void modify(UpdateStudyRequest request) {
         this.title = request.getTitle();
         this.content = request.getContent();
-        this.category = request.getCategory();
         this.openChatUrl = request.getOpenChatUrl();
+        this.category = request.getCategory();
     }
 
     public void modifyStatus(UpdateStudyStatusRequest request) {
         this.status = request.getStatus();
     }
 
-    public void incrementLikeCount() {
-        this.likeCount++;
+    public enum StudyCategory {
+        ALGORITHM, DEVELOPMENT
     }
 
-    public void decrementLikeCount() {
-        this.likeCount = Math.max(0, this.likeCount - 1);
+    public enum StudyStatus {
+        ACTIVE, INACTIVE
     }
 
-    public void incrementCommentCount() {
-        this.commentCount++;
-    }
+    @Getter
+    @Builder
+    @Embeddable
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class StudyStatistics {
 
-    public void decrementCommentCount() {
-        this.commentCount = Math.max(0, this.commentCount - 1);
-    }
+        @Column(name = "like_count", nullable = false)
+        private int likeCount;
 
-    public void incrementViewCount() {
-        this.viewCount++;
+        @Column(name = "comment_count", nullable = false)
+        private int commentCount;
+
+        @Column(name = "view_count", nullable = false)
+        private int viewCount;
+
+        private static StudyStatistics empty() {
+            return StudyStatistics.builder()
+                    .likeCount(0)
+                    .commentCount(0)
+                    .viewCount(0)
+                    .build();
+        }
     }
 }

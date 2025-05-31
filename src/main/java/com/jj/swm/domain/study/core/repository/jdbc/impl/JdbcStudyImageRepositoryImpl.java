@@ -16,7 +16,7 @@ public class JdbcStudyImageRepositoryImpl implements JdbcStudyImageRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public void batchInsert(List<String> imageUrls, Study study) {
-        String sql = "insert into study_image(study_id, image_url) VALUES(?,?)";
+        String sql = "insert into study_image(image_url, study_id) VALUES(?,?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
 
@@ -24,8 +24,8 @@ public class JdbcStudyImageRepositoryImpl implements JdbcStudyImageRepository {
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 String imageUrl = imageUrls.get(i);
 
-                ps.setLong(1, study.getId());
-                ps.setString(2, imageUrl);
+                ps.setString(1, imageUrl);
+                ps.setLong(2, study.getId());
             }
 
             @Override

@@ -11,7 +11,7 @@ import java.util.List;
 public interface StudyParticipationLinkRepository extends
         JpaRepository<StudyParticipationLink, Long>, JdbcStudyParticipationLinkRepository {
 
-    int countByParticipationId(Long participationId);
+    List<StudyParticipationLink> findAllByParticipationId(Long participationId);
 
     @Modifying
     @Query("delete from StudyParticipationLink pl where pl.id in ?1 and pl.participation.id = ?2")
@@ -20,8 +20,6 @@ public interface StudyParticipationLinkRepository extends
     @Modifying
     @Query("delete from StudyParticipationLink pl where pl.participation.id = ?1")
     void deleteAllByParticipationId(Long participationId);
-
-    List<StudyParticipationLink> findAllByParticipationId(Long participationId);
 
     @Modifying
     @Query("delete from StudyParticipationLink pl where pl.participation.id in (?1)")

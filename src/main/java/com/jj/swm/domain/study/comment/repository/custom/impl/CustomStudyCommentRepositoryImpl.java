@@ -1,5 +1,6 @@
 package com.jj.swm.domain.study.comment.repository.custom.impl;
 
+import com.jj.swm.domain.common.utils.QueryDSLBooleanUtils;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
 import com.jj.swm.domain.study.comment.repository.custom.CustomStudyCommentRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -8,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import static com.jj.swm.domain.common.utils.QueryDSLBooleanUtils.nullSafeBuilder;
 import static com.jj.swm.domain.study.comment.entity.QStudyComment.studyComment;
 
 @RequiredArgsConstructor
@@ -16,21 +16,21 @@ public class CustomStudyCommentRepositoryImpl implements CustomStudyCommentRepos
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    public List<StudyComment> findPagedReplyByParentIdWithUser(
+    public List<StudyComment> findPagedChildByParentIdWithUser(
             Long parentId,
-            Long lastReplyId,
+            Long lastChildId,
             int pageSize
     ) {
         return jpaQueryFactory.selectFrom(studyComment)
                 .join(studyComment.user)
                 .fetchJoin()
-                .where(studyComment.parent.id.eq(parentId), lastReplyIdLt(lastReplyId))
+                .where(studyComment.parent.id.eq(parentId), lastChildIdLt(lastChildId))
                 .orderBy(studyComment.id.desc())
                 .limit(pageSize)
                 .fetch();
     }
 
-    private BooleanBuilder lastReplyIdLt(Long lastReplyId) {
-        return nullSafeBuilder(() -> studyComment.id.lt(lastReplyId));
+    private BooleanBuilder lastChildIdLt(Long lastChildId) {
+        return QueryDSLBooleanUtils.nullSafeBuilder(() -> studyComment.id.lt(lastChildId));
     }
 }
