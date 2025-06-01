@@ -3,10 +3,9 @@ package com.jj.swm.domain.study.participation.dto.response;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
+import com.jj.swm.domain.user.core.dto.component.UserInfo;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.UUID;
 
 @Getter
 @Builder
@@ -18,11 +17,7 @@ public class GetStudyParticipationInMyPageResponse {
 
     private String coverLetter;
 
-    private UUID userId;
-
-    private String profileImageUrl;
-
-    private String nickname;
+    private UserInfo userInfo;
 
     private RecruitmentPositionTitle title;
 
@@ -31,9 +26,7 @@ public class GetStudyParticipationInMyPageResponse {
                 .participationId(participation.getId())
                 .status(participation.getStatus())
                 .coverLetter(participation.getCoverLetter())
-                .userId(participation.getUser().getId())
-                .profileImageUrl(participation.getUser().getProfileImageUrl())
-                .nickname(participation.getUser().getNickname())
+                .userInfo(UserInfo.from(participation.getUser()))
                 .title(participation.getRecruitmentPosition().getTitle())
                 .build();
     }

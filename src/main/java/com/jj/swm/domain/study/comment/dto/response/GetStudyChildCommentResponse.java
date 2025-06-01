@@ -2,7 +2,7 @@ package com.jj.swm.domain.study.comment.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.user.core.dto.response.UserInfoResponse;
+import com.jj.swm.domain.user.core.dto.component.UserInfo;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,7 +16,7 @@ public class GetStudyChildCommentResponse {
 
     private String content;
 
-    private UserInfoResponse userInfo;
+    private UserInfo userInfo;
 
     @JsonFormat(pattern = "yy.MM.dd HH:mm")
     private LocalDateTime createdAt;
@@ -28,7 +28,7 @@ public class GetStudyChildCommentResponse {
         return GetStudyChildCommentResponse.builder()
                 .replyId(child.getId())
                 .content(child.getContent())
-                .userInfo(UserInfoResponse.from(child.getUser()))
+                .userInfo(UserInfo.from(child.getUser()))
                 .createdAt(child.getCreatedAt())
                 .updatedAt(child.getUpdatedAt())
                 .build();

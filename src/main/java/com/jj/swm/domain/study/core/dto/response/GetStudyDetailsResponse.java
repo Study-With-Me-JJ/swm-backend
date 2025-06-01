@@ -13,7 +13,7 @@ import com.jj.swm.domain.study.core.entity.StudyImage;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.participation.repository.dto.StudyParticipationCountInfo;
-import com.jj.swm.domain.user.core.dto.response.UserInfoResponse;
+import com.jj.swm.domain.user.core.dto.component.UserInfo;
 import com.jj.swm.global.common.dto.PageResponse;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class GetStudyDetailsResponse {
 
     private StudyStatistics statistics;
 
-    private UserInfoResponse userInfoResponse;
+    private UserInfo userInfoResponse;
 
     private String openChatUrl;
 
@@ -74,7 +74,7 @@ public class GetStudyDetailsResponse {
                 .category(study.getCategory())
                 .status(study.getStatus())
                 .statistics(study.getStatistics())
-                .userInfoResponse(UserInfoResponse.from(study.getUser()))
+                .userInfoResponse(UserInfo.from(study.getUser()))
                 .openChatUrl(study.getOpenChatUrl())
                 .userInteractionInfo(userInteractionInfo)
                 .tagInfos(study.getStudyTags().stream()
