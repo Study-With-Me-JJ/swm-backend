@@ -1,6 +1,5 @@
 package com.jj.swm.domain.study.core.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.study.comment.dto.response.GetStudyParentCommentResponse;
 import com.jj.swm.domain.study.core.dto.component.ParticipationStatusInfo;
 import com.jj.swm.domain.study.core.dto.component.TagInfo;
@@ -13,12 +12,12 @@ import com.jj.swm.domain.study.core.entity.StudyImage;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition.RecruitmentPositionTitle;
 import com.jj.swm.domain.study.participation.repository.dto.StudyParticipationCountInfo;
-import com.jj.swm.domain.user.core.dto.response.UserInfoResponse;
+import com.jj.swm.domain.user.core.dto.component.UserInfo;
 import com.jj.swm.global.common.dto.PageResponse;
+import com.jj.swm.global.common.dto.component.BaseTimeInfo;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -37,7 +36,7 @@ public class GetStudyDetailsResponse {
 
     private StudyStatistics statistics;
 
-    private UserInfoResponse userInfoResponse;
+    private UserInfo userInfoResponse;
 
     private String openChatUrl;
 
@@ -53,11 +52,7 @@ public class GetStudyDetailsResponse {
 
     private ParticipationStatusInfo participationStatusInfo;
 
-    @JsonFormat(pattern = "yy.MM.dd HH:mm")
-    private LocalDateTime createdAt;
-
-    @JsonFormat(pattern = "yy.MM.dd HH:mm")
-    private LocalDateTime updatedAt;
+    private BaseTimeInfo baseTimeInfo;
 
     public static GetStudyDetailsResponse of(
             Study study,
@@ -74,7 +69,7 @@ public class GetStudyDetailsResponse {
                 .category(study.getCategory())
                 .status(study.getStatus())
                 .statistics(study.getStatistics())
-                .userInfoResponse(UserInfoResponse.from(study.getUser()))
+                .userInfoResponse(UserInfo.from(study.getUser()))
                 .openChatUrl(study.getOpenChatUrl())
                 .userInteractionInfo(userInteractionInfo)
                 .tagInfos(study.getStudyTags().stream()
@@ -83,8 +78,7 @@ public class GetStudyDetailsResponse {
                 .imageInfos(imageInfos)
                 .recruitmentPositionInfos(recruitmentPositionInfos)
                 .pageComment(pageComment)
-                .createdAt(study.getCreatedAt())
-                .updatedAt(study.getUpdatedAt())
+                .baseTimeInfo(BaseTimeInfo.of(study.getCreatedAt(), study.getUpdatedAt()))
                 .participationStatusInfo(participationStatusInfo)
                 .build();
     }

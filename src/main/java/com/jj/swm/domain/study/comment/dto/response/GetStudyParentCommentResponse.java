@@ -1,12 +1,10 @@
 package com.jj.swm.domain.study.comment.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jj.swm.domain.study.comment.entity.StudyComment;
-import com.jj.swm.domain.user.core.dto.response.UserInfoResponse;
+import com.jj.swm.domain.user.core.dto.component.UserInfo;
+import com.jj.swm.global.common.dto.component.BaseTimeInfo;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -16,13 +14,9 @@ public class GetStudyParentCommentResponse {
 
     private String content;
 
-    private UserInfoResponse userInfo;
+    private UserInfo userInfo;
 
-    @JsonFormat(pattern = "yy.MM.dd HH:mm")
-    private LocalDateTime createdAt;
-
-    @JsonFormat(pattern = "yy.MM.dd HH:mm")
-    private LocalDateTime updatedAt;
+    private BaseTimeInfo baseTimeInfo;
 
     private Long replyCount;
 
@@ -30,9 +24,8 @@ public class GetStudyParentCommentResponse {
         return GetStudyParentCommentResponse.builder()
                 .commentId(parent.getId())
                 .content(parent.getContent())
-                .userInfo(UserInfoResponse.from(parent.getUser()))
-                .createdAt(parent.getCreatedAt())
-                .updatedAt(parent.getUpdatedAt())
+                .userInfo(UserInfo.from(parent.getUser()))
+                .baseTimeInfo(BaseTimeInfo.of(parent.getCreatedAt(), parent.getUpdatedAt()))
                 .replyCount(childrenCount)
                 .build();
     }

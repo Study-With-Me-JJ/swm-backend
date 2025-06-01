@@ -4,11 +4,11 @@ import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
 import com.jj.swm.domain.study.participation.entity.StudyParticipationLink;
 import com.jj.swm.domain.study.participation.entity.embeddable.FileInfo;
+import com.jj.swm.domain.user.core.dto.component.UserInfo;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.UUID;
 
 import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.ACCEPTED;
 
@@ -28,11 +28,7 @@ public class GetStudyParticipationDetailsResponse {
 
     private List<LinkInfo> linkInfos;
 
-    private UUID userId;
-
-    private String profileImageUrl;
-
-    private String nickname;
+    private UserInfo userInfo;
 
     public static GetStudyParticipationDetailsResponse of(
             StudyParticipation participation,
@@ -46,9 +42,7 @@ public class GetStudyParticipationDetailsResponse {
                 .coverLetter(participation.getCoverLetter())
                 .fileInfo(participation.getFileInfo())
                 .linkInfos(linkInfos)
-                .userId(participation.getUser().getId())
-                .profileImageUrl(participation.getUser().getProfileImageUrl())
-                .nickname(participation.getUser().getNickname())
+                .userInfo(UserInfo.from(participation.getUser()))
                 .build();
     }
 
