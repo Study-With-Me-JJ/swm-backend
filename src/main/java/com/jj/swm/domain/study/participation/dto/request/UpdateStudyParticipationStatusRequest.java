@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.participation.dto.request;
 
 import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
+import com.jj.swm.global.common.annotation.validation.EnumMatch;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -11,5 +12,6 @@ import lombok.*;
 public class UpdateStudyParticipationStatusRequest {
 
     @NotNull
+    @EnumMatch(excludes = "PENDING")
     private StudyParticipationStatus status;
 }
