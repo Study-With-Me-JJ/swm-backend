@@ -76,8 +76,6 @@ public class StudyParticipationCommandService {
     ) {
         StudyParticipationStatus newStatus = request.getStatus();
 
-        validateNewStatusNotPending(newStatus);
-
         StudyParticipation participation = participationRepository.findByIdWithStudyAndPosition(participationId)
                 .orElseThrow(() -> new GlobalException(NOT_FOUND, "study participation not found"));
 
@@ -215,12 +213,6 @@ public class StudyParticipationCommandService {
     private void validateOldStatusMustPending(StudyParticipation participation) {
         if (participation.getStatus() != PENDING) {
             throw new GlobalException(NOT_VALID, "already changed status");
-        }
-    }
-
-    private void validateNewStatusNotPending(StudyParticipationStatus status) {
-        if (status == PENDING) {
-            throw new GlobalException(NOT_VALID, "Invalid status value");
         }
     }
 

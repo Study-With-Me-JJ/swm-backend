@@ -294,17 +294,6 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     }
 
     @Test
-    @DisplayName("수정할 상태가 대기 상태면 스터디 참여 승인 상태 수정에 실패한다.")
-    void updateStudyParticipationStatus_WhenNewStatusPending_ThenFail() {
-        //when & then
-        assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
-                UpdateStudyParticipationStatusRequestFixture.create(PENDING),
-                participationId,
-                user1.getId()
-        ));
-    }
-
-    @Test
     @DisplayName("스터디 참여 수정에 성공한다.")
     void updateStudyParticipation_Success() {
         //given
