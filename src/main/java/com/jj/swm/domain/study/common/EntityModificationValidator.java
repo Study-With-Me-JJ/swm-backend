@@ -1,6 +1,7 @@
 package com.jj.swm.domain.study.common;
 
 import com.jj.swm.global.exception.GlobalException;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,8 +14,8 @@ import static com.jj.swm.global.common.enums.ErrorCode.NOT_VALID;
 public class EntityModificationValidator {
 
     public static <T> void validateAllIdsPresent(
-            List<Long> idsToCheck,
-            List<T> objects,
+            @NotNull List<Long> idsToCheck,
+            @NotNull List<T> objects,
             Function<T, Long> idExtractor,
             String errorMessage
     ) {
