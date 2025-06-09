@@ -91,7 +91,15 @@ public class Study extends BaseTimeEntity {
     }
 
     public enum StudyCategory {
-        ALGORITHM, DEVELOPMENT
+
+        ALGORITHM, // 알고리즘
+        DEVELOPMENT, // 개발
+        EXAM, // 시험
+        LANGUAGE, // 외국어
+        READING, // 독서
+        DISCUSSION, // 토론
+        CAREER, // 취업
+        HOBBY, // 취미
     }
 
     public enum StudyStatus {
