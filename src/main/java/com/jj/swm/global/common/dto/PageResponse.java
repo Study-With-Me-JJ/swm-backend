@@ -1,5 +1,6 @@
 package com.jj.swm.global.common.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,9 @@ import java.util.function.Function;
 @AllArgsConstructor
 public class PageResponse<D> {
     private int numberOfElements;
+    @Schema(description = "무한 스크롤 기반일 때 필요 X")
     private int totalPages;
+    @Schema(description = "무한 스크롤 기반일 때 필요 X")
     private long totalElements;
     private boolean hasNext;
     private List<D> data;
