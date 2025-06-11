@@ -2,6 +2,7 @@ package com.jj.swm.domain.study.participation.dto.request;
 
 import com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus;
 import com.jj.swm.global.common.annotation.validation.EnumMatch;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -13,5 +14,6 @@ public class UpdateStudyParticipationStatusRequest {
 
     @NotNull
     @EnumMatch(excludes = "PENDING")
+    @Schema(description = "ACCEPTED, REJECTED 값만 허용", defaultValue = "ACCEPTED")
     private StudyParticipationStatus status;
 }
