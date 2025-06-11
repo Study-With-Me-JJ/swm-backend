@@ -23,7 +23,7 @@ public class StudyCommentCommandController {
 
     private final StudyCommentCommandService commentCommandService;
 
-    @PostMapping({"/v1/study/{studyId}/comment", "/v1/study/{studyId}/comment/{parentId}"})
+    @PostMapping({"/v1/study/{studyId}/comment", "/v1/study/{studyId}/comment/{commentId}"})
     @Operation(
             summary = "스터디 댓글/대댓글 생성",
             description = """
@@ -43,7 +43,7 @@ public class StudyCommentCommandController {
     public ApiResponse<CreateStudyCommentResponse> createComment(
             @Valid @RequestBody UpsertStudyCommentRequest createRequest,
             @PathVariable("studyId") Long studyId,
-            @PathVariable(value = "parentId", required = false) Long parentId,
+            @PathVariable(value = "commentId", required = false) Long parentId,
             Principal principal
     ) {
         CreateStudyCommentResponse response = commentCommandService.createComment(
