@@ -20,7 +20,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "StudyParticipation", description = "<b>[스터디 참여]</b> API")
+@Tag(name = "StudyParticipation", description = "<b>[스터디 참여 신청]</b> API")
 public class StudyParticipationCommandController {
 
     private final StudyParticipationCommandService participationCommandService;
@@ -84,6 +84,7 @@ public class StudyParticipationCommandController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "스터디 작성자 아님"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "참여 신청 없음")
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "status - ACCEPTED, REJECTED만 허용")
     public ApiResponse<UpdateStudyParticipationStatusResponse> updateStudyParticipationStatus(
             @Valid @RequestBody UpdateStudyParticipationStatusRequest request,
             @PathVariable("participationId") Long participationId,

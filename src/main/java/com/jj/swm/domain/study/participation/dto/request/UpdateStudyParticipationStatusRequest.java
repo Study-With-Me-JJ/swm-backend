@@ -14,6 +14,5 @@ public class UpdateStudyParticipationStatusRequest {
 
     @NotNull
     @EnumMatch(excludes = "PENDING")
-    @Schema(description = "ACCEPTED, REJECTED 값만 허용", defaultValue = "ACCEPTED")
     private StudyParticipationStatus status;
 }
