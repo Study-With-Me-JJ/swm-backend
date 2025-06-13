@@ -20,7 +20,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-@Tag(name = "StudyParticipation", description = "<b>[스터디 참여]</b> API")
+@Tag(name = "StudyParticipation", description = "<b>[스터디 참여 신청]</b> API")
 public class StudyParticipationCommandController {
 
     private final StudyParticipationCommandService participationCommandService;
