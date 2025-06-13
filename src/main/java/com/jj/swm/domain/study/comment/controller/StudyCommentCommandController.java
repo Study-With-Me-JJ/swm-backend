@@ -5,7 +5,10 @@ import com.jj.swm.domain.study.comment.dto.response.CreateStudyCommentResponse;
 import com.jj.swm.domain.study.comment.dto.response.UpdateStudyCommentResponse;
 import com.jj.swm.domain.study.comment.service.StudyCommentCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
+import com.jj.swm.global.config.SwaggerConfig;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -37,7 +40,9 @@ public class StudyCommentCommandController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "404", description = "스터디 or 부모 댓글 없음"
+                    responseCode = "404",
+                    description = "스터디 or 부모 댓글 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
             )
     })
     public ApiResponse<CreateStudyCommentResponse> createComment(
@@ -66,7 +71,11 @@ public class StudyCommentCommandController {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "댓글 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "댓글 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
+            )
     })
     public ApiResponse<UpdateStudyCommentResponse> updateComment(
             @Valid @RequestBody UpsertStudyCommentRequest updateRequest,
@@ -94,7 +103,11 @@ public class StudyCommentCommandController {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "삭제 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "댓글 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "댓글 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
+            )
     })
     public ApiResponse<Void> deleteComment(
             @PathVariable("commentId") Long commentId,

@@ -11,6 +11,8 @@ public class SwaggerConfig {
         io.swagger.v3.core.jackson.ModelResolver.enumsAsRef = true;
     }
 
+    public static final String ERROR_RESPONSE = "{\"data\": null, \"message\": \"specific error message\"}";
+
     @Bean
     public GroupedOpenApi v1OpenAPI() {
         return GroupedOpenApi.builder()
