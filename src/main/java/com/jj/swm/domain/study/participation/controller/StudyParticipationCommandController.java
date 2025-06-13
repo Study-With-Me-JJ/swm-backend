@@ -7,7 +7,10 @@ import com.jj.swm.domain.study.participation.dto.request.UpdateStudyParticipatio
 import com.jj.swm.domain.study.participation.dto.response.UpdateStudyParticipationStatusResponse;
 import com.jj.swm.domain.study.participation.service.StudyParticipationCommandService;
 import com.jj.swm.global.common.dto.ApiResponse;
+import com.jj.swm.global.config.SwaggerConfig;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -46,9 +49,14 @@ public class StudyParticipationCommandController {
                             이미 존재하는 참여 신청</br>
                             거절 상태의 참여 신청을 지우고 3일이 지나기 전</br>
                             모집 포지션의 모집 인원과 승인 인원이 동일
-                            """
+                            """,
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
             ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "모집 포지션 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "모집 포지션 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
+            )
     })
     public ApiResponse<Void> createStudyParticipation(
             @Valid @RequestBody CreateStudyParticipationRequest request,
@@ -79,10 +87,19 @@ public class StudyParticipationCommandController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
                     description = " 참여 신청의 상태가 이미 대기 상태가 아님</br>" +
-                            "모집 포지션의 모집 인원과 승인 인원이 동일"
+                            "모집 포지션의 모집 인원과 승인 인원이 동일",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
             ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "스터디 작성자 아님"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "참여 신청 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "403",
+                    description = "스터디 작성자 아님",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "참여 신청 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
+            )
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "status - ACCEPTED, REJECTED만 허용")
     public ApiResponse<UpdateStudyParticipationStatusResponse> updateStudyParticipationStatus(
@@ -115,12 +132,14 @@ public class StudyParticipationCommandController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "400",
                     description = "이미 승인된 참여 신청</br>" +
-                            "첨부 링크 허용 개수 초과"
+                            "첨부 링크 허용 개수 초과",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
                     description = "참여 신청 없음</br>" +
-                            "첨부 링크 없음"
+                            "첨부 링크 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
             )
     })
     public ApiResponse<Void> updateStudyParticipation(
@@ -156,12 +175,14 @@ public class StudyParticipationCommandController {
                             이미 승인된 참여 신청</br>
                             기존 모집 포지션과 새로운 모집 포지션이 속한 스터디 모집 글이 같지 않음</br>
                             모집 포지션의 모집 인원과 승인 인원이 동일
-                            """
+                            """,
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "404",
                     description = "참여 신청 없음</br>" +
-                            "모집 포지션 없음"
+                            "모집 포지션 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
             )
     })
     public ApiResponse<Void> updateStudyParticipationPosition(
@@ -190,9 +211,15 @@ public class StudyParticipationCommandController {
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "삭제 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "400", description = "이미 승인된 참여 신청"
+                    responseCode = "400",
+                    description = "이미 승인된 참여 신청",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
             ),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "참여 신청 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "참여 신청 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
+            )
     })
     public ApiResponse<Void> deleteStudyParticipation(
             @PathVariable("participationId") Long participationId, Principal principal
