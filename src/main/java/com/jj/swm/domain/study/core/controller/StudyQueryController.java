@@ -6,8 +6,11 @@ import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
 import com.jj.swm.domain.study.core.service.StudyQueryService;
 import com.jj.swm.global.common.dto.ApiResponse;
 import com.jj.swm.global.common.dto.PageResponse;
+import com.jj.swm.global.config.SwaggerConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +63,11 @@ public class StudyQueryController {
     )
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "스터디 없음")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "404",
+                    description = "스터디 없음",
+                    content = @Content(examples = @ExampleObject(value = SwaggerConfig.ERROR_RESPONSE))
+            )
     })
     public ApiResponse<GetStudyDetailsResponse> getStudyDetails(
             @PathVariable("studyId") Long studyId, Principal principal
