@@ -23,13 +23,15 @@ public class GetStudyCondition {
 
     private List<RecruitmentPositionTitle> recruitmentPositionTitles;
 
+    @Schema(description = "이 값을 기준으로 다음 스터디 목록 조회 (댓글 많은 순, 좋아요 많은 순일 때도 필요)")
     private Long lastStudyId;
 
-    @Schema(defaultValue = "NEWEST")
     private SortCriteria sortCriteria = NEWEST;
 
+    @Schema(description = "정렬 기준이 댓글 많은 순, 좋아요 많은 순일 때 이 값을 기준으로 다음 스터디 목록 조회")
     private Integer lastSortValue;
 
+    @Schema(defaultValue = "NEWEST", description = "최신순, 댓글 많은 순, 좋아요 많은 순 정렬 지원")
     public enum SortCriteria {
         LIKE, NEWEST, COMMENT
     }

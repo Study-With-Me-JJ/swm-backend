@@ -44,7 +44,7 @@ public class StudyParticipationQueryController {
             description = """
                     condition은 필수가 아니고 실질적인 요청은 쿼리 파라미터로 status=?&pageNo=?와 같습니다.</br>
                     status와 pageNo 모두 필수가 아닙니다.</br>
-                    pageNo의 경우 기본 값으로 0이 들어가집니다.
+                    내부 필드에 대한 자세한 설명은 Schemas의 GetStudyParticipationCondition을 참고하면 됩니다.
                     """
     )
     @ApiResponses({
@@ -90,7 +90,7 @@ public class StudyParticipationQueryController {
             description = """
                     condition은 필수가 아니고 실질적인 요청은 쿼리 파라미터로 status=?&pageNo=?와 같습니다.</br>
                     status와 pageNo 모두 필수가 아닙니다.</br>
-                    pageNo의 경우 기본 값으로 0이 들어가집니다.
+                    내부 필드에 대한 자세한 설명은 Schemas의 GetStudyParticipationCondition을 참고하면 됩니다.
                     """
     )
     @ApiResponses({
