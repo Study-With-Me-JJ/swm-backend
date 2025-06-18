@@ -31,6 +31,7 @@ public class StudyCommentQueryServiceIntegrationTest extends IntegrationContaine
     @Autowired
     private StudyCommentCommandService commentCommandService;
 
+    // repository
     @Autowired
     private UserRepository userRepository;
 
@@ -82,7 +83,59 @@ public class StudyCommentQueryServiceIntegrationTest extends IntegrationContaine
         assertTrue(pageResponse.isHasNext()); // StudyParentComment 페이지 사이즈 보다 1 크므로
         for (GetStudyParentCommentResponse response : pageResponse.getData()) {
             assertEquals(lastParentId--, response.getCommentId());
+            assertEquals(0, response.getReplyCount()); // 대댓글은 생성 안 했으므로
         }
+    }
+
+    @Test
+    @DisplayName("마지막 페이지 스터디 모집 댓글 목록 조회에 성공한다.")
+    void getParents_LastPage_Success() {
+        //given
+        for (int i = 0; i < PageSize.StudyParentComment - 1; i++) {
+            commentCommandService.createComment(
+                    UpsertStudyCommentRequestFixture.create(),
+                    studyId,
+                    null,
+                    user.getId()
+            );
+        }
+
+        Long lastParentId = commentCommandService.createComment(
+                UpsertStudyCommentRequestFixture.create(),
+                studyId,
+                null,
+                user.getId()
+        ).getCommentId();
+
+        //when
+        PageResponse<GetStudyParentCommentResponse> pageResponse = commentQueryService.getParents(
+                studyId, (int) ((lastParentId - 1) / PageSize.StudyParentComment)
+        );
+
+        //then
+        assertEquals(lastParentId - PageSize.StudyParentComment, pageResponse.getNumberOfElements());
+        assertEquals(lastParentId - PageSize.StudyParentComment, pageResponse.getData().getLast().getCommentId());
+        assertFalse(pageResponse.isHasNext());
+    }
+
+    @Test
+    @DisplayName("대댓글이 달려있어도 스터디 모집 댓글 목록 조회에 성공한다.")
+    void getParents_HavingReply_Success() {
+        //given
+        for (int i = 0; i < PageSize.StudyChildComment; i++) {
+            commentCommandService.createComment(
+                    UpsertStudyCommentRequestFixture.create(),
+                    studyId,
+                    parentId,
+                    user.getId()
+            );
+        }
+
+        //when
+        PageResponse<GetStudyParentCommentResponse> pageResponse = commentQueryService.getParents(studyId, 0);
+
+        //then
+        assertEquals(PageSize.StudyChildComment, pageResponse.getData().getLast().getReplyCount());
     }
 
     @Test
@@ -118,10 +171,10 @@ public class StudyCommentQueryServiceIntegrationTest extends IntegrationContaine
     }
 
     @Test
-    @DisplayName("스터디 모집 대댓글이 페이지 사이즈보다 커도 대댓글 목록 조회에 성공한다.")
-    void getChildren__Success() {
+    @DisplayName("커서 값이 지정되어도 대댓글 목록 조회에 성공한다.")
+    void getChildren_WithCursorValue_Success() {
         //given
-        for (int i = 0; i < PageSize.StudyChildComment * 2 - 1; i++) {
+        for (int i = 0; i < PageSize.StudyChildComment - 1; i++) {
             commentCommandService.createComment(
                     UpsertStudyCommentRequestFixture.create(),
                     studyId,
@@ -141,10 +194,38 @@ public class StudyCommentQueryServiceIntegrationTest extends IntegrationContaine
         PageResponse<GetStudyChildCommentResponse> pageResponse = commentQueryService.getChildren(parentId, lastChildId);
 
         //then
+        assertEquals(PageSize.StudyChildComment - 1, pageResponse.getNumberOfElements());
+        assertFalse(pageResponse.isHasNext());
+        assertEquals(lastChildId - 1, pageResponse.getData().getFirst().getReplyId()); // lastChildId의  다음 ID 값
+    }
+
+    @Test
+    @DisplayName("스터디 모집 대댓글이 페이지 사이즈보다 커도 대댓글 목록 조회에 성공한다.")
+    void getChildren_MoreThanPageSize_Success() {
+        //given
+        for (int i = 0; i < PageSize.StudyChildComment * 2 - 1; i++) {
+            commentCommandService.createComment(
+                    UpsertStudyCommentRequestFixture.create(),
+                    studyId,
+                    parentId,
+                    user.getId()
+            );
+        }
+        Long lastChildId = commentCommandService.createComment(
+                UpsertStudyCommentRequestFixture.create(),
+                studyId,
+                parentId,
+                user.getId()
+        ).getCommentId();
+
+
+        //when
+        PageResponse<GetStudyChildCommentResponse> pageResponse = commentQueryService.getChildren(parentId, null);
+
+        //then
         assertEquals(PageSize.StudyChildComment, pageResponse.getNumberOfElements());
         assertTrue(pageResponse.isHasNext()); // StudyChildComment 페이지 사이즈 보다 크므로
-        assertEquals(lastChildId - 1, pageResponse.getData().getFirst().getReplyId()); // lastChildId의  다음 ID 값
-        assertEquals(lastChildId - PageSize.StudyChildComment, pageResponse.getData().getLast().getReplyId());
+        assertEquals(lastChildId - PageSize.StudyChildComment + 1, pageResponse.getData().getLast().getReplyId());
     }
 
     @Test

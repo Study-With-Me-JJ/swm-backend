@@ -109,10 +109,10 @@ public class StudyParticipationQueryService {
     private boolean isStudyWriter(StudyParticipation participation, UUID userId) {
         boolean isStudyWriter;
 
-        if (participation.getStudy().getUser().getId().equals(userId)) {
-            isStudyWriter = true;
-        } else if (participation.getUser().getId().equals(userId)) {
+        if (participation.getUser().getId().equals(userId)) {
             isStudyWriter = false;
+        } else if (participation.getStudy().getUser().getId().equals(userId)) {
+            isStudyWriter = true;
         } else {
             throw new GlobalException(FORBIDDEN, "No Authorization");
         }
