@@ -31,6 +31,7 @@ public class StudyCommentQueryServiceIntegrationTest extends IntegrationContaine
     @Autowired
     private StudyCommentCommandService commentCommandService;
 
+    // repository
     @Autowired
     private UserRepository userRepository;
 
