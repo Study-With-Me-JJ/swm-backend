@@ -10,4 +10,6 @@ import java.util.List;
 public interface StudyParticipationTestRepository extends JpaRepository<StudyParticipation, Long> {
 
     List<StudyParticipation> findAllByRecruitmentPositionId(Long recruitmentPositionId);
+
+    List<StudyParticipation> findAllByOrderById();
 }
