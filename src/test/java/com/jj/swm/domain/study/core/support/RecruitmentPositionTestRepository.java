@@ -9,7 +9,9 @@ import java.util.Optional;
 @ActiveProfiles("test")
 public interface RecruitmentPositionTestRepository extends JpaRepository<StudyRecruitmentPosition, Long> {
 
-    long countByStudyId(Long studyId);
-
     Optional<StudyRecruitmentPosition> findFirstByStudyId(Long studyId);
+
+    Optional<StudyRecruitmentPosition> findFirstByIdNot(Long studyId);
+
+    long countByStudyId(Long studyId);
 }
