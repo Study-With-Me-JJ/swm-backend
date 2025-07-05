@@ -9,7 +9,7 @@ import java.util.Optional;
 @ActiveProfiles("test")
 public interface StudyTestRepository extends JpaRepository<Study, Long> {
 
-    Optional<Study> findFirstByOrderByCreatedAt();
+    Optional<Study> findFirstByOrderById();
 
-    Optional<Study> findFirstByOrderByCreatedAtDesc();
+    Optional<Study> findFirstByOrderByIdDesc();
 }
