@@ -4,12 +4,8 @@ import com.jj.swm.domain.study.core.entity.StudyImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.List;
-
 @ActiveProfiles("test")
 public interface StudyImageTestRepository extends JpaRepository<StudyImage, Long> {
-
-    List<StudyImage> findAllByStudyId(Long studyId);
 
     long countByStudyId(Long studyId);
 }

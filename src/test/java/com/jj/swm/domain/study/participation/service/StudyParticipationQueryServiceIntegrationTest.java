@@ -5,7 +5,6 @@ import com.jj.swm.domain.study.core.dto.response.GetStudyResponse;
 import com.jj.swm.domain.study.core.entity.Study;
 import com.jj.swm.domain.study.core.entity.StudyRecruitmentPosition;
 import com.jj.swm.domain.study.core.fixture.dto.request.CreateStudyRequestFixture;
-import com.jj.swm.domain.study.core.repository.RecruitmentPositionRepository;
 import com.jj.swm.domain.study.core.service.StudyCommandService;
 import com.jj.swm.domain.study.core.support.RecruitmentPositionTestRepository;
 import com.jj.swm.domain.study.core.support.StudyTestRepository;
@@ -85,7 +84,7 @@ public class StudyParticipationQueryServiceIntegrationTest extends IntegrationCo
         user = userRepository.save(UserFixture.create());
 
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
-        study = studyTestRepository.findFirstByOrderByCreatedAt().orElseThrow();
+        study = studyTestRepository.findFirstByOrderById().orElseThrow();
 
         recruitmentPosition = recruitmentPositionTestRepository.findFirstByStudyId(study.getId()).orElseThrow();
 
@@ -235,7 +234,7 @@ public class StudyParticipationQueryServiceIntegrationTest extends IntegrationCo
 
         for (int i = 1; i <= PageSize.Study; i++) {
             studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
-            Study newStudy = studyTestRepository.findFirstByOrderByCreatedAtDesc().orElseThrow();
+            Study newStudy = studyTestRepository.findFirstByOrderByIdDesc().orElseThrow();
 
             StudyRecruitmentPosition newRecruitmentPosition =
                     recruitmentPositionTestRepository.findFirstByStudyId(newStudy.getId()).orElseThrow();
@@ -275,10 +274,11 @@ public class StudyParticipationQueryServiceIntegrationTest extends IntegrationCo
 
         for (int i = 1; i <= PageSize.Study; i++) {
             studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
-            Study newStudy = studyTestRepository.findFirstByOrderByCreatedAtDesc().orElseThrow();
+            Study newStudy = studyTestRepository.findFirstByOrderByIdDesc().orElseThrow();
 
             StudyRecruitmentPosition newRecruitmentPosition =
                     recruitmentPositionTestRepository.findFirstByStudyId(newStudy.getId()).orElseThrow();
+
             participationCommandService.createStudyParticipation(
                     CreateStudyParticipationRequestFixture.create(),
                     newRecruitmentPosition.getId(),
@@ -297,7 +297,7 @@ public class StudyParticipationQueryServiceIntegrationTest extends IntegrationCo
 
         //then
         assertEquals(lastStudyId - (long) lastPageNo * PageSize.Study, pageResponse.getNumberOfElements());
-        assertEquals(1L, pageResponse.getData().getLast().getStudyId());
+        assertEquals(1L, pageResponse.getData().getLast().getStudyId()); // 내림차순이고 마지막 페이지의 마지막 ID 값은 1L
         assertFalse(pageResponse.isHasNext());
     }
 

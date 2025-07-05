@@ -10,6 +10,8 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.jj.swm.domain.study.core.constants.StudyConstants.TAG_LIMIT;
+import static com.jj.swm.domain.study.support.TestConstants.NON_EXISTING_ID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class EntityModificationValidatorUnitTest {
@@ -18,7 +20,7 @@ public class EntityModificationValidatorUnitTest {
 
     @BeforeEach
     void setUp() {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 1; i <= TAG_LIMIT; i++) {
             StudyTag tag = Mockito.mock(StudyTag.class);
             Mockito.when(tag.getId()).thenReturn(Long.valueOf(i));
             tags.add(tag);
@@ -42,7 +44,7 @@ public class EntityModificationValidatorUnitTest {
     void validateAllIdsPresent_WhenIdsNotPresent_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> EntityModificationValidator.validateAllIdsPresent(
-                List.of(987654321L),
+                List.of(NON_EXISTING_ID),
                 tags,
                 StudyTag::getId,
                 "test"
@@ -51,7 +53,7 @@ public class EntityModificationValidatorUnitTest {
 
     @Test
     @DisplayName("getSafeList에 null이 아닌 인자를 넘기면 그대로 반환한다.")
-    void getSafeList_Success(){
+    void getSafeList_Success() {
         //when
         List<StudyTag> safeList = EntityModificationValidator.getSafeList(tags);
 
@@ -61,7 +63,7 @@ public class EntityModificationValidatorUnitTest {
 
     @Test
     @DisplayName("getSafeList에 null인 인자를 넘기면 빈 리스트 반환한다.")
-    void getSafeList_NullList_Success(){
+    void getSafeList_NullList_Success() {
         //when
         List<StudyTag> safeList = EntityModificationValidator.getSafeList(null);
 
@@ -72,52 +74,65 @@ public class EntityModificationValidatorUnitTest {
 
     @Test
     @DisplayName("최대 사이즈 이하이면 validateSizeLimit에 성공한다.")
-    void validateSizeLimit_Success(){
+    void validateSizeLimit_Success() {
+        //given
+        int newSize = (int) (Math.random() * TAG_LIMIT + 1);
+
         //when & then
         assertDoesNotThrow(() -> EntityModificationValidator.validateSizeLimit(
-                1,
-                10,
+                newSize,
+                TAG_LIMIT,
                 "test"
         ));
     }
 
     @Test
     @DisplayName("최대 사이즈 초과이면 validateSizeLimit에 실패한다.")
-    void validateSizeLimit_WhenExceedMaxLimit_Success(){
+    void validateSizeLimit_WhenExceedMaxLimit_Success() {
+        //given
+        int minSize = 0;
+
         //when & then
         assertThrows(GlobalException.class, () -> EntityModificationValidator.validateSizeLimit(
-                11,
-                10,
+                TAG_LIMIT + 1,
+                TAG_LIMIT,
                 "test"
         ));
         assertThrows(GlobalException.class, () -> EntityModificationValidator.validateSizeLimit(
-                11,
-                1,
-                10,
+                TAG_LIMIT + 1,
+                minSize,
+                TAG_LIMIT,
                 "test"
         ));
     }
 
     @Test
     @DisplayName("최소 사이즈 이상, 최대 사이즈 이하이면 validateSizeLimit에 성공한다.")
-    void validateSizeLimit_WithMinAndMaxLimit_Success(){
+    void validateSizeLimit_WithMinAndMaxLimit_Success() {
+        //given
+        int newSize = (int) (Math.random() * TAG_LIMIT + 1);
+        int minSize = 0;
+
         //when & then
         assertDoesNotThrow(() -> EntityModificationValidator.validateSizeLimit(
-                5,
-                1,
-                10,
+                newSize,
+                minSize,
+                TAG_LIMIT,
                 "test"
         ));
     }
 
     @Test
     @DisplayName("최소 사이즈 미만이면 validateSizeLimit에 실패한다.")
-    void validateSizeLimit_WhenUnderMinLimit_Success(){
+    void validateSizeLimit_WhenUnderMinLimit_Success() {
+        //given
+        int minSize = 0;
+
         //when & then
         assertThrows(GlobalException.class, () -> EntityModificationValidator.validateSizeLimit(
-                1,
-                5,
-                10,
+                minSize - 1,
+                minSize,
+                TAG_LIMIT,
                 "test"
         ));
     }

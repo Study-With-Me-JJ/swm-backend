@@ -14,7 +14,9 @@ import com.jj.swm.domain.study.core.entity.*;
 import com.jj.swm.domain.study.core.fixture.dto.request.*;
 import com.jj.swm.domain.study.core.fixture.entity.StudyFixture;
 import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
+import com.jj.swm.domain.study.core.repository.StudyImageRepository;
 import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
+import com.jj.swm.domain.study.core.repository.StudyTagRepository;
 import com.jj.swm.domain.study.core.support.RecruitmentPositionTestRepository;
 import com.jj.swm.domain.study.core.support.StudyImageTestRepository;
 import com.jj.swm.domain.study.core.support.StudyTagTestRepository;
@@ -44,12 +46,11 @@ import java.util.concurrent.Executors;
 
 import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.ACCEPTED;
 import static com.jj.swm.domain.study.support.TestConstants.NON_EXISTING_ID;
+import static com.jj.swm.domain.study.support.TestConstants.THREAD_COUNT;
 import static com.jj.swm.domain.user.helper.UserTestHelper.insertUsersAndGetUserIds;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
-
-    private static final int THREAD_COUNT = 100;
 
     // target service
     @Autowired
@@ -67,13 +68,19 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     private UserRepository userRepository;
 
     @Autowired
-    private StudyTestRepository studyRepository;
+    private StudyTestRepository studyTestRepository;
 
     @Autowired
-    private StudyImageTestRepository studyImageRepository;
+    private StudyImageRepository studyImageRepository;
 
     @Autowired
-    private StudyTagTestRepository studyTagRepository;
+    private StudyImageTestRepository studyImageTestRepository;
+
+    @Autowired
+    private StudyTagRepository studyTagRepository;
+
+    @Autowired
+    private StudyTagTestRepository studyTagTestRepository;
 
     @Autowired
     private StudyBookmarkRepository studyBookmarkRepository;
@@ -82,20 +89,21 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     private StudyLikeRepository studyLikeRepository;
 
     @Autowired
-    private RecruitmentPositionTestRepository recruitmentPositionRepository;
+    private RecruitmentPositionTestRepository recruitmentPositionTestRepository;
 
     @Autowired
     private StudyCommentRepository commentRepository;
 
     @Autowired
-    private StudyParticipationTestRepository participationRepository;
+    private StudyParticipationTestRepository participationTestRepository;
 
     @Autowired
     private StudyParticipationLinkRepository participationLinkRepository;
 
     // entity
     private User user;
-    private Study study; // setUp 시 생성된 스터디 모집의 id값
+    private Study study;
+
     private ExecutorService executorService;
     private CountDownLatch countDownLatch;
 
@@ -104,7 +112,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         user = userRepository.save(UserFixture.create());
 
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
-        study = studyRepository.findFirstByOrderByCreatedAt().orElseThrow();
+        study = studyTestRepository.findFirstByOrderById().orElseThrow();
     }
 
     @Test
@@ -117,7 +125,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.createStudy(request, user.getId());
 
         //then
-        Optional<Study> optionalNewStudy = studyRepository.findFirstByOrderByCreatedAtDesc();
+        Optional<Study> optionalNewStudy = studyTestRepository.findFirstByOrderByIdDesc();
         assertTrue(optionalNewStudy.isPresent());
 
         Study newStudy = optionalNewStudy.get();
@@ -138,7 +146,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
         assertEquals(
                 request.getRecruitmentPositionInfos().size(),
-                recruitmentPositionRepository.countByStudyId(newStudy.getId())
+                recruitmentPositionTestRepository.countByStudyId(newStudy.getId())
         );
     }
 
@@ -149,7 +157,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         studyCommandService.createStudy(CreateStudyRequestFixture.createForNoTagsAndImagesSuccess(), user.getId());
 
         //then
-        Optional<Study> optionalNewStudy = studyRepository.findFirstByOrderByCreatedAtDesc();
+        Optional<Study> optionalNewStudy = studyTestRepository.findFirstByOrderByIdDesc();
         assertTrue(optionalNewStudy.isPresent());
     }
 
@@ -159,8 +167,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         UpdateStudyRequest request = UpdateStudyRequestFixture.create();
 
-        long oldTagSize = studyTagRepository.countByStudyId(study.getId());
-        long oldImageUrlSize = studyImageRepository.countByStudyId(study.getId());
+        long oldTagSize = studyTagTestRepository.countByStudyId(study.getId());
+        long oldImageUrlSize = studyImageTestRepository.countByStudyId(study.getId());
 
         //when
         studyCommandService.updateStudy(
@@ -170,7 +178,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //then
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(request.getTitle(), updatedStudy.getTitle());
         assertEquals(request.getContent(), updatedStudy.getContent());
         assertEquals(request.getCategory(), updatedStudy.getCategory());
@@ -179,12 +187,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         assertEquals(
                 oldTagSize + request.getModifyTagInfo().getTagsToAdd().size()
                         - request.getModifyTagInfo().getTagIdsToRemove().size(),
-                studyTagRepository.countByStudyId(updatedStudy.getId())
+                studyTagTestRepository.countByStudyId(updatedStudy.getId())
         );
         assertEquals(
                 oldImageUrlSize + request.getModifyImageInfo().getImageUrlsToAdd().size()
                         - request.getModifyImageInfo().getImageIdsToRemove().size(),
-                studyImageRepository.countByStudyId(updatedStudy.getId())
+                studyImageTestRepository.countByStudyId(updatedStudy.getId())
         );
     }
 
@@ -205,8 +213,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         UpdateStudyRequest request = UpdateStudyRequestFixture.createForNoTagAndImagesToAddSuccess();
 
-        long oldTagSize = studyTagRepository.countByStudyId(study.getId());
-        long oldImageUrlSize = studyImageRepository.countByStudyId(study.getId());
+        long oldTagSize = studyTagTestRepository.countByStudyId(study.getId());
+        long oldImageUrlSize = studyImageTestRepository.countByStudyId(study.getId());
 
         //when
         studyCommandService.updateStudy(
@@ -218,11 +226,11 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //then
         assertEquals(
                 oldTagSize - request.getModifyTagInfo().getTagIdsToRemove().size(),
-                studyTagRepository.countByStudyId(study.getId())
+                studyTagTestRepository.countByStudyId(study.getId())
         );
         assertEquals(
                 oldImageUrlSize - request.getModifyImageInfo().getImageIdsToRemove().size(),
-                studyImageRepository.countByStudyId(study.getId())
+                studyImageTestRepository.countByStudyId(study.getId())
         );
     }
 
@@ -232,8 +240,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         UpdateStudyRequest request = UpdateStudyRequestFixture.createFroNoTagAndImageIdsToRemoveSuccess();
 
-        long oldTagSize = studyTagRepository.countByStudyId(study.getId());
-        long oldImageUrlSize = studyImageRepository.countByStudyId(study.getId());
+        long oldTagSize = studyTagTestRepository.countByStudyId(study.getId());
+        long oldImageUrlSize = studyImageTestRepository.countByStudyId(study.getId());
 
         //when
         studyCommandService.updateStudy(
@@ -245,11 +253,11 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //then
         assertEquals(
                 oldTagSize + request.getModifyTagInfo().getTagsToAdd().size(),
-                studyTagRepository.countByStudyId(study.getId())
+                studyTagTestRepository.countByStudyId(study.getId())
         );
         assertEquals(
                 oldImageUrlSize + request.getModifyImageInfo().getImageUrlsToAdd().size(),
-                studyImageRepository.countByStudyId(study.getId())
+                studyImageTestRepository.countByStudyId(study.getId())
         );
     }
 
@@ -311,7 +319,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //then
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(request.getStatus(), updatedStudy.getStatus());
     }
 
@@ -373,7 +381,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         Optional<StudyLike> optionalStudyLike = studyLikeRepository.findById(likeId);
         assertTrue(optionalStudyLike.isPresent());
 
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(oldLikeCount + 1, updatedStudy.getStatistics().getLikeCount());
     }
 
@@ -394,6 +402,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         int oldLikeCount = study.getStatistics().getLikeCount();
 
         List<UUID> userIds = insertUsersAndGetUserIds(userRepository, THREAD_COUNT);
+
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
@@ -415,9 +424,9 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         executorService.shutdown();
 
         //then
-        assertEquals(THREAD_COUNT, studyLikeRepository.count());
+        assertEquals(oldLikeCount + THREAD_COUNT, studyLikeRepository.count());
 
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(oldLikeCount + THREAD_COUNT, updatedStudy.getStatistics().getLikeCount());
     }
 
@@ -427,7 +436,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         Long likeId = studyCommandService.createStudyLike(study.getId(), user.getId()).getLikeId();
 
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         int oldLikeCount = updatedStudy.getStatistics().getLikeCount();
 
         //when
@@ -437,7 +446,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         Optional<StudyLike> optionalStudyLike = studyLikeRepository.findById(likeId);
         assertFalse(optionalStudyLike.isPresent());
 
-        Study refetchedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study refetchedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(oldLikeCount - 1, refetchedStudy.getStatistics().getLikeCount());
     }
 
@@ -455,6 +464,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         int oldLikeCount = study.getStatistics().getLikeCount();
 
         List<UUID> userIds = insertUsersAndGetUserIds(userRepository, THREAD_COUNT);
+
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
@@ -487,7 +497,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //then
         assertEquals(likeIds.size() - THREAD_COUNT, studyLikeRepository.count());
 
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(oldLikeCount - THREAD_COUNT, updatedStudy.getStatistics().getLikeCount());
     }
 
@@ -496,13 +506,12 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void deleteStudies_Success() {
         //given
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
-        Study newStudy = studyRepository.findFirstByOrderByCreatedAtDesc().orElseThrow();
+        Study newStudy = studyTestRepository.findFirstByOrderByIdDesc().orElseThrow();
 
-        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findFirstByStudyId(study.getId())
+        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionTestRepository.findFirstByStudyId(study.getId())
                 .orElseThrow();
-        StudyRecruitmentPosition newRecruitmentPosition = recruitmentPositionRepository.findFirstByStudyId(
-                newStudy.getId()
-        ).orElseThrow();
+        StudyRecruitmentPosition newRecruitmentPosition =
+                recruitmentPositionTestRepository.findFirstByStudyId(newStudy.getId()).orElseThrow();
 
         studyCommandService.createStudyLike(study.getId(), user.getId());
         studyCommandService.createStudyLike(newStudy.getId(), user.getId());
@@ -555,14 +564,14 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //then
-        assertEquals(0, studyTagRepository.count());
-        assertEquals(0, studyImageRepository.count());
-        assertEquals(0, recruitmentPositionRepository.count());
+        assertEquals(0, studyTagTestRepository.count());
+        assertEquals(0, studyImageTestRepository.count());
+        assertEquals(0, recruitmentPositionTestRepository.count());
         assertEquals(0, studyLikeRepository.count());
         assertEquals(0, commentRepository.count());
         assertEquals(0, studyBookmarkRepository.count());
-        assertEquals(0, studyRepository.count());
-        assertEquals(0, participationRepository.count());
+        assertEquals(0, studyTestRepository.count());
+        assertEquals(0, participationTestRepository.count());
         assertEquals(0, participationLinkRepository.count());
     }
 
@@ -581,7 +590,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         ModifyRecruitmentPositionRequest request = ModifyRecruitmentPositionRequestFixture.create();
 
-        long oldRecruitmentPositionSize = recruitmentPositionRepository.count();
+        long oldRecruitmentPositionSize = recruitmentPositionTestRepository.count();
 
         //when
         studyCommandService.modifyRecruitmentPosition(
@@ -592,20 +601,18 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
         //then
         Optional<StudyRecruitmentPosition> optionalRecruitmentPosition =
-                recruitmentPositionRepository.findById(request.getRecruitmentPositionIdsToRemove().getFirst());
+                recruitmentPositionTestRepository.findById(request.getRecruitmentPositionIdsToRemove().getFirst());
         assertFalse(optionalRecruitmentPosition.isPresent());
 
-        UpdateRecruitmentPositionInfo firstUpdateInfo = request.getRecruitmentPositionInfosToEdit()
-                .getFirst();
+        UpdateRecruitmentPositionInfo firstUpdateInfo = request.getRecruitmentPositionInfosToEdit().getFirst();
         StudyRecruitmentPosition recruitmentPosition =
-                recruitmentPositionRepository.findById(firstUpdateInfo.getRecruitmentPositionId())
-                        .orElseThrow();
+                recruitmentPositionTestRepository.findById(firstUpdateInfo.getRecruitmentPositionId()).orElseThrow();
         assertEquals(firstUpdateInfo.getTitle(), recruitmentPosition.getTitle());
 
         assertEquals(
                 oldRecruitmentPositionSize + request.getRecruitmentPositionInfosToAdd().size()
                         - request.getRecruitmentPositionIdsToRemove().size(),
-                recruitmentPositionRepository.count()
+                recruitmentPositionTestRepository.count()
         );
     }
 
@@ -613,7 +620,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("추가, 삭제, 수정 모집 포지션 리스트가 비어도 스터디 모집 포지션 변경에 성공한다.")
     void modifyRecruitmentPosition_WhenCreateRecruitmentPositionInfosNull_Success() {
         //given
-        long oldRecruitmentPositionSize = recruitmentPositionRepository.count();
+        long oldRecruitmentPositionSize = recruitmentPositionTestRepository.count();
 
         //when
         studyCommandService.modifyRecruitmentPosition(
@@ -623,7 +630,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         );
 
         //then
-        assertEquals(oldRecruitmentPositionSize, recruitmentPositionRepository.count());
+        assertEquals(oldRecruitmentPositionSize, recruitmentPositionTestRepository.count());
     }
 
     @Test
@@ -641,10 +648,10 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("수정할 모집 포지션의 모집 인원보다 승인 수가 크면 모집 포지션 변경에 실패한다.")
     void modifyRecruitmentPosition_WhenHeadcountLessThenAcceptedCount_ThenFail() {
         //given
-        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionRepository.findFirstByStudyId(study.getId())
-                .orElseThrow();
+        StudyRecruitmentPosition recruitmentPosition =
+                recruitmentPositionTestRepository.findFirstByStudyId(study.getId()).orElseThrow();
 
-        for (int i = 0; i < CreateRecruitmentPositionInfoFixture.create().getHeadcount(); i++) {
+        for (int i = 0; i < recruitmentPosition.getHeadcount(); i++) {
             User newUser = userRepository.save(UserFixture.create());
             participationCommandService.createStudyParticipation(
                     CreateStudyParticipationRequestFixture.create(),
@@ -653,7 +660,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
             );
         }
 
-        List<StudyParticipation> participations = participationRepository.findAllByRecruitmentPositionId(
+        List<StudyParticipation> participations = participationTestRepository.findAllByRecruitmentPositionId(
                 recruitmentPosition.getId()
         );
         for (StudyParticipation participation : participations) {
@@ -678,8 +685,8 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("존재할 수 없는 스터디 모집이면 모집 포지션 변경에 실패한다.")
     void modifyRecruitmentPosition_WhenStudyNotExists_Fail() {
         //given
-        studyRepository.save(StudyFixture.createForNoRecruitmentPosition(user));
-        Study newStudy = studyRepository.findFirstByOrderByCreatedAtDesc().orElseThrow();
+        studyTestRepository.save(StudyFixture.createForNoRecruitmentPosition(user)); // DB로 바로 저장
+        Study newStudy = studyTestRepository.findFirstByOrderByIdDesc().orElseThrow();
 
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(

@@ -51,7 +51,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     private UserRepository userRepository;
 
     @Autowired
-    private RecruitmentPositionTestRepository recruitmentPositionRepository;
+    private RecruitmentPositionTestRepository recruitmentPositionTestRepository;
 
     @Autowired
     private StudyParticipationRepository participationRepository;
@@ -63,7 +63,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     private StudyParticipationLinkTestRepository participationLinkTestRepository;
 
     @Autowired
-    private StudyTestRepository studyRepository;
+    private StudyTestRepository studyTestRepository;
 
     // entity
     private User user1;
@@ -77,9 +77,9 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         user2 = userRepository.save(UserFixture.create());
 
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user1.getId());
-        Study study = studyRepository.findFirstByOrderByCreatedAt().orElseThrow();
+        Study study = studyTestRepository.findFirstByOrderById().orElseThrow();
 
-        recruitmentPosition = recruitmentPositionRepository.findFirstByStudyId(study.getId()).orElseThrow();
+        recruitmentPosition = recruitmentPositionTestRepository.findFirstByStudyId(study.getId()).orElseThrow();
 
         participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
@@ -105,17 +105,17 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         );
 
         //then
-        Optional<StudyParticipation> optionalParticipation = participationRepository.findByStudyIdAndUserId(
+        Optional<StudyParticipation> optionalNewParticipation = participationRepository.findByStudyIdAndUserId(
                 recruitmentPosition.getStudy().getId(), user2.getId()
         );
-        assertTrue(optionalParticipation.isPresent());
+        assertTrue(optionalNewParticipation.isPresent());
 
-        StudyParticipation participation = optionalParticipation.get();
-        assertEquals(request.getKakaoId(), participation.getKakaoId());
-        assertEquals(request.getCoverLetter(), participation.getCoverLetter());
-        assertEquals(request.getFileInfo().getFileName(), participation.getFileInfo().getFileName());
+        StudyParticipation newParticipation = optionalNewParticipation.get();
+        assertEquals(request.getKakaoId(), newParticipation.getKakaoId());
+        assertEquals(request.getCoverLetter(), newParticipation.getCoverLetter());
+        assertEquals(request.getFileInfo().getFileName(), newParticipation.getFileInfo().getFileName());
 
-        List<String> links = participationLinkRepository.findAllByParticipationId(participation.getId()).stream()
+        List<String> links = participationLinkRepository.findAllByParticipationId(newParticipation.getId()).stream()
                 .map(StudyParticipationLink::getLink).toList();
         assertTrue(links.containsAll(request.getLinks()));
     }
@@ -251,7 +251,8 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     @DisplayName("승인 수가 모집 인원이랑 같으면 스터디 참여 승인 상태 수정에 실패한다.")
     void updateStudyParticipationStatus_WhenAcceptedCountEqualsHeadcount_ThenFail() {
         //given
-        for (int i = 0; i < recruitmentPosition.getHeadcount(); i++) {
+        int lastIdx = recruitmentPosition.getHeadcount();
+        for (int i = 0; i < lastIdx; i++) {
             User user = userRepository.save(UserFixture.create());
             participationCommandService.createStudyParticipation(
                     CreateStudyParticipationRequestFixture.create(),
@@ -269,7 +270,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationStatus(
                 UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
-                participation.getId() + recruitmentPosition.getHeadcount(),
+                participation.getId() + lastIdx,
                 user1.getId()
         ));
     }
@@ -416,7 +417,7 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
         Optional<StudyParticipation> optionalParticipation = participationRepository.findById(participation.getId());
         assertFalse(optionalParticipation.isPresent());
 
-        assertEquals(0, participationLinkRepository.count());
+        assertEquals(0, participationLinkTestRepository.countByParticipationId(participation.getId()));
     }
 
     @Test
@@ -424,7 +425,9 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void updateStudyParticipationPosition_Success() {
         //given
         StudyRecruitmentPosition anotherRecruitmentPosition =
-                recruitmentPositionRepository.findFirstByIdNot(recruitmentPosition.getStudy().getId()).orElseThrow();
+                recruitmentPositionTestRepository.findFirstByIdNotAndStudyId(
+                        recruitmentPosition.getId(), recruitmentPosition.getStudy().getId()
+                ).orElseThrow();
 
         //when
         participationCommandService.updateStudyParticipationPosition(
@@ -443,10 +446,10 @@ public class StudyParticipationCommandServiceIntegrationTest extends Integration
     void updateStudyParticipationPosition_WhenNewRecruitmentPositionIsAnotherStudy_ThenFail() {
         //given
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user1.getId());
-        Study study = studyRepository.findFirstByOrderByCreatedAtDesc().orElseThrow();
+        Study study = studyTestRepository.findFirstByOrderByIdDesc().orElseThrow();
 
         StudyRecruitmentPosition newRecruitmentPosition =
-                recruitmentPositionRepository.findFirstByStudyId(study.getId()).orElseThrow();
+                recruitmentPositionTestRepository.findFirstByStudyId(study.getId()).orElseThrow();
 
         //when & then
         assertThrows(GlobalException.class, () -> participationCommandService.updateStudyParticipationPosition(

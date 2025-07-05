@@ -24,11 +24,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.jj.swm.domain.study.support.TestConstants.THREAD_COUNT;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StudyCommentCommandServiceIntegrationTest extends IntegrationContainerSupporter {
-
-    private static final int THREAD_COUNT = 100;
 
     // target service
     @Autowired
@@ -43,7 +42,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
     private UserRepository userRepository;
 
     @Autowired
-    private StudyTestRepository studyRepository;
+    private StudyTestRepository studyTestRepository;
 
     @Autowired
     private StudyCommentRepository commentRepository;
@@ -61,7 +60,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         user = userRepository.save(UserFixture.create());
 
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
-        Study oldStudy = studyRepository.findFirstByOrderByCreatedAt().orElseThrow();
+        Study oldStudy = studyTestRepository.findFirstByOrderById().orElseThrow();
 
         parentId = commentCommandService.createComment(
                 UpsertStudyCommentRequestFixture.create(),
@@ -70,7 +69,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
                 user.getId()
         ).getCommentId();
 
-        study = studyRepository.findById(oldStudy.getId()).orElseThrow();
+        study = studyTestRepository.findById(oldStudy.getId()).orElseThrow(); // 댓글 수 업데이트
     }
 
     @Test
@@ -90,14 +89,12 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         ).getCommentId();
 
         //then
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(oldCommentCount + 1, updatedStudy.getStatistics().getCommentCount());
 
         Optional<StudyComment> optionalComment = commentRepository.findById(newParentId);
         assertTrue(optionalComment.isPresent());
-
-        StudyComment comment = optionalComment.get();
-        assertEquals(createRequest.getContent(), comment.getContent());
+        assertEquals(createRequest.getContent(), optionalComment.get().getContent());
     }
 
     @Test
@@ -115,7 +112,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         ).getCommentId();
 
         //then
-        Study reloadedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study reloadedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(oldCommentCount, reloadedStudy.getStatistics().getCommentCount());
 
         StudyComment child = commentRepository.findById(childId).orElseThrow();
@@ -126,25 +123,24 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
     @DisplayName("스터디 모집 대댓글 id에 대해 대댓글을 생성해도 성공한다.")
     void createComment_WhenChildWithChildId_Success() {
         //given
-        UpsertStudyCommentRequest createRequest = UpsertStudyCommentRequestFixture.create();
         Long childId = commentCommandService.createComment(
-                createRequest,
+                UpsertStudyCommentRequestFixture.create(),
                 study.getId(),
                 parentId,
                 user.getId()
         ).getCommentId();
 
         //when
-        Long newChildId = commentCommandService.createComment(
-                createRequest,
+        Long anotherChildId = commentCommandService.createComment(
+                UpsertStudyCommentRequestFixture.create(),
                 study.getId(),
                 childId,
                 user.getId()
         ).getCommentId();
 
         //then
-        StudyComment newChild = commentRepository.findById(newChildId).orElseThrow();
-        assertEquals(parentId, newChild.getParent().getId());
+        StudyComment anotherChild = commentRepository.findById(anotherChildId).orElseThrow();
+        assertEquals(parentId, anotherChild.getParent().getId());
     }
 
     @Test
@@ -152,7 +148,6 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
     void createComment_Concurrency_Success() throws InterruptedException {
         //given
         int oldCommentCount = study.getStatistics().getCommentCount();
-        System.out.println(parentId);
 
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
@@ -179,7 +174,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         executorService.shutdown();
 
         //then
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(oldCommentCount + THREAD_COUNT, updatedStudy.getStatistics().getCommentCount());
     }
 
@@ -220,7 +215,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         commentCommandService.deleteComment(parentId, user.getId());
 
         //then
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(oldCommentCount - 1, updatedStudy.getStatistics().getCommentCount());
 
         assertFalse(commentRepository.findById(parentId).isPresent());
@@ -266,10 +261,10 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
 
         //when
         for (int i = 0; i < THREAD_COUNT; i++) {
-            Long commentId = parentIds.get(i);
+            Long parentId = parentIds.get(i);
             executorService.submit(() -> {
                 try {
-                    commentCommandService.deleteComment(commentId, user.getId());
+                    commentCommandService.deleteComment(parentId, user.getId());
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -282,7 +277,7 @@ public class StudyCommentCommandServiceIntegrationTest extends IntegrationContai
         executorService.shutdown();
 
         //then
-        Study updatedStudy = studyRepository.findById(study.getId()).orElseThrow();
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
         assertEquals(parentIds.size() - THREAD_COUNT, updatedStudy.getStatistics().getCommentCount());
     }
 }

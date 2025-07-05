@@ -11,7 +11,7 @@ public interface RecruitmentPositionTestRepository extends JpaRepository<StudyRe
 
     Optional<StudyRecruitmentPosition> findFirstByStudyId(Long studyId);
 
-    Optional<StudyRecruitmentPosition> findFirstByIdNot(Long studyId);
+    Optional<StudyRecruitmentPosition> findFirstByIdNotAndStudyId(Long id, Long studyId);
 
     long countByStudyId(Long studyId);
 }
