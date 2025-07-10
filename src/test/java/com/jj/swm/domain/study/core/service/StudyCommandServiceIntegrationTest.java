@@ -13,15 +13,20 @@ import com.jj.swm.domain.study.core.dto.request.UpdateStudyStatusRequest;
 import com.jj.swm.domain.study.core.entity.*;
 import com.jj.swm.domain.study.core.fixture.dto.request.*;
 import com.jj.swm.domain.study.core.fixture.entity.StudyFixture;
-import com.jj.swm.domain.study.core.repository.*;
+import com.jj.swm.domain.study.core.repository.StudyBookmarkRepository;
+import com.jj.swm.domain.study.core.repository.StudyImageRepository;
+import com.jj.swm.domain.study.core.repository.StudyLikeRepository;
+import com.jj.swm.domain.study.core.repository.StudyTagRepository;
 import com.jj.swm.domain.study.core.support.RecruitmentPositionTestRepository;
 import com.jj.swm.domain.study.core.support.StudyImageTestRepository;
 import com.jj.swm.domain.study.core.support.StudyTagTestRepository;
+import com.jj.swm.domain.study.core.support.StudyTestRepository;
+import com.jj.swm.domain.study.participation.entity.StudyParticipation;
 import com.jj.swm.domain.study.participation.fixture.dto.request.CreateStudyParticipationRequestFixture;
 import com.jj.swm.domain.study.participation.fixture.dto.request.UpdateStudyParticipationStatusRequestFixture;
 import com.jj.swm.domain.study.participation.repository.StudyParticipationLinkRepository;
-import com.jj.swm.domain.study.participation.repository.StudyParticipationRepository;
 import com.jj.swm.domain.study.participation.service.StudyParticipationCommandService;
+import com.jj.swm.domain.study.participation.support.StudyParticipationTestRepository;
 import com.jj.swm.domain.user.core.entity.User;
 import com.jj.swm.domain.user.core.fixture.UserFixture;
 import com.jj.swm.domain.user.core.repository.UserRepository;
@@ -40,12 +45,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.jj.swm.domain.study.participation.entity.StudyParticipation.StudyParticipationStatus.ACCEPTED;
+import static com.jj.swm.domain.study.support.TestConstants.NON_EXISTING_ID;
+import static com.jj.swm.domain.study.support.TestConstants.THREAD_COUNT;
 import static com.jj.swm.domain.user.helper.UserTestHelper.insertUsersAndGetUserIds;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
-
-    private static final int THREAD_COUNT = 100;
 
     // target service
     @Autowired
@@ -63,7 +68,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     private UserRepository userRepository;
 
     @Autowired
-    private StudyRepository studyRepository;
+    private StudyTestRepository studyTestRepository;
 
     @Autowired
     private StudyImageRepository studyImageRepository;
@@ -84,23 +89,21 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     private StudyLikeRepository studyLikeRepository;
 
     @Autowired
-    private RecruitmentPositionRepository recruitmentPositionRepository;
-
-    @Autowired
     private RecruitmentPositionTestRepository recruitmentPositionTestRepository;
 
     @Autowired
     private StudyCommentRepository commentRepository;
 
     @Autowired
-    private StudyParticipationRepository participationRepository;
+    private StudyParticipationTestRepository participationTestRepository;
 
     @Autowired
     private StudyParticipationLinkRepository participationLinkRepository;
 
     // entity
     private User user;
-    private final Long studyId = 1L; // setUp 시 생성된 스터디 모집의 id값
+    private Study study;
+
     private ExecutorService executorService;
     private CountDownLatch countDownLatch;
 
@@ -109,6 +112,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         user = userRepository.save(UserFixture.create());
 
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
+        study = studyTestRepository.findFirstByOrderById().orElseThrow();
     }
 
     @Test
@@ -119,31 +123,30 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
 
         //when
         studyCommandService.createStudy(request, user.getId());
-        Long newStudyId = 2L; // setUp에서 1L 생성되고 이 메소드에서 하나 더 생성하므로 id 값은 2L
 
         //then
-        Optional<Study> optionalStudy = studyRepository.findById(newStudyId);
-        assertTrue(optionalStudy.isPresent());
+        Optional<Study> optionalNewStudy = studyTestRepository.findFirstByOrderByIdDesc();
+        assertTrue(optionalNewStudy.isPresent());
 
-        Study study = optionalStudy.get();
-        assertEquals(request.getTitle(), study.getTitle());
-        assertEquals(request.getCategory(), study.getCategory());
-        assertEquals(request.getOpenChatUrl(), study.getOpenChatUrl());
-        assertEquals(request.getCategory(), study.getCategory());
+        Study newStudy = optionalNewStudy.get();
+        assertEquals(request.getTitle(), newStudy.getTitle());
+        assertEquals(request.getCategory(), newStudy.getCategory());
+        assertEquals(request.getOpenChatUrl(), newStudy.getOpenChatUrl());
+        assertEquals(request.getCategory(), newStudy.getCategory());
 
-        List<String> tagNames = studyTagRepository.findAllByStudyId(newStudyId).stream()
+        List<String> tagNames = studyTagRepository.findAllByStudyId(newStudy.getId()).stream()
                 .map(StudyTag::getName)
                 .toList();
         assertTrue(tagNames.containsAll(request.getTags()));
 
-        List<String> imageUrls = studyImageRepository.findAllByStudyId(newStudyId).stream()
+        List<String> imageUrls = studyImageRepository.findAllByStudyId(newStudy.getId()).stream()
                 .map(StudyImage::getImageUrl)
                 .toList();
         assertTrue(imageUrls.containsAll(request.getImageUrls()));
 
         assertEquals(
                 request.getRecruitmentPositionInfos().size(),
-                recruitmentPositionTestRepository.countByStudyId(newStudyId)
+                recruitmentPositionTestRepository.countByStudyId(newStudy.getId())
         );
     }
 
@@ -152,11 +155,10 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void createStudy_WithoutTagAndImages_Success() {
         //when
         studyCommandService.createStudy(CreateStudyRequestFixture.createForNoTagsAndImagesSuccess(), user.getId());
-        Long newStudyId = 2L;
 
         //then
-        Optional<Study> optionalStudy = studyRepository.findById(newStudyId);
-        assertTrue(optionalStudy.isPresent());
+        Optional<Study> optionalNewStudy = studyTestRepository.findFirstByOrderByIdDesc();
+        assertTrue(optionalNewStudy.isPresent());
     }
 
     @Test
@@ -165,22 +167,33 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         UpdateStudyRequest request = UpdateStudyRequestFixture.create();
 
+        long oldTagSize = studyTagTestRepository.countByStudyId(study.getId());
+        long oldImageUrlSize = studyImageTestRepository.countByStudyId(study.getId());
+
         //when
         studyCommandService.updateStudy(
                 request,
-                studyId,
+                study.getId(),
                 user.getId()
         );
 
         //then
-        Study study = studyRepository.findById(studyId).orElseThrow();
-        assertEquals(request.getTitle(), study.getTitle());
-        assertEquals(request.getContent(), study.getContent());
-        assertEquals(request.getCategory(), study.getCategory());
-        assertEquals(request.getOpenChatUrl(), study.getOpenChatUrl());
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
+        assertEquals(request.getTitle(), updatedStudy.getTitle());
+        assertEquals(request.getContent(), updatedStudy.getContent());
+        assertEquals(request.getCategory(), updatedStudy.getCategory());
+        assertEquals(request.getOpenChatUrl(), updatedStudy.getOpenChatUrl());
 
-        assertEquals(3L, studyTagTestRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거하고 2개 추가
-        assertEquals(3L, studyImageTestRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거하고 2개 추가
+        assertEquals(
+                oldTagSize + request.getModifyTagInfo().getTagsToAdd().size()
+                        - request.getModifyTagInfo().getTagIdsToRemove().size(),
+                studyTagTestRepository.countByStudyId(updatedStudy.getId())
+        );
+        assertEquals(
+                oldImageUrlSize + request.getModifyImageInfo().getImageUrlsToAdd().size()
+                        - request.getModifyImageInfo().getImageIdsToRemove().size(),
+                studyImageTestRepository.countByStudyId(updatedStudy.getId())
+        );
     }
 
     @Test
@@ -189,7 +202,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertDoesNotThrow(() -> studyCommandService.updateStudy(
                 UpdateStudyRequestFixture.createForNoModifyTagAndImageInfoSuccess(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -197,31 +210,55 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @Test
     @DisplayName("Tags&ImagesToAdd가 없어도 스터디 모집 수정에 성공한다.")
     void updateStudy_WithoutTagAndImagesToAdd_Success() {
+        //given
+        UpdateStudyRequest request = UpdateStudyRequestFixture.createForNoTagAndImagesToAddSuccess();
+
+        long oldTagSize = studyTagTestRepository.countByStudyId(study.getId());
+        long oldImageUrlSize = studyImageTestRepository.countByStudyId(study.getId());
+
         //when
         studyCommandService.updateStudy(
-                UpdateStudyRequestFixture.createForNoTagAndImagesToAddSuccess(),
-                studyId,
+                request,
+                study.getId(),
                 user.getId()
         );
 
         //then
-        assertEquals(1L, studyTagTestRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거
-        assertEquals(1L, studyImageTestRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 1개 제거
+        assertEquals(
+                oldTagSize - request.getModifyTagInfo().getTagIdsToRemove().size(),
+                studyTagTestRepository.countByStudyId(study.getId())
+        );
+        assertEquals(
+                oldImageUrlSize - request.getModifyImageInfo().getImageIdsToRemove().size(),
+                studyImageTestRepository.countByStudyId(study.getId())
+        );
     }
 
     @Test
     @DisplayName("Tag&ImageIdsToRemove가 없어도 스터디 모집 수정에 성공한다.")
     void updateStudy_WithoutTagAndImageIdsToRemove_Success() {
+        //given
+        UpdateStudyRequest request = UpdateStudyRequestFixture.createFroNoTagAndImageIdsToRemoveSuccess();
+
+        long oldTagSize = studyTagTestRepository.countByStudyId(study.getId());
+        long oldImageUrlSize = studyImageTestRepository.countByStudyId(study.getId());
+
         //when
         studyCommandService.updateStudy(
-                UpdateStudyRequestFixture.createFroNoTagAndImageIdsToRemoveSuccess(),
-                studyId,
+                request,
+                study.getId(),
                 user.getId()
         );
 
         //then
-        assertEquals(4L, studyTagTestRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 2개 추가
-        assertEquals(4L, studyImageTestRepository.countByStudyId(studyId)); // 기존 데이터 2개에서 2개 추가
+        assertEquals(
+                oldTagSize + request.getModifyTagInfo().getTagsToAdd().size(),
+                studyTagTestRepository.countByStudyId(study.getId())
+        );
+        assertEquals(
+                oldImageUrlSize + request.getModifyImageInfo().getImageUrlsToAdd().size(),
+                studyImageTestRepository.countByStudyId(study.getId())
+        );
     }
 
     @Test
@@ -230,7 +267,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 UpdateStudyRequestFixture.createForWrongTagIdToRemove(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -241,7 +278,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 UpdateStudyRequestFixture.createForExceedTagLimitFail(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -252,7 +289,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 UpdateStudyRequestFixture.createForWrongImageIdToRemove(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -263,7 +300,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.updateStudy(
                 UpdateStudyRequestFixture.createForExceedImageLimitFail(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -277,20 +314,20 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when
         studyCommandService.updateStudyStatus(
                 request,
-                studyId,
+                study.getId(),
                 user.getId()
         );
 
         //then
-        Study study = studyRepository.findById(studyId).orElseThrow();
-        assertEquals(request.getStatus(), study.getStatus());
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
+        assertEquals(request.getStatus(), updatedStudy.getStatus());
     }
 
     @Test
     @DisplayName("스터디 모집 북마크 생성에 성공한다.")
     void createStudyBookmark_Success() {
         //when
-        Long bookmarkId = studyCommandService.createStudyBookmark(studyId, user.getId())
+        Long bookmarkId = studyCommandService.createStudyBookmark(study.getId(), user.getId())
                 .getBookmarkId();
 
         //then
@@ -302,17 +339,17 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("다시 북마크 생성하면 실패한다.")
     void createStudyBookmark_WhenAlreadyExists_ThenFail() {
         //given
-        studyCommandService.createStudyBookmark(studyId, user.getId());
+        studyCommandService.createStudyBookmark(study.getId(), user.getId());
 
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.createStudyBookmark(studyId, user.getId()));
+        assertThrows(GlobalException.class, () -> studyCommandService.createStudyBookmark(study.getId(), user.getId()));
     }
 
     @Test
     @DisplayName("스터디 모집 북마크 삭제에 성공한다.")
     void deleteStudyBookmark_Success() {
         //given
-        Long bookmarkId = studyCommandService.createStudyBookmark(studyId, user.getId())
+        Long bookmarkId = studyCommandService.createStudyBookmark(study.getId(), user.getId())
                 .getBookmarkId();
 
         //when
@@ -327,39 +364,45 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("존재하지 않는 스터디 모집 북마크에 대해 삭제하면 실패한다.")
     void deleteStudyBookmark_WhenNonExists_ThenFail() {
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.deleteStudyBookmark(123456789L, user.getId()));
+        assertThrows(GlobalException.class, () -> studyCommandService.deleteStudyBookmark(NON_EXISTING_ID, user.getId()));
     }
 
     @Test
     @DisplayName("스터디 모집 좋아요 생성에 성공한다.")
     void createStudyLike_Success() {
+        //given
+        int oldLikeCount = study.getStatistics().getLikeCount();
+
         //when
-        Long likeId = studyCommandService.createStudyLike(studyId, user.getId())
+        Long likeId = studyCommandService.createStudyLike(study.getId(), user.getId())
                 .getLikeId();
 
         //then
         Optional<StudyLike> optionalStudyLike = studyLikeRepository.findById(likeId);
         assertTrue(optionalStudyLike.isPresent());
 
-        Study study = studyRepository.findById(studyId).orElseThrow();
-        assertEquals(1, study.getStatistics().getLikeCount());
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
+        assertEquals(oldLikeCount + 1, updatedStudy.getStatistics().getLikeCount());
     }
 
     @Test
     @DisplayName("다시 좋아요 생성하면 실패한다.")
     void createStudyLike_WhenAlreadyExists_ThenFail() {
         //given
-        studyCommandService.createStudyLike(studyId, user.getId());
+        studyCommandService.createStudyLike(study.getId(), user.getId());
 
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.createStudyLike(studyId, user.getId()));
+        assertThrows(GlobalException.class, () -> studyCommandService.createStudyLike(study.getId(), user.getId()));
     }
 
     @Test
     @DisplayName("스터디 모집 좋아요 동시성 제어에 성공한다.")
     void createStudyLike_Concurrency_Success() throws InterruptedException {
         //given
+        int oldLikeCount = study.getStatistics().getLikeCount();
+
         List<UUID> userIds = insertUsersAndGetUserIds(userRepository, THREAD_COUNT);
+
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
@@ -368,7 +411,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
             UUID userId = userIds.get(i);
             executorService.submit(() -> {
                 try {
-                    studyCommandService.createStudyLike(studyId, userId);
+                    studyCommandService.createStudyLike(study.getId(), userId);
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -381,17 +424,20 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         executorService.shutdown();
 
         //then
-        assertEquals(THREAD_COUNT, studyLikeRepository.count());
+        assertEquals(oldLikeCount + THREAD_COUNT, studyLikeRepository.count());
 
-        Study study = studyRepository.findById(studyId).orElseThrow();
-        assertEquals(THREAD_COUNT, study.getStatistics().getLikeCount());
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
+        assertEquals(oldLikeCount + THREAD_COUNT, updatedStudy.getStatistics().getLikeCount());
     }
 
     @Test
     @DisplayName("스터디 모집 좋아요 삭제에 성공한다.")
     void deleteStudyLike_Success() {
         //given
-        Long likeId = studyCommandService.createStudyLike(studyId, user.getId()).getLikeId();
+        Long likeId = studyCommandService.createStudyLike(study.getId(), user.getId()).getLikeId();
+
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
+        int oldLikeCount = updatedStudy.getStatistics().getLikeCount();
 
         //when
         studyCommandService.deleteStudyLike(likeId, user.getId());
@@ -400,30 +446,34 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         Optional<StudyLike> optionalStudyLike = studyLikeRepository.findById(likeId);
         assertFalse(optionalStudyLike.isPresent());
 
-        Study study = studyRepository.findById(studyId).orElseThrow();
-        assertEquals(0, study.getStatistics().getLikeCount());
+        Study refetchedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
+        assertEquals(oldLikeCount - 1, refetchedStudy.getStatistics().getLikeCount());
     }
 
     @Test
     @DisplayName("존재하지 않는 스터디 모집 좋아요에 대해 삭제하면 실패한다.")
     void deleteStudyLike_WhenNonExists_ThenFail() {
         //when & then
-        assertThrows(GlobalException.class, () -> studyCommandService.deleteStudyLike(123456789L, user.getId()));
+        assertThrows(GlobalException.class, () -> studyCommandService.deleteStudyLike(NON_EXISTING_ID, user.getId()));
     }
 
     @Test
     @DisplayName("스터디 모집 좋아요 취소 동시성 제어에 성공한다.")
     void deleteStudyLike_Concurrency_Success() throws InterruptedException {
         //given
+        int oldLikeCount = study.getStatistics().getLikeCount();
+
         List<UUID> userIds = insertUsersAndGetUserIds(userRepository, THREAD_COUNT);
+
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         countDownLatch = new CountDownLatch(THREAD_COUNT);
 
         List<Long> likeIds = new ArrayList<>();
 
         for (UUID userId : userIds) {
-            Long likeId = studyCommandService.createStudyLike(studyId, userId).getLikeId();
+            Long likeId = studyCommandService.createStudyLike(study.getId(), userId).getLikeId();
             likeIds.add(likeId);
+            oldLikeCount++;
         }
 
         //when
@@ -445,10 +495,10 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         executorService.shutdown();
 
         //then
-        assertEquals(0, studyLikeRepository.count());
+        assertEquals(likeIds.size() - THREAD_COUNT, studyLikeRepository.count());
 
-        Study study = studyRepository.findById(studyId).orElseThrow();
-        assertEquals(0, study.getStatistics().getLikeCount());
+        Study updatedStudy = studyTestRepository.findById(study.getId()).orElseThrow();
+        assertEquals(oldLikeCount - THREAD_COUNT, updatedStudy.getStatistics().getLikeCount());
     }
 
     @Test
@@ -456,67 +506,72 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void deleteStudies_Success() {
         //given
         studyCommandService.createStudy(CreateStudyRequestFixture.create(), user.getId());
-        Long newStudyId = 2L;
+        Study newStudy = studyTestRepository.findFirstByOrderByIdDesc().orElseThrow();
 
-        studyCommandService.createStudyLike(studyId, user.getId());
-        studyCommandService.createStudyLike(newStudyId, user.getId());
+        StudyRecruitmentPosition recruitmentPosition = recruitmentPositionTestRepository.findFirstByStudyId(study.getId())
+                .orElseThrow();
+        StudyRecruitmentPosition newRecruitmentPosition =
+                recruitmentPositionTestRepository.findFirstByStudyId(newStudy.getId()).orElseThrow();
 
-        studyCommandService.createStudyBookmark(studyId, user.getId());
-        studyCommandService.createStudyBookmark(newStudyId, user.getId());
+        studyCommandService.createStudyLike(study.getId(), user.getId());
+        studyCommandService.createStudyLike(newStudy.getId(), user.getId());
+
+        studyCommandService.createStudyBookmark(study.getId(), user.getId());
+        studyCommandService.createStudyBookmark(newStudy.getId(), user.getId());
 
         UpsertStudyCommentRequest createRequest = UpsertStudyCommentRequestFixture.create();
         Long parentId1 = commentCommandService.createComment(
                 createRequest,
-                studyId,
+                study.getId(),
                 null,
                 user.getId()
         ).getCommentId();
         commentCommandService.createComment(
                 createRequest,
-                studyId,
+                study.getId(),
                 parentId1,
                 user.getId()
         );
 
         Long parentId2 = commentCommandService.createComment(
                 createRequest,
-                newStudyId,
+                newStudy.getId(),
                 null,
                 user.getId()
         ).getCommentId();
         commentCommandService.createComment(
                 createRequest,
-                newStudyId,
+                newStudy.getId(),
                 parentId2,
                 user.getId()
         );
 
         participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
-                1L, // setUp 시 생성된 4개의 모집 포지션 중 하나의 id 값
+                recruitmentPosition.getId(),
                 user.getId()
         );
 
         participationCommandService.createStudyParticipation(
                 CreateStudyParticipationRequestFixture.create(),
-                5L, // 새로 생성된 모집 포지션 ID는 5부터 시작,
+                newRecruitmentPosition.getId(),
                 user.getId()
         );
 
         //when
         studyCommandService.deleteStudies(
-                DeleteStudyRequestFixture.create(List.of(studyId, newStudyId)), user.getId()
+                DeleteStudyRequestFixture.create(List.of(study.getId(), newStudy.getId())), user.getId()
         );
 
         //then
-        assertEquals(0, studyTagRepository.count());
-        assertEquals(0, studyImageRepository.count());
-        assertEquals(0, recruitmentPositionRepository.count());
+        assertEquals(0, studyTagTestRepository.count());
+        assertEquals(0, studyImageTestRepository.count());
+        assertEquals(0, recruitmentPositionTestRepository.count());
         assertEquals(0, studyLikeRepository.count());
         assertEquals(0, commentRepository.count());
         assertEquals(0, studyBookmarkRepository.count());
-        assertEquals(0, studyRepository.count());
-        assertEquals(0, participationRepository.count());
+        assertEquals(0, studyTestRepository.count());
+        assertEquals(0, participationTestRepository.count());
         assertEquals(0, participationLinkRepository.count());
     }
 
@@ -525,7 +580,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     void deleteStudies_WhenNotExist_ThenFail() {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.deleteStudies(
-                DeleteStudyRequestFixture.create(List.of(studyId, 123456789L)), user.getId()
+                DeleteStudyRequestFixture.create(List.of(study.getId(), NON_EXISTING_ID)), user.getId()
         ));
     }
 
@@ -535,40 +590,47 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //given
         ModifyRecruitmentPositionRequest request = ModifyRecruitmentPositionRequestFixture.create();
 
+        long oldRecruitmentPositionSize = recruitmentPositionTestRepository.count();
+
         //when
         studyCommandService.modifyRecruitmentPosition(
                 request,
-                studyId,
+                study.getId(),
                 user.getId()
         );
 
         //then
         Optional<StudyRecruitmentPosition> optionalRecruitmentPosition =
-                recruitmentPositionRepository.findById(request.getRecruitmentPositionIdsToRemove().getFirst());
+                recruitmentPositionTestRepository.findById(request.getRecruitmentPositionIdsToRemove().getFirst());
         assertFalse(optionalRecruitmentPosition.isPresent());
 
-        UpdateRecruitmentPositionInfo firstUpdateInfo = request.getRecruitmentPositionInfosToEdit()
-                .getFirst();
+        UpdateRecruitmentPositionInfo firstUpdateInfo = request.getRecruitmentPositionInfosToEdit().getFirst();
         StudyRecruitmentPosition recruitmentPosition =
-                recruitmentPositionRepository.findById(firstUpdateInfo.getRecruitmentPositionId())
-                        .orElseThrow();
+                recruitmentPositionTestRepository.findById(firstUpdateInfo.getRecruitmentPositionId()).orElseThrow();
         assertEquals(firstUpdateInfo.getTitle(), recruitmentPosition.getTitle());
 
-        assertEquals(4, recruitmentPositionRepository.count()); // 4개에서 2개 제거하고 2개 추가
+        assertEquals(
+                oldRecruitmentPositionSize + request.getRecruitmentPositionInfosToAdd().size()
+                        - request.getRecruitmentPositionIdsToRemove().size(),
+                recruitmentPositionTestRepository.count()
+        );
     }
 
     @Test
     @DisplayName("추가, 삭제, 수정 모집 포지션 리스트가 비어도 스터디 모집 포지션 변경에 성공한다.")
     void modifyRecruitmentPosition_WhenCreateRecruitmentPositionInfosNull_Success() {
+        //given
+        long oldRecruitmentPositionSize = recruitmentPositionTestRepository.count();
+
         //when
         studyCommandService.modifyRecruitmentPosition(
                 ModifyRecruitmentPositionRequestFixture.createForModifyRecruitmentPositionRequestEmptySuccess(),
-                studyId,
+                study.getId(),
                 user.getId()
         );
 
         //then
-        assertEquals(4, recruitmentPositionRepository.count()); // 4개 그대로
+        assertEquals(oldRecruitmentPositionSize, recruitmentPositionTestRepository.count());
     }
 
     @Test
@@ -577,7 +639,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
                 ModifyRecruitmentPositionRequestFixture.createForNotEqualsUpdateSizeFail(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -586,29 +648,35 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("수정할 모집 포지션의 모집 인원보다 승인 수가 크면 모집 포지션 변경에 실패한다.")
     void modifyRecruitmentPosition_WhenHeadcountLessThenAcceptedCount_ThenFail() {
         //given
-        Long updatePositionId = 3L;
+        StudyRecruitmentPosition recruitmentPosition =
+                recruitmentPositionTestRepository.findFirstByStudyId(study.getId()).orElseThrow();
 
-        for (int i = 1; i <= 2; i++) { // headcount가 3이므로
+        for (int i = 0; i < recruitmentPosition.getHeadcount(); i++) {
             User newUser = userRepository.save(UserFixture.create());
             participationCommandService.createStudyParticipation(
                     CreateStudyParticipationRequestFixture.create(),
-                    updatePositionId,
+                    recruitmentPosition.getId(),
                     newUser.getId()
             );
+        }
 
-            Long newParticipationId = (long) i;
-
+        List<StudyParticipation> participations = participationTestRepository.findAllByRecruitmentPositionId(
+                recruitmentPosition.getId()
+        );
+        for (StudyParticipation participation : participations) {
             participationCommandService.updateStudyParticipationStatus(
                     UpdateStudyParticipationStatusRequestFixture.create(ACCEPTED),
-                    newParticipationId,
+                    participation.getId(),
                     user.getId()
             );
         }
 
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
-                ModifyRecruitmentPositionRequestFixture.createForHeadcountLessThenAcceptedCountFail(updatePositionId),
-                studyId,
+                ModifyRecruitmentPositionRequestFixture.createForHeadcountLessThenAcceptedCountFail(
+                        recruitmentPosition.getId()
+                ),
+                study.getId(),
                 user.getId()
         ));
     }
@@ -617,13 +685,13 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
     @DisplayName("존재할 수 없는 스터디 모집이면 모집 포지션 변경에 실패한다.")
     void modifyRecruitmentPosition_WhenStudyNotExists_Fail() {
         //given
-        studyRepository.save(StudyFixture.createForNoRecruitmentPosition(user));
-        Long newStudyId = 2L;
+        studyTestRepository.save(StudyFixture.createForNoRecruitmentPosition(user)); // DB로 바로 저장
+        Study newStudy = studyTestRepository.findFirstByOrderByIdDesc().orElseThrow();
 
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
                 ModifyRecruitmentPositionRequestFixture.create(),
-                newStudyId,
+                newStudy.getId(),
                 user.getId()
         ));
     }
@@ -634,7 +702,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
                 ModifyRecruitmentPositionRequestFixture.createForNotEqualsDeleteSizeFail(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -645,7 +713,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
                 ModifyRecruitmentPositionRequestFixture.createForExceedSizeFail(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -656,7 +724,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
                 ModifyRecruitmentPositionRequestFixture.createForUnderSizeFail(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
@@ -667,7 +735,7 @@ class StudyCommandServiceIntegrationTest extends IntegrationContainerSupporter {
         //when & then
         assertThrows(GlobalException.class, () -> studyCommandService.modifyRecruitmentPosition(
                 ModifyRecruitmentPositionRequestFixture.createForEditOverlapRemoveFail(),
-                studyId,
+                study.getId(),
                 user.getId()
         ));
     }
